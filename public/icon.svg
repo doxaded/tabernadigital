@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#3a2212" />
+      <stop offset="70%" stop-color="#1e1108" />
+      <stop offset="100%" stop-color="#120904" />
+    </radialGradient>
+    <linearGradient id="goldRim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fcd34d" />
+      <stop offset="40%" stop-color="#b45309" />
+      <stop offset="70%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#78350f" />
+    </linearGradient>
+    <filter id="torchGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="512" height="512" rx="100" fill="url(#bgGlow)"/>
+
+  <!-- Ornate Outer Shield Border -->
+  <circle cx="256" cy="256" r="215" fill="none" stroke="url(#goldRim)" stroke-width="12" filter="url(#torchGlow)" />
+  <circle cx="256" cy="256" r="195" fill="#1b1008" stroke="#452a16" stroke-width="4" stroke-dasharray="8 6" />
+
+  <!-- Crossed Swords (Backdrop) -->
+  <g stroke="#d97706" stroke-width="6" stroke-linecap="round" opacity="0.85">
+    <line x1="140" y1="140" x2="372" y2="372" />
+    <line x1="372" y1="140" x2="140" y2="372" />
+    <!-- Sword Hilts -->
+    <circle cx="130" cy="130" r="12" fill="#b45309" />
+    <line x1="120" y1="145" x2="145" y2="120" stroke-width="8" />
+    <circle cx="382" cy="130" r="12" fill="#b45309" />
+    <line x1="392" y1="145" x2="367" y2="120" stroke-width="8" />
+  </g>
+
+  <!-- Medieval Tavern Tankard / Mug of Ale -->
+  <g transform="translate(160, 160)" filter="url(#torchGlow)">
+    <!-- Mug Body -->
+    <path d="M 40 40 L 48 160 Q 48 175 65 175 L 135 175 Q 152 175 152 160 L 160 40 Z" fill="#78350f" stroke="url(#goldRim)" stroke-width="8" />
+    <!-- Wood Staves Bands -->
+    <path d="M 43 75 L 157 75" stroke="#b45309" stroke-width="7" />
+    <path d="M 46 125 L 154 125" stroke="#b45309" stroke-width="7" />
+    <!-- Mug Handle -->
+    <path d="M 155 60 C 205 60 205 145 150 145" fill="none" stroke="url(#goldRim)" stroke-width="14" stroke-linecap="round" />
+    <!-- Frothy Ale Foam / Torch Head -->
+    <path d="M 32 42 Q 45 18 65 30 Q 90 10 110 32 Q 135 12 155 35 Q 168 45 162 55 L 38 55 Z" fill="#fef3c7" stroke="#f59e0b" stroke-width="4" />
+  </g>
+
+  <!-- Glowing Embers / Stars -->
+  <circle cx="256" cy="100" r="6" fill="#f59e0b" filter="url(#torchGlow)" />
+  <circle cx="110" cy="256" r="4" fill="#fbbf24" filter="url(#torchGlow)" />
+  <circle cx="402" cy="256" r="4" fill="#fbbf24" filter="url(#torchGlow)" />
+  <circle cx="256" cy="410" r="6" fill="#f59e0b" filter="url(#torchGlow)" />
+</svg>

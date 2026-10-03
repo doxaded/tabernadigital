@@ -1,0 +1,361 @@
+/* ==========================================================================
+   TABERNA DIGITAL — DESIGN SYSTEM & TAVERN STYLESHEET
+   Aesthetics: Medieval Fantasy Tavern, Rustic Wood, Warm Torchlight, Parchment
+   ========================================================================== */
+
+:root {
+  /* Madeira Rústica & Vigas */
+  --wood-darkest: #0e0804;
+  --wood-dark: #190f07;
+  --wood-medium: #2a180b;
+  --wood-light: #3e2412;
+  --wood-border: #523018;
+
+  /* Pergaminho Envelhecido */
+  --parchment-light: #faf5e8;
+  --parchment-base: #f3ebd7;
+  --parchment-aged: #e4d5b7;
+  --parchment-dark: #ccb993;
+  --ink-dark: #24160a;
+  --ink-medium: #4a341e;
+  --ink-light: #7a5c3c;
+
+  /* Tocha, Âmbar & Ouro de Taverna */
+  --amber-glow: #f59e0b;
+  --amber-torch: #d97706;
+  --amber-deep: #b45309;
+  --gold-rim: #fcd34d;
+  --ember-spark: #ef4444;
+
+  /* Aço, Ferro & Couro */
+  --iron-dark: #1f2937;
+  --leather-brown: #5c381e;
+  --leather-accent: #78350f;
+
+  /* Status & Mensagens */
+  --status-pending: #f59e0b;
+  --status-approved: #10b981;
+  --status-rejected: #ef4444;
+
+  /* Tipografia */
+  --font-cinzel: 'Cinzel', serif;
+  --font-medieval: 'MedievalSharp', cursive;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-lore: 'Alegreya', Georgia, serif;
+
+  /* Efeitos e Sombras */
+  --shadow-torch: 0 0 25px rgba(245, 158, 11, 0.22);
+  --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+  --shadow-parchment: 0 6px 18px rgba(0, 0, 0, 0.25), inset 0 0 15px rgba(139, 90, 43, 0.15);
+  
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+}
+
+/* Reset Global & Ergonomia */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--wood-darkest);
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(217, 119, 6, 0.15) 0%, transparent 60%),
+    radial-gradient(circle at 10% 30%, rgba(180, 83, 9, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 90% 70%, rgba(245, 158, 11, 0.06) 0%, transparent 45%),
+    linear-gradient(to bottom, #160e07 0%, #0e0804 100%);
+  color: var(--parchment-base);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar Medieval Personalizada */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--wood-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--wood-light);
+  border-radius: 4px;
+  border: 1px solid var(--wood-border);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--amber-deep);
+}
+
+/* Animação Crepitante de Tocha */
+@keyframes torchFlicker {
+  0%, 100% {
+    opacity: 0.95;
+    filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.6));
+  }
+  25% {
+    opacity: 0.85;
+    filter: drop-shadow(0 0 5px rgba(217, 119, 6, 0.5));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.8));
+  }
+  75% {
+    opacity: 0.9;
+    filter: drop-shadow(0 0 7px rgba(217, 119, 6, 0.55));
+  }
+}
+
+.torch-flicker {
+  animation: torchFlicker 2.8s infinite ease-in-out;
+}
+
+/* Títulos & Tipografia Medieval */
+h1, h2, h3, h4, .font-cinzel {
+  font-family: var(--font-cinzel);
+  letter-spacing: 0.04em;
+  color: #fff4d9;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.font-medieval {
+  font-family: var(--font-medieval);
+}
+
+.font-lore {
+  font-family: var(--font-lore);
+}
+
+/* Cartões com Estilo de Pergaminho Rústico */
+.parchment-card {
+  background-color: var(--parchment-base);
+  background-image: 
+    radial-gradient(circle at 10% 10%, rgba(204, 185, 147, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 90% 90%, rgba(139, 90, 43, 0.15) 0%, transparent 60%);
+  color: var(--ink-dark);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--parchment-dark);
+  box-shadow: var(--shadow-parchment);
+  position: relative;
+}
+
+.parchment-card h1, 
+.parchment-card h2, 
+.parchment-card h3, 
+.parchment-card h4 {
+  color: var(--ink-dark);
+  text-shadow: none;
+}
+
+/* Molduras de Madeira Entalhada */
+.wood-panel {
+  background: linear-gradient(145deg, var(--wood-medium) 0%, var(--wood-dark) 100%);
+  border: 1px solid var(--wood-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  position: relative;
+}
+
+.wood-panel-glow {
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow: var(--shadow-card), var(--shadow-torch);
+}
+
+/* Botões de Aventura */
+.btn-tavern {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  font-family: var(--font-cinzel);
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid transparent;
+  user-select: none;
+  min-height: 42px;
+}
+
+.btn-primary {
+  background: linear-gradient(180deg, var(--amber-torch) 0%, var(--amber-deep) 100%);
+  color: #fff9ed;
+  border-color: #fbbf24;
+  box-shadow: 0 4px 12px rgba(180, 83, 9, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, #f59e0b 0%, var(--amber-torch) 100%);
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--wood-light);
+  color: var(--parchment-base);
+  border-color: var(--wood-border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #4c2d17;
+  border-color: var(--amber-deep);
+  color: #fff;
+}
+
+.btn-danger {
+  background: linear-gradient(180deg, #b91c1c 0%, #7f1d1d 100%);
+  color: #fee2e2;
+  border-color: #ef4444;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+.btn-tavern:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.8);
+}
+
+/* Badges e Selos de Cera */
+.wax-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-family: var(--font-cinzel);
+}
+
+.wax-badge-pending {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.wax-badge-approved {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.wax-badge-admin {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.2), rgba(180, 83, 9, 0.25));
+  color: #fef08a;
+  border: 1px solid #eab308;
+  box-shadow: 0 0 10px rgba(234, 179, 8, 0.3);
+}
+
+/* Modais & Dialogs com Backdrop Difuso */
+.tavern-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(10, 6, 3, 0.85);
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.tavern-modal-content {
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modalEnter 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Inputs & Controles Rústicos */
+.tavern-input {
+  width: 100%;
+  background-color: rgba(18, 10, 5, 0.8);
+  border: 1px solid var(--wood-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  color: #fff3db;
+  font-family: var(--font-body);
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.tavern-input:focus {
+  border-color: var(--amber-glow);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+.parchment-card .tavern-input {
+  background-color: rgba(255, 255, 255, 0.6);
+  border-color: var(--parchment-dark);
+  color: var(--ink-dark);
+}
+
+.parchment-card .tavern-input:focus {
+  background-color: #fff;
+  border-color: var(--amber-deep);
+}
+
+/* Responsividade & Cinto de Aventureiro Mobile */
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+  
+  .mobile-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: linear-gradient(180deg, var(--wood-medium) 0%, var(--wood-darkest) 100%);
+    border-top: 2px solid var(--wood-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    z-index: 900;
+    padding-bottom: env(safe-area-inset-bottom);
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.7);
+  }
+
+  .content-with-bottom-nav {
+    padding-bottom: 80px;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
