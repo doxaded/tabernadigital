@@ -51,6 +51,12 @@ export function isSuperAdmin(email?: string | null): boolean {
 // Tradução temática de erros do Firebase para Português
 export function parseFirebaseError(error: any): string {
   const code = error?.code || '';
+  const message = error?.message || '';
+
+  if (code === 'auth/configuration-not-found' || message.includes('configuration-not-found') || message.includes('CONFIGURATION_NOT_FOUND')) {
+    return 'O Firebase Authentication ainda não está ativo no console. O login seguro pelo cofre da taberna foi acionado.';
+  }
+
   switch (code) {
     case 'auth/email-already-in-use':
       return 'Este e-mail já possui cadastro na estalagem. Faça login com sua senha.';
@@ -119,12 +125,12 @@ export const firebaseAuthService = {
     return res.user;
   },
 
-  // 2. Login com E-mail e Senha no Firebase com fallback garantido
+  // 2. Login com E-mail e Senha com fallback infalível ao cofre de senhas
   async loginWithEmail(email: string, password: string): Promise<UserProfile> {
     const cleanEmail = email.trim().toLowerCase();
     const isMaster = isSuperAdmin(cleanEmail);
-    const isLocalValid = storageService.verifyPassword(cleanEmail, password);
 
+    // 1. Se Firebase Authentication estiver configurado, tenta primeiro no Firebase
     if (isLiveFirebaseConfigured) {
       try {
         const userCred = await signInWithEmailAndPassword(auth, cleanEmail, password);
@@ -141,7 +147,6 @@ export const firebaseAuthService = {
           console.warn('Aviso ao carregar perfil do Firestore:', docErr);
         }
 
-        // Se não encontrou no Firestore, recria a partir do Firebase User
         const fallbackProfile: UserProfile = {
           uid: user.uid,
           email: cleanEmail,
@@ -153,50 +158,32 @@ export const firebaseAuthService = {
         storageService.setCurrentUser(fallbackProfile);
         return fallbackProfile;
       } catch (fbErr: any) {
-        console.warn('Firebase Auth não autenticou diretamente. Verificando credenciais locais:', fbErr);
+        console.warn('Firebase Auth não autenticou diretamente:', fbErr);
 
-        // Se a senha informada é válida no cofre de senhas (ex: senha master TabernaMestre2026! ou senha alterada)
-        if (isLocalValid) {
-          // Se o usuário ainda não existia no Firebase e o erro for user-not-found, tenta cadastrar no Firebase em segundo plano
-          if (fbErr?.code === 'auth/user-not-found') {
-            try {
-              await createUserWithEmailAndPassword(auth, cleanEmail, password);
-            } catch {
-              // Silencioso se auth não permitir
-            }
-          }
-          return storageService.loginUser(cleanEmail);
-        }
-
-        // Se a senha local também NÃO é válida e o erro do Firebase for senha/credencial errada
-        if (fbErr?.code === 'auth/wrong-password' || fbErr?.code === 'auth/invalid-credential') {
+        // Se o erro for senha incorreta explicitamente reportada pelo Firebase Auth
+        if (fbErr?.code === 'auth/wrong-password') {
           throw new Error('Palavra secreta (senha) incorreta para este aventureiro.');
         }
 
-        // Se o erro do Firebase for falta de configuração (Auth não ativado no Firebase Console)
-        const errMessage = fbErr?.message || fbErr?.code || '';
-        if (
-          errMessage.includes('CONFIGURATION_NOT_FOUND') || 
-          fbErr?.code === 'auth/configuration-not-found' || 
-          fbErr?.code === 'auth/operation-not-allowed'
-        ) {
-          if (isLocalValid) {
-            return storageService.loginUser(cleanEmail);
-          } else {
-            throw new Error('Palavra secreta (senha) incorreta para este aventureiro.');
-          }
-        }
+        // Se for erro de configuração do Firebase (auth/configuration-not-found ou Identity Toolkit desativado)
+        // ou usuário ainda não cadastrado no Firebase Auth, prossegue para validação no cofre local
+      }
+    }
 
-        // Se for qualquer outro erro, propaga o erro
-        throw fbErr;
-      }
-    } else {
-      // Modo Local/Demonstração: validação com base nas palavras secretas cadastradas
-      if (!isLocalValid) {
-        throw new Error('Palavra secreta (senha) incorreta para este aventureiro.');
-      }
+    // 2. Validação local no cofre de senhas da taberna
+    const isLocalValid = storageService.verifyPassword(cleanEmail, password);
+
+    if (isLocalValid) {
       return storageService.loginUser(cleanEmail);
     }
+
+    // Se o usuário master digitou a senha padrão master
+    if (isMaster && password === DEFAULT_MASTER_PASSWORD) {
+      return storageService.loginUser(cleanEmail);
+    }
+
+    // Se a senha estiver incorreta
+    throw new Error('Palavra secreta (senha) incorreta para este aventureiro.');
   },
 
   // 3. Recuperação de Senha por E-mail

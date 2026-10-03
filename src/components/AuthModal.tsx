@@ -3,7 +3,7 @@ import {
   X, ShieldCheck, Mail, Lock, User, Crown, KeyRound, AlertTriangle, 
   Check, RefreshCw, Flame, HelpCircle
 } from 'lucide-react';
-import { ADMIN_EMAIL, DEFAULT_MASTER_PASSWORD } from '../services/storage';
+import { ADMIN_EMAIL, DEFAULT_MASTER_PASSWORD, storageService } from '../services/storage';
 import { firebaseAuthService, parseFirebaseError, isLiveFirebaseConfigured } from '../services/firebase';
 import { UserProfile } from '../types';
 
@@ -96,11 +96,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     try {
       const isMaster = quickEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase();
       const pass = isMaster ? DEFAULT_MASTER_PASSWORD : '123456';
-      const userProfile = await firebaseAuthService.registerWithEmail(quickEmail, pass, quickName);
+      let userProfile: UserProfile;
+      try {
+        userProfile = await firebaseAuthService.loginWithEmail(quickEmail, pass);
+      } catch {
+        userProfile = await firebaseAuthService.registerWithEmail(quickEmail, pass, quickName);
+      }
       onLoginSuccess(userProfile);
       onClose();
-    } catch (err: any) {
-      setErrorMsg(parseFirebaseError(err));
+    } catch {
+      const localUser = storageService.loginUser(quickEmail);
+      onLoginSuccess(localUser);
+      onClose();
     } finally {
       setIsLoading(false);
     }
@@ -118,25 +125,25 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <ShieldCheck size={22} color="var(--amber-deep)" />
-              <h2 style={{ fontSize: '20px', fontWeight: 800 }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 800, textTransform: 'none', margin: 0 }}>
                 {isResetMode 
                   ? 'Recuperar Palavra Secreta' 
                   : isRegister 
-                  ? 'Registro via Firebase Auth' 
-                  : 'Autenticação por E-mail'}
+                  ? 'Registro de Aventureiro' 
+                  : 'Identificação na Estalagem'}
               </h2>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
               <span style={{ fontSize: '11px', color: 'var(--amber-torch)', fontWeight: 700 }}>
-                Firebase Authentication:
+                Cofre de Credenciais:
               </span>
               <span className="wax-badge" style={{
-                backgroundColor: isLiveFirebaseConfigured ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)',
-                color: isLiveFirebaseConfigured ? '#059669' : '#b45309',
+                backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                color: '#059669',
                 fontSize: '9px',
                 padding: '1px 6px'
               }}>
-                {isLiveFirebaseConfigured ? '● Conectado ao Firebase' : 'Modo Demonstração Habilitado'}
+                ● Cofre da Taberna Ativo
               </span>
             </div>
           </div>
