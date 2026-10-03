@@ -629,7 +629,7 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
                   ${lastCostReceipt.estimatedCostUsd.toFixed(4)} USD
                 </div>
                 <div style={{ fontSize: '11px', color: '#6ee7b7' }}>
-                  ≈ R$ {lastCostReceipt.estimatedCostBrl.toFixed(2)} BRL (câmbio R$ 5,50)
+                  ≈ R$ {lastCostReceipt.estimatedCostBrl.toFixed(2)} BRL (câmbio e impostos Google Cloud Brasil)
                 </div>
               </div>
             </div>
@@ -1124,7 +1124,7 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
                 <button
                   type="button"
                   onClick={() => {
-                    const addition = ' Add subtle battle scars, weathered metallic scratches and ancient patina.';
+                    const addition = ' Adicionar marcas sutis de batalha, ranhuras de desgaste metálico e pátina envelhecida pelo tempo.';
                     const updated = editablePrompt + addition;
                     setEditablePrompt(updated);
                     setPreviewCost(calculateSketchCost(GEMINI_SKETCH_MODEL, updated, '1K'));
@@ -1137,7 +1137,7 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
                 <button
                   type="button"
                   onClick={() => {
-                    const addition = ' Emphasize heavy cross-hatching shadows and dramatic atmospheric contrast.';
+                    const addition = ' Enfatizar sombreamento denso por hachuras cruzadas e contraste dramático de iluminação.';
                     const updated = editablePrompt + addition;
                     setEditablePrompt(updated);
                     setPreviewCost(calculateSketchCost(GEMINI_SKETCH_MODEL, updated, '1K'));
@@ -1150,7 +1150,7 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
                 <button
                   type="button"
                   onClick={() => {
-                    const addition = ' Intricate arcane rune engravings along parchment edges.';
+                    const addition = ' Adicionar entalhes intrincados de runas arcanas misteriosas ao longo das bordas do pergaminho.';
                     const updated = editablePrompt + addition;
                     setEditablePrompt(updated);
                     setPreviewCost(calculateSketchCost(GEMINI_SKETCH_MODEL, updated, '1K'));

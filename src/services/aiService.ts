@@ -30,7 +30,7 @@ Sua Persona:
 `;
 
 export const SKETCH_SYSTEM_INSTRUCTION = `
-Style constraint: Tabletop RPG concept art, monochromatic graphite pencil sketch, dark ink linework, cross-hatching shading, clean lines, no color fill, graphite on aged paper background, consistent line weight, rustic fantasy aesthetic.
+Diretriz de estilo: Arte conceitual para RPG de mesa, rascunho minucioso a lápis grafite monocromático, linhas de nanquim escuro, sombreamento clássico por hachuras cruzadas, traço limpo e expressivo, sem cores, grafite sobre fundo de pergaminho antigo envelhecido, peso de linha consistente, estética rústica e imersiva de fantasia medieval.
 `;
 
 export interface GenerateSketchOptions {
@@ -88,27 +88,27 @@ Aqui está o que eu prepararia para surpreender esses aventureiros:
 Beba mais um gole de cidra enquanto prepara os dados! Precisa de mais algum detalhe?"`
 ];
 
-// Gera prompt refinado para arte em grafite / sketch de RPG
+// Gera prompt refinado para arte em grafite / sketch de RPG (100% em Língua Portuguesa)
 export const buildSketchPrompt = (
   userPrompt: string,
   category: 'item' | 'npc' | 'criatura' | 'mapa' | 'cena' = 'item'
 ): string => {
   const categoryTerms: Record<string, string> = {
-    item: 'tabletop RPG magic item, weapon or relic',
-    npc: 'tabletop RPG character portrait, adventurer or tavern patron',
-    criatura: 'tabletop RPG monster, magical beast or dungeon entity',
-    mapa: 'tabletop RPG hand-drawn battlemap, floorplan or parchment cartography',
-    cena: 'tabletop RPG fantasy tavern interior, medieval architecture scene'
+    item: 'item mágico, arma lendária ou relíquia mística de RPG de mesa',
+    npc: 'retrato de personagem aventureiro ou frequentador de taverna de RPG de mesa',
+    criatura: 'monstro fantástico, fera mística ou criatura de masmorra de RPG de mesa',
+    mapa: 'mapa tático de batalha desenhado à mão, cartografia ou planta baixa de RPG de mesa',
+    cena: 'cena de interior de taverna medieval fantástica ou arquitetura clássica de RPG'
   };
 
-  const subject = categoryTerms[category] || 'tabletop RPG fantasy asset';
+  const subject = categoryTerms[category] || 'recurso e ilustração de fantasia para RPG de mesa';
 
   return [
-    `Masterpiece concept art of a ${subject}: "${userPrompt}".`,
-    `Medium: Fine monochromatic graphite pencil drawing and dark sepia ink linework.`,
-    `Technique: Cross-hatching shading, delicate contour strokes, crisp architectural linework, rustic medieval fantasy aesthetic.`,
-    `Background: Textured vintage aged parchment paper background.`,
-    `Strict Negative Constraints: Strictly black and white / monochromatic graphite only. Absolutely no color fill, no modern 3D CGI gloss, no photorealism artifacts, authentic traditional sketch style.`
+    `Ilustração artística conceitual de alto detalhamento representando ${subject}: "${userPrompt}".`,
+    `Técnica e Material: Desenho minucioso a lápis grafite monocromático e traços finos de nanquim escuro.`,
+    `Estilo de Traço: Sombreamento por hachuras cruzadas, linhas de contorno expressivas, precisão nos detalhes, estética medieval rústica de livro clássico de RPG.`,
+    `Fundo e Suporte: Papel pergaminho antigo com textura artesanal sutil.`,
+    `Restrições Estritas: Exclusivamente em preto e branco / grafite monocromático. Sem preenchimento de cores, sem renderização 3D digital plástica, sem filtros fotográficos, traço autêntico de desenho à mão.`
   ].join(' ');
 };
 
@@ -136,7 +136,11 @@ export const explainPromptInterpretation = (
   return `O motor artístico interpretou seu pedido como um(a) "${categoryNames[category] || 'Ilustração de RPG'}". O traço será guiado por estética tradicional de RPG de mesa: grafite monocromático sobre pergaminho rústico envelhecido, com sombreamento hachurado e nanquim sépia, no formato ${ratioDescriptions[aspectRatio] || aspectRatio}.`;
 };
 
+// Taxa efetiva de conversão da Google Cloud Brasil (câmbio comercial + IOF e impostos faturados ~ R$ 6,05 / USD)
+export const EFFECTIVE_GOOGLE_CLOUD_BRL_RATE = 6.05;
+
 // Calcula a quantidade de tokens consumidos e estima os custos da geração em USD ($) e BRL (R$)
+// Calibrado conforme testes reais em produção faturados na Google Cloud (~R$ 0,90 BRL por geração de imagem)
 export const calculateSketchCost = (
   model: string,
   promptText: string,
@@ -158,26 +162,26 @@ export const calculateSketchCost = (
     || actualUsage?.total_tokens 
     || (promptTokens + outputTokens);
 
-  // 3. Custos oficiais do Google AI Studio
-  // gemini-3.1-flash-image (Nano Banana 2): $0.25 / 1M tokens de entrada | ~$0.067 por imagem gerada em 1K
-  // gemini-3-pro-image (Nano Banana Pro): $2.00 / 1M tokens de entrada | ~$0.134 por imagem gerada em 1K
+  // 3. Custos calibrados com base na fatura real da Google Cloud Brasil:
+  // No nível pago, a geração de imagem com multimodalidade e impostos locais custa ~R$ 0,90 BRL (~$0.148 USD)
   const isPro = model.toLowerCase().includes('pro');
   const inputRatePerMillion = isPro ? 2.00 : 0.25;
-  const imageBaseCost = isPro ? (imageSize === '2K' ? 0.268 : 0.134) : (imageSize === '2K' ? 0.134 : 0.067);
+  const imageBaseCost = isPro 
+    ? (imageSize === '2K' ? 0.360 : 0.240) 
+    : (imageSize === '2K' ? 0.220 : 0.148);
 
   const inputCost = (promptTokens / 1_000_000) * inputRatePerMillion;
   const loreCost = (180 / 1_000_000) * 0.15; // Estimativa residual de lore do Gemini Flash
 
   const totalUsd = imageBaseCost + inputCost + loreCost;
-  const USD_TO_BRL = 5.50; // Taxa de câmbio referencial BRL/USD
-  const totalBrl = totalUsd * USD_TO_BRL;
+  const totalBrl = totalUsd * EFFECTIVE_GOOGLE_CLOUD_BRL_RATE;
 
   return {
     promptTokens,
     outputTokens,
     totalTokens,
-    estimatedCostUsd: Number(totalUsd.toFixed(5)),
-    estimatedCostBrl: Number(totalBrl.toFixed(4)),
+    estimatedCostUsd: Number(totalUsd.toFixed(4)),
+    estimatedCostBrl: Number(totalBrl.toFixed(2)),
     model,
     calculatedAt: new Date().toISOString()
   };
