@@ -7,6 +7,7 @@ import { ChangePasswordModal } from './components/ChangePasswordModal';
 import { CampaignsView } from './components/CampaignsView';
 import { SketchStudioView } from './components/SketchStudioView';
 import { UrdChatView } from './components/UrdChatView';
+import { MasterScreenView } from './components/MasterScreenView';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { PWAInstallBanner } from './components/PWAInstallBanner';
 import { storageService, ADMIN_EMAIL } from './services/storage';
@@ -22,6 +23,7 @@ export function App() {
 
   const [activeTab, setActiveTab] = useState<'campaigns' | 'sketch' | 'urd'>('campaigns');
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(() => campaigns[0]?.id || null);
+  const [masterScreenCampaignId, setMasterScreenCampaignId] = useState<string | null>(null);
 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(() => !storageService.getCurrentUser());
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
@@ -167,7 +169,10 @@ export function App() {
       <Navbar
         currentUser={currentUser}
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={(tab) => {
+          setMasterScreenCampaignId(null);
+          setActiveTab(tab);
+        }}
         onOpenAdmin={() => setIsAdminModalOpen(true)}
         onOpenAuth={() => setIsAuthModalOpen(true)}
         onOpenChangePassword={() => setIsChangePasswordOpen(true)}
@@ -225,52 +230,87 @@ export function App() {
         {/* Caso 3: Usuário APROVADO (Acesso completo aos módulos) */}
         {currentUser && currentUser.status === 'APPROVED' && (
           <>
-            {activeTab === 'campaigns' && (
-              <CampaignsView
-                campaigns={campaigns}
-                currentUser={currentUser}
-                selectedCampaignId={selectedCampaignId}
-                onSelectCampaign={setSelectedCampaignId}
-                onCreateCampaign={handleCreateCampaign}
-                onUpdateCampaign={handleUpdateCampaign}
-                onDeleteCampaign={handleDeleteCampaign}
-                onAddSheet={handleAddSheet}
-                onUpdateSheet={handleUpdateSheet}
-                onDeleteSheet={handleDeleteSheet}
-                onAddLore={handleAddLore}
-                onDeleteLore={handleDeleteLore}
-                onAddRule={handleAddRule}
-                onDeleteRule={handleDeleteRule}
-              />
-            )}
+            {masterScreenCampaignId ? (
+              (() => {
+                const targetCampaign = campaigns.find(c => c.id === masterScreenCampaignId) || campaigns[0];
+                const isMasterOfCampaign = targetCampaign && (targetCampaign.masterId === currentUser.uid || currentUser.role === 'admin');
+                if (!isMasterOfCampaign) {
+                  return (
+                    <div style={{ maxWidth: '640px', margin: '60px auto', padding: '0 20px', textAlign: 'center' }}>
+                      <div className="parchment-card" style={{ padding: '36px 20px', border: '2px solid var(--amber-torch)' }}>
+                        <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '8px' }}>
+                          Acesso Restrito ao Mestre da Sala
+                        </h3>
+                        <p className="font-lore" style={{ fontSize: '15px', color: 'var(--ink-dark)', marginBottom: '16px' }}>
+                          Apenas o criador da sala possui acesso aos pergaminhos secretos desta mesa.
+                        </p>
+                        <button onClick={() => setMasterScreenCampaignId(null)} className="btn-tavern btn-primary">
+                          Voltar às Campanhas
+                        </button>
+                      </div>
+                    </div>
+                  );
+                }
+                return (
+                  <MasterScreenView
+                    campaign={targetCampaign}
+                    currentUser={currentUser}
+                    onBackToCampaign={() => setMasterScreenCampaignId(null)}
+                    onAddLore={handleAddLore}
+                  />
+                );
+              })()
+            ) : (
+              <>
+                {activeTab === 'campaigns' && (
+                  <CampaignsView
+                    campaigns={campaigns}
+                    currentUser={currentUser}
+                    selectedCampaignId={selectedCampaignId}
+                    onSelectCampaign={setSelectedCampaignId}
+                    onCreateCampaign={handleCreateCampaign}
+                    onUpdateCampaign={handleUpdateCampaign}
+                    onDeleteCampaign={handleDeleteCampaign}
+                    onAddSheet={handleAddSheet}
+                    onUpdateSheet={handleUpdateSheet}
+                    onDeleteSheet={handleDeleteSheet}
+                    onAddLore={handleAddLore}
+                    onDeleteLore={handleDeleteLore}
+                    onAddRule={handleAddRule}
+                    onDeleteRule={handleDeleteRule}
+                    onOpenMasterScreen={(campId) => setMasterScreenCampaignId(campId)}
+                  />
+                )}
 
-            {activeTab === 'sketch' && (
-              <SketchStudioView
-                sketches={sketches}
-                campaigns={campaigns}
-                activeCampaignId={selectedCampaignId}
-                onSaveSketch={handleSaveSketch}
-                onDeleteSketch={handleDeleteSketch}
-              />
-            )}
+                {activeTab === 'sketch' && (
+                  <SketchStudioView
+                    sketches={sketches}
+                    campaigns={campaigns}
+                    activeCampaignId={selectedCampaignId}
+                    onSaveSketch={handleSaveSketch}
+                    onDeleteSketch={handleDeleteSketch}
+                  />
+                )}
 
-            {activeTab === 'urd' && (
-              <UrdChatView
-                messages={urdMessages}
-                campaigns={campaigns}
-                activeCampaignId={selectedCampaignId}
-                onSendMessage={handleSendUrdMessage}
-                onAddToLore={(campaignId, title, content) => {
-                  handleAddLore(campaignId, {
-                    title,
-                    content,
-                    category: 'rumores',
-                    author: 'Urd, o Taberneiro',
-                    tags: ['Oráculo Urd', 'Boato de Taberna']
-                  });
-                }}
-                onClearChat={handleClearUrdChat}
-              />
+                {activeTab === 'urd' && (
+                  <UrdChatView
+                    messages={urdMessages}
+                    campaigns={campaigns}
+                    activeCampaignId={selectedCampaignId}
+                    onSendMessage={handleSendUrdMessage}
+                    onAddToLore={(campaignId, title, content) => {
+                      handleAddLore(campaignId, {
+                        title,
+                        content,
+                        category: 'rumores',
+                        author: 'Urd, o Taberneiro',
+                        tags: ['Oráculo Urd', 'Boato de Taberna']
+                      });
+                    }}
+                    onClearChat={handleClearUrdChat}
+                  />
+                )}
+              </>
             )}
           </>
         )}
@@ -279,7 +319,10 @@ export function App() {
       {/* Mobile Bottom Navigation (Cinto do Aventureiro) */}
       <MobileBottomNav
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={(tab) => {
+          setMasterScreenCampaignId(null);
+          setActiveTab(tab);
+        }}
         currentUser={currentUser}
         onOpenAdmin={() => setIsAdminModalOpen(true)}
         onOpenAuth={() => setIsAuthModalOpen(true)}

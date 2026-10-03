@@ -110,3 +110,32 @@ export interface UrdMessage {
   timestamp: string;
   attachedToLore?: boolean;
 }
+
+export interface CompendiumDoc {
+  id: string;
+  title: string;
+  title_en: string;
+  category: string;
+  cr?: string;
+  type?: string;
+  info?: string;
+  path: string;
+  image?: string | null;
+  content: string;
+}
+
+export interface MasterChatMessage {
+  id: string;
+  sender: 'user' | 'oracle';
+  text: string;
+  timestamp: string;
+  sources?: Array<{ title: string; category: string; path: string }>;
+  diceResult?: {
+    expression: string;
+    rolls: number[];
+    modifier: number;
+    total: number;
+    hasNat20?: boolean;
+    hasNat1?: boolean;
+  };
+}

@@ -21,6 +21,7 @@ interface CampaignsViewProps {
   onDeleteLore: (campaignId: string, loreId: string) => void;
   onAddRule: (campaignId: string, rule: Omit<RuleDocument, 'id' | 'campaignId'>) => void;
   onDeleteRule: (campaignId: string, ruleId: string) => void;
+  onOpenMasterScreen?: (campaignId: string) => void;
 }
 
 export const CampaignsView: React.FC<CampaignsViewProps> = ({
@@ -38,6 +39,7 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
   onDeleteLore,
   onAddRule,
   onDeleteRule,
+  onOpenMasterScreen,
 }) => {
   // Partições da sala ativa: 'sheets' | 'lore' | 'rules'
   const [activePartition, setActivePartition] = useState<'sheets' | 'lore' | 'rules'>('sheets');
@@ -337,7 +339,32 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
 
               {/* Master Exclusive Room Controls */}
               {isMasterOfActive && (
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {onOpenMasterScreen && (
+                    <button
+                      onClick={() => onOpenMasterScreen(activeCampaign.id)}
+                      className="btn-tavern"
+                      style={{
+                        padding: '8px 16px',
+                        fontSize: '12px',
+                        fontWeight: 800,
+                        backgroundColor: '#92400e',
+                        borderColor: '#f59e0b',
+                        color: '#fef08a',
+                        boxShadow: '0 0 16px rgba(245, 158, 11, 0.4)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                      }}
+                      title="Abrir Mesa de Pergaminhos (Escudo, Dados e Oráculo exclusivo do Mestre)"
+                    >
+                      <Scroll size={15} color="#fbbf24" />
+                      <span>Mesa de Pergaminhos</span>
+                      <span className="wax-badge wax-badge-admin" style={{ fontSize: '9px', padding: '1px 5px' }}>
+                        Mestre
+                      </span>
+                    </button>
+                  )}
                   <button
                     onClick={() => handleOpenEditRoom(activeCampaign)}
                     className="btn-tavern btn-secondary"
@@ -398,6 +425,28 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
               <Library size={16} />
               <span>Biblioteca de Regras ({activeCampaign.rules.length})</span>
             </button>
+
+            {isMasterOfActive && onOpenMasterScreen && (
+              <button
+                onClick={() => onOpenMasterScreen(activeCampaign.id)}
+                className="btn-tavern btn-secondary"
+                style={{
+                  fontSize: '13px',
+                  padding: '8px 18px',
+                  borderColor: 'var(--amber-torch)',
+                  color: '#fef08a',
+                  backgroundColor: 'rgba(146, 64, 14, 0.25)',
+                  gap: '8px'
+                }}
+                title="Acesso exclusivo ao escudo do Mestre"
+              >
+                <Scroll size={16} color="var(--amber-torch)" />
+                <span>Mesa de Pergaminhos</span>
+                <span className="wax-badge" style={{ backgroundColor: '#78350f', color: '#fbbf24', fontSize: '9px', padding: '2px 5px' }}>
+                  Mestre
+                </span>
+              </button>
+            )}
           </div>
 
           {/* PARTITION 1: FICHAS DE PERSONAGENS & NPCS */}

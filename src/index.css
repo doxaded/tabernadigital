@@ -359,3 +359,454 @@ h1, h2, h3, h4, .font-cinzel {
     display: none !important;
   }
 }
+
+/* ==========================================================================
+   MESA DE PERGAMINHOS — HUD & COMPONENTES DA TELA DO MESTRE
+   Design: Madeira Rústica, Tochas Âmbar, Pergaminhos e Latão
+   ========================================================================== */
+
+/* Container da Tabela Dinâmica Interativa */
+.dynamic-table-widget {
+  background: rgba(25, 15, 7, 0.95);
+  border: 1.5px solid var(--wood-border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin: 16px 0;
+  box-shadow: var(--shadow-card), 0 0 15px rgba(217, 119, 6, 0.12);
+  position: relative;
+  transition: border-color 0.2s ease;
+}
+
+.dynamic-table-widget:hover {
+  border-color: var(--amber-torch);
+}
+
+.dt-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.dt-search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.dt-search-icon {
+  position: absolute;
+  left: 12px;
+  font-size: 14px;
+  color: var(--amber-glow);
+  pointer-events: none;
+}
+
+.dt-search-input {
+  width: 100%;
+  padding: 9px 36px 9px 34px;
+  background: rgba(14, 8, 4, 0.9);
+  border: 1px solid var(--wood-border);
+  border-radius: var(--radius-sm);
+  color: #fff3db;
+  font-family: var(--font-body);
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.dt-search-input:focus {
+  border-color: var(--amber-glow);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+  background: rgba(20, 12, 6, 0.95);
+}
+
+.dt-search-clear {
+  position: absolute;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #cbd5e1;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.dt-search-clear:hover {
+  background: rgba(239, 68, 68, 0.5);
+  color: #fff;
+}
+
+.dt-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.dt-count-badge {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid var(--amber-deep);
+  padding: 3px 10px;
+  border-radius: 12px;
+  color: #fef08a;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.dt-hint-badge {
+  color: #94a3b8;
+  font-style: italic;
+  font-size: 11px;
+}
+
+.dt-scroll-container {
+  max-height: 440px;
+  overflow-y: auto;
+  overflow-x: auto;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--wood-border);
+  background: rgba(14, 8, 4, 0.6);
+}
+
+.dt-interactive-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+
+.dt-interactive-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #2a180b;
+  border-bottom: 2px solid var(--amber-torch);
+}
+
+.dt-sortable-th {
+  padding: 9px 12px;
+  color: #fef3c7;
+  font-family: var(--font-cinzel);
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+.dt-sortable-th:hover {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fff;
+}
+
+.dt-action-th {
+  padding: 9px 12px;
+  color: #94a3b8;
+  font-family: var(--font-cinzel);
+  font-size: 11px;
+  text-align: center;
+  width: 75px;
+}
+
+.dt-row {
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dt-row:hover {
+  background: rgba(245, 158, 11, 0.12) !important;
+}
+
+.dt-row:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.dt-row td {
+  padding: 8px 12px;
+  color: #e2e8f0;
+  vertical-align: middle;
+}
+
+.dt-row-name-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dt-row-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--amber-torch);
+  background: #0e0804;
+  flex-shrink: 0;
+}
+
+.dt-action-cell {
+  text-align: center;
+}
+
+.dt-btn-view-item {
+  padding: 4px 8px;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid var(--amber-torch);
+  color: #fef08a;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dt-btn-view-item:hover {
+  background: var(--amber-deep);
+  color: #fff;
+}
+
+.dt-empty-state {
+  text-align: center;
+  padding: 30px 20px;
+  color: #94a3b8;
+}
+
+/* Detalhamento do Item Integrado */
+.dt-detail-view {
+  background: #fdfbf7;
+  border: 2px solid var(--parchment-dark);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  color: var(--ink-dark);
+  box-shadow: var(--shadow-parchment);
+}
+
+.dt-detail-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1.5px solid var(--parchment-dark);
+  padding-bottom: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dt-btn-back {
+  background: var(--wood-medium);
+  border: 1px solid var(--wood-border);
+  color: #fef08a;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.dt-btn-back:hover {
+  background: var(--amber-deep);
+  color: #fff;
+}
+
+.dt-detail-badge {
+  font-family: var(--font-cinzel);
+  font-size: 12px;
+  color: var(--amber-deep);
+  font-weight: 700;
+}
+
+/* 3D Dice Modal & Arena */
+.dice-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(14, 8, 4, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 950;
+  padding: 16px;
+}
+
+.dice-modal-card {
+  width: 100%;
+  max-width: 840px;
+  background: radial-gradient(circle at 50% 0%, #2a180b 0%, #160e07 100%);
+  border: 2px solid var(--amber-torch);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 0 35px rgba(245, 158, 11, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dice-modal-header {
+  padding: 14px 20px;
+  background: linear-gradient(90deg, rgba(146, 64, 14, 0.3) 0%, rgba(69, 26, 3, 0.4) 100%);
+  border-bottom: 1.5px solid var(--wood-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dice-arena-container {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  background: radial-gradient(circle at 50% 50%, #1a1008 0%, #0e0804 100%);
+  border-bottom: 1.5px solid var(--wood-border);
+  overflow: hidden;
+}
+
+.dice-arena-container canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.dice-crit-banner {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 24px;
+  border-radius: 20px;
+  font-family: var(--font-cinzel);
+  font-weight: 900;
+  font-size: 16px;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+  animation: torchFlicker 1.5s infinite;
+  z-index: 10;
+}
+
+.dice-crit-banner.crit-success {
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  color: #ecfdf5;
+  border: 2px solid #34d399;
+}
+
+.dice-crit-banner.crit-fail {
+  background: linear-gradient(90deg, #dc2626 0%, #991b1b 100%);
+  color: #fef2f2;
+  border: 2px solid #f87171;
+}
+
+.dice-modal-controls {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #190f07;
+}
+
+.tray-dice-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tray-btn {
+  padding: 6px 12px;
+  background: var(--wood-medium);
+  border: 1px solid var(--wood-border);
+  color: #fef08a;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tray-btn:hover {
+  background: var(--amber-torch);
+  color: #fff;
+  border-color: var(--amber-glow);
+}
+
+.tray-btn.tray-d20 {
+  background: #78350f;
+  border-color: var(--amber-torch);
+  color: #fef3c7;
+}
+
+.tray-btn.tray-clear {
+  background: #7f1d1d;
+  border-color: #b91c1c;
+  color: #fecaca;
+}
+
+.dice-tray-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--wood-border);
+}
+
+.btn-roll-physics {
+  padding: 8px 22px;
+  background: linear-gradient(180deg, #d97706 0%, #b45309 100%);
+  border: 1.5px solid #f59e0b;
+  color: #fff;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.35);
+  transition: all 0.2s;
+}
+
+.btn-roll-physics:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 22px rgba(245, 158, 11, 0.5);
+}
+
+.dice-result-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1.5px solid rgba(16, 185, 129, 0.4);
+  border-radius: 8px;
+}
+
+.result-total-badge {
+  font-family: var(--font-cinzel);
+  font-size: 20px;
+  font-weight: 900;
+  color: #34d399;
+}
+
+.btn-insert-chat {
+  padding: 6px 14px;
+  background: var(--wood-medium);
+  border: 1px solid var(--amber-torch);
+  color: #fef08a;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
