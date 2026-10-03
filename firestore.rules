@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Função auxiliar para verificar o SuperAdmin exclusivo da Taberna
+    function isSuperAdmin() {
+      return request.auth != null && request.auth.token.email.lower() == 'henrique.v.berbert@gmail.com';
+    }
+
+    // Função para verificar se o usuário autenticado está aprovado
+    function isApprovedUser() {
+      return request.auth != null && (
+        isSuperAdmin() ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.status == 'APPROVED'
+      );
+    }
+
+    // Regras da Coleção de Usuários
+    match /users/{userId} {
+      // Qualquer usuário logado pode ler perfis públicos
+      allow read: if request.auth != null;
+      
+      // O próprio usuário pode criar seu perfil inicial (sempre PENDING a não ser que seja o Henrique)
+      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // Apenas henrique.v.berbert@gmail.com pode alterar o campo status (aprovar/rejeitar/revogar)
+      allow update: if request.auth != null && (
+        isSuperAdmin() ||
+        (request.auth.uid == userId && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'role']))
+      );
+      
+      allow delete: if isSuperAdmin();
+    }
+
+    // Regras de Campanhas (Salas de Jogo)
+    match /campaigns/{campaignId} {
+      // Leitura permitida para aventureiros aprovados
+      allow read: if isApprovedUser();
+      
+      // Criação permitida para aprovados
+      allow create: if isApprovedUser() && request.resource.data.masterId == request.auth.uid;
+      
+      // Atualização e Exclusão exclusivas do Mestre criador da sala ou SuperAdmin
+      allow update, delete: if isApprovedUser() && (
+        resource.data.masterId == request.auth.uid || isSuperAdmin()
+      );
+    }
+
+    // Regras de Rascunhos do Sketch Studio
+    match /sketches/{sketchId} {
+      allow read, write: if isApprovedUser();
+    }
+  }
+}

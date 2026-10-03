@@ -1,48 +1,104 @@
 import React, { useState } from 'react';
-import { X, ShieldCheck, Mail, Lock, User, Crown, KeyRound, AlertTriangle } from 'lucide-react';
+import { 
+  X, ShieldCheck, Mail, Lock, User, Crown, KeyRound, AlertTriangle, 
+  Check, RefreshCw, Flame, HelpCircle
+} from 'lucide-react';
 import { ADMIN_EMAIL } from '../services/storage';
+import { firebaseAuthService, parseFirebaseError, isLiveFirebaseConfigured } from '../services/firebase';
 import { UserProfile } from '../types';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLogin: (email: string, displayName?: string) => void;
+  onLoginSuccess: (user: UserProfile) => void;
   currentUser: UserProfile | null;
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({
   isOpen,
   onClose,
-  onLogin,
-  currentUser,
+  onLoginSuccess,
 }) => {
   const [isRegister, setIsRegister] = useState(false);
+  const [isResetMode, setIsResetMode] = useState(false);
   const [email, setEmail] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
+    setSuccessMsg('');
+
     if (!email || !email.includes('@')) {
       setErrorMsg('Por favor, informe um endereço de e-mail válido.');
       return;
     }
-    if (isRegister && !displayName.trim()) {
-      setErrorMsg('Informe o nome ou apelido do seu aventureiro.');
-      return;
-    }
 
-    onLogin(email.trim(), displayName.trim() || email.split('@')[0]);
-    onClose();
+    setIsLoading(true);
+
+    try {
+      if (isResetMode) {
+        // Redefinição de senha por e-mail via Firebase
+        await firebaseAuthService.sendPasswordReset(email);
+        setSuccessMsg(`Instruções de redefinição de senha enviadas para ${email}! Verifique sua caixa de entrada.`);
+        setIsLoading(false);
+        return;
+      }
+
+      if (isRegister) {
+        // Cadastro por e-mail e senha no Firebase
+        if (!displayName.trim()) {
+          setErrorMsg('Informe o nome ou alcunha do seu aventureiro.');
+          setIsLoading(false);
+          return;
+        }
+        if (password.length < 6) {
+          setErrorMsg('A palavra secreta (senha) deve conter no mínimo 6 caracteres.');
+          setIsLoading(false);
+          return;
+        }
+
+        const userProfile = await firebaseAuthService.registerWithEmail(email, password, displayName);
+        onLoginSuccess(userProfile);
+        onClose();
+      } else {
+        // Login com e-mail e senha no Firebase
+        if (!password) {
+          setErrorMsg('Informe sua palavra secreta (senha) para entrar.');
+          setIsLoading(false);
+          return;
+        }
+
+        const userProfile = await firebaseAuthService.loginWithEmail(email, password);
+        onLoginSuccess(userProfile);
+        onClose();
+      }
+    } catch (err: any) {
+      console.error('Erro na autenticação Firebase:', err);
+      setErrorMsg(parseFirebaseError(err));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleQuickSwitch = (quickEmail: string, quickName: string) => {
-    onLogin(quickEmail, quickName);
-    onClose();
+  const handleQuickSwitch = async (quickEmail: string, quickName: string) => {
+    setIsLoading(true);
+    setErrorMsg('');
+    try {
+      const userProfile = await firebaseAuthService.registerWithEmail(quickEmail, '123456', quickName);
+      onLoginSuccess(userProfile);
+      onClose();
+    } catch (err: any) {
+      setErrorMsg(parseFirebaseError(err));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -53,19 +109,31 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         style={{ padding: '28px', maxWidth: '520px' }}
       >
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '14px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <ShieldCheck size={22} color="var(--amber-deep)" />
               <h2 style={{ fontSize: '20px', fontWeight: 800 }}>
-                {isRegister ? 'Registro de Novo Aventureiro' : 'Identificação na Taberna'}
+                {isResetMode 
+                  ? 'Recuperar Palavra Secreta' 
+                  : isRegister 
+                  ? 'Registro via Firebase Auth' 
+                  : 'Autenticação por E-mail'}
               </h2>
             </div>
-            <p style={{ fontSize: '13px', color: 'var(--ink-medium)', marginTop: '4px' }}>
-              {isRegister 
-                ? 'Novos cadastros necessitam de aprovação prévia do Taberneiro-Chefe.'
-                : 'Apresente suas credenciais para adentrar aos aposentos da guilda.'}
-            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
+              <span style={{ fontSize: '11px', color: 'var(--amber-torch)', fontWeight: 700 }}>
+                Firebase Authentication:
+              </span>
+              <span className="wax-badge" style={{
+                backgroundColor: isLiveFirebaseConfigured ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+                color: isLiveFirebaseConfigured ? '#059669' : '#b45309',
+                fontSize: '9px',
+                padding: '1px 6px'
+              }}>
+                {isLiveFirebaseConfigured ? '● Conectado ao Firebase' : 'Modo Demonstração Habilitado'}
+              </span>
+            </div>
           </div>
           <button
             onClick={onClose}
@@ -89,105 +157,129 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           borderRadius: '4px',
           fontSize: '12px',
           color: 'var(--ink-dark)',
-          marginBottom: '20px',
+          marginBottom: '18px',
           lineHeight: 1.4
         }}>
-          <strong>Aviso da Estalagem:</strong> Por ordem do Mestre, todo aventureiro recém-chegado fica em estado <em>Pendente</em> até que <strong>{ADMIN_EMAIL}</strong> aprove sua entrada na Câmara Administrativa.
+          <strong>Aviso de Segurança:</strong> Ao se cadastrar por e-mail, seu perfil receberá o status <em>PENDENTE</em>. O acesso às salas e ferramentas será liberado após aprovação exclusiva de <strong>{ADMIN_EMAIL}</strong>.
         </div>
 
         {/* Quick Demo Switcher Buttons */}
-        <div style={{ marginBottom: '22px' }}>
-          <label style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: 'var(--ink-light)', letterSpacing: '0.05em' }}>
-            Acesso Rápido para Demonstração & Teste:
-          </label>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', marginTop: '6px' }}>
-            <button
-              type="button"
-              onClick={() => handleQuickSwitch(ADMIN_EMAIL, 'Henrique Berbert')}
-              className="btn-tavern"
-              style={{
-                backgroundColor: '#2a180b',
-                color: '#fef08a',
-                border: '1px solid #eab308',
-                fontSize: '11px',
-                padding: '8px 10px',
-                minHeight: '44px',
-                flexDirection: 'column',
-                gap: '2px'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <Crown size={12} color="#facc15" />
-                <span>Henrique (Admin)</span>
-              </div>
-              <span style={{ fontSize: '9px', opacity: 0.8, color: '#34d399' }}>Acesso Total</span>
-            </button>
+        {!isResetMode && (
+          <div style={{ marginBottom: '18px' }}>
+            <label style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: 'var(--ink-light)', letterSpacing: '0.05em' }}>
+              Atalhos Rápidos para Demonstração:
+            </label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', marginTop: '6px' }}>
+              <button
+                type="button"
+                onClick={() => handleQuickSwitch(ADMIN_EMAIL, 'Henrique Berbert')}
+                className="btn-tavern"
+                style={{
+                  backgroundColor: '#2a180b',
+                  color: '#fef08a',
+                  border: '1px solid #eab308',
+                  fontSize: '11px',
+                  padding: '8px 10px',
+                  minHeight: '44px',
+                  flexDirection: 'column',
+                  gap: '2px'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <Crown size={12} color="#facc15" />
+                  <span>Henrique (Admin)</span>
+                </div>
+                <span style={{ fontSize: '9px', opacity: 0.8, color: '#34d399' }}>Aprovador Máximo</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => handleQuickSwitch('thorin.escudo@taberna.rpg', 'Thorin Quebra-Machado')}
-              className="btn-tavern"
-              style={{
-                backgroundColor: '#3e2412',
-                color: '#fff',
-                border: '1px solid #78350f',
-                fontSize: '11px',
-                padding: '8px 10px',
-                minHeight: '44px',
-                flexDirection: 'column',
-                gap: '2px'
-              }}
-            >
-              <span>Thorin</span>
-              <span style={{ fontSize: '9px', opacity: 0.8, color: '#34d399' }}>Aprovado</span>
-            </button>
+              <button
+                type="button"
+                onClick={() => handleQuickSwitch('thorin.escudo@taberna.rpg', 'Thorin Quebra-Machado')}
+                className="btn-tavern"
+                style={{
+                  backgroundColor: '#3e2412',
+                  color: '#fff',
+                  border: '1px solid #78350f',
+                  fontSize: '11px',
+                  padding: '8px 10px',
+                  minHeight: '44px',
+                  flexDirection: 'column',
+                  gap: '2px'
+                }}
+              >
+                <span>Thorin</span>
+                <span style={{ fontSize: '9px', opacity: 0.8, color: '#34d399' }}>Aprovado</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => handleQuickSwitch('lyanna.sombra@taberna.rpg', 'Lyanna Sombra-da-Noite')}
-              className="btn-tavern"
-              style={{
-                backgroundColor: '#3e2412',
-                color: '#fbbf24',
-                border: '1px solid #b45309',
-                fontSize: '11px',
-                padding: '8px 10px',
-                minHeight: '44px',
-                flexDirection: 'column',
-                gap: '2px'
-              }}
-            >
-              <span>Lyanna</span>
-              <span style={{ fontSize: '9px', opacity: 0.8, color: '#f59e0b' }}>Pendente</span>
-            </button>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', margin: '16px 0', gap: '10px' }}>
-          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--parchment-dark)' }} />
-          <span style={{ fontSize: '11px', color: 'var(--ink-light)', textTransform: 'uppercase' }}>ou utilize seu e-mail</span>
-          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--parchment-dark)' }} />
-        </div>
-
-        {/* Custom Form */}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          {errorMsg && (
-            <div style={{
-              backgroundColor: '#fee2e2',
-              border: '1px solid #ef4444',
-              color: '#991b1b',
-              padding: '8px 12px',
-              borderRadius: '4px',
-              fontSize: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}>
-              <AlertTriangle size={15} />
-              {errorMsg}
+              <button
+                type="button"
+                onClick={() => handleQuickSwitch('lyanna.sombra@taberna.rpg', 'Lyanna Sombra-da-Noite')}
+                className="btn-tavern"
+                style={{
+                  backgroundColor: '#3e2412',
+                  color: '#fbbf24',
+                  border: '1px solid #b45309',
+                  fontSize: '11px',
+                  padding: '8px 10px',
+                  minHeight: '44px',
+                  flexDirection: 'column',
+                  gap: '2px'
+                }}
+              >
+                <span>Lyanna</span>
+                <span style={{ fontSize: '9px', opacity: 0.8, color: '#f59e0b' }}>Pendente</span>
+              </button>
             </div>
-          )}
+          </div>
+        )}
 
+        <div style={{ display: 'flex', alignItems: 'center', margin: '14px 0', gap: '10px' }}>
+          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--parchment-dark)' }} />
+          <span style={{ fontSize: '11px', color: 'var(--ink-light)', textTransform: 'uppercase' }}>
+            {isResetMode ? 'e-mail cadastrado' : 'ou credenciais de e-mail'}
+          </span>
+          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--parchment-dark)' }} />
+        </div>
+
+        {/* Feedback Messages */}
+        {errorMsg && (
+          <div style={{
+            backgroundColor: '#fee2e2',
+            border: '1px solid #ef4444',
+            color: '#991b1b',
+            padding: '8px 12px',
+            borderRadius: '4px',
+            fontSize: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            marginBottom: '12px'
+          }}>
+            <AlertTriangle size={15} />
+            {errorMsg}
+          </div>
+        )}
+
+        {successMsg && (
+          <div style={{
+            backgroundColor: '#ecfdf5',
+            border: '1px solid #10b981',
+            color: '#065f46',
+            padding: '8px 12px',
+            borderRadius: '4px',
+            fontSize: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            marginBottom: '12px'
+          }}>
+            <Check size={15} />
+            {successMsg}
+          </div>
+        )}
+
+        {/* Main Form */}
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {isRegister && (
             <div>
               <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--ink-dark)', marginBottom: '4px' }}>
@@ -197,9 +289,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <User size={16} color="var(--ink-light)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
                 <input
                   type="text"
+                  required
                   value={displayName}
                   onChange={e => setDisplayName(e.target.value)}
-                  placeholder="Ex: Alistair, o Bárbaro"
+                  placeholder="Ex: Aldor, o Conjurador de Chamas"
                   className="tavern-input"
                   style={{ paddingLeft: '36px' }}
                 />
@@ -209,7 +302,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--ink-dark)', marginBottom: '4px' }}>
-              Endereço de E-mail:
+              Endereço de E-mail (Firebase Auth):
             </label>
             <div style={{ position: 'relative' }}>
               <Mail size={16} color="var(--ink-light)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
@@ -225,54 +318,123 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
           </div>
 
-          <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--ink-dark)', marginBottom: '4px' }}>
-              Palavra Secreta (Senha):
-            </label>
-            <div style={{ position: 'relative' }}>
-              <Lock size={16} color="var(--ink-light)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
-              <input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="tavern-input"
-                style={{ paddingLeft: '36px' }}
-              />
+          {!isResetMode && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--ink-dark)' }}>
+                  Palavra Secreta (Senha do Firebase):
+                </label>
+                {!isRegister && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsResetMode(true);
+                      setErrorMsg('');
+                      setSuccessMsg('');
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--amber-deep)',
+                      fontSize: '11px',
+                      cursor: 'pointer',
+                      textDecoration: 'underline'
+                    }}
+                  >
+                    Esqueceu a senha?
+                  </button>
+                )}
+              </div>
+              <div style={{ position: 'relative' }}>
+                <Lock size={16} color="var(--ink-light)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="Mínimo 6 caracteres"
+                  className="tavern-input"
+                  style={{ paddingLeft: '36px' }}
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           <button
             type="submit"
+            disabled={isLoading}
             className="btn-tavern btn-primary"
             style={{ width: '100%', marginTop: '6px' }}
           >
-            <KeyRound size={16} />
-            {isRegister ? 'Solicitar Acesso à Taberna' : 'Confirmar e Entrar'}
+            {isLoading ? (
+              <>
+                <RefreshCw size={16} className="torch-flicker" />
+                <span>Processando no Firebase...</span>
+              </>
+            ) : isResetMode ? (
+              <>
+                <Mail size={16} />
+                <span>Enviar Link de Recuperação</span>
+              </>
+            ) : isRegister ? (
+              <>
+                <KeyRound size={16} />
+                <span>Registrar via Firebase Auth</span>
+              </>
+            ) : (
+              <>
+                <KeyRound size={16} />
+                <span>Entrar na Taberna</span>
+              </>
+            )}
           </button>
         </form>
 
-        <div style={{ textAlign: 'center', marginTop: '16px' }}>
-          <button
-            type="button"
-            onClick={() => {
-              setIsRegister(!isRegister);
-              setErrorMsg('');
-            }}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--amber-deep)',
-              fontSize: '13px',
-              fontWeight: 600,
-              cursor: 'pointer',
-              textDecoration: 'underline'
-            }}
-          >
-            {isRegister 
-              ? 'Já tem cadastro? Faça seu login' 
-              : 'Não tem cadastro? Crie seu perfil de aventureiro'}
-          </button>
+        {/* Footer Mode Switchers */}
+        <div style={{ textAlign: 'center', marginTop: '14px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          {isResetMode ? (
+            <button
+              type="button"
+              onClick={() => {
+                setIsResetMode(false);
+                setErrorMsg('');
+                setSuccessMsg('');
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--amber-deep)',
+                fontSize: '12px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                textDecoration: 'underline'
+              }}
+            >
+              ← Voltar para a tela de login
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                setIsRegister(!isRegister);
+                setErrorMsg('');
+                setSuccessMsg('');
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--amber-deep)',
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                textDecoration: 'underline'
+              }}
+            >
+              {isRegister 
+                ? 'Já possui conta no Firebase? Faça seu login' 
+                : 'Novo na estalagem? Cadastre-se com e-mail e senha'}
+            </button>
+          )}
         </div>
       </div>
     </div>

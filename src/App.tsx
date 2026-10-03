@@ -9,6 +9,7 @@ import { UrdChatView } from './components/UrdChatView';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { PWAInstallBanner } from './components/PWAInstallBanner';
 import { storageService, ADMIN_EMAIL } from './services/storage';
+import { firebaseAuthService } from './services/firebase';
 import { Campaign, CharacterSheet, LoreEntry, RuleDocument, SketchAsset, UserProfile } from './types';
 
 export function App() {
@@ -45,7 +46,8 @@ export function App() {
     reloadData();
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await firebaseAuthService.logout();
     storageService.setCurrentUser(null);
     setCurrentUser(null);
     setIsAuthModalOpen(true);
@@ -283,7 +285,10 @@ export function App() {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-        onLogin={handleLogin}
+        onLoginSuccess={(user) => {
+          setCurrentUser(user);
+          reloadData();
+        }}
         currentUser={currentUser}
       />
 
