@@ -1,6 +1,8 @@
 import { GoogleGenAI } from '@google/genai';
 
-const VITE_ENV_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const VITE_ENV_KEY = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GEMINI_API_KEY)
+  || (typeof process !== 'undefined' && process.env?.VITE_GEMINI_API_KEY)
+  || '';
 
 // Recupera a melhor chave de API disponível (chave customizada salva ou variável de ambiente)
 export const getEffectiveGeminiKey = (customKey?: string): string => {
