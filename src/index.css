@@ -38,7 +38,7 @@
   --status-rejected: #ef4444;
 
   /* Tipografia */
-  --font-cinzel: 'Cinzel', serif;
+  --font-cinzel: 'Cinzel', 'Alegreya', Georgia, serif;
   --font-medieval: 'MedievalSharp', cursive;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-lore: 'Alegreya', Georgia, serif;
@@ -246,9 +246,9 @@ h1, h2, h3, h4, .font-cinzel {
 }
 
 .wax-badge-pending {
-  background: rgba(245, 158, 11, 0.15);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.4);
+  background: #fef3c7;
+  color: #78350f;
+  border: 1px solid #d97706;
 }
 
 .wax-badge-approved {

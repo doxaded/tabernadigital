@@ -1,7 +1,6 @@
 import React from 'react';
-import { Lock, Clock, ShieldAlert, RefreshCw, Crown, LogOut, Beer } from 'lucide-react';
+import { Lock, Clock, ShieldAlert, RefreshCw, LogOut } from 'lucide-react';
 import { UserProfile } from '../types';
-import { ADMIN_EMAIL } from '../services/storage';
 
 interface PendingApprovalScreenProps {
   user: UserProfile;
@@ -38,12 +37,24 @@ export const PendingApprovalScreen: React.FC<PendingApprovalScreenProps> = ({
         </div>
 
         {/* Title */}
-        <h2 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>
+        <h2 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '8px', color: 'var(--ink-dark)' }}>
           Portão da Taberna Trancado
         </h2>
 
-        <div className="wax-badge wax-badge-pending" style={{ marginBottom: '18px' }}>
-          <Clock size={12} />
+        <div 
+          className="wax-badge wax-badge-pending" 
+          style={{ 
+            marginBottom: '18px',
+            backgroundColor: '#fef3c7',
+            color: '#78350f',
+            border: '1.5px solid #d97706',
+            boxShadow: '0 1px 3px rgba(180, 83, 9, 0.2)',
+            fontWeight: 800,
+            fontSize: '11px',
+            padding: '6px 14px'
+          }}
+        >
+          <Clock size={14} color="#92400e" />
           Status: Aguardando Aprovação Administrativa
         </div>
 
@@ -61,27 +72,16 @@ export const PendingApprovalScreen: React.FC<PendingApprovalScreenProps> = ({
           padding: '16px',
           textAlign: 'left',
           marginBottom: '28px',
-          fontSize: '13px',
+          fontSize: '14px',
           color: 'var(--ink-dark)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', fontWeight: 700, color: 'var(--amber-deep)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', fontWeight: 700, color: 'var(--amber-deep)', fontSize: '14px' }}>
             <ShieldAlert size={18} />
             Controle Obrigatório de Moderação
           </div>
-          <p style={{ margin: 0, lineHeight: 1.5 }}>
-            Sua conta (<strong>{user.email}</strong>) foi registrada com sucesso, mas o acesso aos módulos de <strong>Campanhas</strong>, <strong>Sketch Studio</strong> e <strong>Urd o Taberneiro</strong> requer aprovação expressa do administrador único:
+          <p style={{ margin: 0, lineHeight: 1.6 }}>
+            Seu registro foi efetuado com sucesso, mas o acesso ao Salão Principal requer aprovação expressa do Dono da Taberna.
           </p>
-          <div style={{
-            marginTop: '8px',
-            padding: '6px 10px',
-            backgroundColor: '#fff',
-            borderRadius: '4px',
-            fontFamily: 'monospace',
-            fontWeight: 700,
-            color: '#b45309'
-          }}>
-            {ADMIN_EMAIL}
-          </div>
         </div>
 
         {/* Action Buttons */}
@@ -98,9 +98,16 @@ export const PendingApprovalScreen: React.FC<PendingApprovalScreenProps> = ({
           <button
             onClick={onLogout}
             className="btn-tavern btn-secondary"
-            style={{ width: '100%', color: 'var(--ink-dark)', borderColor: 'var(--parchment-dark)' }}
+            style={{ 
+              width: '100%', 
+              backgroundColor: '#2a180b',
+              color: '#fef08a',
+              borderColor: '#78350f',
+              fontWeight: 600,
+              fontSize: '13px'
+            }}
           >
-            <LogOut size={15} />
+            <LogOut size={16} color="#facc15" />
             Trocar de Conta / Sair
           </button>
         </div>
