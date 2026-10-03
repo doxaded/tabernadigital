@@ -108,6 +108,40 @@ export const buildSketchPrompt = (
   ].join(' ');
 };
 
+// Otimizador de imagem base64 para armazenamento leve no navegador
+export const compressBase64Image = (dataUrl: string, maxDim = 1024, quality = 0.85): Promise<string> => {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined' || typeof document === 'undefined' || !dataUrl.startsWith('data:image')) {
+      return resolve(dataUrl);
+    }
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      let width = img.width;
+      let height = img.height;
+      if (width > maxDim || height > maxDim) {
+        if (width > height) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return resolve(dataUrl);
+      ctx.drawImage(img, 0, 0, width, height);
+      const compressed = canvas.toDataURL('image/jpeg', quality);
+      resolve(compressed);
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+};
+
 export const aiService = {
   // Chat com Urd com suporte a Cloud Functions e Gemini API
   async chatWithUrd(prompt: string, history: Array<{ sender: 'user' | 'urd'; text: string }>, customApiKey?: string): Promise<string> {
@@ -168,7 +202,7 @@ export const aiService = {
   ): Promise<GenerateSketchResult> {
     const apiKey = getEffectiveGeminiKey(options?.customApiKey);
     const aspectRatio = options?.aspectRatio || '1:1';
-    const imageSize = options?.imageSize || '2K';
+    const imageSize = options?.imageSize || '1K';
     const enhancedPrompt = buildSketchPrompt(prompt, category);
 
     let quotaNotice: string | undefined = undefined;
@@ -219,9 +253,17 @@ export const aiService = {
             }
 
             if (base64Image) {
+              let finalImageUrl = `data:${mimeType};base64,${base64Image}`;
+              try {
+                // Comprime suavemente para caber confortavelmente em múltiplos assets
+                finalImageUrl = await compressBase64Image(finalImageUrl, 1024, 0.85);
+              } catch (compErr) {
+                console.warn('Erro ao otimizar base64:', compErr);
+              }
+
               const description = await this.describeSketchWithGemini(prompt, category, apiKey);
               return {
-                imageUrl: `data:${mimeType};base64,${base64Image}`,
+                imageUrl: finalImageUrl,
                 description,
                 modelUsed: model,
                 isAiGenerated: true
@@ -233,7 +275,7 @@ export const aiService = {
             console.warn(`[Gemini Sketch] Retorno da API para ${model} (HTTP ${res.status}):`, errMsg);
 
             if (res.status === 429 || errMsg.includes('Rate limit') || errMsg.includes('quota') || errMsg.includes('limit: 0')) {
-              quotaNotice = `O modelo ${model} requer projeto com faturamento/cota ativada no Google AI Studio (limit: 0 no Free Tier).`;
+              quotaNotice = `Aviso do Google AI Studio para ${model}: ${errMsg}`;
             }
           }
         } catch (callErr: any) {

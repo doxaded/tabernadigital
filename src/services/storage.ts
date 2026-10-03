@@ -594,8 +594,36 @@ export const storageService = {
       createdAt: new Date().toISOString(),
     };
     list.unshift(item);
-    localStorage.setItem(STORAGE_KEYS.SKETCHES, JSON.stringify(list));
+
+    // Limite máximo de 10 assets na galeria do estúdio
+    if (list.length > 10) {
+      list.length = 10;
+    }
+
+    try {
+      localStorage.setItem(STORAGE_KEYS.SKETCHES, JSON.stringify(list));
+    } catch (e) {
+      console.warn('Alerta de cota no armazenamento local, liberando slots mais antigos:', e);
+      // Se estourar a cota local do navegador, descarta o mais antigo até caber
+      while (list.length > 1) {
+        list.pop();
+        try {
+          localStorage.setItem(STORAGE_KEYS.SKETCHES, JSON.stringify(list));
+          break;
+        } catch {}
+      }
+    }
     return item;
+  },
+
+  deleteSketch(id: string): void {
+    const list = this.getSketches();
+    const filtered = list.filter(s => s.id !== id);
+    try {
+      localStorage.setItem(STORAGE_KEYS.SKETCHES, JSON.stringify(filtered));
+    } catch (e) {
+      console.error('Erro ao excluir sketch:', e);
+    }
   },
 
   // Urd Mensagens

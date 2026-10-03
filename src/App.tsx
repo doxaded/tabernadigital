@@ -142,6 +142,11 @@ export function App() {
     return item;
   };
 
+  const handleDeleteSketch = (id: string) => {
+    storageService.deleteSketch(id);
+    reloadData();
+  };
+
   // Handlers do Urd
   const handleSendUrdMessage = (sender: 'user' | 'urd', text: string) => {
     storageService.addUrdMessage(sender, text);
@@ -245,6 +250,7 @@ export function App() {
                 campaigns={campaigns}
                 activeCampaignId={selectedCampaignId}
                 onSaveSketch={handleSaveSketch}
+                onDeleteSketch={handleDeleteSketch}
               />
             )}
 
