@@ -213,7 +213,6 @@ export function App() {
           <PendingApprovalScreen
             user={currentUser}
             onRefresh={reloadData}
-            onSwitchToAdmin={() => handleLogin(ADMIN_EMAIL, 'Henrique Berbert')}
             onLogout={handleLogout}
           />
         )}

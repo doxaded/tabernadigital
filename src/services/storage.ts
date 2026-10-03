@@ -244,11 +244,21 @@ export const storageService = {
     }
   },
 
-  // Cadastro de novo usuário com fluxo obrigatório de PENDING
+  // Cadastro de novo usuário com fluxo obrigatório de PENDING (Bloqueio estrito de personificação do Admin)
   registerUser(email: string, displayName: string, password?: string): { user: UserProfile; isPending: boolean } {
-    const users = this.getUsers();
     const cleanEmail = email.trim().toLowerCase();
+
+    // 1. Proibição de registrar o e-mail do admin como usuário comum
+    if (cleanEmail === ADMIN_EMAIL.toLowerCase()) {
+      throw new Error('O e-mail ' + ADMIN_EMAIL + ' pertence exclusivamente ao Administrador Mestre da estalagem. Utilize a opção de login.');
+    }
+
+    const users = this.getUsers();
     const existing = users.find(u => u.email.toLowerCase() === cleanEmail);
+
+    if (existing) {
+      throw new Error('Este e-mail já possui cadastro na estalagem. Faça login com sua palavra secreta.');
+    }
 
     if (password) {
       const passwords = this.getPasswords();
@@ -256,27 +266,20 @@ export const storageService = {
       this.savePasswords(passwords);
     }
 
-    if (existing) {
-      this.setCurrentUser(existing);
-      return { user: existing, isPending: existing.status === 'PENDING' };
-    }
-
-    const isAdmin = cleanEmail === ADMIN_EMAIL.toLowerCase();
     const newUser: UserProfile = {
       uid: 'user-' + Date.now(),
       email: cleanEmail,
-      displayName: displayName || (isAdmin ? 'Henrique Berbert' : cleanEmail.split('@')[0]),
-      role: isAdmin ? 'admin' : 'user',
-      status: isAdmin ? 'APPROVED' : 'PENDING',
+      displayName: displayName.trim() || cleanEmail.split('@')[0],
+      role: 'user',
+      status: 'PENDING',
       createdAt: new Date().toISOString(),
-      approvedAt: isAdmin ? new Date().toISOString() : undefined,
     };
 
     users.push(newUser);
     this.saveUsers(users);
     this.setCurrentUser(newUser);
 
-    return { user: newUser, isPending: newUser.status === 'PENDING' };
+    return { user: newUser, isPending: true };
   },
 
   // Gerenciamento de Palavras Secretas (Senhas)
@@ -320,16 +323,30 @@ export const storageService = {
     return { success: true };
   },
 
-  // Login de usuário existente ou simulação
+  // Login de usuário existente (Não registra automaticamente desconhecidos)
   loginUser(email: string): UserProfile {
     const cleanEmail = email.trim().toLowerCase();
     const users = this.getUsers();
     let found = users.find(u => u.email.toLowerCase() === cleanEmail);
 
     if (!found) {
-      // Cria automaticamente com status pendente (a não ser que seja o admin)
-      const res = this.registerUser(cleanEmail, cleanEmail.split('@')[0]);
-      found = res.user;
+      // Se for o admin e ainda não estiver na lista de usuários por algum motivo, inicializa o admin
+      if (cleanEmail === ADMIN_EMAIL.toLowerCase()) {
+        const adminProfile: UserProfile = {
+          uid: 'admin-henrique',
+          email: ADMIN_EMAIL,
+          displayName: 'Henrique Berbert',
+          role: 'admin',
+          status: 'APPROVED',
+          createdAt: '2026-10-01T12:00:00Z',
+          approvedAt: '2026-10-01T12:00:00Z',
+        };
+        users.unshift(adminProfile);
+        this.saveUsers(users);
+        found = adminProfile;
+      } else {
+        throw new Error('Nenhum aventureiro encontrado com este e-mail. Por favor, crie seu cadastro primeiro.');
+      }
     }
 
     this.setCurrentUser(found);

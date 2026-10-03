@@ -20,10 +20,16 @@ service cloud.firestore {
       // Qualquer usuário logado pode ler perfis públicos
       allow read: if request.auth != null;
       
-      // O próprio usuário pode criar seu perfil inicial (sempre PENDING a não ser que seja o Henrique)
-      allow create: if request.auth != null && request.auth.uid == userId;
+      // O próprio usuário pode criar seu perfil inicial (sempre PENDING e role 'user', exceto se for Henrique)
+      allow create: if request.auth != null && request.auth.uid == userId && (
+        isSuperAdmin() || (
+          request.resource.data.role == 'user' && 
+          request.resource.data.status == 'PENDING' &&
+          request.resource.data.email.lower() != 'henrique.v.berbert@gmail.com'
+        )
+      );
       
-      // Apenas henrique.v.berbert@gmail.com pode alterar o campo status (aprovar/rejeitar/revogar)
+      // Apenas henrique.v.berbert@gmail.com pode alterar o campo status (aprovar/rejeitar/revogar) ou role
       allow update: if request.auth != null && (
         isSuperAdmin() ||
         (request.auth.uid == userId && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'role']))
@@ -46,9 +52,13 @@ service cloud.firestore {
       );
     }
 
-    // Regras de Rascunhos do Sketch Studio
+    // Regras de Rascunhos do Sketch Studio (Protegidos por autor)
     match /sketches/{sketchId} {
-      allow read, write: if isApprovedUser();
+      allow read: if isApprovedUser();
+      allow create: if isApprovedUser();
+      allow update, delete: if isApprovedUser() && (
+        resource.data.authorId == request.auth.uid || isSuperAdmin()
+      );
     }
   }
 }

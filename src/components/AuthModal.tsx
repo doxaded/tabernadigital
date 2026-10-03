@@ -55,6 +55,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       }
 
       if (isRegister) {
+        if (email.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+          setErrorMsg(`O endereço ${ADMIN_EMAIL} pertence exclusivamente ao Administrador Mestre da estalagem. Utilize a opção de login com sua Palavra Secreta Master.`);
+          setIsLoading(false);
+          return;
+        }
         // Cadastro por e-mail e senha no Firebase
         if (!displayName.trim()) {
           setErrorMsg('Informe o nome ou alcunha do seu aventureiro.');
@@ -85,29 +90,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     } catch (err: any) {
       console.error('Erro na autenticação Firebase:', err);
       setErrorMsg(parseFirebaseError(err));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleQuickSwitch = async (quickEmail: string, quickName: string) => {
-    setIsLoading(true);
-    setErrorMsg('');
-    try {
-      const isMaster = quickEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-      const pass = isMaster ? DEFAULT_MASTER_PASSWORD : '123456';
-      let userProfile: UserProfile;
-      try {
-        userProfile = await firebaseAuthService.loginWithEmail(quickEmail, pass);
-      } catch {
-        userProfile = await firebaseAuthService.registerWithEmail(quickEmail, pass, quickName);
-      }
-      onLoginSuccess(userProfile);
-      onClose();
-    } catch {
-      const localUser = storageService.loginUser(quickEmail);
-      onLoginSuccess(localUser);
-      onClose();
     } finally {
       setIsLoading(false);
     }
@@ -207,83 +189,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <strong>Aviso de Segurança:</strong> Ao se cadastrar por e-mail, seu perfil receberá o status <em>PENDENTE</em>. O acesso às salas e ferramentas será liberado após aprovação exclusiva de <strong>{ADMIN_EMAIL}</strong>.
         </div>
 
-        {/* Quick Demo Switcher Buttons */}
-        {!isResetMode && (
-          <div style={{ marginBottom: '18px' }}>
-            <label style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: 'var(--ink-light)', letterSpacing: '0.05em' }}>
-              Atalhos Rápidos para Demonstração:
-            </label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', marginTop: '6px' }}>
-              <button
-                type="button"
-                onClick={() => handleQuickSwitch(ADMIN_EMAIL, 'Henrique Berbert')}
-                className="btn-tavern"
-                style={{
-                  backgroundColor: '#2a180b',
-                  color: '#fef08a',
-                  border: '1px solid #eab308',
-                  fontSize: '11px',
-                  padding: '8px 10px',
-                  minHeight: '44px',
-                  flexDirection: 'column',
-                  gap: '2px'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <Crown size={12} color="#facc15" />
-                  <span>Henrique (Admin)</span>
-                </div>
-                <span style={{ fontSize: '9px', opacity: 0.8, color: '#34d399' }}>Aprovador Máximo</span>
-              </button>
 
-              <button
-                type="button"
-                onClick={() => handleQuickSwitch('thorin.escudo@taberna.rpg', 'Thorin Quebra-Machado')}
-                className="btn-tavern"
-                style={{
-                  backgroundColor: '#3e2412',
-                  color: '#fff',
-                  border: '1px solid #78350f',
-                  fontSize: '11px',
-                  padding: '8px 10px',
-                  minHeight: '44px',
-                  flexDirection: 'column',
-                  gap: '2px'
-                }}
-              >
-                <span>Thorin</span>
-                <span style={{ fontSize: '9px', opacity: 0.8, color: '#34d399' }}>Aprovado</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickSwitch('lyanna.sombra@taberna.rpg', 'Lyanna Sombra-da-Noite')}
-                className="btn-tavern"
-                style={{
-                  backgroundColor: '#3e2412',
-                  color: '#fbbf24',
-                  border: '1px solid #b45309',
-                  fontSize: '11px',
-                  padding: '8px 10px',
-                  minHeight: '44px',
-                  flexDirection: 'column',
-                  gap: '2px'
-                }}
-              >
-                <span>Lyanna</span>
-                <span style={{ fontSize: '9px', opacity: 0.8, color: '#f59e0b' }}>Pendente</span>
-              </button>
-            </div>
-          </div>
-        )}
-
-        <div style={{ display: 'flex', alignItems: 'center', margin: '14px 0', gap: '10px' }}>
-          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--parchment-dark)' }} />
-          <span style={{ fontSize: '11px', color: 'var(--ink-light)', textTransform: 'uppercase' }}>
-            {isResetMode ? 'e-mail cadastrado' : 'ou credenciais de e-mail'}
-          </span>
-          <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--parchment-dark)' }} />
-        </div>
 
         {/* Feedback Messages */}
         {errorMsg && (

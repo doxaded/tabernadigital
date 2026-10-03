@@ -6,14 +6,12 @@ import { ADMIN_EMAIL } from '../services/storage';
 interface PendingApprovalScreenProps {
   user: UserProfile;
   onRefresh: () => void;
-  onSwitchToAdmin: () => void;
   onLogout: () => void;
 }
 
 export const PendingApprovalScreen: React.FC<PendingApprovalScreenProps> = ({
   user,
   onRefresh,
-  onSwitchToAdmin,
   onLogout,
 }) => {
   return (
@@ -95,22 +93,6 @@ export const PendingApprovalScreen: React.FC<PendingApprovalScreenProps> = ({
           >
             <RefreshCw size={16} />
             Verificar se Já Fui Aprovado
-          </button>
-
-          {/* Quick Demo Shortcut to Test Approval Flow */}
-          <button
-            onClick={onSwitchToAdmin}
-            className="btn-tavern"
-            style={{
-              width: '100%',
-              backgroundColor: '#2a180b',
-              color: '#fef08a',
-              border: '1px solid #eab308',
-              fontSize: '12px'
-            }}
-          >
-            <Crown size={15} color="#facc15" />
-            Alternar para Henrique (Admin) para Aprovar
           </button>
 
           <button
