@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, Sparkles, BookOpen, Crown, LogOut, UserCheck, Flame, Bell } from 'lucide-react';
+import { Shield, Sparkles, BookOpen, Crown, LogOut, UserCheck, Flame, KeyRound } from 'lucide-react';
 import { UserProfile } from '../types';
 import { ADMIN_EMAIL } from '../services/storage';
 
@@ -9,6 +9,7 @@ interface NavbarProps {
   setActiveTab: (tab: 'campaigns' | 'sketch' | 'urd') => void;
   onOpenAdmin: () => void;
   onOpenAuth: () => void;
+  onOpenChangePassword: () => void;
   onLogout: () => void;
   pendingCount: number;
 }
@@ -19,6 +20,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   setActiveTab,
   onOpenAdmin,
   onOpenAuth,
+  onOpenChangePassword,
   onLogout,
   pendingCount,
 }) => {
@@ -191,6 +193,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                   </div>
                 </div>
               </div>
+
+              <button
+                onClick={onOpenChangePassword}
+                className="btn-tavern btn-secondary"
+                style={{ padding: '8px 10px', minHeight: 'unset' }}
+                title="Trocar Palavra Secreta (Senha)"
+              >
+                <KeyRound size={15} color="#fbbf24" />
+              </button>
 
               <button
                 onClick={onLogout}

@@ -1,6 +1,7 @@
 import { Campaign, CharacterSheet, LoreEntry, RuleDocument, SketchAsset, UrdMessage, UserProfile } from '../types';
 
 export const ADMIN_EMAIL = 'henrique.v.berbert@gmail.com';
+export const DEFAULT_MASTER_PASSWORD = 'TabernaMestre2026!';
 
 const STORAGE_KEYS = {
   USERS: 'taberna_users_v1',
@@ -8,6 +9,14 @@ const STORAGE_KEYS = {
   CAMPAIGNS: 'taberna_campaigns_v1',
   SKETCHES: 'taberna_sketches_v1',
   URD_MESSAGES: 'taberna_urd_messages_v1',
+  PASSWORDS: 'taberna_passwords_v1',
+};
+
+const DEFAULT_PASSWORDS: Record<string, string> = {
+  [ADMIN_EMAIL.toLowerCase()]: DEFAULT_MASTER_PASSWORD,
+  'thorin.escudo@taberna.rpg': '123456',
+  'lyanna.sombra@taberna.rpg': '123456',
+  'garrick.bardo@taberna.rpg': '123456',
 };
 
 // Dados padrão iniciais
@@ -265,6 +274,47 @@ export const storageService = {
     this.setCurrentUser(newUser);
 
     return { user: newUser, isPending: newUser.status === 'PENDING' };
+  },
+
+  // Gerenciamento de Palavras Secretas (Senhas)
+  getPasswords(): Record<string, string> {
+    const raw = localStorage.getItem(STORAGE_KEYS.PASSWORDS);
+    if (!raw) {
+      localStorage.setItem(STORAGE_KEYS.PASSWORDS, JSON.stringify(DEFAULT_PASSWORDS));
+      return { ...DEFAULT_PASSWORDS };
+    }
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return { ...DEFAULT_PASSWORDS };
+    }
+  },
+
+  savePasswords(passwords: Record<string, string>) {
+    localStorage.setItem(STORAGE_KEYS.PASSWORDS, JSON.stringify(passwords));
+  },
+
+  verifyPassword(email: string, passwordAttempt: string): boolean {
+    const cleanEmail = email.trim().toLowerCase();
+    const passwords = this.getPasswords();
+    const expected = passwords[cleanEmail] || (cleanEmail === ADMIN_EMAIL.toLowerCase() ? DEFAULT_MASTER_PASSWORD : '123456');
+    return passwordAttempt === expected;
+  },
+
+  changePassword(email: string, currentPasswordAttempt: string, newPassword: string): { success: boolean; error?: string } {
+    const cleanEmail = email.trim().toLowerCase();
+    if (!newPassword || newPassword.length < 6) {
+      return { success: false, error: 'A nova palavra secreta deve conter no mínimo 6 caracteres.' };
+    }
+
+    if (!this.verifyPassword(cleanEmail, currentPasswordAttempt)) {
+      return { success: false, error: 'A palavra secreta atual informada está incorreta.' };
+    }
+
+    const passwords = this.getPasswords();
+    passwords[cleanEmail] = newPassword;
+    this.savePasswords(passwords);
+    return { success: true };
   },
 
   // Login de usuário existente ou simulação

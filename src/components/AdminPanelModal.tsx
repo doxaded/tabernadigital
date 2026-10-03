@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Crown, CheckCircle2, XCircle, Users, ShieldAlert, Clock, Sparkles, AlertTriangle } from 'lucide-react';
+import { X, Crown, CheckCircle2, XCircle, Users, ShieldAlert, Clock, Sparkles, AlertTriangle, KeyRound } from 'lucide-react';
 import { UserProfile, Campaign } from '../types';
 import { ADMIN_EMAIL } from '../services/storage';
 
@@ -11,6 +11,7 @@ interface AdminPanelModalProps {
   campaigns: Campaign[];
   onApproveUser: (uid: string) => void;
   onRejectUser: (uid: string) => void;
+  onOpenChangePassword?: () => void;
 }
 
 export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
@@ -21,6 +22,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
   campaigns,
   onApproveUser,
   onRejectUser,
+  onOpenChangePassword,
 }) => {
   const [activeTab, setActiveTab] = useState<'pending' | 'approved' | 'stats'>('pending');
 
@@ -116,18 +118,44 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--parchment-base)',
-              cursor: 'pointer',
-              padding: '6px'
-            }}
-          >
-            <X size={20} />
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {onOpenChangePassword && (
+              <button
+                onClick={() => {
+                  onClose();
+                  onOpenChangePassword();
+                }}
+                className="btn-tavern"
+                style={{
+                  backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                  color: '#fef08a',
+                  border: '1px solid #fbbf24',
+                  padding: '6px 12px',
+                  fontSize: '11px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+                title="Trocar a senha de acesso do usuário Master"
+              >
+                <KeyRound size={14} color="#facc15" />
+                <span className="desktop-only">Trocar Senha Master</span>
+              </button>
+            )}
+
+            <button
+              onClick={onClose}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--parchment-base)',
+                cursor: 'pointer',
+                padding: '6px'
+              }}
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
         {/* Tab Navigation */}
@@ -415,6 +443,44 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                   Garantia de Segurança Restrita
                 </div>
                 O painel administrativo está amarrado ao e-mail <strong>{ADMIN_EMAIL}</strong>. Qualquer tentativa de acesso por outros endereços de e-mail é automaticamente bloqueada tanto no front-end quanto nas regras de segurança.
+              </div>
+
+              {/* Master Password Management */}
+              <div style={{
+                marginTop: '16px',
+                backgroundColor: 'var(--wood-dark)',
+                border: '1px solid var(--amber-torch)',
+                padding: '16px 20px',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '12px'
+              }}>
+                <div>
+                  <div style={{ fontWeight: 700, color: '#fef3c7', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <KeyRound size={16} color="#fbbf24" />
+                    Gerenciamento da Senha Master
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '2px' }}>
+                    Atualize a palavra secreta mestre da sua conta ({ADMIN_EMAIL}) a qualquer momento.
+                  </div>
+                </div>
+
+                {onOpenChangePassword && (
+                  <button
+                    onClick={() => {
+                      onClose();
+                      onOpenChangePassword();
+                    }}
+                    className="btn-tavern btn-primary"
+                    style={{ fontSize: '12px', padding: '8px 16px' }}
+                  >
+                    <KeyRound size={15} />
+                    Alterar Senha Master
+                  </button>
+                )}
               </div>
             </div>
           )}

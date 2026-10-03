@@ -8,11 +8,14 @@ import {
   signOut,
   updateProfile,
   onAuthStateChanged,
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
   User as FirebaseUser
 } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
-import { ADMIN_EMAIL, storageService } from './storage';
+import { ADMIN_EMAIL, DEFAULT_MASTER_PASSWORD, storageService } from './storage';
 import { UserProfile } from '../types';
 
 const envApiKey = import.meta.env.VITE_FIREBASE_API_KEY;
@@ -140,7 +143,10 @@ export const firebaseAuthService = {
       storageService.setCurrentUser(fallbackProfile);
       return fallbackProfile;
     } else {
-      // Modo Local/Demonstração
+      // Modo Local/Demonstração: validação com base nas palavras secretas cadastradas
+      if (!storageService.verifyPassword(cleanEmail, password)) {
+        throw new Error('A palavra secreta (senha) informada está incorreta.');
+      }
       return storageService.loginUser(cleanEmail);
     }
   },
@@ -156,7 +162,36 @@ export const firebaseAuthService = {
     }
   },
 
-  // 4. Logout
+  // 4. Troca de Senha Segura
+  async changePassword(currentPassword: string, newPassword: string): Promise<{ success: boolean; error?: string }> {
+    const currentUser = auth.currentUser;
+    const localUser = storageService.getCurrentUser();
+    const email = currentUser?.email || localUser?.email;
+
+    if (!email) {
+      return { success: false, error: 'Nenhum aventureiro identificado na estalagem.' };
+    }
+
+    if (!newPassword || newPassword.length < 6) {
+      return { success: false, error: 'A nova palavra secreta deve ter no mínimo 6 caracteres.' };
+    }
+
+    // Se estiver conectado ao Firebase Authentication ativo
+    if (isLiveFirebaseConfigured && currentUser && currentUser.email) {
+      try {
+        const credential = EmailAuthProvider.credential(currentUser.email, currentPassword);
+        await reauthenticateWithCredential(currentUser, credential);
+        await updatePassword(currentUser, newPassword);
+      } catch (err: any) {
+        return { success: false, error: parseFirebaseError(err) };
+      }
+    }
+
+    // Atualiza também no repositório de senhas local
+    return storageService.changePassword(email, currentPassword, newPassword);
+  },
+
+  // 5. Logout
   async logout(): Promise<void> {
     if (isLiveFirebaseConfigured) {
       await signOut(auth);
@@ -164,7 +199,7 @@ export const firebaseAuthService = {
     storageService.setCurrentUser(null);
   },
 
-  // 5. Observer de Estado de Autenticação
+  // 6. Observer de Estado de Autenticação
   subscribeAuthState(callback: (user: FirebaseUser | null) => void) {
     if (isLiveFirebaseConfigured) {
       return onAuthStateChanged(auth, callback);

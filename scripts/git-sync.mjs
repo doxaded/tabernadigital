@@ -41,11 +41,12 @@ async function sync() {
     for (const entry of entries) {
       const relPath = currentSub ? path.join(currentSub, entry.name) : entry.name;
       
-      // Ignorar diretórios e arquivos pesados
+      // Ignorar diretórios e arquivos pesados ou sensíveis
       if (
         entry.name === 'node_modules' ||
         entry.name === '.git' ||
         entry.name === 'dist' ||
+        entry.name === '.env' ||
         entry.name === '.DS_Store' ||
         entry.name.endsWith('.log')
       ) {
@@ -69,13 +70,14 @@ async function sync() {
   }
 
   // 4. Criar commit
-  console.log('3. Criando commit inicial...');
+  console.log('3. Criando commit...');
+  const commitMsg = process.env.COMMIT_MSG || 'feat: add master default password and password change feature';
   let sha;
   try {
     sha = await git.commit({
       fs,
       dir,
-      message: 'feat: initial implementation of Taberna Digital RPG Companion PWA with tavern theme, campaign rooms, sketch studio, urd assistant and admin approval',
+      message: commitMsg,
       author: {
         name: USER_NAME,
         email: USER_EMAIL

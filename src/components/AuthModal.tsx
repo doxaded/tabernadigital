@@ -3,7 +3,7 @@ import {
   X, ShieldCheck, Mail, Lock, User, Crown, KeyRound, AlertTriangle, 
   Check, RefreshCw, Flame, HelpCircle
 } from 'lucide-react';
-import { ADMIN_EMAIL } from '../services/storage';
+import { ADMIN_EMAIL, DEFAULT_MASTER_PASSWORD } from '../services/storage';
 import { firebaseAuthService, parseFirebaseError, isLiveFirebaseConfigured } from '../services/firebase';
 import { UserProfile } from '../types';
 
@@ -91,7 +91,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setIsLoading(true);
     setErrorMsg('');
     try {
-      const userProfile = await firebaseAuthService.registerWithEmail(quickEmail, '123456', quickName);
+      const isMaster = quickEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+      const pass = isMaster ? DEFAULT_MASTER_PASSWORD : '123456';
+      const userProfile = await firebaseAuthService.registerWithEmail(quickEmail, pass, quickName);
       onLoginSuccess(userProfile);
       onClose();
     } catch (err: any) {

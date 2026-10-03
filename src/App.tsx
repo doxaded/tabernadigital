@@ -3,6 +3,7 @@ import { Navbar } from './components/Navbar';
 import { AuthModal } from './components/AuthModal';
 import { PendingApprovalScreen } from './components/PendingApprovalScreen';
 import { AdminPanelModal } from './components/AdminPanelModal';
+import { ChangePasswordModal } from './components/ChangePasswordModal';
 import { CampaignsView } from './components/CampaignsView';
 import { SketchStudioView } from './components/SketchStudioView';
 import { UrdChatView } from './components/UrdChatView';
@@ -24,6 +25,7 @@ export function App() {
 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
   // Sincroniza dados com o storage
   const reloadData = () => {
@@ -163,6 +165,7 @@ export function App() {
         setActiveTab={setActiveTab}
         onOpenAdmin={() => setIsAdminModalOpen(true)}
         onOpenAuth={() => setIsAuthModalOpen(true)}
+        onOpenChangePassword={() => setIsChangePasswordOpen(true)}
         onLogout={handleLogout}
         pendingCount={pendingCount}
       />
@@ -301,6 +304,14 @@ export function App() {
         campaigns={campaigns}
         onApproveUser={handleApproveUser}
         onRejectUser={handleRejectUser}
+        onOpenChangePassword={() => setIsChangePasswordOpen(true)}
+      />
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={isChangePasswordOpen}
+        onClose={() => setIsChangePasswordOpen(false)}
+        currentUser={currentUser}
       />
     </div>
   );
