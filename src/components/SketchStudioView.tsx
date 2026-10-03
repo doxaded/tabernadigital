@@ -144,7 +144,7 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
                 Sketch Studio — Motor de Ilustração Monocromática
               </h2>
               <p style={{ fontSize: '13px', color: '#cbd5e1', margin: '4px 0 0 0' }}>
-                Desenho detalhado de RPG em grafite e nanquim com o modelo de ponta <strong>Gemini 3 Pro Image (Nano Banana Pro)</strong>.
+                Desenho detalhado de RPG em grafite e nanquim com o modelo econômico e veloz <strong>Gemini 3.1 Flash Image (Nano Banana 2)</strong>.
               </p>
             </div>
           </div>
@@ -185,7 +185,7 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Cpu size={16} color="var(--amber-torch)" />
             <span style={{ fontSize: '12px', color: '#fef3c7', fontWeight: 700 }}>
-              Modelo Ativo: <span style={{ color: '#fbbf24', fontFamily: 'monospace' }}>gemini-3-pro-image</span> (Nano Banana Pro)
+              Modelo Ativo: <span style={{ color: '#fbbf24', fontFamily: 'monospace' }}>gemini-3.1-flash-image</span> (Nano Banana 2)
             </span>
           </div>
           <span style={{ color: 'rgba(255,255,255,0.2)' }}>•</span>
@@ -245,7 +245,7 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
             Chave de Acesso Gemini API (Opcional para Cota Própria de Imagens)
           </div>
           <p style={{ fontSize: '12px', color: 'var(--ink-dark)', margin: '0 0 10px 0', lineHeight: 1.4 }}>
-            O modelo <code>gemini-3-pro-image</code> utiliza sua cota ativa do Google AI Studio. Se você possuir outra chave do Google Cloud / AI Studio com plano ativo, insira-a abaixo.
+            O modelo <code>gemini-3.1-flash-image</code> (Nano Banana 2) utiliza sua cota ativa do Google AI Studio com excelente velocidade e custo 50% menor por geração.
           </p>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             <input

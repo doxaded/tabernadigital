@@ -15,8 +15,8 @@ export const getEffectiveGeminiKey = (customKey?: string): string => {
 };
 
 // Modelos Gemini Oficiais Recomendados
-export const GEMINI_SKETCH_MODEL = 'gemini-3-pro-image'; // Nano Banana Pro: Melhor modelo para alta definição e arte conceitual
-export const GEMINI_SKETCH_FALLBACK_MODEL = 'gemini-3.1-flash-image'; // Nano Banana 2: Modelo rápido de imagem
+export const GEMINI_SKETCH_MODEL = 'gemini-3.1-flash-image'; // Nano Banana 2: Modelo rápido, econômico (50% mais barato) e de alta performance
+export const GEMINI_SKETCH_FALLBACK_MODEL = 'gemini-3-pro-image'; // Nano Banana Pro: Modelo de alta definição e raciocínio profundo
 export const GEMINI_TEXT_MODEL = 'gemini-flash-latest'; // Modelo moderno padrão para diálogos e enriquecimento de lore
 
 export const URD_SYSTEM_PROMPT = `
@@ -194,7 +194,7 @@ export const aiService = {
     return pick(prompt);
   },
 
-  // Gerador de Sketches do Estúdio conectado ao melhor modelo de imagem do Gemini: gemini-3-pro-image (Nano Banana Pro)
+  // Gerador de Sketches do Estúdio conectado ao Gemini: gemini-3.1-flash-image (Nano Banana 2)
   async generateSketch(
     prompt: string,
     category: 'item' | 'npc' | 'criatura' | 'mapa' | 'cena' = 'item',
@@ -209,8 +209,8 @@ export const aiService = {
 
     // Se houver chave Gemini disponível, tenta a geração com os modelos de ponta
     if (apiKey) {
-      // Prioridade 1: gemini-3-pro-image (Melhor modelo para ilustrações conceituais de alta fidelidade)
-      // Prioridade 2: gemini-3.1-flash-image (Modelo rápido de geração de imagem)
+      // Prioridade 1: gemini-3.1-flash-image (Nano Banana 2: Rápido, econômico e eficiente)
+      // Prioridade 2: gemini-3-pro-image (Nano Banana Pro: Fallback de alta resolução)
       const candidateModels = [GEMINI_SKETCH_MODEL, GEMINI_SKETCH_FALLBACK_MODEL];
 
       for (const model of candidateModels) {

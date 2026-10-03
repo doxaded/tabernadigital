@@ -184,7 +184,7 @@ const DEFAULT_SKETCHES: SketchAsset[] = [
     category: 'item',
     createdAt: '2026-10-02T18:00:00Z',
     campaignId: 'camp-1',
-    modelUsed: 'gemini-3-pro-image',
+    modelUsed: 'gemini-3.1-flash-image',
     description: 'Traço minucioso em grafite sobre pergaminho envelhecido revelando runas arcanas cravadas no gume de aço forjado.'
   },
   {
@@ -193,7 +193,7 @@ const DEFAULT_SKETCHES: SketchAsset[] = [
     imageUrl: '/assets/urd_portrait.jpg',
     category: 'npc',
     createdAt: '2026-10-02T19:30:00Z',
-    modelUsed: 'gemini-3-pro-image',
+    modelUsed: 'gemini-3.1-flash-image',
     description: 'Retrato em nanquim e sombreamento cruzado do taberneiro de cinquenta invernos com olhar astuto e caneca entalhada.'
   }
 ];
