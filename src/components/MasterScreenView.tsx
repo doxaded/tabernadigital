@@ -82,6 +82,8 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
     hasNat1: boolean;
   } | null>(null);
   const [customDiceStr, setCustomDiceStr] = useState('1d20 + 3');
+  const [activeQuickDice, setActiveQuickDice] = useState<number>(20);
+  const [viewingSheet, setViewingSheet] = useState<CharacterSheet | null>(null);
 
   // Inicializa Compêndio Oficial D&D 2024 e Imagens
   useEffect(() => {
@@ -232,6 +234,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
 
   // Rolador Rápido de Dado na Barra Superior
   const handleQuickRoll = (sides: number) => {
+    setActiveQuickDice(sides);
     const rollRes = masterOracleService.rollDice(`1d${sides}`);
     setDiceRollResult(rollRes);
     const diceMsg: MasterChatMessage = {
@@ -403,8 +406,8 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                 fontSize: '11px',
                 padding: '4px 10px',
                 minWidth: '42px',
-                backgroundColor: sides === 20 ? '#78350f' : 'var(--wood-medium)',
-                borderColor: sides === 20 ? 'var(--amber-torch)' : 'var(--wood-border)',
+                backgroundColor: sides === activeQuickDice ? '#78350f' : 'var(--wood-medium)',
+                borderColor: sides === activeQuickDice ? 'var(--amber-torch)' : 'var(--wood-border)',
                 color: '#fef3c7',
                 fontWeight: 700
               }}
@@ -572,6 +575,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     {campaign.sheets.map(sheet => (
                       <div
                         key={sheet.id}
+                        onClick={() => setViewingSheet(sheet)}
                         style={{
                           backgroundColor: 'rgba(0,0,0,0.3)',
                           border: '1px solid var(--wood-border)',
@@ -579,8 +583,10 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                           padding: '8px 10px',
                           display: 'flex',
                           alignItems: 'center',
-                          justifyContent: 'space-between'
+                          justifyContent: 'space-between',
+                          cursor: 'pointer'
                         }}
+                        title="Clique para ver a ficha completa"
                       >
                         <div>
                           <div style={{ fontSize: '12px', fontWeight: 700, color: '#fef3c7' }}>
@@ -1047,6 +1053,89 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                   </button>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Detalhes da Ficha de Herói */}
+      {viewingSheet && (
+        <div className="tavern-modal-backdrop" onClick={() => setViewingSheet(null)}>
+          <div className="tavern-modal-content parchment-card" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px', padding: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', borderBottom: '1.5px solid var(--parchment-dark)', paddingBottom: '8px' }}>
+              <div>
+                <span className="wax-badge wax-badge-admin" style={{ fontSize: '10px' }}>
+                  Ficha de Herói {viewingSheet.isNpc ? '(NPC)' : ''}
+                </span>
+                <h3 style={{ fontSize: '20px', fontWeight: 900, margin: '4px 0 0', color: 'var(--ink-dark)' }}>
+                  {viewingSheet.name}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setViewingSheet(null)}
+                style={{ background: 'none', border: 'none', color: 'var(--ink-light)', cursor: 'pointer' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            {viewingSheet.avatarUrl && (
+              <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                <img src={viewingSheet.avatarUrl} alt={viewingSheet.name} style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--amber-torch)' }} />
+              </div>
+            )}
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px', color: 'var(--ink-dark)' }}>
+              <div><strong>Jogador:</strong> {viewingSheet.player}</div>
+              <div><strong>Raça:</strong> {viewingSheet.race}</div>
+              <div><strong>Classe:</strong> {viewingSheet.class}</div>
+              <div><strong>Nível:</strong> {viewingSheet.level}</div>
+              <div><strong>PV:</strong> {viewingSheet.hp} / {viewingSheet.maxHp}</div>
+              <div><strong>PM:</strong> {viewingSheet.mp} / {viewingSheet.maxMp}</div>
+              <div><strong>CA:</strong> {viewingSheet.armorClass}</div>
+              {viewingSheet.stats && (
+                <div style={{ gridColumn: '1 / -1', marginTop: '10px', display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                  <div style={{ backgroundColor: 'rgba(0,0,0,0.05)', padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--wood-border)' }}><strong>FOR:</strong> {viewingSheet.stats.strength}</div>
+                  <div style={{ backgroundColor: 'rgba(0,0,0,0.05)', padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--wood-border)' }}><strong>DES:</strong> {viewingSheet.stats.dexterity}</div>
+                  <div style={{ backgroundColor: 'rgba(0,0,0,0.05)', padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--wood-border)' }}><strong>CON:</strong> {viewingSheet.stats.constitution}</div>
+                  <div style={{ backgroundColor: 'rgba(0,0,0,0.05)', padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--wood-border)' }}><strong>INT:</strong> {viewingSheet.stats.intelligence}</div>
+                  <div style={{ backgroundColor: 'rgba(0,0,0,0.05)', padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--wood-border)' }}><strong>SAB:</strong> {viewingSheet.stats.wisdom}</div>
+                  <div style={{ backgroundColor: 'rgba(0,0,0,0.05)', padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--wood-border)' }}><strong>CAR:</strong> {viewingSheet.stats.charisma}</div>
+                </div>
+              )}
+              {viewingSheet.traits && viewingSheet.traits.length > 0 && (
+                <div style={{ gridColumn: '1 / -1', marginTop: '10px' }}>
+                  <strong>Traços & Habilidades:</strong>
+                  <ul style={{ margin: '4px 0 0 20px', padding: 0 }}>
+                    {viewingSheet.traits.map((t, idx) => <li key={idx}>{t}</li>)}
+                  </ul>
+                </div>
+              )}
+              {viewingSheet.equipment && viewingSheet.equipment.length > 0 && (
+                <div style={{ gridColumn: '1 / -1', marginTop: '10px' }}>
+                  <strong>Equipamentos:</strong>
+                  <ul style={{ margin: '4px 0 0 20px', padding: 0 }}>
+                    {viewingSheet.equipment.map((e, idx) => <li key={idx}>{e}</li>)}
+                  </ul>
+                </div>
+              )}
+              {viewingSheet.notes && (
+                <div style={{ gridColumn: '1 / -1', marginTop: '10px' }}>
+                  <strong>Anotações:</strong>
+                  <p style={{ margin: '4px 0 0 0', whiteSpace: 'pre-wrap' }}>{viewingSheet.notes}</p>
+                </div>
+              )}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                onClick={() => setViewingSheet(null)}
+                className="btn-tavern btn-secondary"
+                style={{ fontSize: '12px', color: '#fef08a', backgroundColor: '#2a180b' }}
+              >
+                Fechar Ficha
+              </button>
             </div>
           </div>
         </div>
