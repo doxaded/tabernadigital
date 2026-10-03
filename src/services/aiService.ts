@@ -1,4 +1,5 @@
 import { GoogleGenAI } from '@google/genai';
+import { SketchCostEstimate } from '../types';
 
 const VITE_ENV_KEY = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GEMINI_API_KEY)
   || (typeof process !== 'undefined' && process.env?.VITE_GEMINI_API_KEY)
@@ -37,6 +38,7 @@ export interface GenerateSketchOptions {
   aspectRatio?: '1:1' | '3:4' | '4:3' | '16:9';
   imageSize?: '1K' | '2K';
   customApiKey?: string;
+  customRefinedPrompt?: string; // Prompt editado/confirmado pelo usuário no modal de pré-execução
 }
 
 export interface GenerateSketchResult {
@@ -45,6 +47,8 @@ export interface GenerateSketchResult {
   modelUsed: string;
   isAiGenerated: boolean;
   quotaNotice?: string;
+  costEstimate?: SketchCostEstimate;
+  executedPrompt: string;
 }
 
 // Respostas temáticas autênticas de Urd para modo de contingência
@@ -106,6 +110,77 @@ export const buildSketchPrompt = (
     `Background: Textured vintage aged parchment paper background.`,
     `Strict Negative Constraints: Strictly black and white / monochromatic graphite only. Absolutely no color fill, no modern 3D CGI gloss, no photorealism artifacts, authentic traditional sketch style.`
   ].join(' ');
+};
+
+// Explica em linguagem clara como o motor compreendeu e estruturou o pedido artístico
+export const explainPromptInterpretation = (
+  userPrompt: string,
+  category: 'item' | 'npc' | 'criatura' | 'mapa' | 'cena' = 'item',
+  aspectRatio: string = '1:1'
+): string => {
+  const categoryNames: Record<string, string> = {
+    item: 'Item Mágico / Relíquia / Equipamento',
+    npc: 'Personagem / Habitante da Taberna (NPC)',
+    criatura: 'Monstro Fantástico / Entidade de Masmorra',
+    mapa: 'Cartografia / Planta Baixa Desenhada à Mão',
+    cena: 'Cenário Medieval / Salão da Taverna'
+  };
+
+  const ratioDescriptions: Record<string, string> = {
+    '1:1': 'Quadrado (1024×1024) — Ideal para tokens e avatares',
+    '3:4': 'Retrato Vertical (864×1184) — Ideal para cartas e fichas de personagens',
+    '4:3': 'Paisagem Clássica (1184×864) — Ideal para ilustrações de cenas',
+    '16:9': 'Widescreen Panorâmico (1344×768) — Ideal para mapas e salões'
+  };
+
+  return `O motor artístico interpretou seu pedido como um(a) "${categoryNames[category] || 'Ilustração de RPG'}". O traço será guiado por estética tradicional de RPG de mesa: grafite monocromático sobre pergaminho rústico envelhecido, com sombreamento hachurado e nanquim sépia, no formato ${ratioDescriptions[aspectRatio] || aspectRatio}.`;
+};
+
+// Calcula a quantidade de tokens consumidos e estima os custos da geração em USD ($) e BRL (R$)
+export const calculateSketchCost = (
+  model: string,
+  promptText: string,
+  imageSize: '1K' | '2K' = '1K',
+  actualUsage?: { prompt_token_count?: number; candidates_token_count?: number; total_token_count?: number; prompt_tokens?: number; candidates_tokens?: number; total_tokens?: number }
+): SketchCostEstimate => {
+  // 1. Tokens de entrada do prompt (considera prompt detalhado + cabeçalhos e formatação do Gemini)
+  const promptTokens = actualUsage?.prompt_token_count 
+    || actualUsage?.prompt_tokens 
+    || Math.max(25, Math.ceil(promptText.length / 3.8) + 20);
+
+  // 2. Tokens de saída da imagem gerada pelo modelo (Google AI Studio: 1K = 1.120 tokens, 2K = 1.680 tokens)
+  const baseImageTokens = imageSize === '2K' ? 1680 : 1120;
+  const outputTokens = actualUsage?.candidates_token_count 
+    || actualUsage?.candidates_tokens 
+    || (baseImageTokens + 65); // +65 tokens da descrição de lore gerada pelo Gemini Flash
+
+  const totalTokens = actualUsage?.total_token_count 
+    || actualUsage?.total_tokens 
+    || (promptTokens + outputTokens);
+
+  // 3. Custos oficiais do Google AI Studio
+  // gemini-3.1-flash-image (Nano Banana 2): $0.25 / 1M tokens de entrada | ~$0.067 por imagem gerada em 1K
+  // gemini-3-pro-image (Nano Banana Pro): $2.00 / 1M tokens de entrada | ~$0.134 por imagem gerada em 1K
+  const isPro = model.toLowerCase().includes('pro');
+  const inputRatePerMillion = isPro ? 2.00 : 0.25;
+  const imageBaseCost = isPro ? (imageSize === '2K' ? 0.268 : 0.134) : (imageSize === '2K' ? 0.134 : 0.067);
+
+  const inputCost = (promptTokens / 1_000_000) * inputRatePerMillion;
+  const loreCost = (180 / 1_000_000) * 0.15; // Estimativa residual de lore do Gemini Flash
+
+  const totalUsd = imageBaseCost + inputCost + loreCost;
+  const USD_TO_BRL = 5.50; // Taxa de câmbio referencial BRL/USD
+  const totalBrl = totalUsd * USD_TO_BRL;
+
+  return {
+    promptTokens,
+    outputTokens,
+    totalTokens,
+    estimatedCostUsd: Number(totalUsd.toFixed(5)),
+    estimatedCostBrl: Number(totalBrl.toFixed(4)),
+    model,
+    calculatedAt: new Date().toISOString()
+  };
 };
 
 // Otimizador de imagem base64 para armazenamento leve no navegador
@@ -203,7 +278,9 @@ export const aiService = {
     const apiKey = getEffectiveGeminiKey(options?.customApiKey);
     const aspectRatio = options?.aspectRatio || '1:1';
     const imageSize = options?.imageSize || '1K';
-    const enhancedPrompt = buildSketchPrompt(prompt, category);
+    const enhancedPrompt = (options?.customRefinedPrompt && options.customRefinedPrompt.trim())
+      ? options.customRefinedPrompt.trim()
+      : buildSketchPrompt(prompt, category);
 
     let quotaNotice: string | undefined = undefined;
 
@@ -261,12 +338,17 @@ export const aiService = {
                 console.warn('Erro ao otimizar base64:', compErr);
               }
 
+              const actualUsage = (data as any)?.usage_metadata || (data as any)?.usageMetadata || (data as any)?.usage;
+              const costEstimate = calculateSketchCost(model, enhancedPrompt, imageSize, actualUsage);
               const description = await this.describeSketchWithGemini(prompt, category, apiKey);
+
               return {
                 imageUrl: finalImageUrl,
                 description,
                 modelUsed: model,
-                isAiGenerated: true
+                isAiGenerated: true,
+                costEstimate,
+                executedPrompt: enhancedPrompt
               };
             }
           } else {
@@ -289,6 +371,7 @@ export const aiService = {
     // Se a chamada de imagem não gerou imagem direta (ex: cota ou offline),
     // enriquecemos o rascunho com descrição artística detalhada gerada pelo Gemini Flash
     const description = await this.describeSketchWithGemini(prompt, category, apiKey);
+    const fallbackCost = calculateSketchCost(GEMINI_SKETCH_MODEL, enhancedPrompt, imageSize);
 
     // Seleção de asset de traço tradicional de acordo com a categoria
     let imageUrl = '/assets/sketch_sword.jpg';
@@ -303,7 +386,13 @@ export const aiService = {
       description,
       modelUsed: GEMINI_SKETCH_MODEL,
       isAiGenerated: false,
-      quotaNotice
+      quotaNotice,
+      costEstimate: {
+        ...fallbackCost,
+        estimatedCostUsd: 0,
+        estimatedCostBrl: 0
+      },
+      executedPrompt: enhancedPrompt
     };
   },
 

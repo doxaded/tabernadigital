@@ -79,6 +79,16 @@ export interface Campaign {
   rules: RuleDocument[];
 }
 
+export interface SketchCostEstimate {
+  promptTokens: number;
+  outputTokens: number;
+  totalTokens: number;
+  estimatedCostUsd: number;
+  estimatedCostBrl: number;
+  model: string;
+  calculatedAt?: string;
+}
+
 export interface SketchAsset {
   id: string;
   prompt: string;
@@ -88,6 +98,9 @@ export interface SketchAsset {
   campaignId?: string;
   description?: string;
   modelUsed?: string;
+  aspectRatio?: string;
+  refinedPrompt?: string;
+  costEstimate?: SketchCostEstimate;
 }
 
 export interface UrdMessage {

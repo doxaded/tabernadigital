@@ -1,7 +1,35 @@
 import React, { useState } from 'react';
-import { Sparkles, Download, Layers, Shield, Wand2, Eye, Filter, RefreshCw, Check, Info, Cpu, Key, Trash2, AlertTriangle, X } from 'lucide-react';
-import { Campaign, SketchAsset } from '../types';
-import { aiService, GEMINI_SKETCH_MODEL, getEffectiveGeminiKey } from '../services/aiService';
+import {
+  Sparkles,
+  Download,
+  Layers,
+  Shield,
+  Wand2,
+  Eye,
+  Filter,
+  RefreshCw,
+  Check,
+  Info,
+  Cpu,
+  Key,
+  Trash2,
+  AlertTriangle,
+  X,
+  Coins,
+  Edit3,
+  Calculator,
+  FileText,
+  Copy
+} from 'lucide-react';
+import { Campaign, SketchAsset, SketchCostEstimate } from '../types';
+import {
+  aiService,
+  GEMINI_SKETCH_MODEL,
+  getEffectiveGeminiKey,
+  buildSketchPrompt,
+  explainPromptInterpretation,
+  calculateSketchCost
+} from '../services/aiService';
 
 const MAX_SKETCHES = 10;
 
@@ -34,6 +62,15 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
   const [customKeyInput, setCustomKeyInput] = useState(
     typeof window !== 'undefined' ? localStorage.getItem('taberna_gemini_api_key') || '' : ''
   );
+
+  // Estados da Função 1: Modal Aberto de Edição & Autorização Prévia
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [editablePrompt, setEditablePrompt] = useState('');
+  const [interpretedSummary, setInterpretedSummary] = useState('');
+  const [previewCost, setPreviewCost] = useState<SketchCostEstimate | null>(null);
+
+  // Estados da Função 2: Recibo de Tokens e Custo da Última Execução
+  const [lastCostReceipt, setLastCostReceipt] = useState<SketchCostEstimate | null>(null);
 
   const isFull = sketches.length >= MAX_SKETCHES;
   const usagePercentage = Math.min(100, Math.round((sketches.length / MAX_SKETCHES) * 100));
@@ -82,7 +119,8 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
     setSketchToDelete(null);
   };
 
-  const handleGenerate = async (e: React.FormEvent) => {
+  // Abre o Modal de Revisão & Edição do que foi compreendido antes de chamar a IA
+  const handleInitiateConfirmation = (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim() || isGenerating) return;
 
@@ -91,6 +129,21 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
       return;
     }
 
+    const refined = buildSketchPrompt(prompt.trim(), category);
+    const explanation = explainPromptInterpretation(prompt.trim(), category, aspectRatio);
+    const estCost = calculateSketchCost(GEMINI_SKETCH_MODEL, refined, '1K');
+
+    setEditablePrompt(refined);
+    setInterpretedSummary(explanation);
+    setPreviewCost(estCost);
+    setIsConfirmModalOpen(true);
+  };
+
+  // Executa efetivamente a geração somente após a liberação/confirmação do usuário
+  const handleExecuteConfirmed = async () => {
+    if (!prompt.trim() || isGenerating) return;
+
+    setIsConfirmModalOpen(false);
     setIsGenerating(true);
     setQuotaNotice(null);
     setStorageNotice(null);
@@ -98,7 +151,8 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
     try {
       const result = await aiService.generateSketch(prompt, category, {
         aspectRatio,
-        imageSize: '1K'
+        imageSize: '1K',
+        customRefinedPrompt: editablePrompt
       });
 
       onSaveSketch({
@@ -108,17 +162,24 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
         campaignId: selectedCampaignForSave || undefined,
         description: result.description,
         modelUsed: result.modelUsed,
+        aspectRatio,
+        refinedPrompt: result.executedPrompt,
+        costEstimate: result.costEstimate
       });
+
+      if (result.costEstimate) {
+        setLastCostReceipt(result.costEstimate);
+      }
 
       if (result.quotaNotice) {
         setQuotaNotice(result.quotaNotice);
-      } else if (result.isAiGenerated) {
-        setSuccessToast(`✨ Ilustração sintetizada em tempo real pelo Gemini 3 Pro Image e gravada na galeria! (${sketches.length + 1}/${MAX_SKETCHES})`);
+      } else if (result.isAiGenerated && result.costEstimate) {
+        setSuccessToast(`✨ Ilustração sintetizada pelo ${result.modelUsed}! Gasto: $${result.costEstimate.estimatedCostUsd.toFixed(4)} USD (~R$ ${result.costEstimate.estimatedCostBrl.toFixed(2)} BRL) em ${result.costEstimate.totalTokens} tokens.`);
       } else {
-        setSuccessToast(`Novo rascunho enriquecido com IA gravado na galeria! (${sketches.length + 1}/${MAX_SKETCHES})`);
+        setSuccessToast(`Novo rascunho gravado na galeria! (${sketches.length + 1}/${MAX_SKETCHES})`);
       }
 
-      setTimeout(() => setSuccessToast(''), 6000);
+      setTimeout(() => setSuccessToast(''), 7000);
       setPrompt('');
     } catch (err: any) {
       console.error('Erro ao gerar sketch:', err);
@@ -381,10 +442,10 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
             </div>
           </div>
 
-          <form onSubmit={handleGenerate} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <form onSubmit={handleInitiateConfirmation} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div>
               <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>
-                Prompt de Criação (Enviado ao Gemini 3 Pro Image):
+                Prompt de Criação (Enviado ao Gemini 3.1 Flash Image):
               </label>
               <textarea
                 rows={3}
@@ -468,7 +529,7 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
               {isGenerating ? (
                 <>
                   <RefreshCw size={16} className="torch-flicker" />
-                  <span>Conectando ao Gemini 3 Pro Image (Sintetizando Traços em Grafite)...</span>
+                  <span>Sintetizando Traços em Grafite com {GEMINI_SKETCH_MODEL}...</span>
                 </>
               ) : isFull ? (
                 <>
@@ -477,8 +538,8 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
                 </>
               ) : (
                 <>
-                  <Wand2 size={16} />
-                  <span>Traçar Rascunho com Gemini 3 Pro ({sketches.length}/10)</span>
+                  <Edit3 size={16} />
+                  <span>Revisar & Autorizar Rascunho com IA ({sketches.length}/10)</span>
                 </>
               )}
             </button>
@@ -502,6 +563,78 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
             </div>
           )}
         </div>
+
+        {/* Extrato / Recibo de Tokens e Custo da Última Execução */}
+        {lastCostReceipt && (
+          <div style={{
+            backgroundColor: 'rgba(26, 16, 8, 0.95)',
+            border: '2px solid var(--amber-torch)',
+            borderRadius: '8px',
+            padding: '16px 20px',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+            position: 'relative'
+          }}>
+            <button
+              type="button"
+              onClick={() => setLastCostReceipt(null)}
+              style={{
+                position: 'absolute',
+                top: '12px',
+                right: '12px',
+                background: 'none',
+                border: 'none',
+                color: '#94a3b8',
+                cursor: 'pointer'
+              }}
+              title="Fechar extrato de consumo"
+            >
+              <X size={16} />
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+              <Coins size={20} color="var(--amber-torch)" />
+              <h4 style={{ fontSize: '15px', fontWeight: 800, margin: 0, color: '#fef3c7' }}>
+                Extrato do Consumo de IA — Último Pedido Concluído
+              </h4>
+              <span className="wax-badge wax-badge-admin" style={{ fontSize: '10px', padding: '2px 8px' }}>
+                {lastCostReceipt.model}
+              </span>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
+              <div style={{ backgroundColor: 'rgba(255,255,255,0.05)', padding: '10px 12px', borderRadius: '6px' }}>
+                <div style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '2px' }}>Tokens de Entrada (Prompt)</div>
+                <div style={{ fontSize: '18px', fontWeight: 800, color: '#fef08a' }}>
+                  {lastCostReceipt.promptTokens} <span style={{ fontSize: '11px', fontWeight: 400 }}>tokens</span>
+                </div>
+              </div>
+
+              <div style={{ backgroundColor: 'rgba(255,255,255,0.05)', padding: '10px 12px', borderRadius: '6px' }}>
+                <div style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '2px' }}>Tokens de Imagem & Lore</div>
+                <div style={{ fontSize: '18px', fontWeight: 800, color: '#fef08a' }}>
+                  {lastCostReceipt.outputTokens} <span style={{ fontSize: '11px', fontWeight: 400 }}>tokens</span>
+                </div>
+              </div>
+
+              <div style={{ backgroundColor: 'rgba(255,255,255,0.05)', padding: '10px 12px', borderRadius: '6px' }}>
+                <div style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '2px' }}>Total de Tokens Gastos</div>
+                <div style={{ fontSize: '18px', fontWeight: 800, color: '#38bdf8' }}>
+                  {lastCostReceipt.totalTokens} <span style={{ fontSize: '11px', fontWeight: 400 }}>tokens</span>
+                </div>
+              </div>
+
+              <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.4)', padding: '10px 12px', borderRadius: '6px' }}>
+                <div style={{ fontSize: '11px', color: '#a7f3d0', marginBottom: '2px' }}>Estimativa de Custo Real</div>
+                <div style={{ fontSize: '18px', fontWeight: 900, color: '#34d399' }}>
+                  ${lastCostReceipt.estimatedCostUsd.toFixed(4)} USD
+                </div>
+                <div style={{ fontSize: '11px', color: '#6ee7b7' }}>
+                  ≈ R$ {lastCostReceipt.estimatedCostBrl.toFixed(2)} BRL (câmbio R$ 5,50)
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Gallery of Sketches */}
         <div>
@@ -585,6 +718,27 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
                   }}>
                     {item.modelUsed || GEMINI_SKETCH_MODEL}
                   </div>
+
+                  {item.costEstimate && (
+                    <div style={{
+                      position: 'absolute',
+                      bottom: '8px',
+                      right: '8px',
+                      backgroundColor: 'rgba(16, 185, 129, 0.92)',
+                      color: '#ffffff',
+                      padding: '2px 6px',
+                      borderRadius: '3px',
+                      fontSize: '9px',
+                      fontWeight: 700,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '3px',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                    }}>
+                      <Coins size={10} />
+                      ${item.costEstimate.estimatedCostUsd.toFixed(3)}
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -729,6 +883,81 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
               </div>
             )}
 
+            {/* Métricas de Custo e Tokens Gastos */}
+            {previewAsset.costEstimate && (
+              <div style={{
+                backgroundColor: 'rgba(26, 16, 8, 0.85)',
+                border: '1.5px solid var(--amber-torch)',
+                borderRadius: '6px',
+                padding: '12px 14px',
+                marginBottom: '16px',
+                color: '#fef3c7'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '4px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, color: '#facc15', textTransform: 'uppercase' }}>
+                    <Coins size={14} color="#facc15" />
+                    Consumo & Estimativa de Custos da IA
+                  </div>
+                  <span style={{ fontSize: '10px', color: '#94a3b8', fontFamily: 'monospace' }}>
+                    {previewAsset.costEstimate.model}
+                  </span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '8px' }}>
+                  <div style={{ backgroundColor: 'rgba(0,0,0,0.3)', padding: '6px 8px', borderRadius: '4px' }}>
+                    <div style={{ fontSize: '10px', color: '#cbd5e1' }}>Tokens Entrada</div>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: '#fef08a' }}>{previewAsset.costEstimate.promptTokens}</div>
+                  </div>
+                  <div style={{ backgroundColor: 'rgba(0,0,0,0.3)', padding: '6px 8px', borderRadius: '4px' }}>
+                    <div style={{ fontSize: '10px', color: '#cbd5e1' }}>Tokens Imagem</div>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: '#fef08a' }}>{previewAsset.costEstimate.outputTokens}</div>
+                  </div>
+                  <div style={{ backgroundColor: 'rgba(0,0,0,0.3)', padding: '6px 8px', borderRadius: '4px' }}>
+                    <div style={{ fontSize: '10px', color: '#cbd5e1' }}>Total Tokens</div>
+                    <div style={{ fontSize: '13px', fontWeight: 800, color: '#38bdf8' }}>{previewAsset.costEstimate.totalTokens}</div>
+                  </div>
+                  <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.4)', padding: '6px 8px', borderRadius: '4px' }}>
+                    <div style={{ fontSize: '10px', color: '#a7f3d0' }}>Custo Estimado</div>
+                    <div style={{ fontSize: '13px', fontWeight: 800, color: '#34d399' }}>
+                      ${previewAsset.costEstimate.estimatedCostUsd.toFixed(4)} USD
+                    </div>
+                    <div style={{ fontSize: '9px', color: '#6ee7b7' }}>
+                      (~R$ {previewAsset.costEstimate.estimatedCostBrl.toFixed(2)} BRL)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Prompt Refinado Executado */}
+            {previewAsset.refinedPrompt && (
+              <div style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                border: '1px solid #ccb993',
+                padding: '10px 12px',
+                borderRadius: '6px',
+                marginBottom: '16px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--amber-deep)', textTransform: 'uppercase' }}>
+                    Prompt Artístico Refinado Efetivamente Executado:
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(previewAsset.refinedPrompt || '');
+                      alert('Prompt refinado copiado!');
+                    }}
+                    style={{ background: 'none', border: 'none', color: 'var(--amber-deep)', cursor: 'pointer', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '3px' }}
+                  >
+                    <Copy size={12} /> Copiar
+                  </button>
+                </div>
+                <p style={{ fontSize: '11px', color: 'var(--ink-dark)', margin: 0, fontFamily: 'monospace', lineHeight: 1.4, maxHeight: '80px', overflowY: 'auto' }}>
+                  {previewAsset.refinedPrompt}
+                </p>
+              </div>
+            )}
+
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginTop: '16px', flexWrap: 'wrap' }}>
               <button
                 onClick={() => setSketchToDelete(previewAsset)}
@@ -811,6 +1040,219 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
                 style={{ flex: 1, backgroundColor: '#dc2626' }}
               >
                 Sim, Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Aberto de Validação & Confirmação Antes da Execução */}
+      {isConfirmModalOpen && (
+        <div className="tavern-modal-backdrop" onClick={() => setIsConfirmModalOpen(false)}>
+          <div
+            className="tavern-modal-content parchment-card"
+            onClick={e => e.stopPropagation()}
+            style={{ maxWidth: '680px', padding: '24px', maxHeight: '90vh', overflowY: 'auto' }}
+          >
+            {/* Modal Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', borderBottom: '1.5px solid #ccb993', paddingBottom: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Edit3 size={20} color="var(--amber-deep)" />
+                <h3 style={{ fontSize: '18px', fontWeight: 800, margin: 0, color: 'var(--ink-dark)' }}>
+                  Revisão & Autorização do Rascunho
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsConfirmModalOpen(false)}
+                style={{ background: 'none', border: 'none', color: 'var(--ink-light)', cursor: 'pointer' }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Section 1: Entendimento do Pedido */}
+            <div style={{
+              backgroundColor: 'rgba(217, 119, 6, 0.08)',
+              borderLeft: '4px solid var(--amber-torch)',
+              padding: '12px 14px',
+              borderRadius: '6px',
+              marginBottom: '16px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, color: 'var(--amber-deep)', textTransform: 'uppercase', marginBottom: '4px' }}>
+                <Sparkles size={13} color="var(--amber-torch)" />
+                Interpretação do Pedido pelo Motor Artístico
+              </div>
+              <p style={{ fontSize: '13px', color: 'var(--ink-dark)', margin: 0, lineHeight: 1.45 }}>
+                {interpretedSummary}
+              </p>
+            </div>
+
+            {/* Section 2: Prompt Editável Aberto */}
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--ink-dark)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <FileText size={14} color="var(--amber-deep)" />
+                  Prompt Artístico Refinado (Aberto para sua Edição):
+                </label>
+                <span style={{ fontSize: '11px', color: 'var(--ink-light)' }}>
+                  Edite livremente antes de autorizar
+                </span>
+              </div>
+
+              <textarea
+                rows={5}
+                value={editablePrompt}
+                onChange={e => {
+                  const val = e.target.value;
+                  setEditablePrompt(val);
+                  setPreviewCost(calculateSketchCost(GEMINI_SKETCH_MODEL, val, '1K'));
+                }}
+                className="tavern-input font-lore"
+                style={{
+                  fontSize: '13px',
+                  lineHeight: 1.45,
+                  padding: '10px 12px',
+                  backgroundColor: '#fffdfa',
+                  border: '1.5px solid #b4976c',
+                  borderRadius: '6px'
+                }}
+              />
+
+              {/* Botões Rápidos de Refinamento */}
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '8px' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const addition = ' Add subtle battle scars, weathered metallic scratches and ancient patina.';
+                    const updated = editablePrompt + addition;
+                    setEditablePrompt(updated);
+                    setPreviewCost(calculateSketchCost(GEMINI_SKETCH_MODEL, updated, '1K'));
+                  }}
+                  className="btn-tavern"
+                  style={{ fontSize: '10px', padding: '4px 8px', backgroundColor: 'rgba(255,255,255,0.7)', border: '1px solid #ccb993' }}
+                >
+                  + Marcas de Batalha & Desgaste
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const addition = ' Emphasize heavy cross-hatching shadows and dramatic atmospheric contrast.';
+                    const updated = editablePrompt + addition;
+                    setEditablePrompt(updated);
+                    setPreviewCost(calculateSketchCost(GEMINI_SKETCH_MODEL, updated, '1K'));
+                  }}
+                  className="btn-tavern"
+                  style={{ fontSize: '10px', padding: '4px 8px', backgroundColor: 'rgba(255,255,255,0.7)', border: '1px solid #ccb993' }}
+                >
+                  + Hachuras Densas & Contraste
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const addition = ' Intricate arcane rune engravings along parchment edges.';
+                    const updated = editablePrompt + addition;
+                    setEditablePrompt(updated);
+                    setPreviewCost(calculateSketchCost(GEMINI_SKETCH_MODEL, updated, '1K'));
+                  }}
+                  className="btn-tavern"
+                  style={{ fontSize: '10px', padding: '4px 8px', backgroundColor: 'rgba(255,255,255,0.7)', border: '1px solid #ccb993' }}
+                >
+                  + Runas Arcanas no Fundo
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const original = buildSketchPrompt(prompt.trim(), category);
+                    setEditablePrompt(original);
+                    setPreviewCost(calculateSketchCost(GEMINI_SKETCH_MODEL, original, '1K'));
+                  }}
+                  className="btn-tavern"
+                  style={{ fontSize: '10px', padding: '4px 8px', backgroundColor: '#fef3c7', border: '1px solid #d97706', color: '#92400e' }}
+                >
+                  🔄 Restaurar Padrão
+                </button>
+              </div>
+            </div>
+
+            {/* Section 3: Estimativa de Consumo Prévia */}
+            {previewCost && (
+              <div style={{
+                backgroundColor: 'rgba(26, 16, 8, 0.85)',
+                border: '1.5px solid var(--amber-torch)',
+                borderRadius: '8px',
+                padding: '12px 16px',
+                marginBottom: '18px',
+                color: '#fef3c7'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '6px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, color: '#facc15', textTransform: 'uppercase' }}>
+                    <Calculator size={14} color="#facc15" />
+                    Estimativa Prévia de Recursos
+                  </div>
+                  <span style={{ fontSize: '10px', color: '#94a3b8', fontFamily: 'monospace' }}>
+                    Modelo: {previewCost.model}
+                  </span>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px' }}>
+                  <div style={{ backgroundColor: 'rgba(0,0,0,0.3)', padding: '8px 10px', borderRadius: '4px' }}>
+                    <div style={{ fontSize: '10px', color: '#cbd5e1' }}>Tokens do Prompt</div>
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#fef08a' }}>
+                      ~{previewCost.promptTokens}
+                    </div>
+                  </div>
+                  <div style={{ backgroundColor: 'rgba(0,0,0,0.3)', padding: '8px 10px', borderRadius: '4px' }}>
+                    <div style={{ fontSize: '10px', color: '#cbd5e1' }}>Tokens de Imagem</div>
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#fef08a' }}>
+                      ~{previewCost.outputTokens}
+                    </div>
+                  </div>
+                  <div style={{ backgroundColor: 'rgba(0,0,0,0.3)', padding: '8px 10px', borderRadius: '4px' }}>
+                    <div style={{ fontSize: '10px', color: '#cbd5e1' }}>Total Previsto</div>
+                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#38bdf8' }}>
+                      ~{previewCost.totalTokens} tokens
+                    </div>
+                  </div>
+                  <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.4)', padding: '8px 10px', borderRadius: '4px' }}>
+                    <div style={{ fontSize: '10px', color: '#a7f3d0' }}>Custo Estimado</div>
+                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#34d399' }}>
+                      ${previewCost.estimatedCostUsd.toFixed(4)} USD
+                    </div>
+                    <div style={{ fontSize: '9px', color: '#6ee7b7' }}>
+                      (~R$ {previewCost.estimatedCostBrl.toFixed(2)} BRL)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Modal Actions */}
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={() => setIsConfirmModalOpen(false)}
+                className="btn-tavern btn-secondary"
+                style={{ color: '#fef08a', backgroundColor: '#2a180b', borderColor: '#78350f', minHeight: '40px', padding: '8px 16px' }}
+              >
+                Voltar / Ajustar Ideia
+              </button>
+              <button
+                type="button"
+                onClick={handleExecuteConfirmed}
+                className="btn-tavern btn-primary"
+                style={{
+                  minHeight: '40px',
+                  padding: '8px 20px',
+                  fontSize: '13px',
+                  fontWeight: 800,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                <Wand2 size={16} />
+                Autorizar e Gerar Imagem com IA
               </button>
             </div>
           </div>
