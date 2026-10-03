@@ -58,8 +58,26 @@ Beba mais um gole de cidra enquanto prepara os dados! Precisa de mais algum deta
 ];
 
 export const aiService = {
-  // Chat com Urd
+  // Chat com Urd com suporte prioritário ao backend seguro de Cloud Functions
   async chatWithUrd(prompt: string, history: Array<{ sender: 'user' | 'urd'; text: string }>): Promise<string> {
+    // 1. Tenta chamar o endpoint seguro de backend (/api/urd no Firebase Hosting/Functions)
+    try {
+      const backendRes = await fetch('/api/urd', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, history })
+      });
+      if (backendRes.ok) {
+        const data = await backendRes.json();
+        if (data?.response) {
+          return data.response;
+        }
+      }
+    } catch {
+      // Ignora falha de rota local e segue para execução local
+    }
+
+    // 2. Execução local via Gemini SDK no cliente
     if (aiClient) {
       try {
         const response = await aiClient.models.generateContent({
@@ -82,7 +100,7 @@ export const aiService = {
       }
     }
 
-    // Delay natural simulando o taberneiro pensando e servindo
+    // 3. Fallback de roleplay temático caso esteja offline
     await new Promise(res => setTimeout(res, 800));
     const pick = URD_LORE_RESPONSES[Math.floor(Math.random() * URD_LORE_RESPONSES.length)];
     return pick(prompt);
