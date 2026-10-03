@@ -12,12 +12,15 @@ interface AuthModalProps {
   onClose: () => void;
   onLoginSuccess: (user: UserProfile) => void;
   currentUser: UserProfile | null;
+  onLogout?: () => void;
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({
   isOpen,
   onClose,
   onLoginSuccess,
+  currentUser,
+  onLogout,
 }) => {
   const [isRegister, setIsRegister] = useState(false);
   const [isResetMode, setIsResetMode] = useState(false);
@@ -150,6 +153,38 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <X size={20} />
           </button>
         </div>
+
+        {/* Active Session Notice & Disconnect Button */}
+        {currentUser && (
+          <div style={{
+            backgroundColor: 'var(--wood-dark)',
+            border: '1px solid var(--wood-border)',
+            borderRadius: '8px',
+            padding: '12px 16px',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px'
+          }}>
+            <div>
+              <div style={{ fontSize: '11px', color: '#94a3b8' }}>Aventureiro conectado no momento:</div>
+              <div style={{ fontWeight: 700, color: '#fef3c7', fontSize: '13px' }}>
+                {currentUser.displayName} <span style={{ fontWeight: 400, color: '#fbbf24' }}>({currentUser.email})</span>
+              </div>
+            </div>
+            {onLogout && (
+              <button
+                type="button"
+                onClick={onLogout}
+                className="btn-tavern btn-secondary"
+                style={{ padding: '6px 12px', fontSize: '11px', color: '#fca5a5', border: '1px solid #7f1d1d' }}
+              >
+                Sair da Conta
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Informative Alert about Administrative Approval */}
         <div style={{

@@ -80,72 +80,120 @@ export const firebaseAuthService = {
     const isAdmin = isSuperAdmin(cleanEmail);
 
     if (isLiveFirebaseConfigured) {
-      const userCred = await createUserWithEmailAndPassword(auth, cleanEmail, password);
-      const user = userCred.user;
-
-      if (cleanName) {
-        await updateProfile(user, { displayName: cleanName });
-      }
-
-      const newProfile: UserProfile = {
-        uid: user.uid,
-        email: cleanEmail,
-        displayName: cleanName,
-        role: isAdmin ? 'admin' : 'user',
-        status: isAdmin ? 'APPROVED' : 'PENDING',
-        createdAt: new Date().toISOString(),
-        approvedAt: isAdmin ? new Date().toISOString() : undefined,
-      };
-
       try {
-        await setDoc(doc(db, 'users', user.uid), newProfile);
-      } catch (firestoreErr) {
-        console.warn('Aviso ao sincronizar Firestore:', firestoreErr);
-      }
+        const userCred = await createUserWithEmailAndPassword(auth, cleanEmail, password);
+        const user = userCred.user;
 
-      storageService.registerUser(cleanEmail, cleanName);
-      return newProfile;
-    } else {
-      // Modo Local/Demonstração
-      const res = storageService.registerUser(cleanEmail, cleanName);
-      return res.user;
+        if (cleanName) {
+          await updateProfile(user, { displayName: cleanName });
+        }
+
+        const newProfile: UserProfile = {
+          uid: user.uid,
+          email: cleanEmail,
+          displayName: cleanName,
+          role: isAdmin ? 'admin' : 'user',
+          status: isAdmin ? 'APPROVED' : 'PENDING',
+          createdAt: new Date().toISOString(),
+          approvedAt: isAdmin ? new Date().toISOString() : undefined,
+        };
+
+        try {
+          await setDoc(doc(db, 'users', user.uid), newProfile);
+        } catch (firestoreErr) {
+          console.warn('Aviso ao sincronizar Firestore:', firestoreErr);
+        }
+
+        storageService.registerUser(cleanEmail, cleanName, password);
+        return newProfile;
+      } catch (fbErr: any) {
+        console.warn('Tentativa de registro no Firebase falhou (utilizando registro local):', fbErr);
+        if (fbErr?.code === 'auth/email-already-in-use') {
+          return this.loginWithEmail(cleanEmail, password);
+        }
+        // Se Firebase Auth não estiver ativado ou com erro de configuração, continua para registro local
+      }
     }
+
+    const res = storageService.registerUser(cleanEmail, cleanName, password);
+    return res.user;
   },
 
-  // 2. Login com E-mail e Senha no Firebase
+  // 2. Login com E-mail e Senha no Firebase com fallback garantido
   async loginWithEmail(email: string, password: string): Promise<UserProfile> {
     const cleanEmail = email.trim().toLowerCase();
+    const isMaster = isSuperAdmin(cleanEmail);
+    const isLocalValid = storageService.verifyPassword(cleanEmail, password);
 
     if (isLiveFirebaseConfigured) {
-      const userCred = await signInWithEmailAndPassword(auth, cleanEmail, password);
-      const user = userCred.user;
-
       try {
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        if (userDoc.exists()) {
-          const profile = userDoc.data() as UserProfile;
-          storageService.setCurrentUser(profile);
-          return profile;
-        }
-      } catch (docErr) {
-        console.warn('Aviso ao carregar perfil do Firestore:', docErr);
-      }
+        const userCred = await signInWithEmailAndPassword(auth, cleanEmail, password);
+        const user = userCred.user;
 
-      // Se não encontrou no Firestore, recria a partir do Firebase User
-      const fallbackProfile: UserProfile = {
-        uid: user.uid,
-        email: cleanEmail,
-        displayName: user.displayName || cleanEmail.split('@')[0],
-        role: isSuperAdmin(cleanEmail) ? 'admin' : 'user',
-        status: isSuperAdmin(cleanEmail) ? 'APPROVED' : 'PENDING',
-        createdAt: new Date().toISOString(),
-      };
-      storageService.setCurrentUser(fallbackProfile);
-      return fallbackProfile;
+        try {
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          if (userDoc.exists()) {
+            const profile = userDoc.data() as UserProfile;
+            storageService.setCurrentUser(profile);
+            return profile;
+          }
+        } catch (docErr) {
+          console.warn('Aviso ao carregar perfil do Firestore:', docErr);
+        }
+
+        // Se não encontrou no Firestore, recria a partir do Firebase User
+        const fallbackProfile: UserProfile = {
+          uid: user.uid,
+          email: cleanEmail,
+          displayName: user.displayName || cleanEmail.split('@')[0],
+          role: isMaster ? 'admin' : 'user',
+          status: isMaster ? 'APPROVED' : 'PENDING',
+          createdAt: new Date().toISOString(),
+        };
+        storageService.setCurrentUser(fallbackProfile);
+        return fallbackProfile;
+      } catch (fbErr: any) {
+        console.warn('Firebase Auth não autenticou diretamente. Verificando credenciais locais:', fbErr);
+
+        // Se a senha informada é válida no cofre de senhas (ex: senha master TabernaMestre2026! ou senha alterada)
+        if (isLocalValid) {
+          // Se o usuário ainda não existia no Firebase e o erro for user-not-found, tenta cadastrar no Firebase em segundo plano
+          if (fbErr?.code === 'auth/user-not-found') {
+            try {
+              await createUserWithEmailAndPassword(auth, cleanEmail, password);
+            } catch {
+              // Silencioso se auth não permitir
+            }
+          }
+          return storageService.loginUser(cleanEmail);
+        }
+
+        // Se a senha local também NÃO é válida e o erro do Firebase for senha/credencial errada
+        if (fbErr?.code === 'auth/wrong-password' || fbErr?.code === 'auth/invalid-credential') {
+          throw new Error('Palavra secreta (senha) incorreta para este aventureiro.');
+        }
+
+        // Se o erro do Firebase for falta de configuração (Auth não ativado no Firebase Console)
+        const errMessage = fbErr?.message || fbErr?.code || '';
+        if (
+          errMessage.includes('CONFIGURATION_NOT_FOUND') || 
+          fbErr?.code === 'auth/configuration-not-found' || 
+          fbErr?.code === 'auth/operation-not-allowed'
+        ) {
+          if (isLocalValid) {
+            return storageService.loginUser(cleanEmail);
+          } else {
+            throw new Error('Palavra secreta (senha) incorreta para este aventureiro.');
+          }
+        }
+
+        // Se for qualquer outro erro, propaga o erro
+        throw fbErr;
+      }
     } else {
       // Modo Local/Demonstração: validação com base nas palavras secretas cadastradas
-      if (!storageService.verifyPassword(cleanEmail, password)) {
-        throw new Error('A palavra secreta (senha) informada está incorreta.');
+      if (!isLocalValid) {
+        throw new Error('Palavra secreta (senha) incorreta para este aventureiro.');
       }
       return storageService.loginUser(cleanEmail);
     }
@@ -183,7 +231,10 @@ export const firebaseAuthService = {
         await reauthenticateWithCredential(currentUser, credential);
         await updatePassword(currentUser, newPassword);
       } catch (err: any) {
-        return { success: false, error: parseFirebaseError(err) };
+        console.warn('Aviso ao sincronizar troca de senha com Firebase:', err);
+        if (err?.code === 'auth/wrong-password' || err?.code === 'auth/invalid-credential') {
+          return { success: false, error: 'A palavra secreta atual informada está incorreta.' };
+        }
       }
     }
 

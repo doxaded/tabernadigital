@@ -227,10 +227,7 @@ export const storageService = {
   getCurrentUser(): UserProfile | null {
     const raw = localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
     if (!raw) {
-      // Padrão inicial: Henrique Berbert (Admin) para testes imediatos
-      const defaultUser = DEFAULT_USERS[0];
-      localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(defaultUser));
-      return defaultUser;
+      return null;
     }
     try {
       return JSON.parse(raw);
@@ -248,10 +245,16 @@ export const storageService = {
   },
 
   // Cadastro de novo usuário com fluxo obrigatório de PENDING
-  registerUser(email: string, displayName: string): { user: UserProfile; isPending: boolean } {
+  registerUser(email: string, displayName: string, password?: string): { user: UserProfile; isPending: boolean } {
     const users = this.getUsers();
     const cleanEmail = email.trim().toLowerCase();
     const existing = users.find(u => u.email.toLowerCase() === cleanEmail);
+
+    if (password) {
+      const passwords = this.getPasswords();
+      passwords[cleanEmail] = password;
+      this.savePasswords(passwords);
+    }
 
     if (existing) {
       this.setCurrentUser(existing);

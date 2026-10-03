@@ -23,7 +23,7 @@ export function App() {
   const [activeTab, setActiveTab] = useState<'campaigns' | 'sketch' | 'urd'>('campaigns');
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(() => campaigns[0]?.id || null);
 
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(() => !storageService.getCurrentUser());
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
@@ -293,6 +293,7 @@ export function App() {
           reloadData();
         }}
         currentUser={currentUser}
+        onLogout={handleLogout}
       />
 
       {/* Exclusive Admin Modal (Acesso restrito a henrique.v.berbert@gmail.com) */}
