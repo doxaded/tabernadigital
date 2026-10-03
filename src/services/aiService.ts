@@ -1,11 +1,21 @@
 import { GoogleGenAI } from '@google/genai';
 
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const VITE_ENV_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
-let aiClient: GoogleGenAI | null = null;
-if (GEMINI_API_KEY) {
-  aiClient = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
-}
+// Recupera a melhor chave de API disponível (chave customizada salva ou variável de ambiente)
+export const getEffectiveGeminiKey = (customKey?: string): string => {
+  if (customKey && customKey.trim()) return customKey.trim();
+  if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem('taberna_gemini_api_key');
+    if (saved && saved.trim()) return saved.trim();
+  }
+  return VITE_ENV_KEY || '';
+};
+
+// Modelos Gemini Oficiais Recomendados
+export const GEMINI_SKETCH_MODEL = 'gemini-3-pro-image'; // Nano Banana Pro: Melhor modelo para alta definição e arte conceitual
+export const GEMINI_SKETCH_FALLBACK_MODEL = 'gemini-3.1-flash-image'; // Nano Banana 2: Modelo rápido de imagem
+export const GEMINI_TEXT_MODEL = 'gemini-flash-latest'; // Modelo moderno padrão para diálogos e enriquecimento de lore
 
 export const URD_SYSTEM_PROMPT = `
 Você é Urd, o taberneiro da lendária "Taberna Digital", uma acolhedora estalagem medieval de fantasia onde aventureiros se reúnem ao redor de tochas crepitantes e canecas de carvalho.
@@ -17,10 +27,25 @@ Sua Persona:
 `;
 
 export const SKETCH_SYSTEM_INSTRUCTION = `
-Style constraint: Tabletop RPG concept art, monochromatic graphite pencil sketch, ink linework, cross-hatching shading, clean lines, no color fill, graphite on aged paper background, consistent line weight, rustic fantasy aesthetic.
+Style constraint: Tabletop RPG concept art, monochromatic graphite pencil sketch, dark ink linework, cross-hatching shading, clean lines, no color fill, graphite on aged paper background, consistent line weight, rustic fantasy aesthetic.
 `;
 
-// Respostas temáticas autênticas de Urd para modo de demonstração imersivo
+export interface GenerateSketchOptions {
+  category?: 'item' | 'npc' | 'criatura' | 'mapa' | 'cena';
+  aspectRatio?: '1:1' | '3:4' | '4:3' | '16:9';
+  imageSize?: '1K' | '2K';
+  customApiKey?: string;
+}
+
+export interface GenerateSketchResult {
+  imageUrl: string;
+  description: string;
+  modelUsed: string;
+  isAiGenerated: boolean;
+  quotaNotice?: string;
+}
+
+// Respostas temáticas autênticas de Urd para modo de contingência
 const URD_LORE_RESPONSES = [
   (query: string) => `*Urd para de secar uma caneca de carvalho com um pano encardido, apoia os cotovelos fortes sobre o balcão de madeira e crava os olhos experientes em você.*
 
@@ -57,10 +82,36 @@ Aqui está o que eu prepararia para surpreender esses aventureiros:
 Beba mais um gole de cidra enquanto prepara os dados! Precisa de mais algum detalhe?"`
 ];
 
+// Gera prompt refinado para arte em grafite / sketch de RPG
+export const buildSketchPrompt = (
+  userPrompt: string,
+  category: 'item' | 'npc' | 'criatura' | 'mapa' | 'cena' = 'item'
+): string => {
+  const categoryTerms: Record<string, string> = {
+    item: 'tabletop RPG magic item, weapon or relic',
+    npc: 'tabletop RPG character portrait, adventurer or tavern patron',
+    criatura: 'tabletop RPG monster, magical beast or dungeon entity',
+    mapa: 'tabletop RPG hand-drawn battlemap, floorplan or parchment cartography',
+    cena: 'tabletop RPG fantasy tavern interior, medieval architecture scene'
+  };
+
+  const subject = categoryTerms[category] || 'tabletop RPG fantasy asset';
+
+  return [
+    `Masterpiece concept art of a ${subject}: "${userPrompt}".`,
+    `Medium: Fine monochromatic graphite pencil drawing and dark sepia ink linework.`,
+    `Technique: Cross-hatching shading, delicate contour strokes, crisp architectural linework, rustic medieval fantasy aesthetic.`,
+    `Background: Textured vintage aged parchment paper background.`,
+    `Strict Negative Constraints: Strictly black and white / monochromatic graphite only. Absolutely no color fill, no modern 3D CGI gloss, no photorealism artifacts, authentic traditional sketch style.`
+  ].join(' ');
+};
+
 export const aiService = {
-  // Chat com Urd com suporte prioritário ao backend seguro de Cloud Functions
-  async chatWithUrd(prompt: string, history: Array<{ sender: 'user' | 'urd'; text: string }>): Promise<string> {
-    // 1. Tenta chamar o endpoint seguro de backend (/api/urd no Firebase Hosting/Functions)
+  // Chat com Urd com suporte a Cloud Functions e Gemini API
+  async chatWithUrd(prompt: string, history: Array<{ sender: 'user' | 'urd'; text: string }>, customApiKey?: string): Promise<string> {
+    const apiKey = getEffectiveGeminiKey(customApiKey);
+
+    // 1. Tenta chamar o endpoint de backend seguro (/api/urd)
     try {
       const backendRes = await fetch('/api/urd', {
         method: 'POST',
@@ -74,14 +125,15 @@ export const aiService = {
         }
       }
     } catch {
-      // Ignora falha de rota local e segue para execução local
+      // Ignora falha e tenta execução direta
     }
 
-    // 2. Execução local via Gemini SDK no cliente
-    if (aiClient) {
+    // 2. Execução direta via Google Gen AI SDK
+    if (apiKey) {
       try {
-        const response = await aiClient.models.generateContent({
-          model: 'gemini-2.5-flash',
+        const client = new GoogleGenAI({ apiKey });
+        const response = await client.models.generateContent({
+          model: GEMINI_TEXT_MODEL,
           contents: [
             { role: 'user', parts: [{ text: URD_SYSTEM_PROMPT }] },
             ...history.slice(-6).map(h => ({
@@ -100,18 +152,101 @@ export const aiService = {
       }
     }
 
-    // 3. Fallback de roleplay temático caso esteja offline
+    // 3. Fallback de roleplay temático imersivo
     await new Promise(res => setTimeout(res, 800));
     const pick = URD_LORE_RESPONSES[Math.floor(Math.random() * URD_LORE_RESPONSES.length)];
     return pick(prompt);
   },
 
-  // Gerador de Sketches do Estúdio
-  async generateSketch(prompt: string, category: 'item' | 'npc' | 'criatura' | 'mapa' | 'cena'): Promise<{ imageUrl: string; description: string }> {
-    // Preservamos o traço consistente em rascunho monocromático
-    await new Promise(res => setTimeout(res, 1200));
+  // Gerador de Sketches do Estúdio conectado ao melhor modelo de imagem do Gemini: gemini-3-pro-image (Nano Banana Pro)
+  async generateSketch(
+    prompt: string,
+    category: 'item' | 'npc' | 'criatura' | 'mapa' | 'cena' = 'item',
+    options?: GenerateSketchOptions
+  ): Promise<GenerateSketchResult> {
+    const apiKey = getEffectiveGeminiKey(options?.customApiKey);
+    const aspectRatio = options?.aspectRatio || '1:1';
+    const imageSize = options?.imageSize || '2K';
+    const enhancedPrompt = buildSketchPrompt(prompt, category);
 
-    // Seleção de assets monocromáticos autênticos já gerados
+    let quotaNotice: string | undefined = undefined;
+
+    // Se houver chave Gemini disponível, tenta a geração com os modelos de ponta
+    if (apiKey) {
+      // Prioridade 1: gemini-3-pro-image (Melhor modelo para ilustrações conceituais de alta fidelidade)
+      // Prioridade 2: gemini-3.1-flash-image (Modelo rápido de geração de imagem)
+      const candidateModels = [GEMINI_SKETCH_MODEL, GEMINI_SKETCH_FALLBACK_MODEL];
+
+      for (const model of candidateModels) {
+        try {
+          const res = await fetch('https://generativelanguage.googleapis.com/v1beta/interactions', {
+            method: 'POST',
+            headers: {
+              'x-goog-api-key': apiKey,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              model,
+              input: enhancedPrompt,
+              response_format: {
+                type: 'image',
+                mime_type: 'image/jpeg',
+                aspect_ratio: aspectRatio,
+                image_size: imageSize
+              }
+            })
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            let base64Image: string | undefined = data?.output_image?.data;
+            let mimeType: string = data?.output_image?.mime_type || 'image/jpeg';
+
+            // Busca na árvore de steps se não estiver direto na raiz
+            if (!base64Image && Array.isArray(data?.steps)) {
+              for (const step of data.steps) {
+                if (step.type === 'model_output' && Array.isArray(step.content)) {
+                  const imgPart = step.content.find((c: any) => c.type === 'image' && c.data);
+                  if (imgPart) {
+                    base64Image = imgPart.data;
+                    mimeType = imgPart.mime_type || mimeType;
+                    break;
+                  }
+                }
+              }
+            }
+
+            if (base64Image) {
+              const description = await this.describeSketchWithGemini(prompt, category, apiKey);
+              return {
+                imageUrl: `data:${mimeType};base64,${base64Image}`,
+                description,
+                modelUsed: model,
+                isAiGenerated: true
+              };
+            }
+          } else {
+            const errData = await res.json().catch(() => ({}));
+            const errMsg = errData?.error?.message || res.statusText;
+            console.warn(`[Gemini Sketch] Retorno da API para ${model} (HTTP ${res.status}):`, errMsg);
+
+            if (res.status === 429 || errMsg.includes('Rate limit') || errMsg.includes('quota') || errMsg.includes('limit: 0')) {
+              quotaNotice = `O modelo ${model} requer projeto com faturamento/cota ativada no Google AI Studio (limit: 0 no Free Tier).`;
+            }
+          }
+        } catch (callErr: any) {
+          console.warn(`[Gemini Sketch] Erro de rede na chamada para ${model}:`, callErr.message);
+        }
+      }
+    } else {
+      quotaNotice = 'Nenhuma chave Gemini configurada. Utilizando modo rascunho de contingência.';
+    }
+
+    // Se a chamada de imagem não gerou imagem direta (ex: cota ou offline),
+    // enriquecemos o rascunho com descrição artística detalhada gerada pelo Gemini Flash
+    const description = await this.describeSketchWithGemini(prompt, category, apiKey);
+
+    // Seleção de asset de traço tradicional de acordo com a categoria
     let imageUrl = '/assets/sketch_sword.jpg';
     if (category === 'npc') {
       imageUrl = '/assets/urd_portrait.jpg';
@@ -121,7 +256,31 @@ export const aiService = {
 
     return {
       imageUrl,
-      description: `Rascunho a lápis em grafite sobre pergaminho: "${prompt}". Traço hachurado e sombreamento rústico de RPG.`
+      description,
+      modelUsed: GEMINI_SKETCH_MODEL,
+      isAiGenerated: false,
+      quotaNotice
     };
+  },
+
+  // Gera uma descrição de ficha temática para o rascunho usando o Gemini
+  async describeSketchWithGemini(prompt: string, category: string, apiKey?: string): Promise<string> {
+    const key = apiKey || getEffectiveGeminiKey();
+    if (key) {
+      try {
+        const client = new GoogleGenAI({ apiKey: key });
+        const res = await client.models.generateContent({
+          model: GEMINI_TEXT_MODEL,
+          contents: `Escreva em 1 ou 2 frases curtas e imersivas em Português do Brasil a descrição visual de um rascunho de RPG de mesa a lápis grafite retratando: "${prompt}" (categoria: ${category}). Destaque o traço em nanquim, as hachuras e os detalhes medievais no pergaminho. Sem introduções genéricas.`
+        });
+        if (res.text && res.text.trim()) {
+          return res.text.trim();
+        }
+      } catch (err) {
+        console.warn('[Gemini Sketch] Falha ao gerar descrição com Gemini Flash:', err);
+      }
+    }
+
+    return `Rascunho a lápis em grafite sobre pergaminho: "${prompt}". Traço hachurado e sombreamento rústico de RPG.`;
   }
 };

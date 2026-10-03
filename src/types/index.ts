@@ -86,6 +86,8 @@ export interface SketchAsset {
   category: 'item' | 'npc' | 'criatura' | 'mapa' | 'cena';
   createdAt: string;
   campaignId?: string;
+  description?: string;
+  modelUsed?: string;
 }
 
 export interface UrdMessage {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Sparkles, Download, Layers, Shield, Wand2, Eye, Filter, RefreshCw, Check } from 'lucide-react';
+import { Sparkles, Download, Layers, Shield, Wand2, Eye, Filter, RefreshCw, Check, Info, Cpu, Ratio, Key } from 'lucide-react';
 import { Campaign, SketchAsset } from '../types';
-import { aiService, SKETCH_SYSTEM_INSTRUCTION } from '../services/aiService';
+import { aiService, GEMINI_SKETCH_MODEL, getEffectiveGeminiKey } from '../services/aiService';
 
 interface SketchStudioViewProps {
   sketches: SketchAsset[];
@@ -18,35 +18,83 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
 }) => {
   const [prompt, setPrompt] = useState('');
   const [category, setCategory] = useState<'item' | 'npc' | 'criatura' | 'mapa' | 'cena'>('item');
+  const [aspectRatio, setAspectRatio] = useState<'1:1' | '3:4' | '4:3' | '16:9'>('1:1');
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedCampaignForSave, setSelectedCampaignForSave] = useState(activeCampaignId || campaigns[0]?.id || '');
   const [previewAsset, setPreviewAsset] = useState<SketchAsset | null>(null);
   const [successToast, setSuccessToast] = useState('');
+  const [quotaNotice, setQuotaNotice] = useState<string | null>(null);
+  const [showKeyConfig, setShowKeyConfig] = useState(false);
+  const [customKeyInput, setCustomKeyInput] = useState(
+    typeof window !== 'undefined' ? localStorage.getItem('taberna_gemini_api_key') || '' : ''
+  );
 
   const PRESET_IDEAS = [
-    { label: '🗡️ Espada Rúnica Anciã', prompt: 'Espada mágica antiga cravada no pedestal de pedra com inscrições rúnicas', category: 'item' as const },
-    { label: '🧌 Mímico Disfarçado de Baú', prompt: 'Baú de tesouro de madeira com dentes pontiagudos e língua monstruosa revelada', category: 'criatura' as const },
-    { label: '🧔 Taberneiro Experiente', prompt: 'Retrato de um taberneiro anão com barba trançada segurando uma caneca de carvalho', category: 'npc' as const },
-    { label: '🗺️ Mapa de Catacumba', prompt: 'Mapa desenhado à mão com corredores de pedra, armadilhas e câmara do altar', category: 'mapa' as const },
+    { label: '🗡️ Espada Rúnica Anciã', prompt: 'Espada longa mágica antiga cravada em pedestal de pedra com runas nórdicas gravadas no gume', category: 'item' as const },
+    { label: '🧌 Mímico Disfarçado', prompt: 'Baú de madeira reforçado com dentes afiados nas frestas e língua monstruosa de fora', category: 'criatura' as const },
+    { label: '🧔 Taberneiro Anão', prompt: 'Retrato de um taberneiro anão corpulento com avental de couro e longa barba trançada segurando caneca de cerveja', category: 'npc' as const },
+    { label: '🗺️ Mapa de Catacumba', prompt: 'Planta baixa desenhada à mão de catacumba com sarcófagos, corredores armadilhados e sala do oráculo', category: 'mapa' as const },
+    { label: '🏰 Salão da Taberna', prompt: 'Interior aconchegante de taverna medieval com lareira crepitante, mesas rústicas de carvalho e barris', category: 'cena' as const },
   ];
+
+  const handleSaveCustomKey = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (typeof window !== 'undefined') {
+      if (customKeyInput.trim()) {
+        localStorage.setItem('taberna_gemini_api_key', customKeyInput.trim());
+      } else {
+        localStorage.removeItem('taberna_gemini_api_key');
+      }
+      setShowKeyConfig(false);
+      setSuccessToast('Chave de API do Gemini atualizada com sucesso!');
+      setTimeout(() => setSuccessToast(''), 4000);
+    }
+  };
+
+  const handleDownload = (asset: SketchAsset) => {
+    const link = document.createElement('a');
+    link.href = asset.imageUrl;
+    link.download = `sketch_${asset.category}_${Date.now()}.jpg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prompt.trim() || isGenerating) return;
 
     setIsGenerating(true);
+    setQuotaNotice(null);
+
     try {
-      const result = await aiService.generateSketch(prompt, category);
-      const newAsset = onSaveSketch({
+      const result = await aiService.generateSketch(prompt, category, {
+        aspectRatio,
+        imageSize: '2K'
+      });
+
+      onSaveSketch({
         prompt: prompt.trim(),
         imageUrl: result.imageUrl,
         category,
         campaignId: selectedCampaignForSave || undefined,
+        description: result.description,
+        modelUsed: result.modelUsed,
       });
 
-      setSuccessToast('Novo rascunho em grafite gravado na galeria!');
-      setTimeout(() => setSuccessToast(''), 4000);
+      if (result.quotaNotice) {
+        setQuotaNotice(result.quotaNotice);
+      } else if (result.isAiGenerated) {
+        setSuccessToast(`✨ Ilustração sintetizada pelo Gemini 3 Pro Image (2K) e gravada na galeria!`);
+      } else {
+        setSuccessToast(`Novo rascunho enriquecido com IA gravado na galeria!`);
+      }
+
+      setTimeout(() => setSuccessToast(''), 6000);
       setPrompt('');
+    } catch (err: any) {
+      console.error('Erro ao gerar sketch:', err);
+      setQuotaNotice(err?.message || 'Erro durante a geração');
     } finally {
       setIsGenerating(false);
     }
@@ -56,40 +104,132 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
     <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '16px 20px 40px' }}>
       {/* Header */}
       <div style={{ marginBottom: '24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Sparkles size={24} color="var(--amber-torch)" />
-          <h2 style={{ fontSize: '24px', fontWeight: 900, margin: 0 }}>
-            Sketch Studio — Motor de Ilustração Monocromática
-          </h2>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Sparkles size={26} color="var(--amber-torch)" />
+            <div>
+              <h2 style={{ fontSize: '24px', fontWeight: 900, margin: 0 }}>
+                Sketch Studio — Motor de Ilustração Monocromática
+              </h2>
+              <p style={{ fontSize: '13px', color: '#cbd5e1', margin: '4px 0 0 0' }}>
+                Desenho detalhado de RPG em grafite e nanquim com o modelo de ponta <strong>Gemini 3 Pro Image (Nano Banana Pro)</strong>.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowKeyConfig(!showKeyConfig)}
+            className="btn-tavern btn-secondary"
+            style={{
+              fontSize: '11px',
+              padding: '6px 12px',
+              color: '#fef08a',
+              borderColor: '#78350f',
+              backgroundColor: '#2a180b',
+              gap: '6px'
+            }}
+          >
+            <Key size={13} color="#facc15" />
+            Configurar Chave Gemini
+          </button>
         </div>
-        <p style={{ fontSize: '13px', color: '#cbd5e1', marginTop: '4px' }}>
-          Geração de assets visuais para RPG estritamente restritos ao padrão <strong>Sketch</strong> (desenho em grafite/nanquim, sem cores, com consistência de traço).
-        </p>
       </div>
 
-      {/* Constraints Notice Banner */}
+      {/* Model Spec & Constraints Banner */}
       <div style={{
-        backgroundColor: 'rgba(217, 119, 6, 0.1)',
+        backgroundColor: 'rgba(217, 119, 6, 0.12)',
         border: '1px solid var(--amber-torch)',
         borderRadius: '8px',
         padding: '12px 16px',
-        marginBottom: '24px',
+        marginBottom: '20px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
         gap: '12px'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Filter size={18} color="var(--amber-glow)" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Cpu size={16} color="var(--amber-torch)" />
+            <span style={{ fontSize: '12px', color: '#fef3c7', fontWeight: 700 }}>
+              Modelo: <span style={{ color: '#fbbf24', fontFamily: 'monospace' }}>gemini-3-pro-image</span> (Nano Banana Pro)
+            </span>
+          </div>
+          <span style={{ color: 'rgba(255,255,255,0.2)' }}>•</span>
           <div style={{ fontSize: '12px', color: '#fef3c7' }}>
-            <strong>Parâmetros de Estilização Travados:</strong> Monocromático • Traço a lápis/nanquim uniforme • Hachuras cruzadas • Fundo pergaminho leve • 0% cores adicionais.
+            <strong>Estilo Travado:</strong> Monocromático • Grafite Fino & Hachura • Pergaminho Texturizado • Resolução 2K
           </div>
         </div>
-        <span className="wax-badge wax-badge-admin" style={{ fontSize: '10px' }}>
-          Motor Ativo
+
+        <span className="wax-badge wax-badge-admin" style={{ fontSize: '10px', padding: '3px 8px' }}>
+          ✨ IA Conectada
         </span>
       </div>
+
+      {/* Chave Gemini Customizada Config Modal/Drawer */}
+      {showKeyConfig && (
+        <form onSubmit={handleSaveCustomKey} className="parchment-card" style={{ padding: '16px 20px', marginBottom: '20px', border: '2px solid var(--amber-torch)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', fontWeight: 700, fontSize: '13px' }}>
+            <Key size={16} color="var(--amber-deep)" />
+            Chave de Acesso Gemini API (Opcional para Cota Própria de Imagens)
+          </div>
+          <p style={{ fontSize: '12px', color: 'var(--ink-dark)', margin: '0 0 10px 0', lineHeight: 1.4 }}>
+            O modelo <code>gemini-3-pro-image</code> exige faturamento ativado no Google AI Studio (limite 0 no Free Tier). Se você possuir uma chave do Google Cloud / AI Studio com plano ativo, insira-a abaixo para usá-la prioritariamente.
+          </p>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <input
+              type="password"
+              value={customKeyInput}
+              onChange={e => setCustomKeyInput(e.target.value)}
+              placeholder="Cole sua API Key do Gemini (ex: AIzaSy... ou AQ.Ab...)"
+              className="tavern-input"
+              style={{ flex: 1, minWidth: '260px' }}
+            />
+            <button type="submit" className="btn-tavern btn-primary" style={{ fontSize: '12px', padding: '8px 16px' }}>
+              Salvar Chave
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setCustomKeyInput('');
+                localStorage.removeItem('taberna_gemini_api_key');
+                setShowKeyConfig(false);
+                setSuccessToast('Chave customizada removida. Voltando à chave padrão do ambiente.');
+                setTimeout(() => setSuccessToast(''), 4000);
+              }}
+              className="btn-tavern btn-secondary"
+              style={{ fontSize: '12px', padding: '8px 14px', color: '#fef08a', backgroundColor: '#2a180b' }}
+            >
+              Restaurar Padrão
+            </button>
+          </div>
+        </form>
+      )}
+
+      {/* Quota Notice Banner */}
+      {quotaNotice && (
+        <div style={{
+          backgroundColor: '#fffbeb',
+          border: '1.5px solid #d97706',
+          borderRadius: '8px',
+          padding: '12px 16px',
+          marginBottom: '20px',
+          color: '#92400e',
+          fontSize: '13px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px'
+        }}>
+          <Info size={20} color="#b45309" style={{ flexShrink: 0 }} />
+          <div>
+            <strong>Aviso de Cota do Google AI Studio:</strong> {quotaNotice}
+            <div style={{ fontSize: '11px', marginTop: '3px', opacity: 0.9 }}>
+              O asset foi renderizado com estilo temático e descrição contextual gerada pela IA enquanto a cota de imagem não estiver ativada com faturamento.
+            </div>
+          </div>
+        </div>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px' }}>
         {/* Generator Controls Card */}
@@ -114,7 +254,7 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
                   }}
                   className="btn-tavern"
                   style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.75)',
                     border: '1px solid #ccb993',
                     color: 'var(--ink-dark)',
                     fontSize: '11px',
@@ -131,20 +271,20 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
           <form onSubmit={handleGenerate} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div>
               <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>
-                Prompt de Criação:
+                Prompt de Criação (Enviado ao Gemini 3 Pro Image):
               </label>
               <textarea
                 rows={3}
                 required
                 value={prompt}
                 onChange={e => setPrompt(e.target.value)}
-                placeholder="Ex: Escudo redondo de carvalho com bordas de ferro forjado e uma cabeça de javali gravada..."
+                placeholder="Ex: Espada longa élfica com gume serrilhado em aço negro, runas brilhantes no punho de couro trançado..."
                 className="tavern-input font-lore"
                 style={{ fontSize: '15px' }}
               />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: '4px' }}>
                   Categoria do Asset:
@@ -159,6 +299,22 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
                   <option value="criatura">Monstro / Criatura Mágica</option>
                   <option value="mapa">Mapa / Planta de Masmorra</option>
                   <option value="cena">Cena / Arquitetura Medieval</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, marginBottom: '4px' }}>
+                  Proporção de Tela (Aspect Ratio):
+                </label>
+                <select
+                  value={aspectRatio}
+                  onChange={e => setAspectRatio(e.target.value as any)}
+                  className="tavern-input"
+                >
+                  <option value="1:1">1:1 (Quadrado • Padrão de Ficha)</option>
+                  <option value="3:4">3:4 (Retrato • Corpo Inteiro / NPC)</option>
+                  <option value="4:3">4:3 (Paisagem • Encontros)</option>
+                  <option value="16:9">16:9 (Panorâmico • Cenários)</option>
                 </select>
               </div>
 
@@ -190,12 +346,12 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
               {isGenerating ? (
                 <>
                   <RefreshCw size={16} className="torch-flicker" />
-                  <span>Esboçando Traços em Grafite...</span>
+                  <span>Conectando ao Gemini 3 Pro Image (Sintetizando Traços em Grafite)...</span>
                 </>
               ) : (
                 <>
                   <Wand2 size={16} />
-                  <span>Traçar Rascunho Monocromático</span>
+                  <span>Traçar Rascunho com Gemini 3 Pro</span>
                 </>
               )}
             </button>
@@ -207,14 +363,14 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
               backgroundColor: '#ecfdf5',
               border: '1px solid #10b981',
               color: '#065f46',
-              padding: '8px 12px',
-              borderRadius: '4px',
+              padding: '10px 14px',
+              borderRadius: '6px',
               fontSize: '12px',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px'
+              gap: '8px'
             }}>
-              <Check size={16} />
+              <Check size={18} color="#059669" />
               {successToast}
             </div>
           )}
@@ -222,12 +378,12 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
 
         {/* Gallery of Sketches */}
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
             <h3 style={{ fontSize: '18px', margin: 0 }}>
               Galeria de Rascunhos ({sketches.length} assets gravados)
             </h3>
             <span style={{ fontSize: '12px', color: '#94a3b8' }}>
-              Estilo padronizado em traço e espessura
+              Ilustrações conceituais de alta fidelidade
             </span>
           </div>
 
@@ -244,7 +400,7 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
                   overflow: 'hidden'
                 }}
               >
-                {/* Sketch Image Frame with Torn Paper Edge Effect */}
+                {/* Sketch Image Frame */}
                 <div style={{
                   position: 'relative',
                   width: '100%',
@@ -271,24 +427,39 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
                     position: 'absolute',
                     top: '8px',
                     right: '8px',
-                    backgroundColor: 'rgba(26, 16, 8, 0.8)',
+                    backgroundColor: 'rgba(26, 16, 8, 0.85)',
                     color: '#fef08a',
                     padding: '2px 8px',
                     borderRadius: '4px',
                     fontSize: '10px',
                     fontFamily: 'var(--font-cinzel)',
-                    fontWeight: 700
+                    fontWeight: 700,
+                    letterSpacing: '0.04em'
                   }}>
                     {item.category.toUpperCase()}
+                  </div>
+
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '8px',
+                    left: '8px',
+                    backgroundColor: 'rgba(26, 16, 8, 0.85)',
+                    color: '#fbbf24',
+                    padding: '2px 6px',
+                    borderRadius: '3px',
+                    fontSize: '9px',
+                    fontFamily: 'monospace'
+                  }}>
+                    {item.modelUsed || GEMINI_SKETCH_MODEL}
                   </div>
                 </div>
 
                 <div>
                   <p style={{
                     fontSize: '13px',
-                    fontWeight: 600,
+                    fontWeight: 700,
                     color: 'var(--ink-dark)',
-                    margin: '0 0 8px 0',
+                    margin: '0 0 4px 0',
                     lineHeight: 1.4,
                     display: '-webkit-box',
                     WebkitLineClamp: 2,
@@ -297,6 +468,24 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
                   }}>
                     "{item.prompt}"
                   </p>
+
+                  {item.description && (
+                    <p className="font-lore" style={{
+                      fontSize: '12px',
+                      color: 'var(--ink-dark)',
+                      margin: '0 0 8px 0',
+                      lineHeight: 1.35,
+                      fontStyle: 'italic',
+                      opacity: 0.85,
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden'
+                    }}>
+                      {item.description}
+                    </p>
+                  )}
+
                   <div style={{ fontSize: '10px', color: 'var(--ink-light)', marginBottom: '10px' }}>
                     Gravado em {new Date(item.createdAt).toLocaleDateString('pt-BR')}
                   </div>
@@ -310,16 +499,17 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
                       flex: 1,
                       padding: '6px',
                       fontSize: '11px',
-                      color: 'var(--ink-dark)',
-                      borderColor: 'var(--parchment-dark)',
+                      color: '#fef08a',
+                      borderColor: '#78350f',
+                      backgroundColor: '#2a180b',
                       minHeight: '34px'
                     }}
                   >
-                    <Eye size={14} />
+                    <Eye size={14} color="#facc15" />
                     Ver Detalhes
                   </button>
                   <button
-                    onClick={() => alert('Download do rascunho em alta resolução!')}
+                    onClick={() => handleDownload(item)}
                     className="btn-tavern btn-primary"
                     style={{
                       padding: '6px 12px',
@@ -340,10 +530,16 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
       {/* Modal Visualização em Detalhes */}
       {previewAsset && (
         <div className="tavern-modal-backdrop" onClick={() => setPreviewAsset(null)}>
-          <div className="tavern-modal-content parchment-card" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px', padding: '24px' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '12px' }}>
-              Rascunho Original em Traço a Lápis
-            </h3>
+          <div className="tavern-modal-content parchment-card" onClick={e => e.stopPropagation()} style={{ maxWidth: '640px', padding: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 800, margin: 0 }}>
+                Rascunho Original em Traço a Lápis
+              </h3>
+              <span className="wax-badge wax-badge-admin" style={{ fontSize: '10px' }}>
+                {previewAsset.modelUsed || GEMINI_SKETCH_MODEL}
+              </span>
+            </div>
+
             <div style={{
               borderRadius: '8px',
               overflow: 'hidden',
@@ -358,24 +554,56 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
                 style={{ width: '100%', height: 'auto', display: 'block', filter: 'grayscale(100%)' }}
               />
             </div>
-            <p className="font-lore" style={{ fontSize: '16px', color: 'var(--ink-dark)', lineHeight: 1.5, marginBottom: '16px' }}>
-              <strong>Prompt:</strong> "{previewAsset.prompt}"
-            </p>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+
+            <div style={{ marginBottom: '14px' }}>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--amber-deep)', textTransform: 'uppercase', marginBottom: '2px' }}>
+                Prompt Original
+              </div>
+              <p className="font-lore" style={{ fontSize: '15px', color: 'var(--ink-dark)', lineHeight: 1.4, margin: 0 }}>
+                "{previewAsset.prompt}"
+              </p>
+            </div>
+
+            {previewAsset.description && (
+              <div style={{
+                backgroundColor: 'rgba(217, 119, 6, 0.08)',
+                borderLeft: '3px solid var(--amber-torch)',
+                padding: '8px 12px',
+                borderRadius: '4px',
+                marginBottom: '16px'
+              }}>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--amber-deep)', textTransform: 'uppercase', marginBottom: '2px' }}>
+                  Descrição de Ficha (IA)
+                </div>
+                <p className="font-lore" style={{ fontSize: '14px', color: 'var(--ink-dark)', lineHeight: 1.4, margin: 0, fontStyle: 'italic' }}>
+                  {previewAsset.description}
+                </p>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '16px' }}>
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(previewAsset.prompt);
                   alert('Prompt copiado para a área de transferência!');
                 }}
                 className="btn-tavern btn-secondary"
-                style={{ color: 'var(--ink-dark)', borderColor: 'var(--parchment-dark)', fontSize: '11px' }}
+                style={{ color: '#fef08a', backgroundColor: '#2a180b', borderColor: '#78350f', fontSize: '11px' }}
               >
                 Copiar Prompt
               </button>
               <button
-                onClick={() => setPreviewAsset(null)}
+                onClick={() => handleDownload(previewAsset)}
                 className="btn-tavern btn-primary"
                 style={{ fontSize: '11px' }}
+              >
+                <Download size={14} />
+                Baixar Rascunho
+              </button>
+              <button
+                onClick={() => setPreviewAsset(null)}
+                className="btn-tavern btn-secondary"
+                style={{ color: '#fef08a', backgroundColor: '#2a180b', borderColor: '#78350f', fontSize: '11px' }}
               >
                 Fechar
               </button>
