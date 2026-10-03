@@ -67,7 +67,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           return;
         }
         if (password.length < 6) {
-          setErrorMsg('A palavra secreta (senha) deve conter no mínimo 6 caracteres.');
+          setErrorMsg('A palavra secreta deve conter no mínimo 6 caracteres.');
           setIsLoading(false);
           return;
         }
@@ -78,7 +78,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       } else {
         // Login com e-mail e senha no Firebase
         if (!password) {
-          setErrorMsg('Informe sua palavra secreta (senha) para entrar.');
+          setErrorMsg('Informe sua palavra secreta para entrar.');
           setIsLoading(false);
           return;
         }
@@ -186,7 +186,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           marginBottom: '18px',
           lineHeight: 1.4
         }}>
-          <strong>Aviso de Segurança:</strong> Ao se cadastrar por e-mail, seu perfil receberá o status <em>PENDENTE</em>. O acesso às salas e ferramentas será liberado após aprovação exclusiva de <strong>{ADMIN_EMAIL}</strong>.
+          <strong>Aviso de Segurança:</strong> Ao se cadastrar por e-mail, seu perfil receberá o status <em>PENDENTE</em>. O acesso às salas e ferramentas será liberado após aprovação exclusiva <strong>do dono da taberna</strong>.
         </div>
 
 
@@ -252,7 +252,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--ink-dark)', marginBottom: '4px' }}>
-              Endereço de E-mail (Firebase Auth):
+              Endereço de E-mail:
             </label>
             <div style={{ position: 'relative' }}>
               <Mail size={16} color="var(--ink-light)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
@@ -272,7 +272,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
                 <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--ink-dark)' }}>
-                  Palavra Secreta (Senha do Firebase):
+                  Palavra Secreta:
                 </label>
                 {!isRegister && (
                   <button
@@ -319,7 +319,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             {isLoading ? (
               <>
                 <RefreshCw size={16} className="torch-flicker" />
-                <span>Processando no Firebase...</span>
+                <span>Processando...</span>
               </>
             ) : isResetMode ? (
               <>
@@ -329,7 +329,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             ) : isRegister ? (
               <>
                 <KeyRound size={16} />
-                <span>Registrar via Firebase Auth</span>
+                <span>Registrar</span>
               </>
             ) : (
               <>
@@ -381,7 +381,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               }}
             >
               {isRegister 
-                ? 'Já possui conta no Firebase? Faça seu login' 
+                ? 'Já possui conta? Faça seu login' 
                 : 'Novo na estalagem? Cadastre-se com e-mail e senha'}
             </button>
           )}
