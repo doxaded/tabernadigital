@@ -151,7 +151,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
             <img 
-              src="/beer-mug-logo.png" 
+              src="/taberna-logo-black.png" 
               alt="Taberna Digital Logo" 
               style={{
                 width: 'clamp(280px, 35vw, 450px)',
