@@ -149,15 +149,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           justifyContent: 'center',
           position: 'relative'
         }}>
-          {/* Big Logo Area inspired by the reference */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
             <img 
               src="/beer-mug-logo.png" 
               alt="Taberna Digital Logo" 
               style={{
-                width: 'clamp(200px, 25vw, 320px)',
+                width: 'clamp(280px, 35vw, 450px)',
                 height: 'auto',
-                objectFit: 'contain'
+                objectFit: 'contain',
+                mixBlendMode: 'multiply'
               }}
             />
           </div>
