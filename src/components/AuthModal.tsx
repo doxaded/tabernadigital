@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
-import { 
-  X, ShieldCheck, Mail, Lock, User, Crown, KeyRound, AlertTriangle, 
-  Check, RefreshCw, Flame, HelpCircle
-} from 'lucide-react';
-import { ADMIN_EMAIL, DEFAULT_MASTER_PASSWORD, storageService } from '../services/storage';
-import { firebaseAuthService, parseFirebaseError, isLiveFirebaseConfigured } from '../services/firebase';
+import { X, Flame, AlertTriangle, Check, RefreshCw } from 'lucide-react';
+import { ADMIN_EMAIL, storageService } from '../services/storage';
+import { firebaseAuthService, parseFirebaseError } from '../services/firebase';
 import { UserProfile } from '../types';
 
 interface AuthModalProps {
@@ -39,7 +36,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setSuccessMsg('');
 
     if (!email || !email.includes('@')) {
-      setErrorMsg('Por favor, informe um endereço de e-mail válido.');
+      setErrorMsg('Please enter a valid e-mail address.');
       return;
     }
 
@@ -47,27 +44,25 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
     try {
       if (isResetMode) {
-        // Redefinição de senha por e-mail via Firebase
         await firebaseAuthService.sendPasswordReset(email);
-        setSuccessMsg(`Instruções de redefinição de senha enviadas para ${email}! Verifique sua caixa de entrada.`);
+        setSuccessMsg(`Reset instructions sent to ${email}! Check your inbox.`);
         setIsLoading(false);
         return;
       }
 
       if (isRegister) {
         if (email.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-          setErrorMsg(`O endereço ${ADMIN_EMAIL} pertence exclusivamente ao Administrador Mestre da estalagem. Utilize a opção de login com sua Palavra Secreta Master.`);
+          setErrorMsg(`The address ${ADMIN_EMAIL} belongs exclusively to the Master Administrator.`);
           setIsLoading(false);
           return;
         }
-        // Cadastro por e-mail e senha no Firebase
         if (!displayName.trim()) {
-          setErrorMsg('Informe o nome ou alcunha do seu aventureiro.');
+          setErrorMsg('Please enter your character or player name.');
           setIsLoading(false);
           return;
         }
         if (password.length < 6) {
-          setErrorMsg('A palavra secreta deve conter no mínimo 6 caracteres.');
+          setErrorMsg('Password must be at least 6 characters.');
           setIsLoading(false);
           return;
         }
@@ -76,9 +71,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         onLoginSuccess(userProfile);
         onClose();
       } else {
-        // Login com e-mail e senha no Firebase
         if (!password) {
-          setErrorMsg('Informe sua palavra secreta para entrar.');
+          setErrorMsg('Please enter your password.');
           setIsLoading(false);
           return;
         }
@@ -88,303 +82,307 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         onClose();
       }
     } catch (err: any) {
-      console.error('Erro na autenticação Firebase:', err);
+      console.error('Firebase Auth Error:', err);
       setErrorMsg(parseFirebaseError(err));
     } finally {
       setIsLoading(false);
     }
   };
 
+  const inputStyle = {
+    width: '100%',
+    border: 'none',
+    borderBottom: '1px solid #e5e7eb',
+    padding: '12px 0',
+    fontSize: '15px',
+    color: '#111',
+    backgroundColor: 'transparent',
+    outline: 'none',
+    marginBottom: '24px',
+    fontFamily: '"Inter", sans-serif'
+  };
+
+  const labelStyle = {
+    display: 'block',
+    fontSize: '11px',
+    fontWeight: 600,
+    color: '#9ca3af',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.05em',
+    marginBottom: '4px'
+  };
+
   return (
-    <div className="tavern-modal-backdrop" onClick={onClose}>
-      <div 
-        className="tavern-modal-content parchment-card" 
-        onClick={e => e.stopPropagation()}
-        style={{ padding: '28px', maxWidth: '520px' }}
-      >
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '14px' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <ShieldCheck size={22} color="var(--amber-deep)" />
-              <h2 style={{ fontSize: '20px', fontWeight: 800, textTransform: 'none', margin: 0 }}>
-                {isResetMode 
-                  ? 'Recuperar Palavra Secreta' 
-                  : isRegister 
-                  ? 'Registro de Aventureiro' 
-                  : 'Identificação na Estalagem'}
-              </h2>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
-              <span style={{ fontSize: '11px', color: 'var(--amber-torch)', fontWeight: 700 }}>
-                Cofre de Credenciais:
-              </span>
-              <span className="wax-badge" style={{
-                backgroundColor: 'rgba(16, 185, 129, 0.15)',
-                color: '#059669',
-                fontSize: '9px',
-                padding: '1px 6px'
-              }}>
-                ● Cofre da Taberna Ativo
-              </span>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: 'var(--ink-medium)',
-              padding: '4px'
-            }}
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        {/* Active Session Notice & Disconnect Button */}
-        {currentUser && (
-          <div style={{
-            backgroundColor: 'var(--wood-dark)',
-            border: '1px solid var(--wood-border)',
-            borderRadius: '8px',
-            padding: '12px 16px',
-            marginBottom: '16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '12px'
-          }}>
-            <div>
-              <div style={{ fontSize: '11px', color: '#94a3b8' }}>Aventureiro conectado no momento:</div>
-              <div style={{ fontWeight: 700, color: '#fef3c7', fontSize: '13px' }}>
-                {currentUser.displayName} <span style={{ fontWeight: 400, color: '#fbbf24' }}>({currentUser.email})</span>
-              </div>
-            </div>
-            {onLogout && (
-              <button
-                type="button"
-                onClick={onLogout}
-                className="btn-tavern btn-secondary"
-                style={{ padding: '6px 12px', fontSize: '11px', color: '#fca5a5', border: '1px solid #7f1d1d' }}
-              >
-                Sair da Conta
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Informative Alert about Administrative Approval */}
+    <div style={{
+      position: 'fixed',
+      inset: 0,
+      zIndex: 9999,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: 'rgba(0, 0, 0, 0.6)',
+      backdropFilter: 'blur(4px)',
+      padding: '20px'
+    }} onClick={onClose}>
+      <div style={{
+        display: 'flex',
+        flexDirection: window.innerWidth < 768 ? 'column' : 'row',
+        width: '100%',
+        maxWidth: '960px',
+        height: 'auto',
+        minHeight: '600px',
+        maxHeight: '90vh',
+        backgroundColor: '#ffffff',
+        borderRadius: '16px',
+        overflow: 'hidden',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+        fontFamily: '"Inter", sans-serif'
+      }} onClick={e => e.stopPropagation()}>
+        {/* LEFT SIDE */}
         <div style={{
-          backgroundColor: 'rgba(217, 119, 6, 0.12)',
-          borderLeft: '4px solid var(--amber-torch)',
-          padding: '10px 14px',
-          borderRadius: '4px',
-          fontSize: '12px',
-          color: 'var(--ink-dark)',
-          marginBottom: '18px',
-          lineHeight: 1.4
+          flex: 1,
+          backgroundColor: '#f3f4f6',
+          padding: '40px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          position: 'relative'
         }}>
-          <strong>Aviso de Segurança:</strong> Ao se cadastrar por e-mail, seu perfil receberá o status <em>PENDENTE</em>. O acesso às salas e ferramentas será liberado após aprovação exclusiva <strong>do dono da taberna</strong>.
+          <h2 style={{ fontSize: '24px', fontWeight: 400, color: '#111', margin: 0 }}>Welcome!</h2>
+          
+          {/* Big Logo Area inspired by the reference */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', flex: 1 }}>
+            <span style={{ fontSize: 'clamp(60px, 8vw, 100px)', fontWeight: 800, letterSpacing: '-0.05em', color: '#111', lineHeight: 1 }}>
+              T.
+            </span>
+            <div style={{ 
+              width: 'clamp(80px, 12vw, 140px)', 
+              height: 'clamp(80px, 12vw, 140px)', 
+              borderRadius: '50%', 
+              backgroundColor: '#a7f3d0', // Mint green from reference
+              border: '10px solid #6366f1', // Purple from reference
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxSizing: 'border-box'
+            }}>
+               <Flame size={60} color="#6366f1" strokeWidth={1.5} />
+            </div>
+          </div>
+
+          <div style={{ fontSize: '13px', color: '#555' }}>
+            {isRegister ? "Already a member? " : "Not a member yet? "}
+            <button 
+              type="button"
+              onClick={() => { setIsRegister(!isRegister); setIsResetMode(false); setErrorMsg(''); setSuccessMsg(''); }}
+              style={{ background: 'none', border: 'none', fontWeight: 700, color: '#111', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+            >
+              {isRegister ? "Log in now" : "Register now"}
+            </button>
+          </div>
         </div>
 
+        {/* RIGHT SIDE */}
+        <div style={{
+          flex: window.innerWidth < 768 ? 'auto' : 1.2,
+          backgroundColor: '#ffffff',
+          padding: '40px 60px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          position: 'relative',
+          overflowY: 'auto'
+        }}>
+          <button 
+            onClick={onClose} 
+            style={{ position: 'absolute', top: '24px', right: '24px', background: 'none', border: 'none', cursor: 'pointer', color: '#111' }}
+          >
+            <X size={24} />
+          </button>
 
+          <div style={{ maxWidth: '400px', width: '100%', margin: '0 auto' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 700, color: '#111', marginBottom: '32px' }}>
+            {isResetMode ? 'Reset password' : isRegister ? 'Register with your e-mail' : 'Log in'}
+          </h2>
 
-        {/* Feedback Messages */}
-        {errorMsg && (
-          <div style={{
-            backgroundColor: '#fee2e2',
-            border: '1px solid #ef4444',
-            color: '#991b1b',
-            padding: '8px 12px',
-            borderRadius: '4px',
-            fontSize: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            marginBottom: '12px'
-          }}>
-            <AlertTriangle size={15} />
-            {errorMsg}
-          </div>
-        )}
+          {/* Active Session Notice & Disconnect Button */}
+          {currentUser && (
+            <div style={{
+              backgroundColor: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              borderRadius: '8px',
+              padding: '16px',
+              marginBottom: '24px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '12px'
+            }}>
+              <div>
+                <div style={{ fontSize: '11px', color: '#64748b' }}>Currently logged in as:</div>
+                <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '13px' }}>
+                  {currentUser.displayName} <span style={{ fontWeight: 400, color: '#475569' }}>({currentUser.email})</span>
+                </div>
+              </div>
+              {onLogout && (
+                <button
+                  type="button"
+                  onClick={onLogout}
+                  style={{ background: 'none', border: '1px solid #ef4444', color: '#ef4444', padding: '6px 12px', borderRadius: '4px', fontSize: '12px', cursor: 'pointer' }}
+                >
+                  Log out
+                </button>
+              )}
+            </div>
+          )}
 
-        {successMsg && (
-          <div style={{
-            backgroundColor: '#ecfdf5',
-            border: '1px solid #10b981',
-            color: '#065f46',
-            padding: '8px 12px',
-            borderRadius: '4px',
-            fontSize: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            marginBottom: '12px'
-          }}>
-            <Check size={15} />
-            {successMsg}
-          </div>
-        )}
+          {/* Feedback Messages */}
+          {errorMsg && (
+            <div style={{ color: '#ef4444', fontSize: '13px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <AlertTriangle size={16} /> {errorMsg}
+            </div>
+          )}
 
-        {/* Main Form */}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {isRegister && (
-            <div>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--ink-dark)', marginBottom: '4px' }}>
-                Nome do Personagem ou Jogador:
-              </label>
-              <div style={{ position: 'relative' }}>
-                <User size={16} color="var(--ink-light)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
+          {successMsg && (
+            <div style={{ color: '#10b981', fontSize: '13px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Check size={16} /> {successMsg}
+            </div>
+          )}
+
+          {/* Main Form */}
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column' }}>
+            {isRegister && (
+              <div>
+                <label style={labelStyle}>Username (*)</label>
                 <input
                   type="text"
                   required
                   value={displayName}
                   onChange={e => setDisplayName(e.target.value)}
-                  placeholder="Ex: Aldor, o Conjurador de Chamas"
-                  className="tavern-input"
-                  style={{ paddingLeft: '36px' }}
+                  placeholder="Username"
+                  style={inputStyle}
                 />
               </div>
-            </div>
-          )}
+            )}
 
-          <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--ink-dark)', marginBottom: '4px' }}>
-              Endereço de E-mail:
-            </label>
-            <div style={{ position: 'relative' }}>
-              <Mail size={16} color="var(--ink-light)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
+            <div>
+              <label style={labelStyle}>{isRegister ? 'Email (*)' : 'Email or Username'}</label>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                placeholder="seu.email@exemplo.com"
-                className="tavern-input"
-                style={{ paddingLeft: '36px' }}
+                placeholder={isRegister ? 'E-mail' : 'Email or Username'}
+                style={inputStyle}
               />
             </div>
-          </div>
 
-          {!isResetMode && (
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--ink-dark)' }}>
-                  Palavra Secreta:
-                </label>
-                {!isRegister && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsResetMode(true);
-                      setErrorMsg('');
-                      setSuccessMsg('');
-                    }}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: 'var(--amber-deep)',
-                      fontSize: '11px',
-                      cursor: 'pointer',
-                      textDecoration: 'underline'
-                    }}
-                  >
-                    Esqueceu a senha?
-                  </button>
-                )}
-              </div>
-              <div style={{ position: 'relative' }}>
-                <Lock size={16} color="var(--ink-light)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
+            {!isResetMode && (
+              <div>
+                <label style={labelStyle}>Password {isRegister && '(*)'}</label>
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  placeholder="Mínimo 6 caracteres"
-                  className="tavern-input"
-                  style={{ paddingLeft: '36px' }}
+                  placeholder="Password"
+                  style={inputStyle}
                 />
               </div>
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="btn-tavern btn-primary"
-            style={{ width: '100%', marginTop: '6px' }}
-          >
-            {isLoading ? (
-              <>
-                <RefreshCw size={16} className="torch-flicker" />
-                <span>Processando...</span>
-              </>
-            ) : isResetMode ? (
-              <>
-                <Mail size={16} />
-                <span>Enviar Link de Recuperação</span>
-              </>
-            ) : isRegister ? (
-              <>
-                <KeyRound size={16} />
-                <span>Registrar</span>
-              </>
-            ) : (
-              <>
-                <KeyRound size={16} />
-                <span>Entrar na Taberna</span>
-              </>
             )}
-          </button>
-        </form>
 
-        {/* Footer Mode Switchers */}
-        <div style={{ textAlign: 'center', marginTop: '14px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          {isResetMode ? (
+            {isRegister && (
+              <div style={{ fontSize: '12px', color: '#666', marginBottom: '32px', lineHeight: 1.5 }}>
+                Taberna Digital may keep me informed with personalized emails about products and services. See our <strong>Privacy Policy</strong> for more details.<br/><br/>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                  <input type="checkbox" required style={{ accentColor: '#111' }} />
+                  I have read and accept the Terms and Conditions
+                </label>
+              </div>
+            )}
+
+            {!isRegister && !isResetMode && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '32px', fontSize: '13px', color: '#444' }}>
+                <input type="checkbox" style={{ accentColor: '#111' }} />
+                Keep me logged in
+              </div>
+            )}
+
             <button
-              type="button"
-              onClick={() => {
-                setIsResetMode(false);
-                setErrorMsg('');
-                setSuccessMsg('');
-              }}
+              type="submit"
+              disabled={isLoading}
               style={{
-                background: 'none',
+                backgroundColor: '#1a1a1a',
+                color: '#ffffff',
                 border: 'none',
-                color: 'var(--amber-deep)',
-                fontSize: '12px',
-                fontWeight: 600,
+                borderRadius: '6px',
+                padding: '16px',
+                fontSize: '15px',
+                fontWeight: 500,
                 cursor: 'pointer',
-                textDecoration: 'underline'
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                width: '100%',
+                transition: 'background-color 0.2s'
               }}
+              onMouseEnter={e => e.currentTarget.style.backgroundColor = '#000000'}
+              onMouseLeave={e => e.currentTarget.style.backgroundColor = '#1a1a1a'}
             >
-              ← Voltar para a tela de login
+              {isLoading ? (
+                <><RefreshCw size={18} className="spin" /> Processing...</>
+              ) : isResetMode ? (
+                'Send Recovery Link'
+              ) : isRegister ? (
+                'Create Account'
+              ) : (
+                'Log in now'
+              )}
             </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => {
-                setIsRegister(!isRegister);
-                setErrorMsg('');
-                setSuccessMsg('');
-              }}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--amber-deep)',
-                fontSize: '13px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                textDecoration: 'underline'
-              }}
-            >
-              {isRegister 
-                ? 'Já possui conta? Faça seu login' 
-                : 'Novo na estalagem? Cadastre-se com e-mail e senha'}
-            </button>
-          )}
+            
+            {!isRegister && !isResetMode && (
+              <div style={{ textAlign: 'right', marginTop: '16px' }}>
+                <button
+                  type="button"
+                  onClick={() => { setIsResetMode(true); setErrorMsg(''); setSuccessMsg(''); }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#111',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                    textTransform: 'uppercase'
+                  }}
+                >
+                  Forgot your password?
+                </button>
+              </div>
+            )}
+            
+            {isResetMode && (
+              <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                 <button
+                  type="button"
+                  onClick={() => { setIsResetMode(false); setErrorMsg(''); setSuccessMsg(''); }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: '#111',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    textDecoration: 'underline'
+                  }}
+                >
+                  ← Back to login
+                </button>
+              </div>
+            )}
+
+          </form>
         </div>
       </div>
     </div>
