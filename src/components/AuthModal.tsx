@@ -141,37 +141,25 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         {/* LEFT SIDE */}
         <div style={{
           flex: 1,
-          backgroundColor: '#f3f4f6',
+          backgroundColor: '#ffffff',
           padding: '40px',
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'space-between',
+          alignItems: 'center',
+          justifyContent: 'center',
           position: 'relative'
         }}>
-          <h2 style={{ fontSize: '24px', fontWeight: 400, color: '#111', margin: 0 }}>Welcome!</h2>
-          
           {/* Big Logo Area inspired by the reference */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
             <img 
               src="/beer-mug-logo.png" 
               alt="Taberna Digital Logo" 
               style={{
-                width: 'clamp(120px, 18vw, 220px)',
+                width: 'clamp(200px, 25vw, 320px)',
                 height: 'auto',
                 objectFit: 'contain'
               }}
             />
-          </div>
-
-          <div style={{ fontSize: '13px', color: '#555' }}>
-            {isRegister ? "Already a member? " : "Not a member yet? "}
-            <button 
-              type="button"
-              onClick={() => { setIsRegister(!isRegister); setIsResetMode(false); setErrorMsg(''); setSuccessMsg(''); }}
-              style={{ background: 'none', border: 'none', fontWeight: 700, color: '#111', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
-            >
-              {isRegister ? "Log in now" : "Register now"}
-            </button>
           </div>
         </div>
 
@@ -371,6 +359,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   }}
                 >
                   ← Back to login
+                </button>
+              </div>
+            )}
+
+            {!isResetMode && (
+              <div style={{ textAlign: 'center', marginTop: '32px', fontSize: '13px', color: '#555' }}>
+                {isRegister ? "Already a member? " : "Not a member yet? "}
+                <button 
+                  type="button"
+                  onClick={() => { setIsRegister(!isRegister); setIsResetMode(false); setErrorMsg(''); setSuccessMsg(''); }}
+                  style={{ background: 'none', border: 'none', fontWeight: 700, color: '#111', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                >
+                  {isRegister ? "Log in now" : "Register now"}
                 </button>
               </div>
             )}
