@@ -151,23 +151,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <h2 style={{ fontSize: '24px', fontWeight: 400, color: '#111', margin: 0 }}>Welcome!</h2>
           
           {/* Big Logo Area inspired by the reference */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', flex: 1 }}>
-            <span style={{ fontSize: 'clamp(60px, 8vw, 100px)', fontWeight: 800, letterSpacing: '-0.05em', color: '#111', lineHeight: 1 }}>
-              T.
-            </span>
-            <div style={{ 
-              width: 'clamp(80px, 12vw, 140px)', 
-              height: 'clamp(80px, 12vw, 140px)', 
-              borderRadius: '50%', 
-              backgroundColor: '#a7f3d0', // Mint green from reference
-              border: '10px solid #6366f1', // Purple from reference
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxSizing: 'border-box'
-            }}>
-               <Flame size={60} color="#6366f1" strokeWidth={1.5} />
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
+            <img 
+              src="/beer-mug-logo.png" 
+              alt="Taberna Digital Logo" 
+              style={{
+                width: 'clamp(120px, 18vw, 220px)',
+                height: 'auto',
+                objectFit: 'contain'
+              }}
+            />
           </div>
 
           <div style={{ fontSize: '13px', color: '#555' }}>
