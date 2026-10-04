@@ -9,6 +9,7 @@ import { SketchStudioView } from './components/SketchStudioView';
 import { UrdChatView } from './components/UrdChatView';
 import { MasterScreenView } from './components/MasterScreenView';
 import { MobileBottomNav } from './components/MobileBottomNav';
+import { LandingPage } from './components/LandingPage';
 import { PWAInstallBanner } from './components/PWAInstallBanner';
 import { storageService, ADMIN_EMAIL } from './services/storage';
 import { firebaseAuthService } from './services/firebase';
@@ -165,169 +166,141 @@ export function App() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Top Navbar */}
-      <Navbar
-        currentUser={currentUser}
-        activeTab={activeTab}
-        setActiveTab={(tab) => {
-          setMasterScreenCampaignId(null);
-          setActiveTab(tab);
-        }}
-        onOpenAdmin={() => setIsAdminModalOpen(true)}
-        onOpenAuth={() => setIsAuthModalOpen(true)}
-        onOpenChangePassword={() => setIsChangePasswordOpen(true)}
-        onLogout={handleLogout}
-        pendingCount={pendingCount}
-      />
-
-      {/* Main Content Area */}
-      <main className="content-with-bottom-nav" style={{ flex: 1, paddingBottom: '40px' }}>
-        {/* Caso 1: Usuário não autenticado */}
-        {!currentUser && (
-          <div style={{ maxWidth: '640px', margin: '60px auto', padding: '0 20px', textAlign: 'center' }}>
-            <div className="parchment-card" style={{ padding: '40px 28px' }}>
-              <div style={{
-                width: '64px',
-                height: '64px',
-                borderRadius: '50%',
-                backgroundColor: 'var(--wood-dark)',
-                border: '2px solid var(--amber-torch)',
-                margin: '0 auto 16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 0 18px rgba(245, 158, 11, 0.4)'
-              }}>
-                <img src="/icon.svg" alt="Taberna Digital" style={{ width: '40px', height: '40px' }} />
-              </div>
-              <h2 style={{ fontSize: '24px', fontWeight: 800, marginBottom: '8px' }}>
-                Bem-vindo à Taberna Digital
-              </h2>
-              <p className="font-lore" style={{ fontSize: '17px', color: 'var(--ink-dark)', lineHeight: 1.6, marginBottom: '24px' }}>
-                "Empurre as portas duplas de carvalho, sinta o aroma de cerveja preta e carne assada na lareira.
-                Aqui repousam as crônicas da sua mesa de RPG, as fichas dos seus heróis e a sabedoria do oráculo Urd."
-              </p>
-              <button
-                onClick={() => setIsAuthModalOpen(true)}
-                className="btn-tavern btn-primary"
-                style={{ fontSize: '14px', padding: '12px 28px' }}
-              >
-                Identificar-se na Estalagem
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Caso 2: Usuário com status PENDENTE (Requisito Mandatório: Aprovação por Área Administrativa) */}
-        {currentUser && currentUser.status === 'PENDING' && (
-          <PendingApprovalScreen
-            user={currentUser}
-            onRefresh={reloadData}
+      {!currentUser ? (
+        <LandingPage onEnter={() => setIsAuthModalOpen(true)} />
+      ) : (
+        <>
+          {/* Top Navbar */}
+          <Navbar
+            currentUser={currentUser}
+            activeTab={activeTab}
+            setActiveTab={(tab) => {
+              setMasterScreenCampaignId(null);
+              setActiveTab(tab);
+            }}
+            onOpenAdmin={() => setIsAdminModalOpen(true)}
+            onOpenAuth={() => setIsAuthModalOpen(true)}
+            onOpenChangePassword={() => setIsChangePasswordOpen(true)}
             onLogout={handleLogout}
+            pendingCount={pendingCount}
           />
-        )}
 
-        {/* Caso 3: Usuário APROVADO (Acesso completo aos módulos) */}
-        {currentUser && currentUser.status === 'APPROVED' && (
-          <>
-            {masterScreenCampaignId ? (
-              (() => {
-                const targetCampaign = campaigns.find(c => c.id === masterScreenCampaignId) || campaigns[0];
-                const isMasterOfCampaign = targetCampaign && (targetCampaign.masterId === currentUser.uid || currentUser.role === 'admin');
-                if (!isMasterOfCampaign) {
-                  return (
-                    <div style={{ maxWidth: '640px', margin: '60px auto', padding: '0 20px', textAlign: 'center' }}>
-                      <div className="parchment-card" style={{ padding: '36px 20px', border: '2px solid var(--amber-torch)' }}>
-                        <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '8px' }}>
-                          Acesso Restrito ao Mestre da Sala
-                        </h3>
-                        <p className="font-lore" style={{ fontSize: '15px', color: 'var(--ink-dark)', marginBottom: '16px' }}>
-                          Apenas o criador da sala possui acesso aos pergaminhos secretos desta mesa.
-                        </p>
-                        <button onClick={() => setMasterScreenCampaignId(null)} className="btn-tavern btn-primary">
-                          Voltar às Campanhas
-                        </button>
-                      </div>
-                    </div>
-                  );
-                }
-                return (
-                  <MasterScreenView
-                    campaign={targetCampaign}
-                    currentUser={currentUser}
-                    onBackToCampaign={() => setMasterScreenCampaignId(null)}
-                    onAddLore={handleAddLore}
-                  />
-                );
-              })()
-            ) : (
+          {/* Main Content Area */}
+          <main className="content-with-bottom-nav" style={{ flex: 1, paddingBottom: '40px' }}>
+            {/* Caso 2: Usuário com status PENDENTE (Requisito Mandatório: Aprovação por Área Administrativa) */}
+            {currentUser.status === 'PENDING' && (
+              <PendingApprovalScreen
+                user={currentUser}
+                onRefresh={reloadData}
+                onLogout={handleLogout}
+              />
+            )}
+
+            {/* Caso 3: Usuário APROVADO (Acesso completo aos módulos) */}
+            {currentUser.status === 'APPROVED' && (
               <>
-                {activeTab === 'campaigns' && (
-                  <CampaignsView
-                    campaigns={campaigns}
-                    currentUser={currentUser}
-                    selectedCampaignId={selectedCampaignId}
-                    onSelectCampaign={setSelectedCampaignId}
-                    onCreateCampaign={handleCreateCampaign}
-                    onUpdateCampaign={handleUpdateCampaign}
-                    onDeleteCampaign={handleDeleteCampaign}
-                    onAddSheet={handleAddSheet}
-                    onUpdateSheet={handleUpdateSheet}
-                    onDeleteSheet={handleDeleteSheet}
-                    onAddLore={handleAddLore}
-                    onDeleteLore={handleDeleteLore}
-                    onAddRule={handleAddRule}
-                    onDeleteRule={handleDeleteRule}
-                    onOpenMasterScreen={(campId) => setMasterScreenCampaignId(campId)}
-                  />
-                )}
+                {masterScreenCampaignId ? (
+                  (() => {
+                    const targetCampaign = campaigns.find(c => c.id === masterScreenCampaignId) || campaigns[0];
+                    const isMasterOfCampaign = targetCampaign && (targetCampaign.masterId === currentUser.uid || currentUser.role === 'admin');
+                    if (!isMasterOfCampaign) {
+                      return (
+                        <div style={{ maxWidth: '640px', margin: '60px auto', padding: '0 20px', textAlign: 'center' }}>
+                          <div className="parchment-card" style={{ padding: '36px 20px', border: '2px solid var(--amber-torch)' }}>
+                            <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '8px' }}>
+                              Acesso Restrito ao Mestre da Sala
+                            </h3>
+                            <p className="font-lore" style={{ fontSize: '15px', color: 'var(--ink-dark)', marginBottom: '16px' }}>
+                              Apenas o criador da sala possui acesso aos pergaminhos secretos desta mesa.
+                            </p>
+                            <button onClick={() => setMasterScreenCampaignId(null)} className="btn-tavern btn-primary">
+                              Voltar às Campanhas
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return (
+                      <MasterScreenView
+                        campaign={targetCampaign}
+                        currentUser={currentUser}
+                        onBackToCampaign={() => setMasterScreenCampaignId(null)}
+                        onAddLore={handleAddLore}
+                      />
+                    );
+                  })()
+                ) : (
+                  <>
+                    {activeTab === 'campaigns' && (
+                      <CampaignsView
+                        campaigns={campaigns}
+                        currentUser={currentUser}
+                        selectedCampaignId={selectedCampaignId}
+                        onSelectCampaign={setSelectedCampaignId}
+                        onCreateCampaign={handleCreateCampaign}
+                        onUpdateCampaign={handleUpdateCampaign}
+                        onDeleteCampaign={handleDeleteCampaign}
+                        onAddSheet={handleAddSheet}
+                        onUpdateSheet={handleUpdateSheet}
+                        onDeleteSheet={handleDeleteSheet}
+                        onAddLore={handleAddLore}
+                        onDeleteLore={handleDeleteLore}
+                        onAddRule={handleAddRule}
+                        onDeleteRule={handleDeleteRule}
+                        onOpenMasterScreen={(campId) => setMasterScreenCampaignId(campId)}
+                      />
+                    )}
 
-                {activeTab === 'sketch' && (
-                  <SketchStudioView
-                    sketches={sketches}
-                    campaigns={campaigns}
-                    activeCampaignId={selectedCampaignId}
-                    onSaveSketch={handleSaveSketch}
-                    onDeleteSketch={handleDeleteSketch}
-                  />
-                )}
+                    {activeTab === 'sketch' && (
+                      <SketchStudioView
+                        sketches={sketches}
+                        campaigns={campaigns}
+                        activeCampaignId={selectedCampaignId}
+                        onSaveSketch={handleSaveSketch}
+                        onDeleteSketch={handleDeleteSketch}
+                      />
+                    )}
 
-                {activeTab === 'urd' && (
-                  <UrdChatView
-                    messages={urdMessages}
-                    campaigns={campaigns}
-                    activeCampaignId={selectedCampaignId}
-                    onSendMessage={handleSendUrdMessage}
-                    onAddToLore={(campaignId, title, content) => {
-                      handleAddLore(campaignId, {
-                        title,
-                        content,
-                        category: 'rumores',
-                        author: 'Urd, o Taberneiro',
-                        tags: ['Oráculo Urd', 'Boato de Taberna']
-                      });
-                    }}
-                    onClearChat={handleClearUrdChat}
-                  />
+                    {activeTab === 'urd' && (
+                      <UrdChatView
+                        messages={urdMessages}
+                        campaigns={campaigns}
+                        activeCampaignId={selectedCampaignId}
+                        onSendMessage={handleSendUrdMessage}
+                        onAddToLore={(campaignId, title, content) => {
+                          handleAddLore(campaignId, {
+                            title,
+                            content,
+                            category: 'rumores',
+                            author: 'Urd, o Taberneiro',
+                            tags: ['Oráculo Urd', 'Boato de Taberna']
+                          });
+                        }}
+                        onClearChat={handleClearUrdChat}
+                      />
+                    )}
+                  </>
                 )}
               </>
             )}
-          </>
-        )}
-      </main>
+          </main>
+        </>
+      )}
 
       {/* Mobile Bottom Navigation (Cinto do Aventureiro) */}
-      <MobileBottomNav
-        activeTab={activeTab}
-        setActiveTab={(tab) => {
-          setMasterScreenCampaignId(null);
-          setActiveTab(tab);
-        }}
-        currentUser={currentUser}
-        onOpenAdmin={() => setIsAdminModalOpen(true)}
-        onOpenAuth={() => setIsAuthModalOpen(true)}
-        pendingCount={pendingCount}
-      />
+      {currentUser && (
+        <MobileBottomNav
+          activeTab={activeTab}
+          setActiveTab={(tab) => {
+            setMasterScreenCampaignId(null);
+            setActiveTab(tab);
+          }}
+          currentUser={currentUser}
+          onOpenAdmin={() => setIsAdminModalOpen(true)}
+          onOpenAuth={() => setIsAuthModalOpen(true)}
+          pendingCount={pendingCount}
+        />
+      )}
 
       {/* PWA Install Banner */}
       <PWAInstallBanner />
