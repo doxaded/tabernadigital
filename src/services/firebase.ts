@@ -101,8 +101,11 @@ export const firebaseAuthService = {
           role: isAdmin ? 'admin' : 'user',
           status: isAdmin ? 'APPROVED' : 'PENDING',
           createdAt: new Date().toISOString(),
-          approvedAt: isAdmin ? new Date().toISOString() : undefined,
         };
+
+        if (isAdmin) {
+          newProfile.approvedAt = new Date().toISOString();
+        }
 
         try {
           await setDoc(doc(db, 'users', user.uid), newProfile);
