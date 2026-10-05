@@ -269,8 +269,7 @@ export const firebaseAuthService = {
           firestoreUsers.push(docSnap.data() as UserProfile);
         });
       } catch (err: any) {
-        console.warn('Erro ao buscar usuários do Firestore:', err);
-        alert('Erro de Permissão (getAllUsers): ' + err?.message);
+        console.warn('Erro ao buscar usuários do Firestore (provavelmente não autenticado):', err?.message);
       }
     }
 
