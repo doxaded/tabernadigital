@@ -109,8 +109,9 @@ export const firebaseAuthService = {
 
         try {
           await setDoc(doc(db, 'users', user.uid), newProfile);
-        } catch (firestoreErr) {
+        } catch (firestoreErr: any) {
           console.warn('Aviso ao sincronizar Firestore:', firestoreErr);
+          alert('Erro ao salvar no Firestore (Cadastro): ' + firestoreErr?.message);
         }
 
         storageService.registerUser(cleanEmail, cleanName, password);
@@ -267,8 +268,9 @@ export const firebaseAuthService = {
         querySnapshot.forEach((docSnap) => {
           firestoreUsers.push(docSnap.data() as UserProfile);
         });
-      } catch (err) {
+      } catch (err: any) {
         console.warn('Erro ao buscar usuários do Firestore:', err);
+        alert('Erro de Permissão (getAllUsers): ' + err?.message);
       }
     }
 
