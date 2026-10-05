@@ -42,7 +42,29 @@ export function App() {
   };
 
   useEffect(() => {
+    // Sincronização inicial
     reloadData();
+
+    // Auto-migração/Auto-login silencioso do Firebase Auth caso o usuário tenha um cookie local antigo
+    const localUser = storageService.getCurrentUser();
+    if (localUser) {
+      const unsubscribe = firebaseAuthService.subscribeAuthState(async (fbUser) => {
+        if (!fbUser) {
+          const passwords = storageService.getPasswords();
+          const localPass = passwords[localUser.email.toLowerCase()];
+          if (localPass) {
+            console.log('Auto-recuperando sessão do Firebase Auth a partir do cache local...');
+            try {
+              await firebaseAuthService.loginWithEmail(localUser.email, localPass);
+              reloadData(); // Recarrega os dados agora que temos o Token do Firebase
+            } catch (err) {
+              console.warn('Falha na auto-recuperação da sessão:', err);
+            }
+          }
+        }
+        unsubscribe(); // Só queremos rodar essa checagem 1 vez no boot
+      });
+    }
   }, []);
 
   // Handlers de Autenticação
