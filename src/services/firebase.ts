@@ -177,6 +177,16 @@ export const firebaseAuthService = {
     const isLocalValid = storageService.verifyPassword(cleanEmail, password);
 
     if (isLocalValid) {
+      if (isLiveFirebaseConfigured) {
+        try {
+          // Migração silenciosa: se o Firebase está ativo mas o usuário só existe localmente,
+          // registramos ele no Firebase agora para que ganhe um token de acesso ao Firestore.
+          console.log('Realizando migração silenciosa do usuário local para o Firebase Auth...');
+          return await this.registerWithEmail(cleanEmail, password, cleanEmail.split('@')[0]);
+        } catch (migrationErr) {
+          console.warn('Aviso: Não foi possível migrar a conta local para o Firebase:', migrationErr);
+        }
+      }
       return storageService.loginUser(cleanEmail);
     }
 
