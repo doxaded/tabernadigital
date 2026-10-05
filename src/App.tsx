@@ -31,8 +31,9 @@ export function App() {
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
   // Sincroniza dados com o storage
-  const reloadData = () => {
-    setUsers(storageService.getUsers());
+  const reloadData = async () => {
+    const allUsers = await firebaseAuthService.getAllUsers();
+    setUsers(allUsers);
     setCampaigns(storageService.getCampaigns());
     setSketches(storageService.getSketches());
     setUrdMessages(storageService.getUrdMessages());
@@ -59,17 +60,17 @@ export function App() {
   };
 
   // Handlers Administrativos (Exclusivos para henrique.v.berbert@gmail.com)
-  const handleApproveUser = (uid: string) => {
+  const handleApproveUser = async (uid: string) => {
     if (!currentUser) return;
-    const ok = storageService.approveUser(uid, currentUser.email);
+    const ok = await firebaseAuthService.approveUser(uid, currentUser.email);
     if (ok) {
       reloadData();
     }
   };
 
-  const handleRejectUser = (uid: string) => {
+  const handleRejectUser = async (uid: string) => {
     if (!currentUser) return;
-    const ok = storageService.rejectUser(uid, currentUser.email);
+    const ok = await firebaseAuthService.rejectUser(uid, currentUser.email);
     if (ok) {
       reloadData();
     }

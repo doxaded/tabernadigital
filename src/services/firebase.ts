@@ -13,7 +13,7 @@ import {
   EmailAuthProvider,
   User as FirebaseUser
 } from 'firebase/auth';
-import { getFirestore, doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs, deleteDoc } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { ADMIN_EMAIL, DEFAULT_MASTER_PASSWORD, storageService } from './storage';
 import { UserProfile } from '../types';
@@ -243,5 +243,58 @@ export const firebaseAuthService = {
       return onAuthStateChanged(auth, callback);
     }
     return () => {};
+  },
+
+  // 7. Admin Ações (Sincronizadas com Firestore)
+  async getAllUsers(): Promise<UserProfile[]> {
+    let firestoreUsers: UserProfile[] = [];
+    if (isLiveFirebaseConfigured) {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'users'));
+        querySnapshot.forEach((docSnap) => {
+          firestoreUsers.push(docSnap.data() as UserProfile);
+        });
+      } catch (err) {
+        console.warn('Erro ao buscar usuários do Firestore:', err);
+      }
+    }
+
+    const localUsers = storageService.getUsers();
+    const usersMap = new Map<string, UserProfile>();
+    
+    localUsers.forEach(u => usersMap.set(u.email.toLowerCase(), u));
+    firestoreUsers.forEach(u => usersMap.set(u.email.toLowerCase(), u));
+    
+    const merged = Array.from(usersMap.values());
+    storageService.saveUsers(merged); // Sincroniza cache local
+    return merged;
+  },
+
+  async approveUser(uid: string, adminEmail: string): Promise<boolean> {
+    if (isLiveFirebaseConfigured) {
+      try {
+        await updateDoc(doc(db, 'users', uid), {
+          status: 'APPROVED',
+          approvedAt: new Date().toISOString(),
+          approvedBy: adminEmail
+        });
+      } catch (err) {
+        console.warn('Falha ao aprovar no Firestore:', err);
+      }
+    }
+    return storageService.approveUser(uid, adminEmail);
+  },
+
+  async rejectUser(uid: string, adminEmail: string): Promise<boolean> {
+    if (isLiveFirebaseConfigured) {
+      try {
+        await updateDoc(doc(db, 'users', uid), {
+          status: 'REJECTED'
+        });
+      } catch (err) {
+        console.warn('Falha ao rejeitar no Firestore:', err);
+      }
+    }
+    return storageService.rejectUser(uid, adminEmail);
   }
 };
