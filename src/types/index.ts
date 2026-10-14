@@ -13,6 +13,12 @@ export interface UserProfile {
   approvedBy?: string;
 }
 
+/** Atributo extra criado pelo usuário (sigla de 3 letras maiúsculas). */
+export interface CustomStat {
+  code: string;
+  value: number;
+}
+
 export interface CharacterSheet {
   id: string;
   campaignId: string;
@@ -34,6 +40,8 @@ export interface CharacterSheet {
     wisdom: number;
     charisma: number;
   };
+  /** Atributos adicionais, exibidos sempre depois dos 6 padrões. */
+  customStats?: CustomStat[];
   traits: string[];
   equipment: string[];
   notes: string;
@@ -65,6 +73,13 @@ export interface RuleDocument {
   tags: string[];
 }
 
+// Jogador que entrou na sala de um mestre usando a chave
+export interface RoomPlayer {
+  uid: string;
+  name: string;
+  joinedAt: string;
+}
+
 export interface Campaign {
   id: string;
   name: string;
@@ -77,6 +92,10 @@ export interface Campaign {
   sheets: CharacterSheet[];
   lore: LoreEntry[];
   rules: RuleDocument[];
+  // Chave de sala (XXXX-XXXX) que o mestre compartilha com os jogadores
+  joinKey?: string;
+  // Jogadores que já entraram na sala (máximo de MAX_PLAYERS)
+  players?: RoomPlayer[];
 }
 
 export interface SketchCostEstimate {

@@ -10,9 +10,9 @@ import { UrdChatView } from './components/UrdChatView';
 import { MasterScreenView } from './components/MasterScreenView';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { LandingPage } from './components/LandingPage';
-import { PWAInstallBanner } from './components/PWAInstallBanner';
 import { storageService, ADMIN_EMAIL } from './services/storage';
 import { firebaseAuthService } from './services/firebase';
+import { cloudCampaigns } from './services/cloudCampaigns';
 import { Campaign, CharacterSheet, LoreEntry, RuleDocument, SketchAsset, UserProfile } from './types';
 
 export function App() {
@@ -22,11 +22,12 @@ export function App() {
   const [sketches, setSketches] = useState<SketchAsset[]>(() => storageService.getSketches());
   const [urdMessages, setUrdMessages] = useState(() => storageService.getUrdMessages());
 
+  const [hasEntered, setHasEntered] = useState(false);
   const [activeTab, setActiveTab] = useState<'campaigns' | 'sketch' | 'urd'>('campaigns');
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(() => campaigns[0]?.id || null);
   const [masterScreenCampaignId, setMasterScreenCampaignId] = useState<string | null>(null);
 
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(() => !storageService.getCurrentUser());
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
@@ -67,6 +68,42 @@ export function App() {
     }
   }, []);
 
+  // Sincroniza as salas com a nuvem (Firestore): baixa ao entrar, ao voltar para a aba e a cada 30s,
+  // para o mestre ver jogadores novos e o jogador ver as salas em que entrou.
+  useEffect(() => {
+    if (!currentUser || currentUser.status !== 'APPROVED') {
+      cloudCampaigns.setUser(null);
+      return;
+    }
+    cloudCampaigns.setUser(currentUser);
+    let cancelled = false;
+    const run = async () => {
+      const updated = await cloudCampaigns.pull(currentUser);
+      if (updated && !cancelled) setCampaigns(storageService.getCampaigns());
+    };
+    run();
+    const interval = setInterval(run, 30000);
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') run();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser?.uid, currentUser?.status]);
+
+  // Cada usuário só enxerga as salas que mestra ou em que entrou com a chave (admin enxerga todas)
+  const visibleCampaigns = currentUser
+    ? campaigns.filter(c =>
+        currentUser.role === 'admin' ||
+        c.masterId === currentUser.uid ||
+        !!c.players?.some(p => p.uid === currentUser.uid)
+      )
+    : [];
+
   // Handlers de Autenticação
   const handleLogin = (email: string, displayName?: string) => {
     const res = storageService.loginUser(email);
@@ -78,7 +115,8 @@ export function App() {
     await firebaseAuthService.logout();
     storageService.setCurrentUser(null);
     setCurrentUser(null);
-    setIsAuthModalOpen(true);
+    setIsAuthModalOpen(false);
+    setHasEntered(false);
   };
 
   // Handlers Administrativos (Exclusivos para henrique.v.berbert@gmail.com)
@@ -121,8 +159,49 @@ export function App() {
     if (!currentUser) return;
     storageService.deleteCampaign(id, currentUser);
     reloadData();
-    const remaining = storageService.getCampaigns();
+    const remaining = storageService.getCampaigns().filter(c =>
+      currentUser.role === 'admin' ||
+      c.masterId === currentUser.uid ||
+      !!c.players?.some(p => p.uid === currentUser.uid)
+    );
     setSelectedCampaignId(remaining[0]?.id || null);
+  };
+
+  // Chave de sala: entrar, trocar a chave e remover/sair de jogadores
+  const handleJoinByKey = async (rawKey: string) => {
+    if (!currentUser) return { success: false, error: 'Usuário não autenticado.' };
+    const res = await cloudCampaigns.joinByKey(currentUser, rawKey);
+    if (res.success) {
+      setCampaigns(storageService.getCampaigns());
+      if (res.campaignId) setSelectedCampaignId(res.campaignId);
+    }
+    return res;
+  };
+
+  const handleRegenerateKey = async (campaignId: string) => {
+    if (!currentUser) return { success: false, error: 'Usuário não autenticado.' };
+    const campaign = storageService.getCampaigns().find(c => c.id === campaignId);
+    if (!campaign) return { success: false, error: 'Campanha não encontrada.' };
+    const res = await cloudCampaigns.regenerateKey(campaign, currentUser);
+    setCampaigns(storageService.getCampaigns());
+    return res;
+  };
+
+  const handleRemovePlayer = async (campaignId: string, playerUid: string) => {
+    if (!currentUser) return { success: false, error: 'Usuário não autenticado.' };
+    const campaign = storageService.getCampaigns().find(c => c.id === campaignId);
+    if (!campaign) return { success: false, error: 'Campanha não encontrada.' };
+    const res = await cloudCampaigns.removePlayer(campaign, playerUid, currentUser);
+    setCampaigns(storageService.getCampaigns());
+    if (res.success && playerUid === currentUser.uid) {
+      const remaining = storageService.getCampaigns().filter(c =>
+        currentUser.role === 'admin' ||
+        c.masterId === currentUser.uid ||
+        !!c.players?.some(p => p.uid === currentUser.uid)
+      );
+      setSelectedCampaignId(remaining[0]?.id || null);
+    }
+    return res;
   };
 
   // Handlers de Divisórias (Fichas, Lore, Regras)
@@ -148,6 +227,16 @@ export function App() {
 
   const handleDeleteLore = (campaignId: string, loreId: string) => {
     storageService.deleteLore(campaignId, loreId);
+    reloadData();
+  };
+
+  const handleUpdateLore = (campaignId: string, loreId: string, data: Partial<LoreEntry>) => {
+    storageService.updateLore(campaignId, loreId, data);
+    reloadData();
+  };
+
+  const handleUpdateRule = (campaignId: string, ruleId: string, data: Partial<RuleDocument>) => {
+    storageService.updateRule(campaignId, ruleId, data);
     reloadData();
   };
 
@@ -189,8 +278,14 @@ export function App() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {!currentUser ? (
-        <LandingPage onEnter={() => setIsAuthModalOpen(true)} />
+      {!hasEntered ? (
+        <LandingPage onEnter={() => {
+          if (currentUser) {
+            setHasEntered(true);
+          } else {
+            setIsAuthModalOpen(true);
+          }
+        }} />
       ) : (
         <>
           {/* Top Navbar */}
@@ -206,106 +301,120 @@ export function App() {
             onOpenChangePassword={() => setIsChangePasswordOpen(true)}
             onLogout={handleLogout}
             pendingCount={pendingCount}
+            bannerMode={
+              (activeTab === 'campaigns' || activeTab === 'sketch') &&
+              !masterScreenCampaignId &&
+              currentUser?.status === 'APPROVED'
+            }
           />
 
           {/* Main Content Area */}
           <main className="content-with-bottom-nav" style={{ flex: 1, paddingBottom: '40px' }}>
-            {/* Caso 2: Usuário com status PENDENTE (Requisito Mandatório: Aprovação por Área Administrativa) */}
-            {currentUser.status === 'PENDING' && (
-              <PendingApprovalScreen
-                user={currentUser}
-                onRefresh={reloadData}
-                onLogout={handleLogout}
-              />
-            )}
-
-            {/* Caso 3: Usuário APROVADO (Acesso completo aos módulos) */}
-            {currentUser.status === 'APPROVED' && (
+            {currentUser ? (
               <>
-                {masterScreenCampaignId ? (
-                  (() => {
-                    const targetCampaign = campaigns.find(c => c.id === masterScreenCampaignId) || campaigns[0];
-                    const isMasterOfCampaign = targetCampaign && (targetCampaign.masterId === currentUser.uid || currentUser.role === 'admin');
-                    if (!isMasterOfCampaign) {
-                      return (
-                        <div style={{ maxWidth: '640px', margin: '60px auto', padding: '0 20px', textAlign: 'center' }}>
-                          <div className="parchment-card" style={{ padding: '36px 20px', border: '2px solid var(--amber-torch)' }}>
-                            <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '8px' }}>
-                              Acesso Restrito ao Mestre da Sala
-                            </h3>
-                            <p className="font-lore" style={{ fontSize: '15px', color: 'var(--ink-dark)', marginBottom: '16px' }}>
-                              Apenas o criador da sala possui acesso aos pergaminhos secretos desta mesa.
-                            </p>
-                            <button onClick={() => setMasterScreenCampaignId(null)} className="btn-tavern btn-primary">
-                              Voltar às Campanhas
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    }
-                    return (
-                      <MasterScreenView
-                        campaign={targetCampaign}
-                        currentUser={currentUser}
-                        onBackToCampaign={() => setMasterScreenCampaignId(null)}
-                        onAddLore={handleAddLore}
-                      />
-                    );
-                  })()
-                ) : (
+                {/* Caso 2: Usuário com status PENDENTE (Requisito Mandatório: Aprovação por Área Administrativa) */}
+                {currentUser.status === 'PENDING' && (
+                  <PendingApprovalScreen
+                    user={currentUser}
+                    onRefresh={reloadData}
+                    onLogout={handleLogout}
+                  />
+                )}
+
+                {/* Caso 3: Usuário APROVADO (Acesso completo aos módulos) */}
+                {currentUser.status === 'APPROVED' && (
                   <>
-                    {activeTab === 'campaigns' && (
-                      <CampaignsView
-                        campaigns={campaigns}
-                        currentUser={currentUser}
-                        selectedCampaignId={selectedCampaignId}
-                        onSelectCampaign={setSelectedCampaignId}
-                        onCreateCampaign={handleCreateCampaign}
-                        onUpdateCampaign={handleUpdateCampaign}
-                        onDeleteCampaign={handleDeleteCampaign}
-                        onAddSheet={handleAddSheet}
-                        onUpdateSheet={handleUpdateSheet}
-                        onDeleteSheet={handleDeleteSheet}
-                        onAddLore={handleAddLore}
-                        onDeleteLore={handleDeleteLore}
-                        onAddRule={handleAddRule}
-                        onDeleteRule={handleDeleteRule}
-                        onOpenMasterScreen={(campId) => setMasterScreenCampaignId(campId)}
-                      />
-                    )}
+                    {masterScreenCampaignId ? (
+                      (() => {
+                        const targetCampaign = visibleCampaigns.find(c => c.id === masterScreenCampaignId) || visibleCampaigns[0];
+                        const isMasterOfCampaign = targetCampaign && (targetCampaign.masterId === currentUser.uid || currentUser.role === 'admin');
+                        if (!isMasterOfCampaign) {
+                          return (
+                            <div style={{ maxWidth: '640px', margin: '60px auto', padding: '0 20px', textAlign: 'center' }}>
+                              <div className="surface-card" style={{ padding: '36px 20px', border: '2px solid var(--amber-torch)' }}>
+                                <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '8px' }}>
+                                  Acesso Restrito ao Mestre da Sala
+                                </h3>
+                                <p className="font-lore" style={{ fontSize: '15px', color: 'var(--text-strong)', marginBottom: '16px' }}>
+                                  Apenas o criador da sala possui acesso aos pergaminhos secretos desta mesa.
+                                </p>
+                                <button onClick={() => setMasterScreenCampaignId(null)} className="btn-tavern btn-primary">
+                                  Voltar às Campanhas
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return (
+                          <MasterScreenView
+                            campaign={targetCampaign}
+                            currentUser={currentUser}
+                            onBackToCampaign={() => setMasterScreenCampaignId(null)}
+                            onAddLore={handleAddLore}
+                          />
+                        );
+                      })()
+                    ) : (
+                      <>
+                        {activeTab === 'campaigns' && (
+                          <CampaignsView
+                            campaigns={visibleCampaigns}
+                            currentUser={currentUser}
+                            selectedCampaignId={selectedCampaignId}
+                            onSelectCampaign={setSelectedCampaignId}
+                            onJoinByKey={handleJoinByKey}
+                            onRegenerateKey={handleRegenerateKey}
+                            onRemovePlayer={handleRemovePlayer}
+                            onCreateCampaign={handleCreateCampaign}
+                            onUpdateCampaign={handleUpdateCampaign}
+                            onDeleteCampaign={handleDeleteCampaign}
+                            onAddSheet={handleAddSheet}
+                            onUpdateSheet={handleUpdateSheet}
+                            onDeleteSheet={handleDeleteSheet}
+                            onAddLore={handleAddLore}
+                            onDeleteLore={handleDeleteLore}
+                            onUpdateLore={handleUpdateLore}
+                            onAddRule={handleAddRule}
+                            onDeleteRule={handleDeleteRule}
+                            onUpdateRule={handleUpdateRule}
+                            onOpenMasterScreen={(campId) => setMasterScreenCampaignId(campId)}
+                          />
+                        )}
 
-                    {activeTab === 'sketch' && (
-                      <SketchStudioView
-                        sketches={sketches}
-                        campaigns={campaigns}
-                        activeCampaignId={selectedCampaignId}
-                        onSaveSketch={handleSaveSketch}
-                        onDeleteSketch={handleDeleteSketch}
-                      />
-                    )}
+                        {activeTab === 'sketch' && (
+                          <SketchStudioView
+                            sketches={sketches}
+                            campaigns={visibleCampaigns}
+                            activeCampaignId={selectedCampaignId}
+                            onSaveSketch={handleSaveSketch}
+                            onDeleteSketch={handleDeleteSketch}
+                          />
+                        )}
 
-                    {activeTab === 'urd' && (
-                      <UrdChatView
-                        messages={urdMessages}
-                        campaigns={campaigns}
-                        activeCampaignId={selectedCampaignId}
-                        onSendMessage={handleSendUrdMessage}
-                        onAddToLore={(campaignId, title, content) => {
-                          handleAddLore(campaignId, {
-                            title,
-                            content,
-                            category: 'rumores',
-                            author: 'Urd, o Taberneiro',
-                            tags: ['Oráculo Urd', 'Boato de Taberna']
-                          });
-                        }}
-                        onClearChat={handleClearUrdChat}
-                      />
+                        {activeTab === 'urd' && (
+                          <UrdChatView
+                            messages={urdMessages}
+                            campaigns={visibleCampaigns}
+                            activeCampaignId={selectedCampaignId}
+                            onSendMessage={handleSendUrdMessage}
+                            onAddToLore={(campaignId, title, content) => {
+                              handleAddLore(campaignId, {
+                                title,
+                                content,
+                                category: 'rumores',
+                                author: 'Urd, o Taberneiro',
+                                tags: ['Oráculo Urd', 'Boato de Taberna']
+                              });
+                            }}
+                            onClearChat={handleClearUrdChat}
+                          />
+                        )}
+                      </>
                     )}
                   </>
                 )}
               </>
-            )}
+            ) : null}
           </main>
         </>
       )}
@@ -325,15 +434,13 @@ export function App() {
         />
       )}
 
-      {/* PWA Install Banner */}
-      <PWAInstallBanner />
-
       {/* Auth Modal */}
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         onLoginSuccess={(user) => {
           setCurrentUser(user);
+          setHasEntered(true);
           reloadData();
         }}
         currentUser={currentUser}

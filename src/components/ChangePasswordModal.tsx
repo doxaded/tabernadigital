@@ -73,7 +73,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   return (
     <div className="tavern-modal-backdrop" onClick={onClose}>
       <div 
-        className="tavern-modal-content parchment-card" 
+        className="tavern-modal-content surface-card" 
         onClick={e => e.stopPropagation()}
         style={{ padding: '28px', maxWidth: '480px' }}
       >
@@ -86,7 +86,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                 {isMasterUser ? 'Trocar Senha do Mestre' : 'Alterar Palavra Secreta'}
               </h2>
             </div>
-            <p style={{ fontSize: '12px', color: 'var(--ink-medium)', marginTop: '4px' }}>
+            <p style={{ fontSize: '12px', color: 'var(--text-soft)', marginTop: '4px' }}>
               Atualize sua senha de acesso para proteger sua conta na Taberna Digital.
             </p>
           </div>
@@ -96,7 +96,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              color: 'var(--ink-medium)',
+              color: 'var(--text-soft)',
               padding: '4px'
             }}
           >
@@ -112,16 +112,16 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
             padding: '10px 14px',
             borderRadius: '4px',
             fontSize: '12px',
-            color: 'var(--ink-dark)',
+            color: 'var(--text-strong)',
             marginBottom: '16px',
             lineHeight: 1.5
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, color: 'var(--amber-deep)' }}>
-              <Crown size={15} color="#b45309" />
+              <Crown size={15} color="#f59e0b" />
               Credenciais do Usuário Master ({currentUser.email})
             </div>
             A senha mestre inicial padrão da estalagem é: 
-            <code style={{ marginLeft: '4px', backgroundColor: '#fff', padding: '1px 6px', borderRadius: '3px', fontWeight: 700, color: '#b45309' }}>
+            <code style={{ marginLeft: '4px', backgroundColor: 'rgba(60, 36, 18, 0.08)', padding: '1px 6px', borderRadius: '3px', fontWeight: 700, color: '#92400e' }}>
               {DEFAULT_MASTER_PASSWORD}
             </code>
           </div>
@@ -132,7 +132,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
             padding: '8px 12px',
             borderRadius: '4px',
             fontSize: '12px',
-            color: 'var(--ink-dark)',
+            color: 'var(--text-strong)',
             marginBottom: '16px'
           }}>
             Usuário atual: <strong>{currentUser.email}</strong>
@@ -180,11 +180,11 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
         {/* Change Password Form */}
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--ink-dark)', marginBottom: '4px' }}>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--text-strong)', marginBottom: '4px' }}>
               Palavra Secreta Atual:
             </label>
             <div style={{ position: 'relative' }}>
-              <Lock size={16} color="var(--ink-light)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
+              <Lock size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
               <input
                 type="password"
                 required
@@ -198,11 +198,11 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--ink-dark)', marginBottom: '4px' }}>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--text-strong)', marginBottom: '4px' }}>
               Nova Palavra Secreta:
             </label>
             <div style={{ position: 'relative' }}>
-              <Lock size={16} color="var(--ink-light)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
+              <Lock size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
               <input
                 type="password"
                 required
@@ -216,11 +216,11 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--ink-dark)', marginBottom: '4px' }}>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--text-strong)', marginBottom: '4px' }}>
               Confirmar Nova Palavra Secreta:
             </label>
             <div style={{ position: 'relative' }}>
-              <Lock size={16} color="var(--ink-light)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
+              <Lock size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
               <input
                 type="password"
                 required

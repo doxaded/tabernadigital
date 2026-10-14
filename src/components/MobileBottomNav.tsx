@@ -29,7 +29,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         style={{
           background: 'none',
           border: 'none',
-          color: activeTab === 'campaigns' ? 'var(--amber-glow)' : '#94a3b8',
+          color: activeTab === 'campaigns' ? 'var(--amber-deep)' : '#7C6D58',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -42,7 +42,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         }}
       >
         <BookOpen size={20} />
-        <span>Campanhas</span>
+        <span>Mesa Central</span>
       </button>
 
       <button
@@ -50,7 +50,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         style={{
           background: 'none',
           border: 'none',
-          color: activeTab === 'sketch' ? 'var(--amber-glow)' : '#94a3b8',
+          color: activeTab === 'sketch' ? 'var(--amber-deep)' : '#7C6D58',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -63,7 +63,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         }}
       >
         <Sparkles size={20} />
-        <span>Sketches</span>
+        <span>Galeria</span>
       </button>
 
       <button
@@ -71,7 +71,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         style={{
           background: 'none',
           border: 'none',
-          color: activeTab === 'urd' ? 'var(--amber-glow)' : '#94a3b8',
+          color: activeTab === 'urd' ? 'var(--amber-deep)' : '#7C6D58',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -84,7 +84,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         }}
       >
         <Shield size={20} />
-        <span>Urd</span>
+        <span>Taberneiro</span>
       </button>
 
       {/* Admin Button on Mobile (Only for henrique.v.berbert@gmail.com) */}
@@ -94,7 +94,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           style={{
             background: 'none',
             border: 'none',
-            color: '#facc15',
+            color: '#92400e',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -115,7 +115,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
               top: '2px',
               right: '8px',
               backgroundColor: '#ef4444',
-              color: '#fff',
+              color: 'var(--text-strong)',
               fontSize: '9px',
               fontWeight: 800,
               width: '16px',
@@ -135,7 +135,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           style={{
             background: 'none',
             border: 'none',
-            color: '#94a3b8',
+            color: 'var(--text-muted)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',

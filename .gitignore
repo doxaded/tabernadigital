@@ -11,6 +11,8 @@ node_modules
 dist
 dist-ssr
 *.local
+venv_img/
+.firebase/
 
 # Environment & Secrets (Crucial: Never commit API keys or credentials!)
 .env

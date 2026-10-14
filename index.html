@@ -15,9 +15,20 @@
     <!-- Google Fonts: Cinzel, MedievalSharp, Alegreya, Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Cinzel:wght@500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=MedievalSharp&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Cinzel:wght@500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Inter:wght@300;400;500;600;700&family=MedievalSharp&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
     
     <title>Taberna Digital — RPG Companion</title>
+    <script>
+      // Força a desinstalação de qualquer Service Worker em cache para garantir que as atualizações cheguem no ambiente de desenvolvimento
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for(let registration of registrations) {
+            registration.unregister();
+            console.log('Service Worker forcefully unregistered to clear cache.');
+          }
+        });
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

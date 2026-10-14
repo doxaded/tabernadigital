@@ -6,6 +6,9 @@ export const PWAInstallBanner: React.FC = () => {
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
+    const isDismissed = localStorage.getItem('pwa_banner_dismissed') === 'true';
+    if (isDismissed) return;
+
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -97,7 +100,10 @@ export const PWAInstallBanner: React.FC = () => {
         </button>
 
         <button
-          onClick={() => setShowBanner(false)}
+          onClick={() => {
+            setShowBanner(false);
+            localStorage.setItem('pwa_banner_dismissed', 'true');
+          }}
           style={{
             background: 'none',
             border: 'none',

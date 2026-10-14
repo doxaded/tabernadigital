@@ -58,7 +58,7 @@ export const UrdChatView: React.FC<UrdChatViewProps> = ({
     } catch (err) {
       onSendMessage(
         'urd',
-        '*Urd tosse com a fumaça da lareira.* "Perdoe este velho, viajante! Minha cabeça deu um nó com tantas canecas. Repita o que disse, por favor!"'
+        'Perdoai este velho, forasteiro! Minha cabeça deu um nó com tantas canecas. Repeti o que dissestes, por favor!'
       );
     } finally {
       setIsLoading(false);
@@ -103,7 +103,7 @@ export const UrdChatView: React.FC<UrdChatViewProps> = ({
             overflow: 'hidden',
             border: '3px solid var(--amber-torch)',
             boxShadow: '0 0 16px rgba(245, 158, 11, 0.4)',
-            backgroundColor: '#1b1008'
+            backgroundColor: '#efe6d2'
           }}>
             <img
               src="/assets/urd_portrait.jpg"
@@ -113,7 +113,7 @@ export const UrdChatView: React.FC<UrdChatViewProps> = ({
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <h2 style={{ fontSize: '20px', fontWeight: 900, color: '#fef3c7', margin: 0 }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 900, color: '#5a2a08', margin: 0 }}>
                 Urd, o Taberneiro
               </h2>
               <span className="wax-badge wax-badge-admin" style={{ fontSize: '10px' }}>
@@ -140,7 +140,7 @@ export const UrdChatView: React.FC<UrdChatViewProps> = ({
       </div>
 
       {/* Chat Messages Log */}
-      <div className="parchment-card" style={{
+      <div className="surface-card" style={{
         padding: '20px',
         minHeight: '420px',
         maxHeight: '600px',
@@ -169,7 +169,7 @@ export const UrdChatView: React.FC<UrdChatViewProps> = ({
                 height: '36px',
                 borderRadius: '50%',
                 flexShrink: 0,
-                backgroundColor: isUrd ? '#3e2412' : 'var(--amber-torch)',
+                backgroundColor: isUrd ? '#e0d2b3' : 'var(--amber-torch)',
                 border: isUrd ? '2px solid var(--amber-torch)' : '2px solid #fbbf24',
                 overflow: 'hidden',
                 display: 'flex',
@@ -180,22 +180,22 @@ export const UrdChatView: React.FC<UrdChatViewProps> = ({
                 {isUrd ? (
                   <img src="/assets/urd_portrait.jpg" alt="Urd" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
-                  <span style={{ fontWeight: 800, color: '#fff', fontSize: '13px' }}>Você</span>
+                  <span style={{ fontWeight: 800, color: 'var(--text-strong)', fontSize: '13px' }}>Você</span>
                 )}
               </div>
 
               {/* Message Box */}
               <div style={{
-                backgroundColor: isUrd ? 'rgba(255, 255, 255, 0.7)' : '#3e2412',
-                color: isUrd ? 'var(--ink-dark)' : '#fef3c7',
+                backgroundColor: isUrd ? 'rgba(60, 36, 18, 0.06)' : 'rgba(146, 64, 14, 0.16)',
+                color: isUrd ? 'var(--text-strong)' : '#3d1f08',
                 padding: '14px 18px',
                 borderRadius: '10px',
-                border: isUrd ? '1px solid #ccb993' : '1px solid #6b4020',
+                border: isUrd ? '1px solid var(--line-soft)' : '1px solid rgba(245, 158, 11, 0.35)',
                 boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
                 position: 'relative'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px', gap: '12px' }}>
-                  <span style={{ fontSize: '11px', fontWeight: 700, color: isUrd ? 'var(--amber-deep)' : '#f59e0b' }}>
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--amber-deep)' }}>
                     {isUrd ? 'Urd, o Taberneiro' : 'Mestre / Jogador'}
                   </span>
                   <span style={{ fontSize: '10px', opacity: 0.7 }}>
@@ -209,7 +209,7 @@ export const UrdChatView: React.FC<UrdChatViewProps> = ({
 
                 {/* Actions for Urd Messages */}
                 {isUrd && (
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '12px', paddingTop: '8px', borderTop: '1px dashed #ccb993' }}>
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '12px', paddingTop: '8px', borderTop: '1px dashed var(--line-soft)' }}>
                     <button
                       onClick={() => handleCopy(msg.id, msg.text)}
                       style={{
@@ -217,7 +217,7 @@ export const UrdChatView: React.FC<UrdChatViewProps> = ({
                         border: 'none',
                         cursor: 'pointer',
                         fontSize: '11px',
-                        color: 'var(--ink-medium)',
+                        color: 'var(--text-soft)',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '4px',
@@ -261,19 +261,19 @@ export const UrdChatView: React.FC<UrdChatViewProps> = ({
               width: '36px',
               height: '36px',
               borderRadius: '50%',
-              backgroundColor: '#3e2412',
+              backgroundColor: '#e0d2b3',
               border: '2px solid var(--amber-torch)',
               overflow: 'hidden'
             }}>
               <img src="/assets/urd_portrait.jpg" alt="Urd" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
             <div style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.7)',
+              backgroundColor: 'rgba(255, 238, 210, 0.05)',
               padding: '12px 18px',
               borderRadius: '10px',
-              border: '1px solid #ccb993',
+              border: '1px solid var(--line-soft)',
               fontSize: '14px',
-              color: 'var(--ink-dark)',
+              color: 'var(--text-strong)',
               display: 'flex',
               alignItems: 'center',
               gap: '8px'
@@ -327,9 +327,9 @@ export const UrdChatView: React.FC<UrdChatViewProps> = ({
           style={{
             flex: 1,
             fontSize: '15px',
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            color: 'var(--ink-dark)',
-            border: '2px solid var(--amber-deep)',
+            backgroundColor: 'rgba(60, 36, 18, 0.08)',
+            color: 'var(--text-strong)',
+            border: '1px solid var(--line-glow)',
             minHeight: '44px'
           }}
         />

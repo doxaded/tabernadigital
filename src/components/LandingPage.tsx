@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { Flame } from 'lucide-react';
 
 interface LandingPageProps {
   onEnter: () => void;
@@ -22,8 +21,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
 
   return (
     <div style={{
-      backgroundColor: '#050505',
-      color: '#ffffff',
+      backgroundColor: '#F4EDDD',
+      color: '#15100b',
       minHeight: '200vh',
       fontFamily: '"Inter", sans-serif',
       position: 'relative',
@@ -46,7 +45,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
             margin: 0,
             letterSpacing: '-0.04em',
             textTransform: 'uppercase',
-            color: '#ffffff'
+            color: '#15100b'
           }}>
             TABERNA
           </h1>
@@ -56,7 +55,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
             margin: 0,
             letterSpacing: '-0.04em',
             textTransform: 'uppercase',
-            color: '#ffffff'
+            color: '#15100b'
           }}>
             DIGITAL
           </h1>
@@ -65,8 +64,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
             <button
               onClick={onEnter}
               style={{
-                backgroundColor: '#ffffff',
-                color: '#000000',
+                backgroundColor: '#15100b',
+                color: '#f5ecdc',
                 border: 'none',
                 borderRadius: '40px',
                 padding: '16px 40px',
@@ -90,7 +89,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
               }}
             >
               <span>Entrar na Taverna</span>
-              <Flame size={18} color="#f59e0b" />
             </button>
           </div>
         </div>
@@ -105,7 +103,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#050505'
+        backgroundColor: '#F4EDDD'
       }}>
         <div 
           className="parallax" 
@@ -116,7 +114,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
             backgroundImage: 'url("https://images.unsplash.com/photo-1605806616949-1e87b487cb2a?q=80&w=2560&auto=format&fit=crop")',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            opacity: 0.6,
+            opacity: 0.3,
             zIndex: 1
           }}
         />
@@ -124,7 +122,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
           <h2 style={{
             fontSize: 'clamp(32px, 5vw, 64px)',
             fontWeight: 700,
-            color: '#ffffff',
+            color: '#15100b',
             letterSpacing: '-0.02em',
             marginBottom: '24px',
             lineHeight: 1.1
@@ -133,7 +131,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
           </h2>
           <p style={{
             fontSize: '18px',
-            color: '#a1a1aa',
+            color: '#4B3E2E',
             lineHeight: 1.6,
             fontWeight: 400
           }}>

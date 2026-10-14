@@ -38,16 +38,83 @@ service cloud.firestore {
       allow delete: if isSuperAdmin();
     }
 
+    // Chave de sala: o jogador é membro quando seu uid está na lista de jogadores da chave
+    function isRoomMember(key) {
+      return request.auth.uid in get(/databases/$(database)/documents/roomKeys/$(key)).data.playerIds;
+    }
+
     // Regras de Campanhas (Salas de Jogo)
     match /campaigns/{campaignId} {
-      // Leitura permitida para aventureiros aprovados
-      allow read: if isApprovedUser();
+      // Leitura: mestre da sala, SuperAdmin ou jogadores que entraram com a chave da sala
+      allow read: if isApprovedUser() && (
+        isSuperAdmin() ||
+        resource.data.masterId == request.auth.uid ||
+        (resource.data.joinKey is string && isRoomMember(resource.data.joinKey))
+      );
       
-      // Criação permitida para aprovados
-      allow create: if isApprovedUser() && request.resource.data.masterId == request.auth.uid;
+      // Criação permitida para aprovados (o SuperAdmin também sobe as salas padrão)
+      allow create: if isApprovedUser() && (request.resource.data.masterId == request.auth.uid || isSuperAdmin());
       
-      // Atualização e Exclusão exclusivas do Mestre criador da sala ou SuperAdmin
-      allow update, delete: if isApprovedUser() && (
+      // Atualização: Mestre criador da sala ou SuperAdmin. Jogadores membros só podem alterar as fichas.
+      allow update: if isApprovedUser() && (
+        resource.data.masterId == request.auth.uid ||
+        isSuperAdmin() ||
+        (
+          resource.data.joinKey is string &&
+          isRoomMember(resource.data.joinKey) &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sheets'])
+        )
+      );
+
+      // Exclusão exclusiva do Mestre criador da sala ou SuperAdmin
+      allow delete: if isApprovedUser() && (
+        resource.data.masterId == request.auth.uid || isSuperAdmin()
+      );
+    }
+
+    // Chaves de Sala (XXXX-XXXX): quem conhece a chave consegue ler (get) e entrar; listagem é restrita.
+    // Limite de 8 jogadores por sala imposto aqui, no servidor.
+    match /roomKeys/{roomKey} {
+      allow get: if isApprovedUser();
+
+      allow list: if isApprovedUser() && (
+        isSuperAdmin() ||
+        resource.data.masterId == request.auth.uid ||
+        request.auth.uid in resource.data.playerIds
+      );
+
+      allow create: if isApprovedUser() && (
+        isSuperAdmin() || request.resource.data.masterId == request.auth.uid
+      ) && request.resource.data.playerIds.size() <= 8;
+
+      allow update: if isApprovedUser() && (
+        // Mestre ou SuperAdmin: gerencia a lista, sempre respeitando o limite
+        (
+          (resource.data.masterId == request.auth.uid || isSuperAdmin()) &&
+          request.resource.data.playerIds.size() <= 8
+        ) ||
+        // Jogador entrando: adiciona somente a si mesmo, sem remover ninguém, até o limite de 8
+        (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['playerIds', 'players']) &&
+          request.resource.data.playerIds.size() <= 8 &&
+          request.resource.data.playerIds.size() == resource.data.playerIds.size() + 1 &&
+          request.resource.data.players.size() == request.resource.data.playerIds.size() &&
+          request.resource.data.playerIds.hasAll(resource.data.playerIds) &&
+          request.auth.uid in request.resource.data.playerIds &&
+          !(request.auth.uid in resource.data.playerIds)
+        ) ||
+        // Jogador saindo: remove somente a si mesmo
+        (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['playerIds', 'players']) &&
+          request.resource.data.playerIds.size() == resource.data.playerIds.size() - 1 &&
+          request.resource.data.players.size() == request.resource.data.playerIds.size() &&
+          resource.data.playerIds.hasAll(request.resource.data.playerIds) &&
+          request.auth.uid in resource.data.playerIds &&
+          !(request.auth.uid in request.resource.data.playerIds)
+        )
+      );
+
+      allow delete: if isApprovedUser() && (
         resource.data.masterId == request.auth.uid || isSuperAdmin()
       );
     }

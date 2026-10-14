@@ -20,7 +20,7 @@ export const PendingApprovalScreen: React.FC<PendingApprovalScreenProps> = ({
       padding: '0 20px',
     }}>
       <div style={{ 
-        backgroundColor: '#ffffff',
+        backgroundColor: '#14100c',
         borderRadius: '16px',
         padding: '48px 40px', 
         textAlign: 'center',
@@ -32,17 +32,17 @@ export const PendingApprovalScreen: React.FC<PendingApprovalScreenProps> = ({
           width: '72px',
           height: '72px',
           borderRadius: '50%',
-          backgroundColor: '#f8fafc',
+          backgroundColor: '#1d1813',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           margin: '0 auto 24px',
         }}>
-          <Lock size={32} color="#111" />
+          <Lock size={32} color="#f5ecdc" />
         </div>
 
         {/* Title */}
-        <h2 style={{ fontSize: '24px', fontWeight: 600, marginBottom: '8px', color: '#111' }}>
+        <h2 style={{ fontSize: '24px', fontWeight: 600, marginBottom: '8px', color: '#f5ecdc' }}>
           Acesso Restrito
         </h2>
 
@@ -51,8 +51,8 @@ export const PendingApprovalScreen: React.FC<PendingApprovalScreenProps> = ({
           alignItems: 'center',
           gap: '6px',
           marginBottom: '24px',
-          backgroundColor: '#f1f5f9',
-          color: '#475569',
+          backgroundColor: '#221c16',
+          color: '#c9bba3',
           borderRadius: '16px',
           fontWeight: 500,
           fontSize: '12px',
@@ -65,7 +65,7 @@ export const PendingApprovalScreen: React.FC<PendingApprovalScreenProps> = ({
         {/* Flavor Lore Narrative */}
         <p style={{ 
           fontSize: '15px', 
-          color: '#64748b', 
+          color: '#a89a85', 
           lineHeight: 1.6, 
           marginBottom: '32px', 
         }}>
@@ -80,7 +80,7 @@ export const PendingApprovalScreen: React.FC<PendingApprovalScreenProps> = ({
             style={{ 
               width: '100%',
               backgroundColor: '#111',
-              color: '#fff',
+              color: '#14100c',
               border: 'none',
               padding: '12px 24px',
               borderRadius: '8px',
@@ -102,8 +102,8 @@ export const PendingApprovalScreen: React.FC<PendingApprovalScreenProps> = ({
             onClick={onLogout}
             style={{ 
               width: '100%',
-              backgroundColor: '#fff',
-              color: '#475569',
+              backgroundColor: '#14100c',
+              color: '#c9bba3',
               border: '1px solid #e2e8f0',
               padding: '12px 24px',
               borderRadius: '8px',

@@ -27,6 +27,7 @@ import {
 import { marked } from 'marked';
 import { Campaign, CharacterSheet, CompendiumDoc, LoreEntry, MasterChatMessage, UserProfile } from '../types';
 import { masterOracleService, CompendiumData, cleanLookupText } from '../services/masterOracleService';
+import { getOrderedStats } from '../services/sheetStats';
 
 interface MasterScreenViewProps {
   campaign: Campaign;
@@ -135,7 +136,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
   if (!isMaster) {
     return (
       <div style={{ maxWidth: '640px', margin: '60px auto', padding: '0 20px', textAlign: 'center' }}>
-        <div className="parchment-card" style={{ padding: '40px 24px', border: '2px solid var(--amber-torch)' }}>
+        <div className="surface-card" style={{ padding: '40px 24px', border: '2px solid var(--amber-torch)' }}>
           <div style={{
             width: '56px',
             height: '56px',
@@ -152,7 +153,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
           <h2 style={{ fontSize: '20px', fontWeight: 900, marginBottom: '8px' }}>
             Acesso Restrito ao Mestre da Sala
           </h2>
-          <p className="font-lore" style={{ fontSize: '15px', color: 'var(--ink-dark)', lineHeight: 1.5, marginBottom: '20px' }}>
+          <p className="font-lore" style={{ fontSize: '15px', color: 'var(--text-strong)', lineHeight: 1.5, marginBottom: '20px' }}>
             A "Mesa de Pergaminhos" guarda os segredos, monstros e ideias narrativas do Mestre de Jogo. Apenas o criador de <strong>"{campaign.name}"</strong> pode quebrar o selo deste ambiente.
           </p>
           <button onClick={onBackToCampaign} className="btn-tavern btn-primary" style={{ padding: '10px 24px' }}>
@@ -331,7 +332,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
 
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <h2 style={{ fontSize: '22px', fontWeight: 900, margin: 0, color: '#fef3c7', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h2 style={{ fontSize: '22px', fontWeight: 900, margin: 0, color: '#5a2a08', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Scroll size={22} color="var(--amber-torch)" />
                 Mesa de Pergaminhos
               </h2>
@@ -339,7 +340,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                 Exclusivo do Mestre
               </span>
             </div>
-            <p style={{ fontSize: '12px', color: '#cbd5e1', margin: '2px 0 0 0' }}>
+            <p style={{ fontSize: '12px', color: 'var(--text-soft)', margin: '2px 0 0 0' }}>
               Oráculo de regras oficiais do D&D 2024, rolador de dados e co-piloto da campanha <strong>"{campaign.name}"</strong>
             </p>
           </div>
@@ -349,7 +350,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
           <span style={{
             fontSize: '11px',
-            color: '#fef08a',
+            color: '#5a2a08',
             backgroundColor: 'rgba(217, 119, 6, 0.15)',
             border: '1px solid var(--amber-deep)',
             padding: '4px 10px',
@@ -368,7 +369,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
               padding: '7px 14px',
               backgroundColor: '#92400e',
               borderColor: '#f59e0b',
-              color: '#fef08a',
+              color: '#5a2a08',
               boxShadow: '0 0 14px rgba(245, 158, 11, 0.35)',
               gap: '6px',
               fontWeight: 800
@@ -381,7 +382,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
 
       {/* Quick Dice Roller Bar */}
       <div style={{
-        backgroundColor: 'rgba(25, 15, 7, 0.95)',
+        backgroundColor: 'rgba(236, 226, 204, 0.95)',
         border: '1.5px solid var(--wood-border)',
         borderRadius: '8px',
         padding: '10px 14px',
@@ -408,7 +409,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                 minWidth: '42px',
                 backgroundColor: sides === activeQuickDice ? '#78350f' : 'var(--wood-medium)',
                 borderColor: sides === activeQuickDice ? 'var(--amber-torch)' : 'var(--wood-border)',
-                color: '#fef3c7',
+                color: '#5a2a08',
                 fontWeight: 700
               }}
             >
@@ -448,10 +449,10 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
             borderRadius: '6px',
             padding: '4px 12px',
             fontSize: '12px',
-            color: '#fef3c7'
+            color: '#5a2a08'
           }}>
-            <span>Última Rolagem: <strong>{diceRollResult.expression}</strong> = <strong style={{ fontSize: '14px', color: '#fbbf24' }}>{diceRollResult.total}</strong></span>
-            {diceRollResult.hasNat20 && <span style={{ color: '#34d399', fontWeight: 900 }}>🌟 Nat 20!</span>}
+            <span>Última Rolagem: <strong>{diceRollResult.expression}</strong> = <strong style={{ fontSize: '14px', color: '#92400e' }}>{diceRollResult.total}</strong></span>
+            {diceRollResult.hasNat20 && <span style={{ color: '#047857', fontWeight: 900 }}>🌟 Nat 20!</span>}
             {diceRollResult.hasNat1 && <span style={{ color: '#f87171', fontWeight: 900 }}>💀 Nat 1!</span>}
           </div>
         )}
@@ -475,7 +476,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                 border: 'none',
                 cursor: 'pointer',
                 backgroundColor: sidebarTab === 'context' ? 'var(--amber-torch)' : 'transparent',
-                color: sidebarTab === 'context' ? '#fff' : '#cbd5e1',
+                color: sidebarTab === 'context' ? '#15100b' : 'var(--text-soft)',
                 transition: 'all 0.2s'
               }}
             >
@@ -493,7 +494,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                 border: 'none',
                 cursor: 'pointer',
                 backgroundColor: sidebarTab === 'compendium' ? 'var(--amber-torch)' : 'transparent',
-                color: sidebarTab === 'compendium' ? '#fff' : '#cbd5e1',
+                color: sidebarTab === 'compendium' ? '#15100b' : 'var(--text-soft)',
                 transition: 'all 0.2s'
               }}
             >
@@ -505,22 +506,22 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
           {sidebarTab === 'context' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {/* Campaign Info Card */}
-              <div className="parchment-card" style={{ padding: '14px' }}>
+              <div className="surface-card" style={{ padding: '14px' }}>
                 <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--amber-deep)', textTransform: 'uppercase', marginBottom: '4px' }}>
                   Campanha Selecionada
                 </div>
-                <h3 style={{ fontSize: '16px', fontWeight: 800, margin: '0 0 6px', color: 'var(--ink-dark)' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 800, margin: '0 0 6px', color: 'var(--text-strong)' }}>
                   {campaign.name}
                 </h3>
-                <p className="font-lore" style={{ fontSize: '13px', color: 'var(--ink-medium)', margin: 0, lineHeight: 1.4 }}>
+                <p className="font-lore" style={{ fontSize: '13px', color: 'var(--text-soft)', margin: 0, lineHeight: 1.4 }}>
                   {campaign.description || 'Sem descrição cadastrada.'}
                 </p>
               </div>
 
               {/* Quick Story Hooks Prompts Generator */}
               <div style={{ backgroundColor: 'var(--wood-dark)', border: '1px solid var(--wood-border)', borderRadius: '8px', padding: '14px' }}>
-                <div style={{ fontSize: '11px', fontWeight: 800, color: '#fbbf24', textTransform: 'uppercase', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Sparkles size={14} color="#facc15" />
+                <div style={{ fontSize: '11px', fontWeight: 800, color: '#92400e', textTransform: 'uppercase', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Sparkles size={14} color="#92400e" />
                   Geradores Rápidos de História
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -528,7 +529,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     type="button"
                     onClick={() => handleSendPrompt(`Como Mestre de Jogo para a campanha "${campaign.name}", crie um encontro de combate equilibrado para os personagens da mesa, incluindo terreno, tática do monstro e gancho dramático.`)}
                     className="btn-tavern btn-secondary"
-                    style={{ fontSize: '11px', textAlign: 'left', padding: '6px 10px', color: '#fef08a' }}
+                    style={{ fontSize: '11px', textAlign: 'left', padding: '6px 10px', color: '#5a2a08' }}
                   >
                     ⚔️ Gerar Encontro Adaptado à Mesa
                   </button>
@@ -536,7 +537,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     type="button"
                     onClick={() => handleSendPrompt(`Crie um NPC misterioso que chega à taverna com um segredo e um pedido de ajuda urgente relacionado aos rumores da campanha "${campaign.name}".`)}
                     className="btn-tavern btn-secondary"
-                    style={{ fontSize: '11px', textAlign: 'left', padding: '6px 10px', color: '#fef08a' }}
+                    style={{ fontSize: '11px', textAlign: 'left', padding: '6px 10px', color: '#5a2a08' }}
                   >
                     🎭 Criar NPC com Motivo Oculto
                   </button>
@@ -544,7 +545,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     type="button"
                     onClick={() => handleSendPrompt(`Gere 3 boatos intrigantes e sussurrados de taverna para a crônica "${campaign.name}", sendo dois verdadeiros e um falso.`)}
                     className="btn-tavern btn-secondary"
-                    style={{ fontSize: '11px', textAlign: 'left', padding: '6px 10px', color: '#fef08a' }}
+                    style={{ fontSize: '11px', textAlign: 'left', padding: '6px 10px', color: '#5a2a08' }}
                   >
                     🍺 3 Rumores para a Taverna
                   </button>
@@ -552,7 +553,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     type="button"
                     onClick={() => handleSendPrompt(`Proponha um enigma ou armadilha ambiental para catacumbas no D&D 2024 com 3 pistas e teste de perícia correspondente.`)}
                     className="btn-tavern btn-secondary"
-                    style={{ fontSize: '11px', textAlign: 'left', padding: '6px 10px', color: '#fef08a' }}
+                    style={{ fontSize: '11px', textAlign: 'left', padding: '6px 10px', color: '#5a2a08' }}
                   >
                     🗝️ Propor Enigma ou Armadilha
                   </button>
@@ -561,13 +562,13 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
 
               {/* Active Heroes Sheets Overview */}
               <div style={{ backgroundColor: 'var(--wood-dark)', border: '1px solid var(--wood-border)', borderRadius: '8px', padding: '14px' }}>
-                <div style={{ fontSize: '11px', fontWeight: 800, color: '#fbbf24', textTransform: 'uppercase', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ fontSize: '11px', fontWeight: 800, color: '#92400e', textTransform: 'uppercase', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <span>Heróis na Mesa ({campaign.sheets.length})</span>
-                  <span style={{ fontSize: '10px', color: '#94a3b8' }}>Fichas Ativas</span>
+                  <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Fichas Ativas</span>
                 </div>
 
                 {campaign.sheets.length === 0 ? (
-                  <p style={{ fontSize: '12px', color: '#94a3b8', fontStyle: 'italic', margin: 0 }}>
+                  <p style={{ fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic', margin: 0 }}>
                     Nenhuma ficha cadastrada ainda nesta sala.
                   </p>
                 ) : (
@@ -577,7 +578,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                         key={sheet.id}
                         onClick={() => setViewingSheet(sheet)}
                         style={{
-                          backgroundColor: 'rgba(0,0,0,0.3)',
+                          backgroundColor: 'rgba(60, 36, 18, 0.08)',
                           border: '1px solid var(--wood-border)',
                           borderRadius: '6px',
                           padding: '8px 10px',
@@ -589,15 +590,15 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                         title="Clique para ver a ficha completa"
                       >
                         <div>
-                          <div style={{ fontSize: '12px', fontWeight: 700, color: '#fef3c7' }}>
+                          <div style={{ fontSize: '12px', fontWeight: 700, color: '#5a2a08' }}>
                             {sheet.name} {sheet.isNpc && <span style={{ fontSize: '9px', color: '#f59e0b' }}>(NPC)</span>}
                           </div>
-                          <div style={{ fontSize: '11px', color: '#94a3b8' }}>
+                          <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
                             {sheet.race} {sheet.class} Nv.{sheet.level}
                           </div>
                         </div>
                         <div style={{ textAlign: 'right', fontSize: '11px' }}>
-                          <span style={{ color: '#34d399', fontWeight: 700 }}>PV {sheet.hp}/{sheet.maxHp}</span>
+                          <span style={{ color: '#047857', fontWeight: 700 }}>PV {sheet.hp}/{sheet.maxHp}</span>
                           <span style={{ color: '#38bdf8', marginLeft: '6px' }}>CA {sheet.armorClass}</span>
                         </div>
                       </div>
@@ -612,7 +613,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
           {sidebarTab === 'compendium' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div style={{ backgroundColor: 'var(--wood-dark)', border: '1px solid var(--wood-border)', borderRadius: '8px', padding: '14px' }}>
-                <div style={{ fontSize: '11px', fontWeight: 800, color: '#fbbf24', textTransform: 'uppercase', marginBottom: '8px' }}>
+                <div style={{ fontSize: '11px', fontWeight: 800, color: '#92400e', textTransform: 'uppercase', marginBottom: '8px' }}>
                   Catálogos com Tabela Dinâmica
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -620,7 +621,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     type="button"
                     onClick={() => handleSendPrompt('Liste os monstros existentes organizados por Nível de Desafio (ND)')}
                     className="btn-tavern btn-secondary"
-                    style={{ fontSize: '11px', textAlign: 'left', padding: '7px 10px', color: '#fef08a', borderColor: '#d97706' }}
+                    style={{ fontSize: '11px', textAlign: 'left', padding: '7px 10px', color: '#5a2a08', borderColor: '#d97706' }}
                   >
                     🐉 <strong>Bestiário: 339 Monstros</strong>
                   </button>
@@ -628,7 +629,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     type="button"
                     onClick={() => handleSendPrompt('Liste as magias existentes organizadas por círculo e escola')}
                     className="btn-tavern btn-secondary"
-                    style={{ fontSize: '11px', textAlign: 'left', padding: '7px 10px', color: '#fef08a', borderColor: '#9333ea' }}
+                    style={{ fontSize: '11px', textAlign: 'left', padding: '7px 10px', color: '#5a2a08', borderColor: '#9333ea' }}
                   >
                     🔮 <strong>Grimório: 326 Magias</strong>
                   </button>
@@ -636,7 +637,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     type="button"
                     onClick={() => handleSendPrompt('Quais são as 12 classes e subclasses oficiais do D&D 2024?')}
                     className="btn-tavern btn-secondary"
-                    style={{ fontSize: '11px', textAlign: 'left', padding: '7px 10px', color: '#fef08a' }}
+                    style={{ fontSize: '11px', textAlign: 'left', padding: '7px 10px', color: '#5a2a08' }}
                   >
                     ⚔️ <strong>12 Classes & Subclasses</strong>
                   </button>
@@ -644,7 +645,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     type="button"
                     onClick={() => handleSendPrompt('Liste as ferramentas (tools) e kits de artesão do D&D 2024 em uma tabela com habilidades e utilidade')}
                     className="btn-tavern btn-secondary"
-                    style={{ fontSize: '11px', textAlign: 'left', padding: '7px 10px', color: '#fef08a' }}
+                    style={{ fontSize: '11px', textAlign: 'left', padding: '7px 10px', color: '#5a2a08' }}
                   >
                     🧰 <strong>Ferramentas & Kits</strong>
                   </button>
@@ -652,7 +653,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     type="button"
                     onClick={() => handleSendPrompt('Liste as armas simples e marciais do D&D 2024 em uma tabela com dano, propriedades e custo')}
                     className="btn-tavern btn-secondary"
-                    style={{ fontSize: '11px', textAlign: 'left', padding: '7px 10px', color: '#fef08a' }}
+                    style={{ fontSize: '11px', textAlign: 'left', padding: '7px 10px', color: '#5a2a08' }}
                   >
                     🗡️ <strong>Armas & Equipamentos</strong>
                   </button>
@@ -660,7 +661,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     type="button"
                     onClick={() => handleSendPrompt('Liste todos os tipos de dano e condições do D&D 2024 em uma tabela com descrições')}
                     className="btn-tavern btn-secondary"
-                    style={{ fontSize: '11px', textAlign: 'left', padding: '7px 10px', color: '#fef08a' }}
+                    style={{ fontSize: '11px', textAlign: 'left', padding: '7px 10px', color: '#5a2a08' }}
                   >
                     ⚡ <strong>Tipos de Dano & Condições</strong>
                   </button>
@@ -668,7 +669,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
               </div>
 
               <div style={{ backgroundColor: 'var(--wood-dark)', border: '1px solid var(--wood-border)', borderRadius: '8px', padding: '14px' }}>
-                <div style={{ fontSize: '11px', fontWeight: 800, color: '#fbbf24', textTransform: 'uppercase', marginBottom: '8px' }}>
+                <div style={{ fontSize: '11px', fontWeight: 800, color: '#92400e', textTransform: 'uppercase', marginBottom: '8px' }}>
                   Consultas Rápidas de Regras
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -676,7 +677,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     type="button"
                     onClick={() => handleSendPrompt('Como funciona a condição Caído (Prone) no combate do D&D 2024?')}
                     className="btn-tavern btn-secondary"
-                    style={{ fontSize: '11px', textAlign: 'left', padding: '6px 10px', color: '#cbd5e1' }}
+                    style={{ fontSize: '11px', textAlign: 'left', padding: '6px 10px', color: 'var(--text-soft)' }}
                   >
                     🛡️ Condição: Caído (Prone)
                   </button>
@@ -684,7 +685,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     type="button"
                     onClick={() => handleSendPrompt('Como funciona 0 PV, Testes de Morte e Morte Instantânea no D&D 2024?')}
                     className="btn-tavern btn-secondary"
-                    style={{ fontSize: '11px', textAlign: 'left', padding: '6px 10px', color: '#cbd5e1' }}
+                    style={{ fontSize: '11px', textAlign: 'left', padding: '6px 10px', color: 'var(--text-soft)' }}
                   >
                     💀 0 PV e Testes de Morte
                   </button>
@@ -692,7 +693,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     type="button"
                     onClick={() => handleSendPrompt('Como funciona o Descanso Curto e Descanso Longo no D&D 2024?')}
                     className="btn-tavern btn-secondary"
-                    style={{ fontSize: '11px', textAlign: 'left', padding: '6px 10px', color: '#cbd5e1' }}
+                    style={{ fontSize: '11px', textAlign: 'left', padding: '6px 10px', color: 'var(--text-soft)' }}
                   >
                     ⛺ Regras de Descanso
                   </button>
@@ -700,7 +701,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     type="button"
                     onClick={() => handleSendPrompt('Como funciona a magia Bola de Fogo (Fireball) e dano em área?')}
                     className="btn-tavern btn-secondary"
-                    style={{ fontSize: '11px', textAlign: 'left', padding: '6px 10px', color: '#cbd5e1' }}
+                    style={{ fontSize: '11px', textAlign: 'left', padding: '6px 10px', color: 'var(--text-soft)' }}
                   >
                     🔥 Magia: Bola de Fogo
                   </button>
@@ -724,7 +725,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
           {/* Chat Stream Header */}
           <div style={{
             padding: '12px 18px',
-            backgroundColor: '#2a180b',
+            backgroundColor: '#e6dac0',
             borderBottom: '1.5px solid var(--wood-border)',
             display: 'flex',
             alignItems: 'center',
@@ -732,7 +733,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#10b981', boxShadow: '0 0 8px #10b981' }} />
-              <span style={{ fontSize: '13px', fontWeight: 800, color: '#fef3c7', fontFamily: 'var(--font-cinzel)' }}>
+              <span style={{ fontSize: '13px', fontWeight: 800, color: '#5a2a08', fontFamily: 'var(--font-cinzel)' }}>
                 Oráculo da Mesa de Pergaminhos
               </span>
             </div>
@@ -750,7 +751,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                   ]);
                 }
               }}
-              style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '11px', cursor: 'pointer' }}
+              style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '11px', cursor: 'pointer' }}
             >
               🗑️ Limpar Conversa
             </button>
@@ -764,11 +765,11 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                 style={{
                   alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
                   maxWidth: msg.sender === 'user' ? '80%' : '98%',
-                  backgroundColor: msg.sender === 'user' ? '#78350f' : 'rgba(25, 15, 7, 0.95)',
+                  backgroundColor: msg.sender === 'user' ? 'rgba(180, 83, 9, 0.2)' : 'rgba(236, 226, 204, 0.95)',
                   border: msg.sender === 'user' ? '1px solid var(--amber-torch)' : '1px solid var(--wood-border)',
                   borderRadius: msg.sender === 'user' ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
                   padding: '14px 18px',
-                  color: msg.sender === 'user' ? '#fff' : '#f8fafc',
+                  color: msg.sender === 'user' ? 'var(--text-strong)' : 'var(--text-strong)',
                   boxShadow: 'var(--shadow-card)',
                   position: 'relative'
                 }}
@@ -777,7 +778,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                   <span style={{ fontSize: '11px', fontWeight: 800, color: msg.sender === 'user' ? '#fde047' : 'var(--amber-torch)', textTransform: 'uppercase' }}>
                     {msg.sender === 'user' ? `Mestre ${campaign.masterName}` : 'Oráculo D&D 2024'}
                   </span>
-                  <span style={{ fontSize: '10px', color: '#94a3b8' }}>
+                  <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
                     {msg.timestamp}
                   </span>
                 </div>
@@ -794,13 +795,13 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                   <div style={{
                     marginTop: '12px',
                     paddingTop: '8px',
-                    borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                    borderTop: '1px solid rgba(60, 36, 18, 0.08)',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '6px',
                     flexWrap: 'wrap'
                   }}>
-                    <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 700 }}>🔍 Fontes D&D 2024:</span>
+                    <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700 }}>🔍 Fontes D&D 2024:</span>
                     {msg.sources.map((src, sIdx) => (
                       <button
                         key={sIdx}
@@ -817,7 +818,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                           borderRadius: '4px',
                           backgroundColor: 'rgba(217, 119, 6, 0.15)',
                           border: '1px solid var(--amber-deep)',
-                          color: '#fef08a',
+                          color: '#5a2a08',
                           cursor: 'pointer'
                         }}
                       >
@@ -834,7 +835,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                       type="button"
                       onClick={() => handleSaveToCampaignLore(msg.text)}
                       className="btn-tavern"
-                      style={{ fontSize: '11px', padding: '4px 10px', color: '#fef08a', borderColor: '#d97706', gap: '4px' }}
+                      style={{ fontSize: '11px', padding: '4px 10px', color: '#5a2a08', borderColor: '#d97706', gap: '4px' }}
                       title="Salvar esta sugestão ou regra diretamente nos Pergaminhos da Sala"
                     >
                       <BookmarkPlus size={13} color="#f59e0b" />
@@ -848,11 +849,11 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
             {isAnswering && (
               <div style={{
                 alignSelf: 'flex-start',
-                backgroundColor: 'rgba(25, 15, 7, 0.9)',
+                backgroundColor: 'rgba(236, 226, 204, 0.9)',
                 border: '1px solid var(--wood-border)',
                 borderRadius: '12px 12px 12px 2px',
                 padding: '12px 16px',
-                color: '#fef08a',
+                color: '#5a2a08',
                 fontSize: '13px',
                 display: 'flex',
                 alignItems: 'center',
@@ -891,7 +892,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
             }}
             style={{
               padding: '12px 16px',
-              backgroundColor: '#2a180b',
+              backgroundColor: '#e6dac0',
               borderTop: '1.5px solid var(--wood-border)',
               display: 'flex',
               gap: '8px',
@@ -928,10 +929,10 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span style={{ fontSize: '24px' }}>🎲</span>
                 <div>
-                  <h3 style={{ fontSize: '18px', fontWeight: 900, margin: 0, color: '#fef3c7', fontFamily: 'var(--font-cinzel)' }}>
+                  <h3 style={{ fontSize: '18px', fontWeight: 900, margin: 0, color: '#5a2a08', fontFamily: 'var(--font-cinzel)' }}>
                     Bandeja de Rolagem Física 3D
                   </h3>
-                  <span style={{ fontSize: '11px', color: '#cbd5e1' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--text-soft)' }}>
                     Física de dados em tempo real para a mesa de "{campaign.name}"
                   </span>
                 </div>
@@ -939,7 +940,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsDiceModalOpen(false)}
-                style={{ background: 'none', border: 'none', color: '#cbd5e1', cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', color: 'var(--text-soft)', cursor: 'pointer' }}
               >
                 <X size={20} />
               </button>
@@ -963,7 +964,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
             {/* Controls Bar */}
             <div className="dice-modal-controls">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-                <div style={{ fontSize: '11px', fontWeight: 700, color: '#fbbf24', textTransform: 'uppercase' }}>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: '#92400e', textTransform: 'uppercase' }}>
                   Adicionar Dados à Bandeja:
                 </div>
                 <div className="tray-dice-buttons">
@@ -994,19 +995,19 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
               {/* Action and Modifier Bar */}
               <div className="dice-tray-action-bar">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '11px', color: '#94a3b8' }}>Fórmula:</span>
-                  <span style={{ fontSize: '15px', fontWeight: 900, color: '#fef08a', fontFamily: 'monospace' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Fórmula:</span>
+                  <span style={{ fontSize: '15px', fontWeight: 900, color: '#5a2a08', fontFamily: 'monospace' }}>
                     {trayDice.length === 0 ? 'Vazio' : trayDice.map(s => `1d${s}`).join(' + ') + (trayModifier !== 0 ? ` ${trayModifier >= 0 ? '+' : '-'} ${Math.abs(trayModifier)}` : '')}
                   </span>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <label style={{ fontSize: '11px', color: '#cbd5e1' }}>Mod:</label>
+                  <label style={{ fontSize: '11px', color: 'var(--text-soft)' }}>Mod:</label>
                   <input
                     type="number"
                     value={trayModifier}
                     onChange={e => setTrayModifier(parseInt(e.target.value, 10) || 0)}
-                    style={{ width: '60px', padding: '4px', textAlign: 'center', backgroundColor: '#0e0804', border: '1px solid var(--wood-border)', color: '#fff', borderRadius: '4px' }}
+                    style={{ width: '60px', padding: '4px', textAlign: 'center', backgroundColor: '#efe6d2', border: '1px solid var(--wood-border)', color: 'var(--text-strong)', borderRadius: '4px' }}
                   />
                 </div>
 
@@ -1023,7 +1024,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
               {diceRollResult && (
                 <div className="dice-result-panel">
                   <div>
-                    <div style={{ fontSize: '11px', color: '#cbd5e1', marginBottom: '2px' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--text-soft)', marginBottom: '2px' }}>
                       Dados Sorteados: [{diceRollResult.rolls.join(', ')}] {diceRollResult.modifier !== 0 ? `(Mod: ${diceRollResult.modifier >= 0 ? '+' : ''}${diceRollResult.modifier})` : ''}
                     </div>
                     <div className="result-total-badge">
@@ -1061,20 +1062,20 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
       {/* Modal de Detalhes da Ficha de Herói */}
       {viewingSheet && (
         <div className="tavern-modal-backdrop" onClick={() => setViewingSheet(null)}>
-          <div className="tavern-modal-content parchment-card" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px', padding: '24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', borderBottom: '1.5px solid var(--parchment-dark)', paddingBottom: '8px' }}>
+          <div className="tavern-modal-content surface-card" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px', padding: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', borderBottom: '1.5px solid var(--line-soft)', paddingBottom: '8px' }}>
               <div>
                 <span className="wax-badge wax-badge-admin" style={{ fontSize: '10px' }}>
                   Ficha de Herói {viewingSheet.isNpc ? '(NPC)' : ''}
                 </span>
-                <h3 style={{ fontSize: '20px', fontWeight: 900, margin: '4px 0 0', color: 'var(--ink-dark)' }}>
+                <h3 style={{ fontSize: '20px', fontWeight: 900, margin: '4px 0 0', color: 'var(--text-strong)' }}>
                   {viewingSheet.name}
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setViewingSheet(null)}
-                style={{ background: 'none', border: 'none', color: 'var(--ink-light)', cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
               >
                 <X size={20} />
               </button>
@@ -1086,7 +1087,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
               </div>
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px', color: 'var(--ink-dark)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px', color: 'var(--text-strong)' }}>
               <div><strong>Jogador:</strong> {viewingSheet.player}</div>
               <div><strong>Raça:</strong> {viewingSheet.race}</div>
               <div><strong>Classe:</strong> {viewingSheet.class}</div>
@@ -1096,12 +1097,9 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
               <div><strong>CA:</strong> {viewingSheet.armorClass}</div>
               {viewingSheet.stats && (
                 <div style={{ gridColumn: '1 / -1', marginTop: '10px', display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
-                  <div style={{ backgroundColor: 'rgba(0,0,0,0.05)', padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--wood-border)' }}><strong>FOR:</strong> {viewingSheet.stats.strength}</div>
-                  <div style={{ backgroundColor: 'rgba(0,0,0,0.05)', padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--wood-border)' }}><strong>DES:</strong> {viewingSheet.stats.dexterity}</div>
-                  <div style={{ backgroundColor: 'rgba(0,0,0,0.05)', padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--wood-border)' }}><strong>CON:</strong> {viewingSheet.stats.constitution}</div>
-                  <div style={{ backgroundColor: 'rgba(0,0,0,0.05)', padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--wood-border)' }}><strong>INT:</strong> {viewingSheet.stats.intelligence}</div>
-                  <div style={{ backgroundColor: 'rgba(0,0,0,0.05)', padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--wood-border)' }}><strong>SAB:</strong> {viewingSheet.stats.wisdom}</div>
-                  <div style={{ backgroundColor: 'rgba(0,0,0,0.05)', padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--wood-border)' }}><strong>CAR:</strong> {viewingSheet.stats.charisma}</div>
+                  {getOrderedStats(viewingSheet).map(({ code, value }) => (
+                    <div key={code} style={{ backgroundColor: 'rgba(60,36,18,0.06)', padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--wood-border)' }}><strong>{code}:</strong> {value}</div>
+                  ))}
                 </div>
               )}
               {viewingSheet.traits && viewingSheet.traits.length > 0 && (
@@ -1132,7 +1130,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                 type="button"
                 onClick={() => setViewingSheet(null)}
                 className="btn-tavern btn-secondary"
-                style={{ fontSize: '12px', color: '#fef08a', backgroundColor: '#2a180b' }}
+                style={{ fontSize: '12px', color: '#5a2a08', backgroundColor: '#e6dac0' }}
               >
                 Fechar Ficha
               </button>
@@ -1144,20 +1142,20 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
       {/* Modal de Fonte Oficial Original do Compêndio */}
       {viewingSourceDoc && (
         <div className="tavern-modal-backdrop" onClick={() => setViewingSourceDoc(null)}>
-          <div className="tavern-modal-content parchment-card" onClick={e => e.stopPropagation()} style={{ maxWidth: '720px', maxHeight: '85vh', overflowY: 'auto', padding: '24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', borderBottom: '1.5px solid var(--parchment-dark)', paddingBottom: '8px' }}>
+          <div className="tavern-modal-content surface-card" onClick={e => e.stopPropagation()} style={{ maxWidth: '720px', maxHeight: '85vh', overflowY: 'auto', padding: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', borderBottom: '1.5px solid var(--line-soft)', paddingBottom: '8px' }}>
               <div>
                 <span className="wax-badge wax-badge-admin" style={{ fontSize: '10px' }}>
                   {viewingSourceDoc.category}
                 </span>
-                <h3 style={{ fontSize: '20px', fontWeight: 900, margin: '4px 0 0', color: 'var(--ink-dark)' }}>
-                  {viewingSourceDoc.title} {viewingSourceDoc.title_en && <span style={{ fontSize: '13px', fontWeight: 400, color: 'var(--ink-light)' }}>({viewingSourceDoc.title_en})</span>}
+                <h3 style={{ fontSize: '20px', fontWeight: 900, margin: '4px 0 0', color: 'var(--text-strong)' }}>
+                  {viewingSourceDoc.title} {viewingSourceDoc.title_en && <span style={{ fontSize: '13px', fontWeight: 400, color: 'var(--text-muted)' }}>({viewingSourceDoc.title_en})</span>}
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setViewingSourceDoc(null)}
-                style={{ background: 'none', border: 'none', color: 'var(--ink-light)', cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
               >
                 <X size={20} />
               </button>
@@ -1168,14 +1166,14 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                 <img
                   src={viewingSourceDoc.image}
                   alt={viewingSourceDoc.title}
-                  style={{ maxHeight: '220px', borderRadius: '8px', border: '2px solid var(--parchment-dark)' }}
+                  style={{ maxHeight: '220px', borderRadius: '8px', border: '2px solid var(--line-soft)' }}
                 />
               </div>
             )}
 
             <div
               className="font-lore"
-              style={{ fontSize: '14px', color: 'var(--ink-dark)', lineHeight: 1.6 }}
+              style={{ fontSize: '14px', color: 'var(--text-strong)', lineHeight: 1.6 }}
               dangerouslySetInnerHTML={{ __html: marked.parse(viewingSourceDoc.content) as string }}
             />
 
@@ -1195,7 +1193,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                 type="button"
                 onClick={() => setViewingSourceDoc(null)}
                 className="btn-tavern btn-secondary"
-                style={{ fontSize: '12px', color: '#fef08a', backgroundColor: '#2a180b' }}
+                style={{ fontSize: '12px', color: '#5a2a08', backgroundColor: '#e6dac0' }}
               >
                 Fechar
               </button>
@@ -1388,11 +1386,11 @@ const InteractiveTableWidget: React.FC<InteractiveTableWidgetProps> = ({
             />
           )}
           <div>
-            <h4 style={{ fontSize: '18px', fontWeight: 900, margin: 0, color: 'var(--ink-dark)' }}>
+            <h4 style={{ fontSize: '18px', fontWeight: 900, margin: 0, color: 'var(--text-strong)' }}>
               {selectedItemDetail.primaryName}
             </h4>
             {selectedItemDetail.secondaryName && (
-              <span style={{ fontSize: '12px', color: 'var(--ink-light)', fontStyle: 'italic' }}>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic' }}>
                 Nome Original (EN): {selectedItemDetail.secondaryName}
               </span>
             )}
@@ -1404,11 +1402,11 @@ const InteractiveTableWidget: React.FC<InteractiveTableWidgetProps> = ({
             const val = selectedItemDetail.cells[hIdx];
             if (!val || hIdx === 0) return null;
             return (
-              <div key={hIdx} style={{ backgroundColor: '#fff', border: '1px solid var(--parchment-dark)', padding: '8px 10px', borderRadius: '6px' }}>
+              <div key={hIdx} style={{ backgroundColor: 'rgba(60, 36, 18, 0.08)', border: '1px solid var(--line-soft)', padding: '8px 10px', borderRadius: '6px' }}>
                 <div style={{ fontSize: '10px', fontWeight: 700, color: 'var(--amber-deep)', textTransform: 'uppercase' }}>
                   {h}
                 </div>
-                <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink-dark)' }}>
+                <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-strong)' }}>
                   {val}
                 </div>
               </div>
@@ -1429,7 +1427,7 @@ const InteractiveTableWidget: React.FC<InteractiveTableWidgetProps> = ({
             type="button"
             onClick={() => setSelectedItemDetail(null)}
             className="btn-tavern btn-secondary"
-            style={{ fontSize: '11px', padding: '6px 12px', color: '#fef08a', backgroundColor: '#2a180b' }}
+            style={{ fontSize: '11px', padding: '6px 12px', color: '#5a2a08', backgroundColor: '#e6dac0' }}
           >
             Fechar Detalhes
           </button>
@@ -1494,7 +1492,7 @@ const InteractiveTableWidget: React.FC<InteractiveTableWidgetProps> = ({
           <tbody>
             {sortedRows.length === 0 ? (
               <tr>
-                <td colSpan={headers.length + 1} style={{ textAlign: 'center', padding: '24px', color: '#94a3b8' }}>
+                <td colSpan={headers.length + 1} style={{ textAlign: 'center', padding: '24px', color: 'var(--text-muted)' }}>
                   Nenhum item encontrado para "{searchTerm}".
                 </td>
               </tr>
@@ -1525,7 +1523,7 @@ const InteractiveTableWidget: React.FC<InteractiveTableWidgetProps> = ({
                                 loading="lazy"
                               />
                             )}
-                            <strong style={{ color: '#fef3c7' }}>{cell}</strong>
+                            <strong style={{ color: '#5a2a08' }}>{cell}</strong>
                           </div>
                         </td>
                       );

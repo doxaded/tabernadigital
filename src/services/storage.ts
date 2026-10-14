@@ -1,7 +1,29 @@
-import { Campaign, CharacterSheet, LoreEntry, RuleDocument, SketchAsset, UrdMessage, UserProfile } from '../types';
+import { Campaign, CharacterSheet, LoreEntry, RoomPlayer, RuleDocument, SketchAsset, UrdMessage, UserProfile } from '../types';
 
 export const ADMIN_EMAIL = 'henrique.v.berbert@gmail.com';
 export const DEFAULT_MASTER_PASSWORD = 'TabernaMestre2026!';
+
+// Limite de jogadores por sala (o mestre não conta)
+export const MAX_PLAYERS = 8;
+
+// Alfabeto sem caracteres ambíguos (sem 0/O, 1/I) para a chave ser fácil de ditar e digitar
+const JOIN_KEY_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+// Gera uma chave de sala no formato XXXX-XXXX
+export function generateJoinKey(): string {
+  const bytes = new Uint8Array(8);
+  crypto.getRandomValues(bytes);
+  const chars = Array.from(bytes, b => JOIN_KEY_ALPHABET[b % JOIN_KEY_ALPHABET.length]);
+  return chars.slice(0, 4).join('') + '-' + chars.slice(4).join('');
+}
+
+// Normaliza o que o jogador digitou (minúsculas, espaços, sem hífen) para XXXX-XXXX.
+// Retorna null se não tiver 8 caracteres válidos.
+export function normalizeJoinKey(raw: string): string | null {
+  const clean = raw.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (clean.length !== 8) return null;
+  return clean.slice(0, 4) + '-' + clean.slice(4);
+}
 
 const STORAGE_KEYS = {
   USERS: 'taberna_users_v1',
@@ -202,9 +224,7 @@ const DEFAULT_URD_MESSAGES: UrdMessage[] = [
   {
     id: 'urd-init',
     sender: 'urd',
-    text: `*Puxa um banco de carvalho rústico e desliza uma caneca espumante de cerveja preta pelo balcão em sua direção.* 
-Saudações, viajante! Bem-vindo à **Taberna Digital**! Eu sou o Urd, e nestes cinquenta invernos já ouvi mais histórias de masmorras, dragões e traições do que qualquer mago em sua torre. 
-Se você precisa de um bom boato para atiçar seus jogadores, um gancho de aventura nas catacumbas, ou um enigma que fará seus aventureiros coçarem as barbas... você veio ao lugar certo. O que a mesa pede hoje?`,
+    text: `Salve, forasteiro! Sede bem-vindo à Taberna Digital. Sou Urd, e há cinquenta invernos ouço rumores de masmorras, dragões e traições. Que vos traz aqui hoje?`,
     timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
   }
 ];
@@ -400,22 +420,45 @@ export const storageService = {
     return true;
   },
 
+  // Observador chamado a cada gravação de campanhas (usado pela sincronização com a nuvem)
+  campaignsListener: null as ((campaigns: Campaign[]) => void) | null,
+
   // Campanhas
   getCampaigns(): Campaign[] {
     const raw = localStorage.getItem(STORAGE_KEYS.CAMPAIGNS);
+    let list: Campaign[];
     if (!raw) {
-      localStorage.setItem(STORAGE_KEYS.CAMPAIGNS, JSON.stringify(DEFAULT_CAMPAIGNS));
-      return DEFAULT_CAMPAIGNS;
+      list = JSON.parse(JSON.stringify(DEFAULT_CAMPAIGNS));
+    } else {
+      try {
+        list = JSON.parse(raw);
+      } catch {
+        list = JSON.parse(JSON.stringify(DEFAULT_CAMPAIGNS));
+      }
     }
-    try {
-      return JSON.parse(raw);
-    } catch {
-      return DEFAULT_CAMPAIGNS;
+
+    // Migração: campanhas antigas ganham chave de sala e lista de jogadores
+    let migrated = !raw;
+    list.forEach(c => {
+      if (!c.joinKey) {
+        c.joinKey = generateJoinKey();
+        migrated = true;
+      }
+      if (!c.players) {
+        c.players = [];
+        migrated = true;
+      }
+    });
+    if (migrated) {
+      localStorage.setItem(STORAGE_KEYS.CAMPAIGNS, JSON.stringify(list));
     }
+    return list;
   },
 
-  saveCampaigns(campaigns: Campaign[]) {
+  // silent=true grava só o cache local, sem acionar a sincronização com a nuvem
+  saveCampaigns(campaigns: Campaign[], silent = false) {
     localStorage.setItem(STORAGE_KEYS.CAMPAIGNS, JSON.stringify(campaigns));
+    if (!silent) this.campaignsListener?.(campaigns);
   },
 
   // Limite estrito de 3 campanhas ativas por usuário
@@ -441,7 +484,9 @@ export const storageService = {
       createdAt: new Date().toISOString(),
       sheets: [],
       lore: [],
-      rules: []
+      rules: [],
+      joinKey: generateJoinKey(),
+      players: []
     };
 
     campaigns.push(newCampaign);
@@ -482,6 +527,58 @@ export const storageService = {
 
     const filtered = campaigns.filter(c => c.id !== campaignId);
     this.saveCampaigns(filtered);
+    return { success: true };
+  },
+
+  // Chave de sala (modo local): gera uma nova chave, invalidando a anterior para novos jogadores.
+  // Quem já entrou continua na sala.
+  regenerateJoinKey(campaignId: string, user: UserProfile): { success: boolean; error?: string; joinKey?: string } {
+    const campaigns = this.getCampaigns();
+    const campaign = campaigns.find(c => c.id === campaignId);
+    if (!campaign) return { success: false, error: 'Campanha não encontrada.' };
+    if (campaign.masterId !== user.uid && user.role !== 'admin') {
+      return { success: false, error: 'Apenas o Mestre da sala pode gerar uma nova chave.' };
+    }
+    campaign.joinKey = generateJoinKey();
+    this.saveCampaigns(campaigns);
+    return { success: true, joinKey: campaign.joinKey };
+  },
+
+  // Entrada por chave (modo local): vale entre contas que compartilham este navegador
+  joinCampaignByKey(user: UserProfile, rawKey: string): { success: boolean; error?: string; campaignId?: string } {
+    const key = normalizeJoinKey(rawKey);
+    if (!key) return { success: false, error: 'Chave inválida. Use o formato XXXX-XXXX.' };
+
+    const campaigns = this.getCampaigns();
+    const campaign = campaigns.find(c => c.joinKey === key);
+    if (!campaign) return { success: false, error: 'Nenhuma sala encontrada com essa chave.' };
+    if (campaign.masterId === user.uid) return { success: false, error: 'Você é o mestre desta sala.' };
+
+    const players = campaign.players || [];
+    if (players.some(p => p.uid === user.uid)) {
+      return { success: true, campaignId: campaign.id };
+    }
+    if (players.length >= MAX_PLAYERS) {
+      return { success: false, error: `Sala cheia (${MAX_PLAYERS}/${MAX_PLAYERS} jogadores).` };
+    }
+
+    const player: RoomPlayer = { uid: user.uid, name: user.displayName, joinedAt: new Date().toISOString() };
+    campaign.players = [...players, player];
+    this.saveCampaigns(campaigns);
+    return { success: true, campaignId: campaign.id };
+  },
+
+  // Remove um jogador da sala (o próprio jogador saindo, ou o mestre expulsando)
+  removePlayer(campaignId: string, playerUid: string, user: UserProfile): { success: boolean; error?: string } {
+    const campaigns = this.getCampaigns();
+    const campaign = campaigns.find(c => c.id === campaignId);
+    if (!campaign) return { success: false, error: 'Campanha não encontrada.' };
+    const isMaster = campaign.masterId === user.uid || user.role === 'admin';
+    if (!isMaster && playerUid !== user.uid) {
+      return { success: false, error: 'Apenas o Mestre pode remover outros jogadores.' };
+    }
+    campaign.players = (campaign.players || []).filter(p => p.uid !== playerUid);
+    this.saveCampaigns(campaigns);
     return { success: true };
   },
 
@@ -547,6 +644,17 @@ export const storageService = {
     }
   },
 
+  updateLore(campaignId: string, loreId: string, data: Partial<LoreEntry>) {
+    const campaigns = this.getCampaigns();
+    const campaign = campaigns.find(c => c.id === campaignId);
+    if (!campaign) return;
+    const index = campaign.lore.findIndex(l => l.id === loreId);
+    if (index !== -1) {
+      campaign.lore[index] = { ...campaign.lore[index], ...data };
+      this.saveCampaigns(campaigns);
+    }
+  },
+
   // Regras / PDFs
   addRule(campaignId: string, rule: Omit<RuleDocument, 'id' | 'campaignId'>): RuleDocument {
     const campaigns = this.getCampaigns();
@@ -568,6 +676,17 @@ export const storageService = {
     const campaign = campaigns.find(c => c.id === campaignId);
     if (campaign) {
       campaign.rules = campaign.rules.filter(r => r.id !== ruleId);
+      this.saveCampaigns(campaigns);
+    }
+  },
+
+  updateRule(campaignId: string, ruleId: string, data: Partial<RuleDocument>) {
+    const campaigns = this.getCampaigns();
+    const campaign = campaigns.find(c => c.id === campaignId);
+    if (!campaign) return;
+    const index = campaign.rules.findIndex(r => r.id === ruleId);
+    if (index !== -1) {
+      campaign.rules[index] = { ...campaign.rules[index], ...data };
       this.saveCampaigns(campaigns);
     }
   },

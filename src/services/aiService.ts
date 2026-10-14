@@ -1,5 +1,8 @@
 import { GoogleGenAI } from '@google/genai';
 import { SketchCostEstimate } from '../types';
+import { URD_SYSTEM_PROMPT } from './urdPersona';
+
+export { URD_SYSTEM_PROMPT };
 
 const VITE_ENV_KEY = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GEMINI_API_KEY)
   || (typeof process !== 'undefined' && process.env?.VITE_GEMINI_API_KEY)
@@ -19,15 +22,6 @@ export const getEffectiveGeminiKey = (customKey?: string): string => {
 export const GEMINI_SKETCH_MODEL = 'gemini-3.1-flash-image'; // Nano Banana 2: Modelo rápido, econômico (50% mais barato) e de alta performance
 export const GEMINI_SKETCH_FALLBACK_MODEL = 'gemini-3-pro-image'; // Nano Banana Pro: Modelo de alta definição e raciocínio profundo
 export const GEMINI_TEXT_MODEL = 'gemini-flash-latest'; // Modelo moderno padrão para diálogos e enriquecimento de lore
-
-export const URD_SYSTEM_PROMPT = `
-Você é Urd, o taberneiro da lendária "Taberna Digital", uma acolhedora estalagem medieval de fantasia onde aventureiros se reúnem ao redor de tochas crepitantes e canecas de carvalho.
-Sua Persona:
-- Personalidade: Um estalajadeiro experiente de cinquenta invernos, pragmático, observador, hospitaleiro, leal e sagaz.
-- Vocabulário & Expressões: Use expressões de taberna como "*desliza uma caneca de hidromel pelo balcão*", "*enxuga um copo de madeira*", "Pelas barbas de Moradin!", "Pelo sangue do dragão!", "Puxe um banco perto da lareira, forasteiro".
-- Missão: Ajudar mestres e jogadores de RPG com ganchos de aventura memoráveis, ideias de plots e reviravoltas dramáticas, criação rápida de NPCs pitorescos, mistérios e soluções para impasses durante a sessão.
-- Regra de Ouro: NUNCA quebre o personagem de Urd. Mantenha sempre a imersão na atmosfera de taverna medieval fantástica em Português do Brasil.
-`;
 
 export const SKETCH_SYSTEM_INSTRUCTION = `
 Diretriz de estilo: Arte conceitual para RPG de mesa, rascunho minucioso a lápis grafite monocromático, linhas de nanquim escuro, sombreamento clássico por hachuras cruzadas, traço limpo e expressivo, sem cores, grafite sobre fundo de pergaminho antigo envelhecido, peso de linha consistente, estética rústica e imersiva de fantasia medieval.
@@ -51,41 +45,11 @@ export interface GenerateSketchResult {
   executedPrompt: string;
 }
 
-// Respostas temáticas autênticas de Urd para modo de contingência
+// Respostas curtas de Urd para modo de contingência (sem ações, linguagem clássica)
 const URD_LORE_RESPONSES = [
-  (query: string) => `*Urd para de secar uma caneca de carvalho com um pano encardido, apoia os cotovelos fortes sobre o balcão de madeira e crava os olhos experientes em você.*
-
-"Ora, ora... sobre isso que você pergunta ('${query}'), meus ouvidos já captaram rumores sussurrados entre mercadores assustados e patrulheiros da fronteira.
-
-Aqui vai o que o velho Urd sabe:
-1. **O Gancho:** Há três luas, caçadores encontraram uma carruagem virada à beira da Estrada Real. Os cavalos fugiram em pânico, e marcas de garras do tamanho de machados estavam cravadas nas portas blindadas.
-2. **O Mistério:** Nenhuma moeda de ouro foi roubada da arca, mas um baú forrado com veludo e lacrado com chumbo derretido foi arrancado com ferocidade.
-3. **A Reviravolta:** Quem encomendou a entrega daquele baú foi ninguém menos que o Conselheiro do Barão, aquele mesmo que jura de pés juntos nunca ter lidado com artes obscuras...
-
-*Urd empurra uma caneca com espuma farta em sua direção e dá uma piscadela cúmplice.*
-Beba um trago e pense bem antes de mandar seus jogadores para aquela estrada sem levar fogo e ferro frio!"`,
-
-  (query: string) => `*O taberneiro solta uma risada rouca que ecoa pelas vigas de carvalho da estalagem, jogando uma tora seca no fogo da lareira que estala com faíscas alaranjadas.*
-
-"Ah, forasteiro! Você mexe num ninho de vespas quando menciona '${query}'! 
-
-Se você quer colocar a coragem da sua guilda à prova, escute esta ideia que ouvi de um anão minerador bêbado na última sexta-feira:
-- **O Enigma:** As portas das catacumbas sob o vale só se abrem quando duas tochas com chamas de cores opostas forem acesas simultaneamente. Mas o teto começa a ranger e descer a cada 60 segundos!
-- **A Tensão:** Há uma inscrição em dracônico antigo que diz: *'O covarde busca a luz do sol, o sábio abraça a sombra sem piscar'*. Se fecharem os olhos na escuridão total, o caminho secreto se revela na parede de pedra.
-- **O Perigo:** Um espectro guardião não pode ser ferido com aço normal; seus jogadores precisarão banhar suas lâminas no óleo da lamparina sagrada que repousa sobre o altar.
-
-Gostou do tempero, Mestre? Pode anotar no pergaminho da sua campanha antes que o bardo desafinado da mesa ao lado tente roubar a história!"`,
-
-  (query: string) => `*Urd inclina-se para a frente e abaixa a voz para um sussurro conspiratório, apontando com a ponta da faca de entalhar para o mapa estendido na mesa.*
-
-"Pelas barbas dos deuses antigos... fale baixo quando o assunto for '${query}', rapaz! As paredes desta taberna têm ouvidos, e nem todos os clientes que bebem cerveja aqui são simples viajantes.
-
-Aqui está o que eu prepararia para surpreender esses aventureiros:
-- **O NPC:** Um monge cego chamado Barnabé que anda com um cajado de teixo e uma doninha no ombro. Ele jura conhecer o caminho pelas cavernas, mas na verdade está sob chantagem de uma bruxa do pântano.
-- **A Emboscada:** No meio do caminho, uma névoa espessa carrega o som de sinos funerários e risadas infantis. Quem falhar num teste de Sabedoria passa a enxergar seus piores arrependimentos refletidos nas poças d'água.
-- **A Recompensa:** O baú final não guarda apenas gemas, mas uma chave enferrujada que abre uma passagem para o próximo ato da sua crônica!
-
-Beba mais um gole de cidra enquanto prepara os dados! Precisa de mais algum detalhe?"`
+  (query: string) => `Pelas barbas de Merlim, forasteiro! Sobre "${query}", ouvi rumores na estrada real: uma carruagem tombada, garras do tamanho de machados nas portas e um baú lacrado em chumbo roubado. Deveras estranho.`,
+  (query: string) => `Ora essa, mexeis em ninho de vespas! Um anão bêbado me contou que há catacumbas sob o vale que só se abrem com duas tochas de chamas opostas. Cautela, nobre senhor.`,
+  (query: string) => `Falai baixo, bom homem, que as paredes desta estalagem têm ouvidos. Quereis saber de "${query}"? Procurai um monge cego chamado Barnabé, mas não vos fieis em demasia: ele é chantageado por uma bruxa do pântano.`
 ];
 
 // Gera prompt refinado para arte em grafite / sketch de RPG (100% em Língua Portuguesa)
@@ -222,49 +186,51 @@ export const compressBase64Image = (dataUrl: string, maxDim = 1024, quality = 0.
 };
 
 export const aiService = {
-  // Chat com Urd com suporte a Cloud Functions e Gemini API
+  // Chat com Urd: Gemini direto com a mesma chave usada nas imagens (getEffectiveGeminiKey)
   async chatWithUrd(prompt: string, history: Array<{ sender: 'user' | 'urd'; text: string }>, customApiKey?: string): Promise<string> {
     const apiKey = getEffectiveGeminiKey(customApiKey);
 
-    // 1. Tenta chamar o endpoint de backend seguro (/api/urd)
+    // Histórico recente; o Gemini espera que a conversa comece com uma fala do usuário
+    const recent = history.slice(-14);
+    const firstUser = recent.findIndex(h => h.sender === 'user');
+    const turns = (firstUser === -1 ? [] : recent.slice(firstUser)).map(h => ({
+      role: h.sender === 'user' ? 'user' : 'model',
+      parts: [{ text: h.text }]
+    }));
+
+    // 1. Execução direta via Google Gen AI SDK
+    if (apiKey) {
+      try {
+        const client = new GoogleGenAI({ apiKey });
+        const response = await client.models.generateContent({
+          model: GEMINI_TEXT_MODEL,
+          contents: [...turns, { role: 'user', parts: [{ text: prompt }] }],
+          config: { systemInstruction: URD_SYSTEM_PROMPT }
+        });
+
+        if (response.text && response.text.trim()) {
+          return response.text.trim();
+        }
+      } catch (err) {
+        console.error('[Urd] Falha ao conversar com o Gemini:', err);
+      }
+    }
+
+    // 2. Endpoint de backend (Cloud Function), caso esteja publicado
     try {
       const backendRes = await fetch('/api/urd', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt, history })
       });
-      if (backendRes.ok) {
+      if (backendRes.ok && (backendRes.headers.get('content-type') || '').includes('application/json')) {
         const data = await backendRes.json();
         if (data?.response) {
           return data.response;
         }
       }
     } catch {
-      // Ignora falha e tenta execução direta
-    }
-
-    // 2. Execução direta via Google Gen AI SDK
-    if (apiKey) {
-      try {
-        const client = new GoogleGenAI({ apiKey });
-        const response = await client.models.generateContent({
-          model: GEMINI_TEXT_MODEL,
-          contents: [
-            { role: 'user', parts: [{ text: URD_SYSTEM_PROMPT }] },
-            ...history.slice(-6).map(h => ({
-              role: h.sender === 'user' ? 'user' : 'model',
-              parts: [{ text: h.text }]
-            })),
-            { role: 'user', parts: [{ text: prompt }] }
-          ]
-        });
-
-        if (response.text) {
-          return response.text;
-        }
-      } catch (err) {
-        console.warn('Fallback ativado para Urd:', err);
-      }
+      // Ignora e segue para o roleplay de contingência
     }
 
     // 3. Fallback de roleplay temático imersivo
