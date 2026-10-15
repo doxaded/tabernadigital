@@ -909,14 +909,14 @@ h1, h2, h3, h4, .font-cinzel {
 .salao-hero {
   position: relative;
   width: 100%;
-  /* Banner preto ocupa a tela inteira (navbar + banner = 100% da altura) */
-  min-height: calc(100vh - var(--nav-h));
-  min-height: calc(100dvh - var(--nav-h));
+  /* Banner abre praticamente pela metade da tela (~50vh), idêntico aos outros módulos */
+  min-height: clamp(320px, 50vh, 520px);
+  min-height: clamp(320px, 50dvh, 520px);
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: #000000;
-  padding: clamp(24px, 4vw, 56px) 0;
+  padding: clamp(20px, 3.5vw, 44px) 0;
   margin-bottom: 0;
 }
 
@@ -1046,7 +1046,6 @@ h1, h2, h3, h4, .font-cinzel {
   display: grid;
   grid-template-columns: 1fr 1fr;
   width: 100%;
-  min-height: min(72vh, 680px);
   background-color: #000000;
   border-top: 1px solid rgba(245, 236, 220, 0.12);
 }
@@ -1055,7 +1054,7 @@ h1, h2, h3, h4, .font-cinzel {
   display: flex;
   flex-direction: column;
   gap: 18px;
-  padding: clamp(36px, 5.5vw, 80px) var(--edge);
+  padding: clamp(32px, 4.5vw, 64px) var(--edge);
   color: var(--text-strong);
 }
 
@@ -1366,11 +1365,12 @@ h1, h2, h3, h4, .font-cinzel {
    GALERIA DO BARDO & TABERNEIRO — layouts harmônicos em fundo preto
    ========================================================================== */
 
-/* Hero mais baixo para o chat aparecer logo abaixo do título */
+/* Heros padronizados com altura pela metade (~50vh) em todos os módulos */
+.salao-hero--mesa,
 .salao-hero--bardo,
 .salao-hero--urd {
-  min-height: clamp(380px, 62vh, 640px);
-  min-height: clamp(380px, 62dvh, 640px);
+  min-height: clamp(320px, 50vh, 520px);
+  min-height: clamp(320px, 50dvh, 520px);
 }
 
 .bardo,

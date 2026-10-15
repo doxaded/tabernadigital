@@ -514,8 +514,8 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
 
   return (
     <>
-      {/* Banner: Mesa Central (largura total, une-se à navbar) */}
-      <header className="salao-hero">
+      {/* Banner: Mesa Central (harmônico com Galeria do Bardo e Taberneiro) */}
+      <header className="salao-hero salao-hero--mesa">
         <div className="salao-hero__inner">
           <h1 className="salao-hero__title" aria-label="Mesa Central">
             <span className="salao-hero__line salao-hero__line--a">
