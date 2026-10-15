@@ -29,7 +29,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         style={{
           background: 'none',
           border: 'none',
-          color: activeTab === 'campaigns' ? 'var(--amber-deep)' : '#7C6D58',
+          color: activeTab === 'campaigns' ? 'var(--amber-glow)' : '#a89a85',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -50,7 +50,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         style={{
           background: 'none',
           border: 'none',
-          color: activeTab === 'sketch' ? 'var(--amber-deep)' : '#7C6D58',
+          color: activeTab === 'sketch' ? 'var(--amber-glow)' : '#a89a85',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -71,7 +71,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         style={{
           background: 'none',
           border: 'none',
-          color: activeTab === 'urd' ? 'var(--amber-deep)' : '#7C6D58',
+          color: activeTab === 'urd' ? 'var(--amber-glow)' : '#a89a85',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -94,7 +94,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           style={{
             background: 'none',
             border: 'none',
-            color: '#92400e',
+            color: '#fbbf24',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -115,7 +115,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
               top: '2px',
               right: '8px',
               backgroundColor: '#ef4444',
-              color: 'var(--text-strong)',
+              color: '#ffffff',
               fontSize: '9px',
               fontWeight: 800,
               width: '16px',
@@ -135,7 +135,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           style={{
             background: 'none',
             border: 'none',
-            color: 'var(--text-muted)',
+            color: '#a89a85',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',

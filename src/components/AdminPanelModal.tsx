@@ -36,7 +36,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
         style={{
           position: 'fixed',
           top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(60, 36, 18, 0.08)',
+          backgroundColor: 'rgba(0, 0, 0, 0.6)',
           backdropFilter: 'blur(4px)',
           display: 'flex',
           alignItems: 'center',
@@ -49,7 +49,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
         <div 
           onClick={e => e.stopPropagation()}
           style={{ 
-            backgroundColor: '#14100c',
+            backgroundColor: '#ffffff',
             borderRadius: '16px',
             padding: '40px', 
             textAlign: 'center', 
@@ -71,17 +71,17 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
           }}>
             <ShieldAlert size={32} />
           </div>
-          <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#f5ecdc', marginBottom: '8px' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#111', marginBottom: '8px' }}>
             Acesso Restrito
           </h2>
-          <p style={{ fontSize: '14px', color: '#a89a85', marginBottom: '32px', lineHeight: 1.5 }}>
+          <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '32px', lineHeight: 1.5 }}>
             A Câmara do Taberneiro-Chefe é exclusiva ao administrador <strong>{ADMIN_EMAIL}</strong>.
           </p>
           <button 
             onClick={onClose} 
             style={{
               backgroundColor: '#111',
-              color: '#14100c',
+              color: '#fff',
               border: 'none',
               padding: '12px 24px',
               borderRadius: '8px',
@@ -122,7 +122,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
       style={{
         position: 'fixed',
         top: 0, left: 0, right: 0, bottom: 0,
-        backgroundColor: 'rgba(60, 36, 18, 0.08)',
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
         backdropFilter: 'blur(4px)',
         display: 'flex',
         alignItems: 'center',
@@ -137,7 +137,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
         style={{ 
           maxWidth: '800px', 
           width: '100%',
-          backgroundColor: '#14100c',
+          backgroundColor: '#ffffff',
           borderRadius: '16px',
           overflow: 'hidden',
           boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
@@ -154,10 +154,10 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
           justifyContent: 'space-between',
         }}>
           <div>
-            <h2 style={{ fontSize: '24px', fontWeight: 600, color: '#f5ecdc', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 600, color: '#111', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '12px' }}>
               Painel Administrativo
             </h2>
-            <p style={{ fontSize: '14px', color: '#a89a85', margin: 0 }}>
+            <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>
               Gerenciamento de acessos e estatísticas do sistema.
             </p>
           </div>
@@ -170,7 +170,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                   background: 'none',
                   border: '1px solid #e2e8f0',
                   borderRadius: '6px',
-                  color: '#c9bba3',
+                  color: '#111',
                   padding: '8px 12px',
                   fontSize: '13px',
                   display: 'flex',
@@ -179,7 +179,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                   cursor: 'pointer'
                 }}
               >
-                <KeyRound size={14} />
+                <KeyRound size={14} color="#64748b" />
                 <span className="desktop-only">Alterar Senha</span>
               </button>
             )}
@@ -189,7 +189,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
               style={{
                 background: 'none',
                 border: 'none',
-                color: '#8f8372',
+                color: '#64748b',
                 cursor: 'pointer',
                 padding: '4px'
               }}
@@ -207,7 +207,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
           borderBottom: '1px solid #f1f5f9'
         }}>
           <button style={btnStyle(activeTab === 'pending')} onClick={() => setActiveTab('pending')}>
-            Pendentes {pendingUsers.length > 0 && <span style={{ backgroundColor: '#111', color: '#14100c', padding: '2px 6px', borderRadius: '12px', fontSize: '11px', fontWeight: 600 }}>{pendingUsers.length}</span>}
+            Pendentes {pendingUsers.length > 0 && <span style={{ backgroundColor: '#111', color: '#fff', padding: '2px 6px', borderRadius: '12px', fontSize: '11px', fontWeight: 600 }}>{pendingUsers.length}</span>}
           </button>
           <button style={btnStyle(activeTab === 'approved')} onClick={() => setActiveTab('approved')}>
             Aprovados
@@ -225,9 +225,9 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
             <div>
               {pendingUsers.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '60px 0' }}>
-                  <CheckCircle2 size={48} color="#4a4034" style={{ margin: '0 auto 16px' }} />
-                  <p style={{ fontSize: '16px', color: '#f5ecdc', fontWeight: 500, margin: '0 0 8px 0' }}>Nenhum usuário pendente</p>
-                  <p style={{ fontSize: '14px', color: '#a89a85', margin: 0 }}>A fila de aprovação está vazia.</p>
+                  <CheckCircle2 size={48} color="#e2e8f0" style={{ margin: '0 auto 16px' }} />
+                  <p style={{ fontSize: '16px', color: '#111', fontWeight: 500, margin: '0 0 8px 0' }}>Nenhum usuário pendente</p>
+                  <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>A fila de aprovação está vazia.</p>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -246,9 +246,9 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                       }}
                     >
                       <div>
-                        <div style={{ fontWeight: 600, color: '#f5ecdc', fontSize: '15px' }}>{u.displayName}</div>
-                        <div style={{ fontSize: '13px', color: '#a89a85', marginTop: '4px' }}>{u.email}</div>
-                        <div style={{ fontSize: '12px', color: '#8f8372', marginTop: '8px' }}>
+                        <div style={{ fontWeight: 600, color: '#111', fontSize: '15px' }}>{u.displayName}</div>
+                        <div style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>{u.email}</div>
+                        <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '8px' }}>
                           Criado em: {new Date(u.createdAt).toLocaleDateString('pt-BR')}
                         </div>
                       </div>
@@ -272,7 +272,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                           onClick={() => onApproveUser(u.uid)}
                           style={{
                             backgroundColor: '#111',
-                            color: '#14100c',
+                            color: '#fff',
                             border: 'none',
                             padding: '8px 16px',
                             borderRadius: '6px',
@@ -312,12 +312,12 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                   >
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <span style={{ fontWeight: 600, color: '#f5ecdc', fontSize: '15px' }}>{u.displayName}</span>
+                        <span style={{ fontWeight: 600, color: '#111', fontSize: '15px' }}>{u.displayName}</span>
                         {isCurrentAdmin && (
-                          <span style={{ backgroundColor: '#111', color: '#14100c', fontSize: '10px', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>ADMIN</span>
+                          <span style={{ backgroundColor: '#111', color: '#fff', fontSize: '10px', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>ADMIN</span>
                         )}
                       </div>
-                      <div style={{ fontSize: '13px', color: '#a89a85', marginTop: '4px' }}>{u.email}</div>
+                      <div style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>{u.email}</div>
                     </div>
                     {!isCurrentAdmin && (
                       <button
@@ -345,20 +345,20 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
             <div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '20px' }}>
                 <div style={{ border: '1px solid #f1f5f9', padding: '24px', borderRadius: '12px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '32px', fontWeight: 600, color: '#f5ecdc' }}>{users.length}</div>
-                  <div style={{ fontSize: '13px', color: '#a89a85', marginTop: '8px' }}>Total de Contas</div>
+                  <div style={{ fontSize: '32px', fontWeight: 600, color: '#111' }}>{users.length}</div>
+                  <div style={{ fontSize: '13px', color: '#64748b', marginTop: '8px' }}>Total de Contas</div>
                 </div>
                 <div style={{ border: '1px solid #f1f5f9', padding: '24px', borderRadius: '12px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '32px', fontWeight: 600, color: '#f5ecdc' }}>{pendingUsers.length}</div>
-                  <div style={{ fontSize: '13px', color: '#a89a85', marginTop: '8px' }}>Fila de Espera</div>
+                  <div style={{ fontSize: '32px', fontWeight: 600, color: '#111' }}>{pendingUsers.length}</div>
+                  <div style={{ fontSize: '13px', color: '#64748b', marginTop: '8px' }}>Fila de Espera</div>
                 </div>
                 <div style={{ border: '1px solid #f1f5f9', padding: '24px', borderRadius: '12px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '32px', fontWeight: 600, color: '#f5ecdc' }}>{approvedUsers.length}</div>
-                  <div style={{ fontSize: '13px', color: '#a89a85', marginTop: '8px' }}>Aprovados</div>
+                  <div style={{ fontSize: '32px', fontWeight: 600, color: '#111' }}>{approvedUsers.length}</div>
+                  <div style={{ fontSize: '13px', color: '#64748b', marginTop: '8px' }}>Aprovados</div>
                 </div>
                 <div style={{ border: '1px solid #f1f5f9', padding: '24px', borderRadius: '12px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '32px', fontWeight: 600, color: '#f5ecdc' }}>{totalCampaigns}</div>
-                  <div style={{ fontSize: '13px', color: '#a89a85', marginTop: '8px' }}>Campanhas</div>
+                  <div style={{ fontSize: '32px', fontWeight: 600, color: '#111' }}>{totalCampaigns}</div>
+                  <div style={{ fontSize: '13px', color: '#64748b', marginTop: '8px' }}>Campanhas</div>
                 </div>
               </div>
             </div>

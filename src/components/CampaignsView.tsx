@@ -514,19 +514,25 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
 
   return (
     <>
-      {/* Banner: Salão Principal (largura total, une-se à navbar) */}
+      {/* Banner: Mesa Central (largura total, une-se à navbar) */}
       <header className="salao-hero">
         <div className="salao-hero__inner">
-          <h1 className="salao-hero__title">
+          <h1 className="salao-hero__title" aria-label="Mesa Central">
             <span className="salao-hero__line salao-hero__line--a">
               <span className="salao-hero__mask">
-                <span className="salao-hero__word">Salão</span>
+                <span className="salao-hero__word">Mesa</span>
               </span>
             </span>
             <span className="salao-hero__line salao-hero__line--b">
               <span className="salao-hero__mask">
-                <span className="salao-hero__word">Principal</span>
+                <span className="salao-hero__word">Central</span>
               </span>
+            </span>
+            <span className="salao-hero__note salao-hero__note--top">
+              Salas de campanha, jogadores e fichas de personagens.
+            </span>
+            <span className="salao-hero__note salao-hero__note--bottom">
+              Compartilhe crônicas e conduza jornadas épicas sob a luz da taverna.
             </span>
           </h1>
         </div>
@@ -696,7 +702,7 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                   <button
                     onClick={() => handleOpenEditRoom(activeCampaign)}
                     className="btn-tavern btn-secondary"
-                    style={{ padding: '8px 14px', fontSize: '11px', backdropFilter: 'blur(8px)', backgroundColor: 'rgba(236, 226, 204, 0.85)' }}
+                    style={{ padding: '8px 14px', fontSize: '11px', backdropFilter: 'blur(8px)', backgroundColor: 'rgba(28, 22, 16, 0.85)' }}
                     title="Editar Nome, Descrição e Banner da Campanha (Privilégio do Mestre)"
                   >
                     <Edit3 size={14} />
@@ -834,7 +840,7 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                   fontSize: '13px',
                   padding: '8px 18px',
                   borderColor: 'var(--amber-torch)',
-                  color: '#5a2a08',
+                  color: '#fbbf24',
                   backgroundColor: 'rgba(146, 64, 14, 0.25)',
                   gap: '8px'
                 }}
@@ -842,7 +848,7 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
               >
                 <Scroll size={16} color="var(--amber-torch)" />
                 <span>Mesa de Pergaminhos</span>
-                <span className="wax-badge" style={{ backgroundColor: '#78350f', color: '#92400e', fontSize: '9px', padding: '2px 5px' }}>
+                <span className="wax-badge" style={{ backgroundColor: 'rgba(245, 158, 11, 0.25)', color: '#fbbf24', fontSize: '9px', padding: '2px 5px' }}>
                   Mestre
                 </span>
               </button>
@@ -1058,7 +1064,7 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
                         <div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                            <span className="wax-badge" style={{ backgroundColor: '#e6dac0', color: '#5a2a08', fontSize: '9px' }}>
+                            <span className="wax-badge" style={{ backgroundColor: 'rgba(245, 236, 220, 0.1)', color: 'var(--amber-glow)', fontSize: '9px' }}>
                               {entry.category.toUpperCase()}
                             </span>
                             <h4 style={{ fontSize: '17px', fontWeight: 800, margin: 0 }}>
@@ -1617,38 +1623,38 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
       {/* MODAL: VISUALIZADOR DE PDF / DOCUMENTO */}
       {viewingRuleDoc && (
         <div className="tavern-modal-backdrop" onClick={() => setViewingRuleDoc(null)}>
-          <div className="tavern-modal-content wood-panel wood-panel-glow" onClick={e => e.stopPropagation()} style={{ maxWidth: '750px', padding: '0' }}>
-            <div style={{ padding: '16px 20px', background: '#efe6d2', borderBottom: '2px solid var(--amber-deep)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="tavern-modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '750px', padding: '0', backgroundColor: '#ffffff', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e2e8f0', color: '#111' }}>
+            <div style={{ padding: '16px 20px', background: '#ffffff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <FileText size={20} color="var(--amber-deep)" />
-                <h4 style={{ margin: 0, color: '#5a2a08', fontSize: '16px' }}>{viewingRuleDoc.title}</h4>
+                <FileText size={20} color="#111" />
+                <h4 style={{ margin: 0, color: '#111', fontSize: '16px', fontWeight: 700 }}>{viewingRuleDoc.title}</h4>
               </div>
-              <button onClick={() => setViewingRuleDoc(null)} style={{ background: 'none', border: 'none', color: 'var(--text-strong)', cursor: 'pointer' }}>
+              <button onClick={() => setViewingRuleDoc(null)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px' }}>
                 <X size={18} />
               </button>
             </div>
 
-            <div style={{ padding: '20px', backgroundColor: 'var(--surface-raised)', color: 'var(--text-strong)', minHeight: '350px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--line-soft)', paddingBottom: '8px', marginBottom: '14px' }}>
-                <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--amber-deep)' }}>
+            <div style={{ padding: '20px', backgroundColor: '#ffffff', color: '#111', minHeight: '350px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px', marginBottom: '14px' }}>
+                <span style={{ fontSize: '12px', fontWeight: 700, color: '#111' }}>
                   Visualizador de Documento • Página 1 de {viewingRuleDoc.pageCount || 1}
                 </span>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                <span style={{ fontSize: '11px', color: '#64748b' }}>
                   Tamanho: {viewingRuleDoc.fileSize || '1.2 MB'}
                 </span>
               </div>
 
-              <div className="font-lore" style={{ fontSize: '16px', lineHeight: 1.7, whiteSpace: 'pre-line' }}>
+              <div className="font-lore" style={{ fontSize: '15px', lineHeight: 1.7, whiteSpace: 'pre-line', color: '#334155' }}>
                 {viewingRuleDoc.contentSnippet || viewingRuleDoc.description}
               </div>
             </div>
 
-            <div style={{ padding: '12px 20px', background: '#efe6d2', borderTop: '1px solid var(--wood-border)', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-              <button onClick={() => alert('Download do arquivo de regras iniciado!')} className="btn-tavern btn-primary" style={{ padding: '6px 14px', fontSize: '11px' }}>
+            <div style={{ padding: '14px 20px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              <button onClick={() => alert('Download do arquivo de regras iniciado!')} style={{ backgroundColor: '#111', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <Download size={14} />
                 Baixar PDF Completo
               </button>
-              <button onClick={() => setViewingRuleDoc(null)} className="btn-tavern btn-secondary" style={{ padding: '6px 14px', fontSize: '11px' }}>
+              <button onClick={() => setViewingRuleDoc(null)} style={{ backgroundColor: '#fff', color: '#475569', border: '1px solid #e2e8f0', padding: '8px 16px', borderRadius: '6px', fontSize: '12px', fontWeight: 500, cursor: 'pointer' }}>
                 Fechar
               </button>
             </div>

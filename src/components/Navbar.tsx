@@ -36,11 +36,11 @@ export const Navbar: React.FC<NavbarProps> = ({
   const isSuperAdmin = currentUser?.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
   const isApproved = currentUser?.status === 'APPROVED';
 
-  // Cores adaptadas ao fundo: banner marrom escuro (texto creme) ou página creme (texto preto)
-  const fg = bannerMode ? '#f5ecdc' : '#15100b';
-  const fgMuted = bannerMode ? '#a89a85' : '#7c6d58';
-  const line = bannerMode ? 'rgba(245,236,220,0.18)' : 'rgba(60,36,18,0.18)';
-  const hoverBg = bannerMode ? 'rgba(245,236,220,0.1)' : 'rgba(60,36,18,0.08)';
+  // Cores da barra de navegação no fundo preto contínuo (texto marfim, acentos dourados)
+  const fg = '#f5ecdc';
+  const fgMuted = '#a89a85';
+  const line = 'rgba(245,236,220,0.18)';
+  const hoverBg = 'rgba(245,236,220,0.1)';
 
   // Menu "perfil" (dropdown com dados da conta, trocar senha e sair)
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -96,8 +96,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   const EASE_IN_OUT = 'cubic-bezier(0.65, 0, 0.35, 1)';
   const EASE_SMOOTH = 'cubic-bezier(0.66, 0, 0.34, 1)';
 
-  // Cor de fundo da barra (a cor dos itens recolhidos fica na camada de blend, em branco)
-  const barBg = bannerMode ? '#000000' : '#F4EDDD';
+  // Cor de fundo da barra: preto contínuo que se funde perfeitamente com a página
+  const barBg = '#000000';
 
   // Estilo único dos itens de texto da barra (abas, área administrativa e perfil)
   const navTextStyle = (isActive: boolean): React.CSSProperties => ({
@@ -291,7 +291,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   top: 'calc(100% + 18px)',
                   right: 0,
                   width: '248px',
-                  backgroundColor: bannerMode ? '#111111' : '#F4EDDD',
+                  backgroundColor: '#111111',
                   border: `1px solid ${line}`,
                   borderRadius: '10px',
                   boxShadow: '0 18px 40px -12px rgba(30, 16, 8, 0.45)',
@@ -318,7 +318,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <button
                   role="menuitem"
                   onClick={() => { setIsProfileOpen(false); onLogout(); }}
-                  style={{ ...menuItemStyle, color: bannerMode ? '#fca5a5' : '#b91c1c' }}
+                  style={{ ...menuItemStyle, color: '#fca5a5' }}
                   onMouseEnter={(e) => e.currentTarget.style.background = hoverBg}
                   onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                 >

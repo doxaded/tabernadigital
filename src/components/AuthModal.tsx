@@ -95,7 +95,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     borderBottom: '1px solid #e5e7eb',
     padding: '12px 0',
     fontSize: '15px',
-    color: '#f5ecdc',
+    color: '#111',
     backgroundColor: 'transparent',
     outline: 'none',
     marginBottom: '24px',
@@ -106,7 +106,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     display: 'block',
     fontSize: '11px',
     fontWeight: 600,
-    color: 'var(--text-soft)',
+    color: '#9ca3af',
     textTransform: 'uppercase' as const,
     letterSpacing: '0.05em',
     marginBottom: '4px'
@@ -120,7 +120,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: 'rgba(60, 36, 18, 0.08)',
+      backgroundColor: 'rgba(0, 0, 0, 0.6)',
       backdropFilter: 'blur(4px)',
       padding: '20px'
     }} onClick={onClose}>
@@ -132,22 +132,24 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         height: 'auto',
         minHeight: '600px',
         maxHeight: '90vh',
-        backgroundColor: '#14100c',
+        backgroundColor: '#ffffff',
         borderRadius: '16px',
         overflow: 'hidden',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
         fontFamily: '"Inter", sans-serif'
       }} onClick={e => e.stopPropagation()}>
         {/* LEFT SIDE */}
         <div style={{
           flex: 1,
-          backgroundColor: '#14100c',
+          backgroundColor: '#ffffff',
           padding: '40px',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          position: 'relative'
+          position: 'relative',
+          borderRight: window.innerWidth < 768 ? 'none' : '1px solid #f1f5f9',
+          borderBottom: window.innerWidth < 768 ? '1px solid #f1f5f9' : 'none'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
             <img 
@@ -157,8 +159,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 width: 'clamp(280px, 35vw, 450px)',
                 height: 'auto',
                 objectFit: 'contain',
-                filter: 'invert(1)',
-                mixBlendMode: 'screen'
+                mixBlendMode: 'multiply'
               }}
             />
           </div>
@@ -167,7 +168,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         {/* RIGHT SIDE */}
         <div style={{
           flex: window.innerWidth < 768 ? 'auto' : 1.2,
-          backgroundColor: '#14100c',
+          backgroundColor: '#ffffff',
           padding: '40px 60px',
           display: 'flex',
           flexDirection: 'column',
@@ -177,20 +178,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         }}>
           <button 
             onClick={onClose} 
-            style={{ position: 'absolute', top: '24px', right: '24px', background: 'none', border: 'none', cursor: 'pointer', color: '#f5ecdc' }}
+            style={{ position: 'absolute', top: '24px', right: '24px', background: 'none', border: 'none', cursor: 'pointer', color: '#111' }}
           >
             <X size={24} />
           </button>
 
           <div style={{ maxWidth: '400px', width: '100%', margin: '0 auto' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: 700, color: '#f5ecdc', marginBottom: '32px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 700, color: '#111', marginBottom: '32px' }}>
             {isResetMode ? 'Reset password' : isRegister ? 'Register with your e-mail' : 'Log in'}
           </h2>
 
           {/* Active Session Notice & Disconnect Button */}
           {currentUser && (
             <div style={{
-              backgroundColor: '#1d1813',
+              backgroundColor: '#f8fafc',
               border: '1px solid #e2e8f0',
               borderRadius: '8px',
               padding: '16px',
@@ -201,9 +202,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               gap: '12px'
             }}>
               <div>
-                <div style={{ fontSize: '11px', color: '#a89a85' }}>Currently logged in as:</div>
-                <div style={{ fontWeight: 600, color: '#f5ecdc', fontSize: '13px' }}>
-                  {currentUser.displayName} <span style={{ fontWeight: 400, color: '#c9bba3' }}>({currentUser.email})</span>
+                <div style={{ fontSize: '11px', color: '#64748b' }}>Currently logged in as:</div>
+                <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '13px' }}>
+                  {currentUser.displayName} <span style={{ fontWeight: 400, color: '#475569' }}>({currentUser.email})</span>
                 </div>
               </div>
               {onLogout && (
@@ -294,8 +295,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               type="submit"
               disabled={isLoading}
               style={{
-                backgroundColor: '#efe6d2',
-                color: '#14100c',
+                backgroundColor: '#1a1a1a',
+                color: '#ffffff',
                 border: 'none',
                 borderRadius: '6px',
                 padding: '16px',
@@ -309,8 +310,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 width: '100%',
                 transition: 'background-color 0.2s'
               }}
-              onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f4eddd'}
-              onMouseLeave={e => e.currentTarget.style.backgroundColor = '#efe6d2'}
+              onMouseEnter={e => e.currentTarget.style.backgroundColor = '#000000'}
+              onMouseLeave={e => e.currentTarget.style.backgroundColor = '#1a1a1a'}
             >
               {isLoading ? (
                 <><RefreshCw size={18} className="spin" /> Processing...</>
@@ -331,7 +332,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   style={{
                     background: 'none',
                     border: 'none',
-                    color: '#f5ecdc',
+                    color: '#111',
                     fontSize: '11px',
                     fontWeight: 700,
                     cursor: 'pointer',
@@ -352,7 +353,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   style={{
                     background: 'none',
                     border: 'none',
-                    color: '#f5ecdc',
+                    color: '#111',
                     fontSize: '12px',
                     fontWeight: 600,
                     cursor: 'pointer',
@@ -370,7 +371,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <button 
                   type="button"
                   onClick={() => { setIsRegister(!isRegister); setIsResetMode(false); setErrorMsg(''); setSuccessMsg(''); }}
-                  style={{ background: 'none', border: 'none', fontWeight: 700, color: '#f5ecdc', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                  style={{ background: 'none', border: 'none', fontWeight: 700, color: '#111', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
                 >
                   {isRegister ? "Log in now" : "Register now"}
                 </button>

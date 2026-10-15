@@ -73,20 +73,28 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   return (
     <div className="tavern-modal-backdrop" onClick={onClose}>
       <div 
-        className="tavern-modal-content surface-card" 
         onClick={e => e.stopPropagation()}
-        style={{ padding: '28px', maxWidth: '480px' }}
+        style={{ 
+          padding: '32px', 
+          maxWidth: '480px',
+          width: '100%',
+          backgroundColor: '#ffffff',
+          borderRadius: '16px',
+          border: '1px solid #e2e8f0',
+          boxShadow: '0 20px 40px -12px rgba(0,0,0,0.2)',
+          color: '#111'
+        }}
       >
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '14px' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <KeyRound size={22} color="var(--amber-deep)" />
-              <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0 }}>
+              <KeyRound size={22} color="#111" />
+              <h2 style={{ fontSize: '20px', fontWeight: 700, margin: 0, color: '#111' }}>
                 {isMasterUser ? 'Trocar Senha do Mestre' : 'Alterar Palavra Secreta'}
               </h2>
             </div>
-            <p style={{ fontSize: '12px', color: 'var(--text-soft)', marginTop: '4px' }}>
+            <p style={{ fontSize: '13px', color: '#64748b', marginTop: '4px', margin: '4px 0 0 0' }}>
               Atualize sua senha de acesso para proteger sua conta na Taberna Digital.
             </p>
           </div>
@@ -96,7 +104,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              color: 'var(--text-soft)',
+              color: '#64748b',
               padding: '4px'
             }}
           >
@@ -107,32 +115,32 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
         {/* Master User Context Alert */}
         {isMasterUser ? (
           <div style={{
-            backgroundColor: 'rgba(245, 158, 11, 0.15)',
+            backgroundColor: '#fef3c7',
             borderLeft: '4px solid #f59e0b',
             padding: '10px 14px',
-            borderRadius: '4px',
+            borderRadius: '6px',
             fontSize: '12px',
-            color: 'var(--text-strong)',
+            color: '#78350f',
             marginBottom: '16px',
             lineHeight: 1.5
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, color: 'var(--amber-deep)' }}>
-              <Crown size={15} color="#f59e0b" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, color: '#92400e', marginBottom: '2px' }}>
+              <Crown size={15} color="#d97706" />
               Credenciais do Usuário Master ({currentUser.email})
             </div>
             A senha mestre inicial padrão da estalagem é: 
-            <code style={{ marginLeft: '4px', backgroundColor: 'rgba(60, 36, 18, 0.08)', padding: '1px 6px', borderRadius: '3px', fontWeight: 700, color: '#92400e' }}>
+            <code style={{ marginLeft: '4px', backgroundColor: '#fde68a', padding: '1px 6px', borderRadius: '4px', fontWeight: 700, color: '#92400e' }}>
               {DEFAULT_MASTER_PASSWORD}
             </code>
           </div>
         ) : (
           <div style={{
-            backgroundColor: 'rgba(217, 119, 6, 0.1)',
-            borderLeft: '4px solid var(--amber-torch)',
-            padding: '8px 12px',
-            borderRadius: '4px',
+            backgroundColor: '#f1f5f9',
+            borderLeft: '4px solid #64748b',
+            padding: '10px 14px',
+            borderRadius: '6px',
             fontSize: '12px',
-            color: 'var(--text-strong)',
+            color: '#334155',
             marginBottom: '16px'
           }}>
             Usuário atual: <strong>{currentUser.email}</strong>
@@ -145,15 +153,15 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
             backgroundColor: '#fee2e2',
             border: '1px solid #ef4444',
             color: '#991b1b',
-            padding: '8px 12px',
-            borderRadius: '4px',
-            fontSize: '12px',
+            padding: '10px 14px',
+            borderRadius: '6px',
+            fontSize: '13px',
             display: 'flex',
             alignItems: 'center',
-            gap: '6px',
-            marginBottom: '14px'
+            gap: '8px',
+            marginBottom: '16px'
           }}>
-            <AlertTriangle size={15} />
+            <AlertTriangle size={16} />
             {errorMsg}
           </div>
         )}
@@ -164,13 +172,13 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
             backgroundColor: '#ecfdf5',
             border: '1px solid #10b981',
             color: '#065f46',
-            padding: '10px 12px',
-            borderRadius: '4px',
-            fontSize: '12px',
+            padding: '10px 14px',
+            borderRadius: '6px',
+            fontSize: '13px',
             display: 'flex',
             alignItems: 'center',
-            gap: '6px',
-            marginBottom: '14px'
+            gap: '8px',
+            marginBottom: '16px'
           }}>
             <CheckCircle2 size={16} />
             {successMsg}
@@ -178,67 +186,107 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
         )}
 
         {/* Change Password Form */}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--text-strong)', marginBottom: '4px' }}>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
               Palavra Secreta Atual:
             </label>
             <div style={{ position: 'relative' }}>
-              <Lock size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
+              <Lock size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '12px' }} />
               <input
                 type="password"
                 required
                 value={currentPassword}
                 onChange={e => setCurrentPassword(e.target.value)}
                 placeholder="Informe sua senha atual"
-                className="tavern-input"
-                style={{ paddingLeft: '36px' }}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px 10px 36px',
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '6px',
+                  color: '#111',
+                  fontSize: '14px',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
               />
             </div>
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--text-strong)', marginBottom: '4px' }}>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
               Nova Palavra Secreta:
             </label>
             <div style={{ position: 'relative' }}>
-              <Lock size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
+              <Lock size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '12px' }} />
               <input
                 type="password"
                 required
                 value={newPassword}
                 onChange={e => setNewPassword(e.target.value)}
                 placeholder="Mínimo 6 caracteres"
-                className="tavern-input"
-                style={{ paddingLeft: '36px' }}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px 10px 36px',
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '6px',
+                  color: '#111',
+                  fontSize: '14px',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
               />
             </div>
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'var(--text-strong)', marginBottom: '4px' }}>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
               Confirmar Nova Palavra Secreta:
             </label>
             <div style={{ position: 'relative' }}>
-              <Lock size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '12px' }} />
+              <Lock size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '12px' }} />
               <input
                 type="password"
                 required
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
                 placeholder="Repita a nova palavra secreta"
-                className="tavern-input"
-                style={{ paddingLeft: '36px' }}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px 10px 36px',
+                  backgroundColor: '#ffffff',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '6px',
+                  color: '#111',
+                  fontSize: '14px',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
               />
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
+          <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
             <button
               type="submit"
               disabled={isLoading}
-              className="btn-tavern btn-primary"
-              style={{ flex: 1 }}
+              style={{
+                flex: 1,
+                backgroundColor: '#111',
+                color: '#fff',
+                border: 'none',
+                padding: '11px 16px',
+                borderRadius: '8px',
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
             >
               {isLoading ? (
                 <>
@@ -256,7 +304,16 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="btn-tavern btn-secondary"
+              style={{
+                backgroundColor: '#fff',
+                color: '#475569',
+                border: '1px solid #e2e8f0',
+                padding: '11px 16px',
+                borderRadius: '8px',
+                fontSize: '13px',
+                fontWeight: 500,
+                cursor: 'pointer'
+              }}
             >
               Fechar
             </button>

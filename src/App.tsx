@@ -302,7 +302,7 @@ export function App() {
             onLogout={handleLogout}
             pendingCount={pendingCount}
             bannerMode={
-              (activeTab === 'campaigns' || activeTab === 'sketch') &&
+              (activeTab === 'campaigns' || activeTab === 'sketch' || activeTab === 'urd') &&
               !masterScreenCampaignId &&
               currentUser?.status === 'APPROVED'
             }
