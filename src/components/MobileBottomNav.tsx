@@ -42,7 +42,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         }}
       >
         <BookOpen size={20} />
-        <span>Mesa Central</span>
+        <span>Salão Comunal</span>
       </button>
 
       <button
@@ -63,7 +63,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         }}
       >
         <Sparkles size={20} />
-        <span>Galeria</span>
+        <span>Telas do Alaúde</span>
       </button>
 
       <button

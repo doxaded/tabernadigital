@@ -17,8 +17,8 @@ interface NavbarProps {
 }
 
 const NAV_ITEMS: { id: 'campaigns' | 'sketch' | 'urd'; label: string }[] = [
-  { id: 'campaigns', label: 'mesa central' },
-  { id: 'sketch', label: 'galeria do bardo' },
+  { id: 'campaigns', label: 'salão comunal' },
+  { id: 'sketch', label: 'telas do alaúde' },
   { id: 'urd', label: 'taberneiro' },
 ];
 

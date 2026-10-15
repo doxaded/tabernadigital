@@ -293,25 +293,19 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
 
   return (
     <>
-      {/* Banner: Galeria do Bardo (mesmo efeito de aparição do Salão Principal) */}
+      {/* Banner: Telas do Alaúde */}
       <header className="salao-hero salao-hero--bardo">
         <div className="salao-hero__inner">
-          <h1 className="salao-hero__title" aria-label="Galeria do Bardo">
+          <h1 className="salao-hero__title" aria-label="Telas do Alaúde">
             <span className="salao-hero__line salao-hero__line--a">
               <span className="salao-hero__mask">
-                <span className="salao-hero__word">Galeria</span>
+                <span className="salao-hero__word">Telas</span>
               </span>
             </span>
             <span className="salao-hero__line salao-hero__line--b">
               <span className="salao-hero__mask">
-                <span className="salao-hero__word">do Bardo</span>
+                <span className="salao-hero__word">do Alaúde</span>
               </span>
-            </span>
-            <span className="salao-hero__note salao-hero__note--top">
-              Descreva o que imagina e o bardo risca no pergaminho.
-            </span>
-            <span className="salao-hero__note salao-hero__note--bottom">
-              Grafite, nanquim e uma pitada de música.
             </span>
           </h1>
         </div>

@@ -94,10 +94,10 @@ export const UrdChatView: React.FC<UrdChatViewProps> = ({
 
   return (
     <>
-      {/* Banner: Urd, o Taberneiro (mesmo formato e efeito do Salão Principal e Galeria do Bardo) */}
+      {/* Banner: Urd, o Taberneiro */}
       <header className="salao-hero salao-hero--urd">
         <div className="salao-hero__inner">
-          <h1 className="salao-hero__title" aria-label="Urd o Taberneiro">
+          <h1 className="salao-hero__title" aria-label="Urd, o Taberneiro">
             <span className="salao-hero__line salao-hero__line--a">
               <span className="salao-hero__mask">
                 <span className="salao-hero__word">Urd</span>
@@ -107,12 +107,6 @@ export const UrdChatView: React.FC<UrdChatViewProps> = ({
               <span className="salao-hero__mask">
                 <span className="salao-hero__word">o Taberneiro</span>
               </span>
-            </span>
-            <span className="salao-hero__note salao-hero__note--top">
-              Cerveja fresca, conselhos práticos e segredos da taverna.
-            </span>
-            <span className="salao-hero__note salao-hero__note--bottom">
-              Histórias e ganchos que nenhum bardo ousa cantar.
             </span>
           </h1>
         </div>

@@ -514,25 +514,19 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
 
   return (
     <>
-      {/* Banner: Mesa Central (harmônico com Galeria do Bardo e Taberneiro) */}
+      {/* Banner: Salão Comunal */}
       <header className="salao-hero salao-hero--mesa">
         <div className="salao-hero__inner">
-          <h1 className="salao-hero__title" aria-label="Mesa Central">
+          <h1 className="salao-hero__title" aria-label="Salão Comunal">
             <span className="salao-hero__line salao-hero__line--a">
               <span className="salao-hero__mask">
-                <span className="salao-hero__word">Mesa</span>
+                <span className="salao-hero__word">Salão</span>
               </span>
             </span>
             <span className="salao-hero__line salao-hero__line--b">
               <span className="salao-hero__mask">
-                <span className="salao-hero__word">Central</span>
+                <span className="salao-hero__word">Comunal</span>
               </span>
-            </span>
-            <span className="salao-hero__note salao-hero__note--top">
-              Salas de campanha, jogadores e fichas de personagens.
-            </span>
-            <span className="salao-hero__note salao-hero__note--bottom">
-              Compartilhe crônicas e conduza jornadas épicas sob a luz da taverna.
             </span>
           </h1>
         </div>

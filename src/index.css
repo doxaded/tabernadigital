@@ -909,14 +909,14 @@ h1, h2, h3, h4, .font-cinzel {
 .salao-hero {
   position: relative;
   width: 100%;
-  /* Banner abre praticamente pela metade da tela (~50vh), idêntico aos outros módulos */
-  min-height: clamp(320px, 50vh, 520px);
-  min-height: clamp(320px, 50dvh, 520px);
+  /* Padrão de altura em 70% da tela */
+  min-height: 70vh;
+  min-height: 70dvh;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: #000000;
-  padding: clamp(20px, 3.5vw, 44px) 0;
+  padding: clamp(24px, 4vw, 56px) 0;
   margin-bottom: 0;
 }
 
@@ -1343,13 +1343,9 @@ h1, h2, h3, h4, .font-cinzel {
 @media (max-width: 720px) {
   .salao-hero__title { grid-template-columns: 1fr; }
   .salao-hero__line--a,
-  .salao-hero__line--b,
-  .salao-hero__note--top,
-  .salao-hero__note--bottom { grid-column: 1; padding-left: 0; padding-right: 0; }
+  .salao-hero__line--b { grid-column: 1; padding-left: 0; padding-right: 0; }
   .salao-hero__line--a { grid-row: 1; justify-content: flex-start; }
-  .salao-hero__note--top { grid-row: 2; }
-  .salao-hero__line--b { grid-row: 3; justify-content: flex-end; }
-  .salao-hero__note--bottom { grid-row: 4; align-self: start; }
+  .salao-hero__line--b { grid-row: 2; justify-content: flex-end; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1358,19 +1354,15 @@ h1, h2, h3, h4, .font-cinzel {
 }
 
 /* ==========================================================================
-   GALERIA DO BARDO — chat com o bardo + parede de pergaminhos
+   TELAS DO ALAÚDE & TABERNEIRO — layouts harmônicos em fundo preto
    ========================================================================== */
 
-/* ==========================================================================
-   GALERIA DO BARDO & TABERNEIRO — layouts harmônicos em fundo preto
-   ========================================================================== */
-
-/* Heros padronizados com altura pela metade (~50vh) em todos os módulos */
+/* Heros padronizados com altura de 70% em todos os módulos */
 .salao-hero--mesa,
 .salao-hero--bardo,
 .salao-hero--urd {
-  min-height: clamp(320px, 50vh, 520px);
-  min-height: clamp(320px, 50dvh, 520px);
+  min-height: 70vh;
+  min-height: 70dvh;
 }
 
 .bardo,
