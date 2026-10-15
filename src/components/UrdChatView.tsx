@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, Beer, Sparkles, BookOpen, Copy, Check, RotateCcw } from 'lucide-react';
 import { Campaign, UrdMessage } from '../types';
 import { aiService } from '../services/aiService';
+import { HeroAtmosphere } from './HeroAtmosphere';
 
 interface UrdChatViewProps {
   messages: UrdMessage[];
@@ -96,6 +97,7 @@ export const UrdChatView: React.FC<UrdChatViewProps> = ({
     <>
       {/* Banner: Urd, o Taberneiro */}
       <header className="salao-hero salao-hero--urd">
+        <HeroAtmosphere variant="urd" />
         <div className="salao-hero__inner">
           <h1 className="salao-hero__title" aria-label="Urd, o Taberneiro">
             <span className="salao-hero__line salao-hero__line--a">

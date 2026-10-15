@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Download, Feather, Maximize2, PenLine, Send, Trash2, X } from 'lucide-react';
 import { Campaign, SketchAsset, SketchCostEstimate } from '../types';
 import { aiService } from '../services/aiService';
+import { HeroAtmosphere } from './HeroAtmosphere';
 
 const MAX_SKETCHES = 10;
 
@@ -295,6 +296,7 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
     <>
       {/* Banner: Telas do Alaúde */}
       <header className="salao-hero salao-hero--bardo">
+        <HeroAtmosphere variant="alaude" />
         <div className="salao-hero__inner">
           <h1 className="salao-hero__title" aria-label="Telas do Alaúde">
             <span className="salao-hero__line salao-hero__line--a">

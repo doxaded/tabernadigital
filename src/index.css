@@ -918,19 +918,25 @@ h1, h2, h3, h4, .font-cinzel {
   background-color: #000000;
   padding: clamp(24px, 4vw, 56px) 0;
   margin-bottom: 0;
+  overflow: hidden;
 }
 
 .salao-hero__inner {
+  position: relative;
+  z-index: 10;
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
   padding: 0 var(--edge);
+  pointer-events: none;
 }
 
 /* Título em duas palavras escalonadas (como a referência): "Salão" no alto à esquerda e
    "Principal" abaixo à direita, deixando dois vãos livres para frases miúdas —
    um acima à direita (.salao-hero__note--top) e outro abaixo à esquerda (.salao-hero__note--bottom). */
 .salao-hero__title {
+  position: relative;
+  pointer-events: auto;
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   grid-template-rows: auto auto;
@@ -2504,4 +2510,411 @@ h1, h2, h3, h4, .font-cinzel {
     height: 280px;
   }
 }
+
+/* ==========================================================================
+   HERO ATMOSPHERE — Elementos de fundo escuro, borrados e luminárias
+   ========================================================================== */
+
+.hero-atmosphere {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+  background-color: #000000;
+}
+
+.hero-atmosphere__vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Silhuetas Arquitetônicas da Taverna (distantes e muito borradas) */
+.hero-atmosphere__silhouettes {
+  position: absolute;
+  inset: -20px;
+  pointer-events: none;
+  z-index: 2;
+  filter: blur(16px);
+  opacity: 0.55;
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform;
+}
+
+.hero-atmosphere__svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Partículas e Poeira / Bokeh */
+.hero-atmosphere__dust {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.hero-dust {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(4px);
+  opacity: 0.25;
+  animation: heroDustDrift 14s infinite ease-in-out;
+}
+.hero-dust--1 { width: 5px; height: 5px; top: 25%; left: 18%; animation-duration: 16s; animation-delay: 0s; }
+.hero-dust--2 { width: 4px; height: 4px; top: 55%; left: 32%; animation-duration: 20s; animation-delay: 3s; }
+.hero-dust--3 { width: 6px; height: 6px; top: 38%; right: 22%; animation-duration: 18s; animation-delay: 1.5s; }
+.hero-dust--4 { width: 4px; height: 4px; top: 70%; right: 38%; animation-duration: 22s; animation-delay: 5s; }
+.hero-dust--5 { width: 5px; height: 5px; top: 15%; right: 12%; animation-duration: 15s; animation-delay: 4s; }
+
+@keyframes heroDustDrift {
+  0%, 100% { transform: translate(0, 0); opacity: 0.15; }
+  50% { transform: translate(15px, -25px); opacity: 0.35; }
+}
+
+/* Camada das Luminárias */
+.hero-atmosphere__lanterns-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform;
+}
+
+/* ==========================================================================
+   LUMINÁRIAS & VELAS INTERATIVAS (Borradas e Fracas)
+   ========================================================================== */
+
+.hero-lantern {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  transition: filter 0.3s ease, transform 0.3s ease;
+}
+
+/* LUMINÁRIA 1: Esquerda Superior (Hanging Iron Cage) */
+.hero-lantern--left {
+  top: 14%;
+  left: clamp(20px, 6vw, 90px);
+  filter: blur(6px);
+  transform: scale(0.9);
+}
+.hero-lantern--left:hover,
+.hero-lantern--left:focus-visible {
+  filter: blur(4px);
+  transform: scale(0.95);
+}
+
+/* LUMINÁRIA 2: Direita Média (Wall Sconce / Arandela) */
+.hero-lantern--right {
+  top: 52%;
+  right: clamp(24px, 7vw, 110px);
+  filter: blur(8px);
+  transform: scale(0.85);
+}
+.hero-lantern--right:hover,
+.hero-lantern--right:focus-visible {
+  filter: blur(5px);
+  transform: scale(0.9);
+}
+
+/* LUMINÁRIA 3: Distante ao Fundo (Muito Borrada e Fraca) */
+.hero-lantern--distant {
+  top: 22%;
+  right: 30%;
+  filter: blur(12px);
+  opacity: 0.45;
+  transform: scale(0.65);
+}
+.hero-lantern--distant:hover {
+  filter: blur(8px);
+  opacity: 0.7;
+}
+
+/* Estrutura de Ferro / Gaiola da Luminária */
+.hero-lantern__chain {
+  width: 2px;
+  height: 48px;
+  background: linear-gradient(to bottom, rgba(245, 236, 220, 0.05), rgba(245, 236, 220, 0.25));
+  margin-bottom: -2px;
+}
+.hero-lantern__chain--short {
+  height: 24px;
+}
+
+.hero-lantern__sconce-arm {
+  position: absolute;
+  top: -15px;
+  right: -25px;
+  width: 35px;
+  height: 25px;
+  border-bottom: 2px solid rgba(245, 236, 220, 0.2);
+  border-left: 2px solid rgba(245, 236, 220, 0.2);
+  border-bottom-left-radius: 12px;
+  pointer-events: none;
+}
+
+.hero-lantern__cage {
+  position: relative;
+  width: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.hero-lantern__cage--round {
+  width: 40px;
+}
+.hero-lantern__cage--tiny {
+  width: 28px;
+}
+
+.hero-lantern__roof {
+  width: 38px;
+  height: 12px;
+  background: #19140f;
+  border: 1px solid rgba(245, 236, 220, 0.2);
+  border-bottom: none;
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+}
+
+.hero-lantern__chamber {
+  position: relative;
+  width: 100%;
+  height: 52px;
+  background: rgba(22, 17, 13, 0.35);
+  border: 1px solid rgba(245, 236, 220, 0.16);
+  border-radius: 3px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 5px;
+  overflow: visible;
+}
+.hero-lantern__cage--tiny .hero-lantern__chamber {
+  height: 34px;
+}
+
+.hero-lantern__base {
+  width: 42px;
+  height: 6px;
+  background: #17120e;
+  border: 1px solid rgba(245, 236, 220, 0.2);
+  border-top: none;
+  border-radius: 0 0 2px 2px;
+}
+
+/* Vela e Cera */
+.hero-lantern__candle-wax {
+  width: 12px;
+  height: 22px;
+  background: linear-gradient(to right, #78644e, #9c8469 45%, #63503d);
+  border-radius: 2px 2px 0 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  z-index: 2;
+}
+.hero-lantern__candle-wax--short {
+  height: 16px;
+  width: 14px;
+}
+.hero-lantern__candle-wax--tiny {
+  height: 11px;
+  width: 9px;
+}
+
+/* Chama da Vela — Fraca, Suave e Borrada */
+.hero-lantern__flame-wrapper {
+  position: absolute;
+  bottom: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+}
+.hero-lantern__flame-wrapper--right {
+  bottom: 19px;
+}
+
+.hero-lantern__flame {
+  width: 10px;
+  height: 18px;
+  background: radial-gradient(ellipse at 50% 80%, #fffbeb 0%, #fcd34d 25%, #f59e0b 60%, #b45309 85%, transparent 100%);
+  border-radius: 50% 50% 35% 35% / 70% 70% 30% 30%;
+  filter: blur(1.5px);
+  opacity: 0.65;
+  animation: heroCandleFlicker 2.8s infinite ease-in-out;
+  transform-origin: 50% 90%;
+}
+.hero-lantern__flame--distant {
+  width: 7px;
+  height: 12px;
+  opacity: 0.5;
+  filter: blur(2.5px);
+}
+
+.hero-lantern.is-flared .hero-lantern__flame {
+  animation: heroCandleFlare 2.2s ease-out;
+  opacity: 0.95;
+  filter: blur(1px);
+}
+
+/* Halo de Luz Ambiente ao Redor da Luminária */
+.hero-lantern__halo {
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.09) 45%, transparent 70%);
+  pointer-events: none;
+  filter: blur(8px);
+  animation: heroHaloPulse 3.4s infinite ease-in-out;
+}
+.hero-lantern__halo--distant {
+  width: 60px;
+  height: 60px;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.14) 0%, transparent 65%);
+  filter: blur(10px);
+}
+
+.hero-lantern:hover .hero-lantern__halo {
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.35) 0%, rgba(217, 119, 6, 0.14) 50%, transparent 72%);
+}
+
+.hero-lantern.is-flared .hero-lantern__halo {
+  width: 130px;
+  height: 130px;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.45) 0%, rgba(217, 119, 6, 0.2) 50%, transparent 75%);
+  filter: blur(10px);
+}
+
+/* Pavio e Fumaça (Vela Apagada) */
+.hero-lantern__wick-smoke {
+  position: absolute;
+  bottom: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.hero-lantern__wick {
+  width: 3px;
+  height: 5px;
+  background: #ef4444;
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.8);
+  filter: blur(1px);
+  animation: heroWickFade 2.5s infinite alternate;
+}
+.hero-lantern__smoke {
+  width: 3px;
+  height: 18px;
+  background: linear-gradient(to top, rgba(160, 160, 160, 0.25), transparent);
+  border-radius: 50%;
+  filter: blur(2px);
+  margin-top: -4px;
+  animation: heroSmokeRise 2s infinite ease-out;
+}
+
+/* Fagulhas / Faíscas Subindo */
+.hero-lantern__embers {
+  position: absolute;
+  bottom: 30px;
+  pointer-events: none;
+}
+.hero-ember {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: #fcd34d;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #f59e0b;
+  filter: blur(1px);
+  animation: heroEmberFly 1.8s forwards ease-out;
+}
+.hero-ember--1 { left: -6px; animation-delay: 0.1s; }
+.hero-ember--2 { left: 4px; animation-delay: 0.25s; }
+.hero-ember--3 { left: -1px; animation-delay: 0.4s; }
+
+@keyframes heroEmberFly {
+  0% { transform: translateY(0) scale(1); opacity: 0.9; }
+  100% { transform: translateY(-40px) translateX(6px) scale(0.2); opacity: 0; }
+}
+
+@keyframes heroCandleFlicker {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.62; }
+  22% { transform: scale(0.96, 1.05) rotate(-1.5deg); opacity: 0.70; }
+  45% { transform: scale(1.04, 0.95) rotate(1deg); opacity: 0.58; }
+  68% { transform: scale(0.98, 1.02) rotate(-0.5deg); opacity: 0.66; }
+  85% { transform: scale(1.02, 0.98) rotate(1.5deg); opacity: 0.60; }
+}
+
+@keyframes heroCandleFlare {
+  0% { transform: scale(1); opacity: 0.7; }
+  25% { transform: scale(1.35) rotate(-2deg); opacity: 1; }
+  60% { transform: scale(1.2) rotate(1.5deg); opacity: 0.85; }
+  100% { transform: scale(1); opacity: 0.65; }
+}
+
+@keyframes heroHaloPulse {
+  0%, 100% { transform: scale(1); opacity: 0.75; }
+  50% { transform: scale(1.08); opacity: 0.95; }
+}
+
+@keyframes heroWickFade {
+  0% { opacity: 0.4; }
+  100% { opacity: 0.9; }
+}
+
+@keyframes heroSmokeRise {
+  0% { transform: translateY(0) scaleX(1); opacity: 0.3; }
+  100% { transform: translateY(-16px) scaleX(1.8); opacity: 0; }
+}
+
+/* Dica / Tooltip da Luminária no Hover */
+.hero-lantern__hint {
+  position: absolute;
+  bottom: -22px;
+  white-space: nowrap;
+  font-size: 10px;
+  font-family: var(--font-body);
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  background: rgba(14, 11, 8, 0.85);
+  border: 1px solid rgba(245, 236, 220, 0.15);
+  padding: 2px 7px;
+  border-radius: 10px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 10;
+}
+.hero-lantern:hover .hero-lantern__hint {
+  opacity: 0.9;
+  transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+  .hero-lantern--distant {
+    display: none;
+  }
+  .hero-lantern--left {
+    left: 12px;
+    transform: scale(0.75);
+  }
+  .hero-lantern--right {
+    right: 14px;
+    transform: scale(0.75);
+  }
+}
+
 

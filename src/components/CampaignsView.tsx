@@ -9,6 +9,7 @@ import { SHEET_IMPORT_ACCEPT, extractCharacterSheetFromFile } from '../services/
 import { MAX_PLAYERS } from '../services/storage';
 import { DefaultStats, getOrderedStats, validateCustomStats } from '../services/sheetStats';
 import { SheetStatsEditor } from './SheetStatsEditor';
+import { HeroAtmosphere } from './HeroAtmosphere';
 
 interface CampaignsViewProps {
   campaigns: Campaign[];
@@ -516,6 +517,7 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
     <>
       {/* Banner: Salão Comunal */}
       <header className="salao-hero salao-hero--mesa">
+        <HeroAtmosphere variant="comunal" />
         <div className="salao-hero__inner">
           <h1 className="salao-hero__title" aria-label="Salão Comunal">
             <span className="salao-hero__line salao-hero__line--a">

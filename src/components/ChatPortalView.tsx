@@ -21,6 +21,7 @@ import {
 import { Campaign, ChatChannel, ChatMessage, ChatScope, UserProfile } from '../types';
 import { chatService } from '../services/chatService';
 import { storageService, ADMIN_EMAIL } from '../services/storage';
+import { HeroAtmosphere } from './HeroAtmosphere';
 
 interface ChatPortalViewProps {
   currentUser: UserProfile | null;
@@ -186,6 +187,7 @@ export const ChatPortalView: React.FC<ChatPortalViewProps> = ({
     <>
       {/* 1. Hero do Portal de Chats (70% da viewport, fundo preto contínuo, sem legendas) */}
       <header className="salao-hero salao-hero--chat">
+        <HeroAtmosphere variant="chat" />
         <div className="salao-hero__inner">
           <h1 className="salao-hero__title" aria-label="Portal de Chats">
             <span className="salao-hero__line salao-hero__line--a">
