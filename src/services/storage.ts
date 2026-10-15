@@ -1,4 +1,4 @@
-import { Campaign, CharacterSheet, LoreEntry, RoomPlayer, RuleDocument, SketchAsset, UrdMessage, UserProfile } from '../types';
+import { Campaign, CharacterSheet, ChatMessage, LoreEntry, RoomPlayer, RuleDocument, SketchAsset, UrdMessage, UserProfile } from '../types';
 
 export const ADMIN_EMAIL = 'henrique.v.berbert@gmail.com';
 export const DEFAULT_MASTER_PASSWORD = 'TabernaMestre2026!';
@@ -32,6 +32,7 @@ const STORAGE_KEYS = {
   SKETCHES: 'taberna_sketches_v1',
   URD_MESSAGES: 'taberna_urd_messages_v1',
   PASSWORDS: 'taberna_passwords_v1',
+  CHATS: 'taberna_chats_v1',
 };
 
 const DEFAULT_PASSWORDS: Record<string, string> = {
@@ -41,7 +42,7 @@ const DEFAULT_PASSWORDS: Record<string, string> = {
   'garrick.bardo@taberna.rpg': '123456',
 };
 
-// Dados padrão iniciais
+// Dados padrão iniciais com perfis personalizados
 const DEFAULT_USERS: UserProfile[] = [
   {
     uid: 'admin-henrique',
@@ -51,6 +52,11 @@ const DEFAULT_USERS: UserProfile[] = [
     status: 'APPROVED',
     createdAt: '2026-10-01T12:00:00Z',
     approvedAt: '2026-10-01T12:00:00Z',
+    title: 'Mestre da Estalagem',
+    favoriteClass: 'Mestre & Mago',
+    customBadgeColor: '#d97706',
+    bio: 'Guardião supremo da Taberna Digital. Conduz sagas épicas e guarda os tomos ancestrais do mundo.',
+    diceTheme: 'Dourado Nobre'
   },
   {
     uid: 'user-thorin',
@@ -61,6 +67,11 @@ const DEFAULT_USERS: UserProfile[] = [
     createdAt: '2026-10-02T10:30:00Z',
     approvedAt: '2026-10-02T11:00:00Z',
     approvedBy: ADMIN_EMAIL,
+    title: 'O Quebra-Machado',
+    favoriteClass: 'Guerreiro / Patrulheiro',
+    customBadgeColor: '#dc2626',
+    bio: 'Veterano das montanhas de ferro. Leal aos seus aliados e devastador em combate próximo.',
+    diceTheme: 'Rubi Forjado'
   },
   {
     uid: 'user-lyanna',
@@ -69,6 +80,11 @@ const DEFAULT_USERS: UserProfile[] = [
     role: 'user',
     status: 'PENDING',
     createdAt: '2026-10-02T20:15:00Z',
+    title: 'A Silenciosa',
+    favoriteClass: 'Ladino / Sombra',
+    customBadgeColor: '#7c3aed',
+    bio: 'Especialista em invasão furtiva e decifração de fechaduras antigas. Nunca deixa pegadas.',
+    diceTheme: 'Ametista Arcana'
   },
   {
     uid: 'user-garrick',
@@ -77,6 +93,11 @@ const DEFAULT_USERS: UserProfile[] = [
     role: 'user',
     status: 'PENDING',
     createdAt: '2026-10-02T21:00:00Z',
+    title: 'O Menestrel Andarilho',
+    favoriteClass: 'Bardo do Conhecimento',
+    customBadgeColor: '#059669',
+    bio: 'Encanta tavernas com canções de heroísmo e segredos sussurrados. Uma caneca cheia sempre garante uma boa história.',
+    diceTheme: 'Esmeralda Silvestre'
   }
 ];
 
@@ -229,19 +250,158 @@ const DEFAULT_URD_MESSAGES: UrdMessage[] = [
   }
 ];
 
+const DEFAULT_CHATS: ChatMessage[] = [
+  {
+    id: 'seed-chat-1',
+    channelId: 'camp_camp-1_public',
+    scope: 'campaign-public',
+    campaignId: 'camp-1',
+    campaignName: 'A Sombra da Floresta Sussurrante',
+    senderUid: 'admin-henrique',
+    senderName: 'Henrique Berbert',
+    senderTitle: 'Mestre da Estalagem',
+    senderBadgeColor: '#d97706',
+    text: 'Saudações, bravos aventureiros! Sejam bem-vindos ao Salão Geral da campanha. Preparem suas magias e equipamentos para a travessia das ruínas élficas.',
+    createdAt: '2026-10-02T14:10:00Z',
+  },
+  {
+    id: 'seed-chat-2',
+    channelId: 'camp_camp-1_public',
+    scope: 'campaign-public',
+    campaignId: 'camp-1',
+    campaignName: 'A Sombra da Floresta Sussurrante',
+    senderUid: 'user-thorin',
+    senderName: 'Thorin Quebra-Machado',
+    senderTitle: 'O Quebra-Machado',
+    senderBadgeColor: '#dc2626',
+    text: 'Meu machado e meu arco estão prontos! Rolei minha iniciativa de prontidão.',
+    createdAt: '2026-10-02T14:15:00Z',
+    diceResult: {
+      expression: '1d20+2',
+      rolls: [16],
+      modifier: 2,
+      total: 18,
+      hasNat20: false,
+      hasNat1: false,
+    },
+  },
+  {
+    id: 'seed-chat-3',
+    channelId: 'camp_camp-1_whisper_admin-henrique_user-thorin',
+    scope: 'campaign-private',
+    campaignId: 'camp-1',
+    campaignName: 'A Sombra da Floresta Sussurrante',
+    senderUid: 'admin-henrique',
+    senderName: 'Henrique Berbert',
+    senderTitle: 'Mestre da Estalagem',
+    senderBadgeColor: '#d97706',
+    recipientUid: 'user-thorin',
+    recipientName: 'Thorin Quebra-Machado',
+    text: '[Sussurro Secreto] Thorin, sob o cabo da adaga de mithral que você resgatou na ponte há marcas de um clã anão desaparecido.',
+    createdAt: '2026-10-02T15:00:00Z',
+  },
+  {
+    id: 'seed-chat-4',
+    channelId: 'camp_camp-1_whisper_admin-henrique_user-thorin',
+    scope: 'campaign-private',
+    campaignId: 'camp-1',
+    campaignName: 'A Sombra da Floresta Sussurrante',
+    senderUid: 'user-thorin',
+    senderName: 'Thorin Quebra-Machado',
+    senderTitle: 'O Quebra-Machado',
+    senderBadgeColor: '#dc2626',
+    recipientUid: 'admin-henrique',
+    recipientName: 'Henrique Berbert',
+    text: 'Entendido, Mestre! Vou examiná-la discretamente na próxima fogueira.',
+    createdAt: '2026-10-02T15:04:00Z',
+  },
+  {
+    id: 'seed-chat-5',
+    channelId: 'dm_admin-henrique_user-thorin',
+    scope: 'direct',
+    senderUid: 'user-thorin',
+    senderName: 'Thorin Quebra-Machado',
+    senderTitle: 'O Quebra-Machado',
+    senderBadgeColor: '#dc2626',
+    recipientUid: 'admin-henrique',
+    recipientName: 'Henrique Berbert',
+    text: 'Olá Henrique! Atualizei a história de fundo do meu personagem com as novas diretrizes.',
+    createdAt: '2026-10-03T10:00:00Z',
+  },
+  {
+    id: 'seed-chat-6',
+    channelId: 'dm_admin-henrique_user-thorin',
+    scope: 'direct',
+    senderUid: 'admin-henrique',
+    senderName: 'Henrique Berbert',
+    senderTitle: 'Mestre da Estalagem',
+    senderBadgeColor: '#d97706',
+    recipientUid: 'user-thorin',
+    recipientName: 'Thorin Quebra-Machado',
+    text: 'Excelente! A personalização do perfil ficou fantástica. Nos vemos na mesa!',
+    createdAt: '2026-10-03T10:12:00Z',
+  },
+];
+
 export const storageService = {
   // Usuários
   getUsers(): UserProfile[] {
     const raw = localStorage.getItem(STORAGE_KEYS.USERS);
+    let users = DEFAULT_USERS;
     if (!raw) {
       localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(DEFAULT_USERS));
       return DEFAULT_USERS;
     }
     try {
-      return JSON.parse(raw);
+      users = JSON.parse(raw);
     } catch {
-      return DEFAULT_USERS;
+      users = DEFAULT_USERS;
     }
+
+    // Garante que campos de personalização existam mesmo se vierem do cache antigo
+    let updated = false;
+    users = users.map(u => {
+      const def = DEFAULT_USERS.find(d => d.uid === u.uid || d.email.toLowerCase() === u.email.toLowerCase());
+      if (def && (!u.title || !u.customBadgeColor || !u.favoriteClass)) {
+        updated = true;
+        return {
+          ...def,
+          ...u,
+          title: u.title || def.title,
+          favoriteClass: u.favoriteClass || def.favoriteClass,
+          customBadgeColor: u.customBadgeColor || def.customBadgeColor,
+          bio: u.bio || def.bio,
+          diceTheme: u.diceTheme || def.diceTheme,
+        };
+      }
+      return u;
+    });
+    if (updated) {
+      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+    }
+    return users;
+  },
+
+  updateUserProfile(uid: string, updates: Partial<UserProfile>): UserProfile | null {
+    const users = this.getUsers();
+    const idx = users.findIndex(u => u.uid === uid);
+    if (idx === -1) return null;
+
+    // Não permite alterar status ou role por este método de perfil
+    const { status: _s, role: _r, ...safeUpdates } = updates;
+    const updatedUser: UserProfile = {
+      ...users[idx],
+      ...safeUpdates,
+    };
+    users[idx] = updatedUser;
+    this.saveUsers(users);
+
+    const current = this.getCurrentUser();
+    if (current && current.uid === uid) {
+      this.setCurrentUser(updatedUser);
+    }
+    window.dispatchEvent(new CustomEvent('taberna-profile-updated', { detail: { user: updatedUser } }));
+    return updatedUser;
   },
 
   saveUsers(users: UserProfile[]) {
@@ -774,5 +934,56 @@ export const storageService = {
 
   clearUrdChat() {
     localStorage.setItem(STORAGE_KEYS.URD_MESSAGES, JSON.stringify(DEFAULT_URD_MESSAGES));
+  },
+
+  // Portal de Chats — Mensagens e Canais
+  getChatMessages(channelId?: string): ChatMessage[] {
+    const raw = localStorage.getItem(STORAGE_KEYS.CHATS);
+    let messages: ChatMessage[] = DEFAULT_CHATS;
+    if (raw) {
+      try {
+        messages = JSON.parse(raw);
+      } catch {
+        messages = DEFAULT_CHATS;
+      }
+    } else {
+      localStorage.setItem(STORAGE_KEYS.CHATS, JSON.stringify(DEFAULT_CHATS));
+    }
+    if (channelId) {
+      return messages.filter(m => m.channelId === channelId);
+    }
+    return messages;
+  },
+
+  saveChatMessage(message: ChatMessage): ChatMessage {
+    const raw = localStorage.getItem(STORAGE_KEYS.CHATS);
+    let messages: ChatMessage[] = [];
+    if (raw) {
+      try {
+        messages = JSON.parse(raw);
+      } catch {
+        messages = [...DEFAULT_CHATS];
+      }
+    } else {
+      messages = [...DEFAULT_CHATS];
+    }
+    messages.push(message);
+    localStorage.setItem(STORAGE_KEYS.CHATS, JSON.stringify(messages));
+    window.dispatchEvent(new CustomEvent('taberna-chat-updated', { detail: { message } }));
+    return message;
+  },
+
+  clearChatMessages(channelId: string) {
+    const raw = localStorage.getItem(STORAGE_KEYS.CHATS);
+    if (!raw) return;
+    try {
+      const messages: ChatMessage[] = JSON.parse(raw);
+      const remaining = messages.filter(m => m.channelId !== channelId);
+      localStorage.setItem(STORAGE_KEYS.CHATS, JSON.stringify(remaining));
+      window.dispatchEvent(new CustomEvent('taberna-chat-updated', { detail: { channelId } }));
+    } catch {
+      // ignore
+    }
   }
 };
+

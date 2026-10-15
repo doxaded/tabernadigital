@@ -11,6 +11,13 @@ export interface UserProfile {
   createdAt: string;
   approvedAt?: string;
   approvedBy?: string;
+  // Personalização de Perfil de Aventureiro
+  bio?: string;
+  title?: string;
+  favoriteClass?: string;
+  customBadgeColor?: string;
+  bannerUrl?: string;
+  diceTheme?: string;
 }
 
 /** Atributo extra criado pelo usuário (sigla de 3 letras maiúsculas). */
@@ -158,3 +165,53 @@ export interface MasterChatMessage {
     hasNat1?: boolean;
   };
 }
+
+// ==========================================
+// PORTAL DE CHATS — MENSAGENS E CANAIS
+// ==========================================
+
+export type ChatScope = 'campaign-public' | 'campaign-private' | 'direct';
+
+export interface ChatDiceResult {
+  expression: string;
+  rolls: number[];
+  modifier: number;
+  total: number;
+  hasNat20?: boolean;
+  hasNat1?: boolean;
+}
+
+export interface ChatMessage {
+  id: string;
+  channelId: string;
+  scope: ChatScope;
+  campaignId?: string;
+  campaignName?: string;
+  senderUid: string;
+  senderName: string;
+  senderEmail?: string;
+  senderTitle?: string;
+  senderBadgeColor?: string;
+  senderAvatarUrl?: string;
+  recipientUid?: string;
+  recipientName?: string;
+  text: string;
+  createdAt: string;
+  diceResult?: ChatDiceResult;
+}
+
+export interface ChatChannel {
+  id: string;
+  type: ChatScope;
+  title: string;
+  subtitle?: string;
+  campaignId?: string;
+  campaignName?: string;
+  participants: string[];
+  lastMessage?: string;
+  lastMessageAt?: string;
+  unreadCount?: number;
+  badgeColor?: string;
+  directOtherUser?: UserProfile;
+}
+

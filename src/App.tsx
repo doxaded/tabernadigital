@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { doc, updateDoc } from 'firebase/firestore';
 import { Navbar } from './components/Navbar';
 import { AuthModal } from './components/AuthModal';
 import { PendingApprovalScreen } from './components/PendingApprovalScreen';
@@ -7,11 +8,13 @@ import { ChangePasswordModal } from './components/ChangePasswordModal';
 import { CampaignsView } from './components/CampaignsView';
 import { SketchStudioView } from './components/SketchStudioView';
 import { UrdChatView } from './components/UrdChatView';
+import { ChatPortalView } from './components/ChatPortalView';
+import { UserProfileModal } from './components/UserProfileModal';
 import { MasterScreenView } from './components/MasterScreenView';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { LandingPage } from './components/LandingPage';
 import { storageService, ADMIN_EMAIL } from './services/storage';
-import { firebaseAuthService } from './services/firebase';
+import { firebaseAuthService, db, auth, isLiveFirebaseConfigured } from './services/firebase';
 import { cloudCampaigns } from './services/cloudCampaigns';
 import { Campaign, CharacterSheet, LoreEntry, RuleDocument, SketchAsset, UserProfile } from './types';
 
@@ -23,13 +26,15 @@ export function App() {
   const [urdMessages, setUrdMessages] = useState(() => storageService.getUrdMessages());
 
   const [hasEntered, setHasEntered] = useState(false);
-  const [activeTab, setActiveTab] = useState<'campaigns' | 'sketch' | 'urd'>('campaigns');
+  const [activeTab, setActiveTab] = useState<'campaigns' | 'sketch' | 'urd' | 'chat'>('campaigns');
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(() => campaigns[0]?.id || null);
   const [masterScreenCampaignId, setMasterScreenCampaignId] = useState<string | null>(null);
 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [profileModalUser, setProfileModalUser] = useState<UserProfile | null>(null);
 
   // Sincroniza dados com o storage
   const reloadData = async () => {
@@ -273,6 +278,31 @@ export function App() {
     reloadData();
   };
 
+  // Handlers de Personalização de Perfil de Aventureiro
+  const handleSaveProfile = async (updates: Partial<UserProfile>) => {
+    if (!currentUser) return;
+    const updated = storageService.updateUserProfile(currentUser.uid, updates);
+    if (updated) {
+      setCurrentUser(updated);
+      setProfileModalUser(updated);
+    }
+    if (isLiveFirebaseConfigured && auth.currentUser) {
+      try {
+        await updateDoc(doc(db, 'users', currentUser.uid), {
+          ...updates,
+        });
+      } catch (err) {
+        console.warn('Falha ao sincronizar perfil com o Firestore:', err);
+      }
+    }
+    reloadData();
+  };
+
+  const handleStartDirectChat = (_targetUser: UserProfile) => {
+    setIsProfileModalOpen(false);
+    setActiveTab('chat');
+  };
+
   const pendingCount = users.filter(u => u.status === 'PENDING').length;
   const isSuperAdmin = currentUser?.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
@@ -299,10 +329,16 @@ export function App() {
             onOpenAdmin={() => setIsAdminModalOpen(true)}
             onOpenAuth={() => setIsAuthModalOpen(true)}
             onOpenChangePassword={() => setIsChangePasswordOpen(true)}
+            onOpenMyProfile={() => {
+              if (currentUser) {
+                setProfileModalUser(currentUser);
+                setIsProfileModalOpen(true);
+              }
+            }}
             onLogout={handleLogout}
             pendingCount={pendingCount}
             bannerMode={
-              (activeTab === 'campaigns' || activeTab === 'sketch' || activeTab === 'urd') &&
+              (activeTab === 'campaigns' || activeTab === 'sketch' || activeTab === 'urd' || activeTab === 'chat') &&
               !masterScreenCampaignId &&
               currentUser?.status === 'APPROVED'
             }
@@ -409,6 +445,18 @@ export function App() {
                             onClearChat={handleClearUrdChat}
                           />
                         )}
+
+                        {activeTab === 'chat' && (
+                          <ChatPortalView
+                            currentUser={currentUser}
+                            campaigns={visibleCampaigns}
+                            allUsers={users}
+                            onOpenProfile={(user) => {
+                              setProfileModalUser(user);
+                              setIsProfileModalOpen(true);
+                            }}
+                          />
+                        )}
                       </>
                     )}
                   </>
@@ -464,6 +512,16 @@ export function App() {
         isOpen={isChangePasswordOpen}
         onClose={() => setIsChangePasswordOpen(false)}
         currentUser={currentUser}
+      />
+
+      {/* User Profile Modal (Personalização e Inspeção de Ficha/Lore) */}
+      <UserProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        targetUser={profileModalUser}
+        currentUser={currentUser}
+        onSaveProfile={handleSaveProfile}
+        onStartDirectChat={handleStartDirectChat}
       />
     </div>
   );

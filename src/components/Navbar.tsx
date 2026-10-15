@@ -1,25 +1,27 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Shield, Sparkles, BookOpen, Crown, LogOut, UserCheck, KeyRound } from 'lucide-react';
+import { Shield, Sparkles, BookOpen, Crown, LogOut, UserCheck, KeyRound, User, MessageSquare } from 'lucide-react';
 import { UserProfile } from '../types';
 import { ADMIN_EMAIL } from '../services/storage';
 
 interface NavbarProps {
   currentUser: UserProfile | null;
-  activeTab: 'campaigns' | 'sketch' | 'urd';
-  setActiveTab: (tab: 'campaigns' | 'sketch' | 'urd') => void;
+  activeTab: 'campaigns' | 'sketch' | 'urd' | 'chat';
+  setActiveTab: (tab: 'campaigns' | 'sketch' | 'urd' | 'chat') => void;
   onOpenAdmin: () => void;
   onOpenAuth: () => void;
   onOpenChangePassword: () => void;
+  onOpenMyProfile?: () => void;
   onLogout: () => void;
   pendingCount: number;
   /** Quando true, a barra se funde ao banner marrom do Salão Principal. */
   bannerMode?: boolean;
 }
 
-const NAV_ITEMS: { id: 'campaigns' | 'sketch' | 'urd'; label: string }[] = [
+const NAV_ITEMS: { id: 'campaigns' | 'sketch' | 'urd' | 'chat'; label: string }[] = [
   { id: 'campaigns', label: 'salão comunal' },
   { id: 'sketch', label: 'telas do alaúde' },
   { id: 'urd', label: 'taberneiro' },
+  { id: 'chat', label: 'portal de chats' },
 ];
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -29,6 +31,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAdmin,
   onOpenAuth,
   onOpenChangePassword,
+  onOpenMyProfile,
   onLogout,
   pendingCount,
   bannerMode = false,
@@ -304,6 +307,16 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <div style={{ fontSize: '11px', color: fgMuted, wordBreak: 'break-all', marginTop: '2px' }}>{currentUser.email}</div>
                   <div style={{ fontSize: '11px', color: fgMuted, marginTop: '2px' }}>{statusLabel}</div>
                 </div>
+
+                <button
+                  role="menuitem"
+                  onClick={() => { setIsProfileOpen(false); onOpenMyProfile?.(); }}
+                  style={{ ...menuItemStyle, color: fg }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = hoverBg}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                >
+                  <User size={15} /> personalizar perfil
+                </button>
 
                 <button
                   role="menuitem"

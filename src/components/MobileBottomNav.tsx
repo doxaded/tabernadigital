@@ -1,11 +1,11 @@
 import React from 'react';
-import { BookOpen, Sparkles, Shield, Crown, User } from 'lucide-react';
+import { BookOpen, Sparkles, Shield, Crown, User, MessageSquare } from 'lucide-react';
 import { UserProfile } from '../types';
 import { ADMIN_EMAIL } from '../services/storage';
 
 interface MobileBottomNavProps {
-  activeTab: 'campaigns' | 'sketch' | 'urd';
-  setActiveTab: (tab: 'campaigns' | 'sketch' | 'urd') => void;
+  activeTab: 'campaigns' | 'sketch' | 'urd' | 'chat';
+  setActiveTab: (tab: 'campaigns' | 'sketch' | 'urd' | 'chat') => void;
   currentUser: UserProfile | null;
   onOpenAdmin: () => void;
   onOpenAuth: () => void;
@@ -38,11 +38,11 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           fontFamily: 'var(--font-cinzel)',
           fontWeight: 700,
           cursor: 'pointer',
-          padding: '6px 10px'
+          padding: '6px 8px'
         }}
       >
-        <BookOpen size={20} />
-        <span>Salão Comunal</span>
+        <BookOpen size={19} />
+        <span>Salão</span>
       </button>
 
       <button
@@ -59,11 +59,11 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           fontFamily: 'var(--font-cinzel)',
           fontWeight: 700,
           cursor: 'pointer',
-          padding: '6px 10px'
+          padding: '6px 8px'
         }}
       >
-        <Sparkles size={20} />
-        <span>Telas do Alaúde</span>
+        <Sparkles size={19} />
+        <span>Alaúde</span>
       </button>
 
       <button
@@ -80,11 +80,32 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           fontFamily: 'var(--font-cinzel)',
           fontWeight: 700,
           cursor: 'pointer',
-          padding: '6px 10px'
+          padding: '6px 8px'
         }}
       >
-        <Shield size={20} />
-        <span>Taberneiro</span>
+        <Shield size={19} />
+        <span>Urd</span>
+      </button>
+
+      <button
+        onClick={() => setActiveTab('chat')}
+        style={{
+          background: 'none',
+          border: 'none',
+          color: activeTab === 'chat' ? 'var(--amber-glow)' : '#a89a85',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '3px',
+          fontSize: '10px',
+          fontFamily: 'var(--font-cinzel)',
+          fontWeight: 700,
+          cursor: 'pointer',
+          padding: '6px 8px'
+        }}
+      >
+        <MessageSquare size={19} />
+        <span>Chats</span>
       </button>
 
       {/* Admin Button on Mobile (Only for henrique.v.berbert@gmail.com) */}

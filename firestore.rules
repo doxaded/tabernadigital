@@ -127,5 +127,20 @@ service cloud.firestore {
         resource.data.authorId == request.auth.uid || isSuperAdmin()
       );
     }
+
+    // Mensagens do Portal de Chats (Salões de Campanha e Sussurros)
+    match /messages/{messageId} {
+      allow read: if isApprovedUser() && (
+        isSuperAdmin() ||
+        resource.data.scope == 'campaign-public' ||
+        (request.auth.uid in resource.data.participants) ||
+        resource.data.senderUid == request.auth.uid ||
+        resource.data.recipientUid == request.auth.uid
+      );
+      allow create: if isApprovedUser() && request.auth.uid == request.resource.data.senderUid;
+      allow update, delete: if isApprovedUser() && (
+        resource.data.senderUid == request.auth.uid || isSuperAdmin()
+      );
+    }
   }
 }
