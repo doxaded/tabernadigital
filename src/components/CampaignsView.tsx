@@ -640,7 +640,7 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
         width: '100%',
         backgroundColor: '#000000',
         color: '#f5ecdc',
-        minHeight: 'calc(100vh - 56px)',
+        minHeight: '100vh',
         paddingBottom: '80px',
         margin: 0
       }}

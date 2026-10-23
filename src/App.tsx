@@ -354,7 +354,7 @@ export function App() {
 
           {/* Main Content Area */}
           <main
-            className="content-with-bottom-nav"
+            className="content-with-bottom-nav app-main-content"
             style={{
               flex: 1,
               paddingBottom: 0,

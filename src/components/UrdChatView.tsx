@@ -123,7 +123,7 @@ export const UrdChatView: React.FC<UrdChatViewProps> = ({
   };
 
   return (
-    <div className="urd-view" style={{ width: '100%', minHeight: 'calc(100vh - 56px)', backgroundColor: '#000000', color: '#f5ecdc', padding: 0, margin: 0 }}>
+    <div className="urd-view" style={{ width: '100%', minHeight: '100vh', backgroundColor: '#000000', color: '#f5ecdc', padding: 0, margin: 0 }}>
       {/* ========================================================================= */}
       {/* BALCÃO DO TABERNEIRO — Tela maximizada com Urd de Pedra-Funda */}
       {/* ========================================================================= */}

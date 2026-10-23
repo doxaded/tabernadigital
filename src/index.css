@@ -31,10 +31,12 @@
   --accent-beige: #F2ECE1;
   --radius-card: 16px;
 
-  /* Margem padrão do layout (laterais e topo da barra) e altura da barra de navegação */
+  /* Margem padrão do layout e dimensões da barra de navegação/sidebar */
   --edge: clamp(20px, 4.9vw, 64px);
   --nav-top: 0px;
-  --nav-h: 56px;
+  --nav-h: 0px;
+  --sidebar-w: 64px;
+  --sidebar-expanded-w: 264px;
 
   /* Madeira Rústica & Vigas Escuras */
   --wood-darkest: #0a0806;
@@ -477,11 +479,22 @@ h1, h2, h3, h4, .font-cinzel {
   .content-with-bottom-nav {
     padding-bottom: 80px;
   }
+
+  .tavern-sidebar {
+    display: none !important;
+  }
 }
 
 @media (min-width: 769px) {
   .mobile-only {
     display: none !important;
+  }
+
+  .app-main-content {
+    margin-left: 64px;
+    width: calc(100% - 64px);
+    min-width: 0;
+    box-sizing: border-box;
   }
 }
 
@@ -2028,8 +2041,10 @@ h1, h2, h3, h4, .font-cinzel {
   background-color: #0B0B0B;
   padding: 0;
   color: var(--text-obsidian, #111111);
-  height: calc(100vh - var(--nav-h, 56px));
-  min-height: calc(100vh - var(--nav-h, 56px));
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
   width: 100%;
   box-sizing: border-box;
   overflow: hidden;
@@ -4892,7 +4907,7 @@ h1, h2, h3, h4, .font-cinzel {
   background: #0A0A0A;
   border-bottom: 1px solid rgba(242, 236, 225, 0.14);
   position: sticky;
-  top: 56px;
+  top: 0;
   z-index: 700;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
 }
@@ -5068,7 +5083,8 @@ h1, h2, h3, h4, .font-cinzel {
    ========================================================================== */
 .balcao-view {
   width: 100%;
-  min-height: calc(100vh - var(--nav-h, 56px));
+  min-height: 100vh;
+  min-height: 100dvh;
   background: var(--bg-parchment, #F2ECE1);
   color: var(--text-obsidian, #111111);
   position: relative;
@@ -5827,7 +5843,8 @@ h1, h2, h3, h4, .font-cinzel {
    ========================================================================== */
 .atelier-view {
   width: 100%;
-  min-height: calc(100vh - var(--nav-h));
+  min-height: 100vh;
+  min-height: 100dvh;
   background: var(--bg-parchment, #F2ECE1);
   color: #120e0a;
   padding: 0;
