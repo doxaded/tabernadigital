@@ -1,11 +1,11 @@
 import React from 'react';
-import { BookOpen, Sparkles, Shield, Crown, User, MessageSquare } from 'lucide-react';
+import { Compass, BookOpen, Sparkles, Shield, Crown, User, MessageSquare } from 'lucide-react';
 import { UserProfile } from '../types';
 import { ADMIN_EMAIL } from '../services/storage';
 
 interface MobileBottomNavProps {
-  activeTab: 'campaigns' | 'sketch' | 'urd' | 'chat';
-  setActiveTab: (tab: 'campaigns' | 'sketch' | 'urd' | 'chat') => void;
+  activeTab: 'hub' | 'campaigns' | 'sketch' | 'urd' | 'chat';
+  setActiveTab: (tab: 'hub' | 'campaigns' | 'sketch' | 'urd' | 'chat') => void;
   currentUser: UserProfile | null;
   onOpenAdmin: () => void;
   onOpenAuth: () => void;
@@ -25,6 +25,26 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   return (
     <nav className="mobile-only mobile-bottom-nav">
       <button
+        onClick={() => setActiveTab('hub')}
+        style={{
+          background: 'none',
+          border: 'none',
+          color: activeTab === 'hub' ? 'var(--amber-glow)' : '#a89a85',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '3px',
+          fontSize: '10px',
+          fontFamily: 'var(--font-cinzel)',
+          fontWeight: 700,
+          cursor: 'pointer',
+          padding: '6px 8px'
+        }}
+      >
+        <Compass size={19} />
+        <span>Início</span>
+      </button>
+      <button
         onClick={() => setActiveTab('campaigns')}
         style={{
           background: 'none',
@@ -42,7 +62,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         }}
       >
         <BookOpen size={19} />
-        <span>Salão</span>
+        <span>Mesa</span>
       </button>
 
       <button
@@ -105,7 +125,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         }}
       >
         <MessageSquare size={19} />
-        <span>Chats</span>
+        <span>Bardos</span>
       </button>
 
       {/* Admin Button on Mobile (Only for henrique.v.berbert@gmail.com) */}

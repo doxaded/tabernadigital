@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { doc, updateDoc } from 'firebase/firestore';
+import { updateProfile } from 'firebase/auth';
 import { Navbar } from './components/Navbar';
 import { AuthModal } from './components/AuthModal';
 import { PendingApprovalScreen } from './components/PendingApprovalScreen';
@@ -13,6 +14,7 @@ import { UserProfileModal } from './components/UserProfileModal';
 import { MasterScreenView } from './components/MasterScreenView';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { LandingPage } from './components/LandingPage';
+import { TavernHubView } from './components/TavernHubView';
 import { storageService, ADMIN_EMAIL } from './services/storage';
 import { firebaseAuthService, db, auth, isLiveFirebaseConfigured } from './services/firebase';
 import { cloudCampaigns } from './services/cloudCampaigns';
@@ -26,7 +28,7 @@ export function App() {
   const [urdMessages, setUrdMessages] = useState(() => storageService.getUrdMessages());
 
   const [hasEntered, setHasEntered] = useState(false);
-  const [activeTab, setActiveTab] = useState<'campaigns' | 'sketch' | 'urd' | 'chat'>('campaigns');
+  const [activeTab, setActiveTab] = useState<'hub' | 'campaigns' | 'sketch' | 'urd' | 'chat'>('hub');
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(() => campaigns[0]?.id || null);
   const [masterScreenCampaignId, setMasterScreenCampaignId] = useState<string | null>(null);
 
@@ -291,6 +293,12 @@ export function App() {
         await updateDoc(doc(db, 'users', currentUser.uid), {
           ...updates,
         });
+        if (updates.displayName || updates.photoURL) {
+          await updateProfile(auth.currentUser, {
+            displayName: updates.displayName || auth.currentUser.displayName || undefined,
+            photoURL: updates.photoURL || auth.currentUser.photoURL || undefined
+          });
+        }
       } catch (err) {
         console.warn('Falha ao sincronizar perfil com o Firestore:', err);
       }
@@ -307,7 +315,7 @@ export function App() {
   const isSuperAdmin = currentUser?.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#000000' }}>
       {!hasEntered ? (
         <LandingPage onEnter={() => {
           if (currentUser) {
@@ -345,7 +353,14 @@ export function App() {
           />
 
           {/* Main Content Area */}
-          <main className="content-with-bottom-nav" style={{ flex: 1, paddingBottom: '40px' }}>
+          <main
+            className="content-with-bottom-nav"
+            style={{
+              flex: 1,
+              paddingBottom: 0,
+              backgroundColor: 'transparent'
+            }}
+          >
             {currentUser ? (
               <>
                 {/* Caso 2: Usuário com status PENDENTE (Requisito Mandatório: Aprovação por Área Administrativa) */}
@@ -392,6 +407,19 @@ export function App() {
                       })()
                     ) : (
                       <>
+                        {activeTab === 'hub' && (
+                          <TavernHubView
+                            currentUser={currentUser}
+                            campaigns={visibleCampaigns}
+                            sketchesCount={sketches.length}
+                            onNavigate={(tab) => {
+                              setMasterScreenCampaignId(null);
+                              setActiveTab(tab);
+                              window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }}
+                          />
+                        )}
+
                         {activeTab === 'campaigns' && (
                           <CampaignsView
                             campaigns={visibleCampaigns}
@@ -514,7 +542,7 @@ export function App() {
         currentUser={currentUser}
       />
 
-      {/* User Profile Modal (Personalização e Inspeção de Ficha/Lore) */}
+      {/* User Profile Modal (Aba Lateral Direita de Perfil & Opções do Aventureiro) */}
       <UserProfileModal
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
@@ -522,6 +550,18 @@ export function App() {
         currentUser={currentUser}
         onSaveProfile={handleSaveProfile}
         onStartDirectChat={handleStartDirectChat}
+        onOpenChangePassword={() => {
+          setIsProfileModalOpen(false);
+          setIsChangePasswordOpen(true);
+        }}
+        onLogout={() => {
+          setIsProfileModalOpen(false);
+          handleLogout();
+        }}
+        onOpenAdmin={() => {
+          setIsProfileModalOpen(false);
+          setIsAdminModalOpen(true);
+        }}
       />
     </div>
   );

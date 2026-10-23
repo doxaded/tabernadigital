@@ -14,10 +14,27 @@
 }
 
 :root {
+  /* Design System Editorial Padronizado (Taverna Digital) */
+  --bg-parchment: #F4EDDD;
+  --bg-parchment-light: #FAF6EE;
+  --bg-obsidian: #0A0A0A;
+  --surface-card: #0B0B0B;
+  --surface-card-elevated: #141414;
+  --surface-card-subtle: #181818;
+  --text-parchment: #F2ECE1;
+  --text-parchment-muted: #A89A85;
+  --text-obsidian: #0B0B0B;
+  --text-obsidian-muted: #5C5245;
+  --border-subtle: rgba(242, 236, 225, 0.18);
+  --border-subtle-hover: rgba(242, 236, 225, 0.35);
+  --border-dark-subtle: rgba(0, 0, 0, 0.12);
+  --accent-beige: #F2ECE1;
+  --radius-card: 16px;
+
   /* Margem padrão do layout (laterais e topo da barra) e altura da barra de navegação */
   --edge: clamp(20px, 4.9vw, 64px);
-  --nav-top: calc(var(--edge) * 0.55);
-  --nav-h: calc(var(--nav-top) + 36px);
+  --nav-top: 0px;
+  --nav-h: 56px;
 
   /* Madeira Rústica & Vigas Escuras */
   --wood-darkest: #0a0806;
@@ -373,6 +390,26 @@ h1, h2, h3, h4, .font-cinzel {
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0.3;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
@@ -1363,8 +1400,7 @@ h1, h2, h3, h4, .font-cinzel {
    TELAS DO ALAÚDE & TABERNEIRO — layouts harmônicos em fundo preto
    ========================================================================== */
 
-/* Heros padronizados com altura de 70% em todos os módulos */
-.salao-hero--mesa,
+/* Heros padronizados com altura de 70% nos módulos secundários */
 .salao-hero--bardo,
 .salao-hero--urd,
 .salao-hero--chat {
@@ -1372,29 +1408,55 @@ h1, h2, h3, h4, .font-cinzel {
   min-height: 70dvh;
 }
 
+/* Salão Comunal: Banner preto ocupando 70% da tela inicial */
+.salao-hero--mesa {
+  position: relative;
+  width: 100%;
+  height: 70vh;
+  height: 70dvh;
+  min-height: 70vh;
+  min-height: 70dvh;
+  background-color: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: var(--nav-h);
+  padding-bottom: 0;
+  margin-bottom: 0;
+  overflow: visible;
+}
+
 .bardo,
 .urd-chamber {
-  background-color: #000000;
-  padding: clamp(32px, 5vw, 72px) var(--edge);
+  background-color: #0A0A0A;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0;
+  outline: none;
+  box-shadow: none;
+  padding: clamp(28px, 3.5vw, 44px) clamp(20px, 4vw, 56px);
   color: var(--text-strong);
-  border-top: 1px solid rgba(245, 236, 220, 0.12);
+  margin-bottom: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .bardo__inner {
   display: grid;
-  grid-template-columns: 250px minmax(0, 1fr);
+  grid-template-columns: 280px minmax(0, 1fr);
   gap: clamp(24px, 3.5vw, 52px);
   align-items: start;
-  max-width: 1240px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
 }
 
 .bardo__eyebrow {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--amber-glow);
+  color: #f59e0b;
 }
 
 /* Coluna do personagem (bardo ou taberneiro) */
@@ -1434,7 +1496,7 @@ h1, h2, h3, h4, .font-cinzel {
   background: #34d399;
   animation: bardoPulse 2.4s ease-in-out infinite;
 }
-.bardo__status.is-drawing .bardo__status-dot { background: var(--amber-glow); animation-duration: 0.8s; }
+.bardo__status.is-drawing .bardo__status-dot { background: #FAF7F2; box-shadow: 0 0 8px rgba(250, 247, 242, 0.7); animation-duration: 0.8s; }
 
 .bardo__who { display: flex; flex-direction: column; gap: 2px; }
 .bardo__name {
@@ -1457,7 +1519,7 @@ h1, h2, h3, h4, .font-cinzel {
 }
 .bardo__dots { display: inline-flex; gap: 5px; flex-wrap: wrap; }
 .bardo__dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(245, 236, 220, 0.2); transition: background 0.3s; }
-.bardo__dot.is-on { background: var(--amber-glow); }
+.bardo__dot.is-on { background: #f59e0b; box-shadow: 0 0 8px rgba(245, 158, 11, 0.7); }
 .bardo__dot.is-on.is-full { background: #ef4444; }
 
 /* Painel de conversa */
@@ -1618,20 +1680,34 @@ h1, h2, h3, h4, .font-cinzel {
 .bardo__options { display: flex; flex-wrap: wrap; gap: 10px 22px; }
 .bardo__group { display: inline-flex; flex-wrap: wrap; gap: 6px; }
 .bardo-pill {
-  padding: 5px 11px;
+  padding: 5px 12px;
   font-family: inherit;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--text-soft);
+  color: #D6CFC4;
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(245, 236, 220, 0.18);
+  border: 1px solid rgba(242, 236, 225, 0.18);
+  border-radius: 4px;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.bardo-pill:hover { border-color: var(--amber-glow); color: #fbbf24; }
-.bardo-pill.is-on { color: #15100b; background: var(--amber-glow); border-color: var(--amber-glow); font-weight: 700; }
+.bardo-pill:hover { border-color: #FAF7F2; color: #FFFFFF; transform: translateY(-1px); }
+.bardo-pill.is-on { color: #0A0A0A; background: #f59e0b; border-color: #f59e0b; font-weight: 800; box-shadow: 0 3px 12px rgba(245, 158, 11, 0.4); }
+
+.bardo-pill--tech {
+  border-radius: 999px;
+  padding: 6px 14px;
+  background: #141414;
+  letter-spacing: 0.08em;
+}
+.bardo-pill--tech.is-on {
+  background: #f59e0b;
+  color: #0A0A0A;
+  font-weight: 800;
+  box-shadow: 0 0 0 1px #0A0A0A, 0 4px 14px rgba(245, 158, 11, 0.4);
+}
 
 .bardo__input-row { display: flex; align-items: flex-end; gap: 10px; margin-top: 12px; }
 .bardo__input {
@@ -1644,13 +1720,13 @@ h1, h2, h3, h4, .font-cinzel {
   line-height: 1.5;
   color: var(--text-strong);
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(245, 236, 220, 0.2);
+  border: 1px solid rgba(242, 236, 225, 0.2);
   border-radius: 0;
   outline: none;
   transition: border-color 0.2s, background 0.2s;
 }
-.bardo__input::placeholder { color: rgba(245, 236, 220, 0.35); }
-.bardo__input:focus { border-color: var(--amber-glow); background: rgba(255, 255, 255, 0.08); }
+.bardo__input::placeholder { color: rgba(242, 236, 225, 0.35); }
+.bardo__input:focus { border-color: #FAF7F2; background: rgba(255, 255, 255, 0.08); box-shadow: 0 0 0 1px rgba(250, 247, 242, 0.2); }
 .bardo__input:disabled { opacity: 0.6; }
 
 .bardo__send {
@@ -1658,21 +1734,23 @@ h1, h2, h3, h4, .font-cinzel {
   align-items: center;
   gap: 8px;
   height: 48px;
-  padding: 0 20px;
+  padding: 0 22px;
   font-family: inherit;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.04em;
-  color: #15100b;
-  background: var(--amber-torch);
-  border: 1px solid var(--amber-torch);
+  color: #000000;
+  background: linear-gradient(135deg, #d97706, #b45309);
+  border: 1px solid #d97706;
   cursor: pointer;
-  transition: background 0.2s, transform 0.2s, opacity 0.2s;
+  box-shadow: 0 3px 12px rgba(217, 119, 6, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .bardo__send:hover:not(:disabled) {
-  background: var(--amber-glow);
-  border-color: var(--amber-glow);
+  background: #f59e0b;
+  color: #000000;
   transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
 }
 .bardo__send:hover:not(:disabled) .bardo__send-arrow { transform: translateX(3px); }
 .bardo__send:disabled { opacity: 0.35; cursor: not-allowed; }
@@ -1683,43 +1761,47 @@ h1, h2, h3, h4, .font-cinzel {
 .bardo-wall,
 .urd-wall {
   background-color: #000000;
-  padding: clamp(36px, 5.5vw, 80px) var(--edge);
-  color: var(--text-strong);
-  border-top: 1px solid rgba(245, 236, 220, 0.1);
+  padding: clamp(40px, 4vw, 64px) clamp(20px, 4vw, 56px) 96px;
+  color: #f5ecdc;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  box-sizing: border-box;
+  width: 100%;
 }
 .bardo-wall__head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 16px;
-  max-width: 1240px;
-  margin: 0 auto 32px;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 0 32px;
 }
 .bardo-wall__title {
   margin: 0;
   font-family: 'Cinzel Hero', var(--font-cinzel);
   font-weight: 800;
-  font-size: clamp(28px, 3.6vw, 52px);
-  line-height: 0.95;
-  letter-spacing: 0.01em;
+  font-size: clamp(28px, 3.6vw, 48px);
+  line-height: 1;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: var(--text-strong);
+  color: #f5ecdc;
 }
-.bardo-wall__count { font-size: 13px; font-weight: 600; letter-spacing: 0.1em; color: var(--text-muted); }
-.bardo-wall__empty { max-width: 1240px; margin: 0 auto; font-size: 14px; color: var(--text-muted); }
+.bardo-wall__count { font-size: 13px; font-weight: 600; letter-spacing: 0.1em; color: #a89a85; }
+.bardo-wall__empty { width: 100%; max-width: 100%; margin: 0; font-size: 14px; color: #a89a85; }
 .bardo-wall__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 34px 26px;
-  max-width: 1240px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
 }
 
 .bardo-card {
   position: relative;
   margin: 0;
   transform: rotate(var(--tilt, 0deg));
-  transition: transform 0.4s cubic-bezier(0.2, 0.75, 0.2, 1);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
 }
 .bardo-card:hover { transform: rotate(0deg) translateY(-6px); }
 .bardo-card::before {
@@ -1727,51 +1809,129 @@ h1, h2, h3, h4, .font-cinzel {
   position: absolute;
   top: -7px;
   left: 50%;
-  z-index: 1;
+  z-index: 2;
   width: 12px;
   height: 12px;
   margin-left: -6px;
   border-radius: 50%;
-  background: var(--amber-torch);
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3);
+  background: #f59e0b;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.75), 0 2px 6px rgba(0, 0, 0, 0.5);
 }
 .bardo-card__frame {
   display: block;
   width: 100%;
   padding: 8px;
-  background: #12100e;
-  border: 1px solid rgba(245, 236, 220, 0.16);
-  box-shadow: 0 14px 26px -16px rgba(0, 0, 0, 0.85);
+  background: #0E0E0E;
+  border: 1px solid rgba(242, 236, 225, 0.16);
+  box-shadow: 0 16px 32px -12px rgba(0, 0, 0, 0.35);
   cursor: zoom-in;
+  overflow: hidden;
 }
-.bardo-card__frame img { display: block; width: 100%; aspect-ratio: 1 / 1; object-fit: cover; }
-.bardo-card__caption { padding: 12px 2px 0; }
-.bardo-card__cat { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--amber-torch); }
+.bardo-card__frame img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.bardo-card:hover .bardo-card__frame img {
+  transform: scale(1.05);
+}
+.bardo-card__caption { padding: 14px 4px 6px; }
+.bardo-card__cat {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #f59e0b;
+  background: transparent;
+  padding: 0;
+  display: inline-block;
+}
 .bardo-card__prompt {
-  margin: 4px 0 0;
+  margin: 6px 0 0;
   font-size: 13px;
   line-height: 1.5;
-  color: var(--text-strong);
+  color: #f5ecdc;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-.bardo-card__actions { display: flex; gap: 6px; margin-top: 10px; }
+.bardo-card__actions { display: flex; gap: 8px; margin-top: 12px; }
 .bardo-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
-  color: var(--text-strong);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(245, 236, 220, 0.25);
+  color: #FAF7F2;
+  background: #141414;
+  border: 1px solid rgba(242, 236, 225, 0.22);
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.bardo-icon:hover { background: var(--amber-torch); color: #15100b; }
+.bardo-icon:hover { background: #F2ECE1; color: #0A0A0A; border-color: #FAF7F2; }
 .bardo-icon--danger:hover { background: #b91c1c; border-color: #ef4444; color: #fee2e2; }
+
+/* Bolachas de Chopp de Pedra (Coasters Táteis de Urd) */
+.urd-coasters-container {
+  padding: 14px 24px 6px;
+  border-top: 1px solid rgba(242, 236, 225, 0.12);
+}
+.urd-coasters-tray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.urd-stone-coaster {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #141414;
+  color: #EAE2D3;
+  border: 1px solid rgba(242, 236, 225, 0.22);
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 3px 8px rgba(0, 0, 0, 0.35);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.urd-stone-coaster:hover:not(:disabled) {
+  border-color: #FAF7F2;
+  color: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 6px 16px rgba(0, 0, 0, 0.5);
+}
+.urd-stone-coaster.is-selected {
+  background: #F2ECE1;
+  color: #0A0A0A;
+  border-color: #FAF7F2;
+  font-weight: 700;
+  box-shadow: 0 0 0 1px #0A0A0A, 0 6px 18px rgba(0, 0, 0, 0.4);
+  transform: translateY(-1px);
+}
+.urd-stone-coaster:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.urd-stone-coaster__icon {
+  font-size: 14px;
+}
+.urd-stone-coaster__label {
+  white-space: nowrap;
+}
+
+.urd-investigate-btn:hover {
+  background: #FFFFFF !important;
+  color: #000000 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
 
 /* Modais (ampliar / rasgar) */
 .bardo-modal {
@@ -1865,37 +2025,58 @@ h1, h2, h3, h4, .font-cinzel {
    ========================================================================== */
 
 .portal-chamber {
-  background-color: #000000;
-  padding: clamp(24px, 4vw, 56px) var(--edge);
-  color: var(--text-strong);
-  border-top: 1px solid rgba(245, 236, 220, 0.12);
+  background-color: #0B0B0B;
+  padding: 0;
+  color: var(--text-obsidian, #111111);
+  height: calc(100vh - var(--nav-h, 56px));
+  min-height: calc(100vh - var(--nav-h, 56px));
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Palco Unificado do Scriptorium em Tela Cheia (#0B0B0B) */
+.portal-unified-stage {
+  width: 100%;
+  height: 100%;
+  background: var(--bg-obsidian, #0B0B0B);
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: hidden;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .portal-inner {
   display: grid;
   grid-template-columns: 320px minmax(0, 1fr);
-  gap: clamp(20px, 2.5vw, 36px);
-  align-items: start;
-  max-width: 1400px;
-  margin: 0 auto;
+  gap: 0;
+  align-items: stretch;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  height: 100%;
+  min-height: 100%;
 }
 
 .portal-eyebrow {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--amber-glow);
+  color: #F2ECE1;
 }
 
 .portal-my-profile-btn {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: #14100c;
-  color: var(--text-soft);
-  border: 1px solid rgba(245, 236, 220, 0.2);
-  border-radius: 20px;
+  background: #161616;
+  color: #EAE2D3;
+  border: 1px solid rgba(242, 236, 225, 0.2);
+  border-radius: 6px;
   padding: 4px 10px;
   font-size: 11px;
   font-weight: 600;
@@ -1903,25 +2084,25 @@ h1, h2, h3, h4, .font-cinzel {
   transition: all 0.2s;
 }
 .portal-my-profile-btn:hover {
-  background: var(--amber-glow);
-  color: #000000;
-  border-color: var(--amber-glow);
+  background: #F2ECE1;
+  color: #0B0B0B;
+  border-color: #F2ECE1;
 }
 
 .portal-side {
   display: flex;
   flex-direction: column;
-  background: #0d0d0d;
-  border: 1px solid rgba(245, 236, 220, 0.14);
-  box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.5);
-  border-radius: 4px;
+  background: #0E0E0E;
+  border-right: 1px solid rgba(242, 236, 225, 0.12);
+  border-radius: 0;
+  box-shadow: none;
   overflow: hidden;
 }
 
 .portal-side__header {
-  padding: 16px;
-  border-bottom: 1px solid rgba(245, 236, 220, 0.12);
-  background: #111111;
+  padding: 18px 16px;
+  border-bottom: 1px solid rgba(242, 236, 225, 0.12);
+  background: #0E0E0E;
 }
 
 .portal-tabs {
@@ -1937,23 +2118,23 @@ h1, h2, h3, h4, .font-cinzel {
   justify-content: center;
   gap: 6px;
   padding: 8px 10px;
-  background: #161412;
-  border: 1px solid rgba(245, 236, 220, 0.1);
-  color: var(--text-muted);
+  background: #161616;
+  border: 1px solid rgba(242, 236, 225, 0.15);
+  color: #cbd5e1;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 6px;
   transition: all 0.15s;
 }
 .portal-tab:hover {
-  color: var(--text-strong);
-  border-color: rgba(245, 236, 220, 0.25);
+  color: #FFFFFF;
+  border-color: rgba(242, 236, 225, 0.35);
 }
 .portal-tab.is-active {
-  background: var(--amber-glow);
-  color: #000000;
-  border-color: var(--amber-glow);
+  background: #F2ECE1;
+  color: #0B0B0B;
+  border-color: #F2ECE1;
   font-weight: 700;
 }
 
@@ -1971,21 +2152,23 @@ h1, h2, h3, h4, .font-cinzel {
 .portal-search__input {
   width: 100%;
   padding: 8px 12px 8px 32px;
-  background: #0a0a0a;
-  border: 1px solid rgba(245, 236, 220, 0.15);
+  background: #141414;
+  border: 1px solid rgba(242, 236, 225, 0.15);
   color: var(--text-strong);
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 12px;
   outline: none;
   transition: border-color 0.2s;
 }
 .portal-search__input:focus {
-  border-color: var(--amber-glow);
+  border-color: #F2ECE1;
 }
 
 .portal-channels-list {
   padding: 12px;
-  height: clamp(380px, 60vh, 640px);
+  flex: 1;
+  height: auto;
+  min-height: 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -1999,9 +2182,9 @@ h1, h2, h3, h4, .font-cinzel {
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--amber-glow);
-  padding: 4px 6px 8px;
+  letter-spacing: 0.08em;
+  color: #a89a85;
+  padding: 6px 6px 8px;
 }
 
 .portal-empty-notice {
@@ -2017,10 +2200,10 @@ h1, h2, h3, h4, .font-cinzel {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: rgba(245, 158, 11, 0.15);
-  color: var(--amber-glow);
-  border: 1px solid rgba(245, 158, 11, 0.35);
-  border-radius: 4px;
+  background: #161616;
+  color: #EAE2D3;
+  border: 1px solid rgba(242, 236, 225, 0.2);
+  border-radius: 6px;
   padding: 3px 8px;
   font-size: 11px;
   font-weight: 600;
@@ -2028,8 +2211,9 @@ h1, h2, h3, h4, .font-cinzel {
   transition: all 0.15s;
 }
 .portal-new-dm-btn:hover {
-  background: var(--amber-glow);
-  color: #000000;
+  background: #F2ECE1;
+  color: #0B0B0B;
+  border-color: #F2ECE1;
 }
 
 .portal-channel-item {
@@ -2037,35 +2221,51 @@ h1, h2, h3, h4, .font-cinzel {
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  background: #141210;
+  background: #121212;
   border: 1px solid transparent;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   text-align: left;
   transition: all 0.15s;
   width: 100%;
 }
 .portal-channel-item:hover {
-  background: #1c1814;
-  border-color: rgba(245, 236, 220, 0.15);
+  background: #1A1A1A;
+  border-color: rgba(242, 236, 225, 0.15);
 }
 .portal-channel-item.is-active {
-  background: #241b12;
-  border-color: var(--amber-glow);
-  box-shadow: inset 3px 0 0 var(--amber-glow);
+  background: #F2ECE1;
+  color: #0A0A0A;
+  border: 1px solid #FAF7F2;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+.portal-channel-item.is-active .portal-channel-item__icon {
+  background: #0A0A0A;
+  color: #F2ECE1;
+  border-color: #0A0A0A;
+}
+
+.portal-channel-item.is-active .portal-channel-item__name {
+  color: #0A0A0A !important;
+  font-weight: 800;
+}
+
+.portal-channel-item.is-active .portal-channel-item__sub {
+  color: #3F372F !important;
 }
 
 .portal-channel-item__icon {
   flex: none;
   width: 32px;
   height: 32px;
-  border-radius: 4px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 15px;
-  background: #0d0d0d;
-  border: 1px solid rgba(245, 236, 220, 0.15);
+  background: #161616;
+  border: 1px solid rgba(242, 236, 225, 0.15);
 }
 
 .portal-channel-item__avatar {
@@ -2074,8 +2274,8 @@ h1, h2, h3, h4, .font-cinzel {
   height: 32px;
   border-radius: 50%;
   overflow: hidden;
-  border: 2px solid;
-  background: #0d0d0d;
+  border: 1.5px solid rgba(242, 236, 225, 0.25);
+  background: #161616;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2115,29 +2315,33 @@ h1, h2, h3, h4, .font-cinzel {
   opacity: 0.5;
 }
 .portal-channel-item.is-active .portal-channel-item__arrow {
-  color: var(--amber-glow);
+  color: #F2ECE1;
   opacity: 1;
 }
 
 /* Painel Principal de Conversa */
 .portal-main {
   min-width: 0;
+  background: #0B0B0B;
+  display: flex;
+  flex-direction: column;
 }
 
 .portal-chat-box {
   display: flex;
   flex-direction: column;
-  background: #0d0d0d;
-  border: 1px solid rgba(245, 236, 220, 0.14);
-  box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.5);
-  border-radius: 4px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
   overflow: hidden;
+  height: 100%;
 }
 
 .portal-chat-header {
   padding: 16px 20px;
-  background: #111111;
-  border-bottom: 1px solid rgba(245, 236, 220, 0.12);
+  background: #0E0E0E;
+  border-bottom: 1px solid rgba(242, 236, 225, 0.12);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2149,7 +2353,7 @@ h1, h2, h3, h4, .font-cinzel {
   font-family: 'Cinzel Hero', var(--font-cinzel);
   font-size: 18px;
   font-weight: 800;
-  color: var(--text-strong);
+  color: #F5F0E6;
   margin: 0;
 }
 
@@ -2171,9 +2375,9 @@ h1, h2, h3, h4, .font-cinzel {
   letter-spacing: 0.05em;
 }
 .portal-badge--public {
-  background: rgba(245, 158, 11, 0.15);
-  color: var(--amber-glow);
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: #1C1C1C;
+  color: #F2ECE1;
+  border: 1px solid rgba(242, 236, 225, 0.25);
 }
 .portal-badge--secret {
   background: rgba(239, 68, 68, 0.15);
@@ -2197,8 +2401,8 @@ h1, h2, h3, h4, .font-cinzel {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #161412;
-  border: 1px solid rgba(245, 236, 220, 0.18);
+  background: #161616;
+  border: 1px solid rgba(242, 236, 225, 0.18);
   border-radius: 14px;
   padding: 3px 10px;
   font-size: 11px;
@@ -2207,9 +2411,9 @@ h1, h2, h3, h4, .font-cinzel {
   transition: all 0.15s;
 }
 .portal-participant-chip:hover {
-  background: #241b12;
-  border-color: var(--amber-glow);
-  color: var(--text-strong);
+  background: #222222;
+  border-color: #F2ECE1;
+  color: #FFFFFF;
 }
 .portal-participant-dot {
   width: 7px;
@@ -2232,10 +2436,13 @@ h1, h2, h3, h4, .font-cinzel {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  height: clamp(340px, 50vh, 560px);
-  padding: 20px;
+  flex: 1;
+  height: auto;
+  min-height: 0;
+  padding: 20px 24px;
   overflow-y: auto;
   overscroll-behavior: contain;
+  background: #0B0B0B;
 }
 
 .portal-empty-chat {
@@ -2263,9 +2470,9 @@ h1, h2, h3, h4, .font-cinzel {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  border: 2px solid;
+  border: 1.5px solid rgba(242, 236, 225, 0.25);
   overflow: hidden;
-  background: #111111;
+  background: #161616;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2320,22 +2527,22 @@ h1, h2, h3, h4, .font-cinzel {
   font-size: 14px;
   line-height: 1.55;
   color: var(--text-strong);
-  background: #161412;
-  border: 1px solid rgba(245, 236, 220, 0.12);
+  background: #141414;
+  border: 1px solid rgba(242, 236, 225, 0.12);
   border-radius: 6px;
   white-space: pre-wrap;
   word-break: break-word;
 }
 .portal-msg--me .portal-msg__text {
-  background: #2a1b0e;
-  border-color: rgba(245, 158, 11, 0.35);
-  color: #fef3c7;
+  background: #1E1E1E;
+  border-color: rgba(242, 236, 225, 0.22);
+  color: #F5F0E6;
 }
 
 /* Card de Rolagem de Dados */
 .portal-dice-card {
-  background: #14110e;
-  border: 1px solid rgba(245, 158, 11, 0.35);
+  background: #141414;
+  border: 1px solid rgba(242, 236, 225, 0.22);
   border-radius: 6px;
   padding: 12px 14px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
@@ -2347,12 +2554,12 @@ h1, h2, h3, h4, .font-cinzel {
   gap: 10px;
   font-size: 13px;
   color: var(--text-strong);
-  border-bottom: 1px solid rgba(245, 236, 220, 0.1);
+  border-bottom: 1px solid rgba(242, 236, 225, 0.1);
   padding-bottom: 8px;
   margin-bottom: 8px;
 }
 .portal-dice-card__header code {
-  color: var(--amber-glow);
+  color: #F2ECE1;
   font-weight: 700;
 }
 
@@ -2390,7 +2597,7 @@ h1, h2, h3, h4, .font-cinzel {
 }
 .portal-dice-card__total strong {
   font-size: 20px;
-  color: var(--amber-glow);
+  color: #F2ECE1;
   margin-left: 4px;
 }
 
@@ -2400,8 +2607,8 @@ h1, h2, h3, h4, .font-cinzel {
   align-items: center;
   gap: 10px;
   padding: 8px 16px;
-  background: #111111;
-  border-top: 1px solid rgba(245, 236, 220, 0.1);
+  background: #0E0E0E;
+  border-top: 1px solid rgba(242, 236, 225, 0.12);
   overflow-x: auto;
 }
 .portal-quick-dice__label {
@@ -2418,21 +2625,29 @@ h1, h2, h3, h4, .font-cinzel {
   gap: 6px;
 }
 .portal-quick-dice__btn {
-  background: #1b1713;
-  color: var(--text-soft);
-  border: 1px solid rgba(245, 236, 220, 0.15);
+  background: #141414;
+  color: #EAE2D3;
+  border: 1px solid rgba(242, 236, 225, 0.22);
   border-radius: 4px;
-  padding: 3px 8px;
+  padding: 5px 12px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: 0.05em;
   font-family: var(--font-cinzel);
   cursor: pointer;
-  transition: all 0.15s;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 5px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .portal-quick-dice__btn:hover {
-  background: var(--amber-glow);
-  color: #000000;
-  border-color: var(--amber-glow);
+  background: #F2ECE1;
+  color: #0A0A0A;
+  border-color: #FAF7F2;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+.portal-quick-dice__btn:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 /* Compositor de Mensagem */
@@ -2440,40 +2655,40 @@ h1, h2, h3, h4, .font-cinzel {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 16px;
-  background: #0d0d0d;
-  border-top: 1px solid rgba(245, 236, 220, 0.12);
+  padding: 12px 18px;
+  background: #0E0E0E;
+  border-top: 1px solid rgba(242, 236, 225, 0.12);
 }
 .portal-composer__input {
   flex: 1;
-  background: #141210;
-  border: 1px solid rgba(245, 236, 220, 0.18);
+  background: #141414;
+  border: 1px solid rgba(242, 236, 225, 0.18);
   color: var(--text-strong);
   padding: 10px 14px;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 13px;
   outline: none;
   transition: border-color 0.2s;
 }
 .portal-composer__input:focus {
-  border-color: var(--amber-glow);
+  border-color: #F2ECE1;
 }
 .portal-composer__send-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: var(--amber-glow);
-  color: #000000;
+  background: #F2ECE1;
+  color: #0B0B0B;
   border: none;
   padding: 10px 18px;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
   cursor: pointer;
   transition: background 0.15s, opacity 0.15s;
 }
 .portal-composer__send-btn:hover:not(:disabled) {
-  background: #fbbf24;
+  background: #ffffff;
 }
 .portal-composer__send-btn:disabled {
   opacity: 0.4;
@@ -2487,14 +2702,14 @@ h1, h2, h3, h4, .font-cinzel {
   justify-content: center;
   padding: 60px 24px;
   text-align: center;
-  background: #0d0d0d;
-  border: 1px solid rgba(245, 236, 220, 0.14);
+  background: transparent;
+  border: none;
 }
 .portal-no-channel h3 {
   font-family: 'Cinzel Hero', var(--font-cinzel);
   font-size: 20px;
   margin: 16px 0 8px;
-  color: var(--text-strong);
+  color: #F5F0E6;
 }
 .portal-no-channel p {
   font-size: 14px;
@@ -2512,409 +2727,3859 @@ h1, h2, h3, h4, .font-cinzel {
 }
 
 /* ==========================================================================
-   HERO ATMOSPHERE — Elementos de fundo escuro, borrados e luminárias
+   SALÃO COMUNAL — TRANSIÇÃO PRETO / BRANCO & QUADRO CENTRALIZADO DE REFERÊNCIA
+   Referência visual: Fundo preto superior, fundo branco inferior.
+   Quadro centralizado em proporção paisagem, iniciando no preto e terminando no branco.
+   50% do espaço para "Juntar-se à mesa" e 50% para "Mestrar".
    ========================================================================== */
 
-.hero-atmosphere {
-  position: absolute;
-  inset: 0;
+/* ==========================================================================
+   CANVAS BRANCO/CREME (#F4EDDD) IDÊNTICO AO DA TELA "TABERNA DIGITAL"
+   Ao fim do banner de 70vh, a cor de fundo passa a ser o branco/creme (#F4EDDD).
+   ========================================================================== */
+
+.salao-white-canvas {
+  position: relative;
   width: 100%;
-  height: 100%;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 1;
   background-color: #000000;
+  color: #f5ecdc;
+  min-height: 100vh;
+  padding-bottom: 80px;
 }
 
-.hero-atmosphere__vignette {
+/* Acentos na linha do horizonte/interseção entre o preto e o branco/creme */
+.salao-ref-horizon-dots {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: clamp(20px, 4.5vw, 68px);
+  transform: translateY(-50%);
+  display: flex;
+  gap: 7px;
+  align-items: center;
   pointer-events: none;
-  z-index: 1;
+  z-index: 25;
 }
 
-/* Silhuetas Arquitetônicas da Taverna (distantes e muito borradas) */
-.hero-atmosphere__silhouettes {
-  position: absolute;
-  inset: -20px;
-  pointer-events: none;
-  z-index: 2;
-  filter: blur(16px);
-  opacity: 0.55;
-  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
-  will-change: transform;
-}
-
-.hero-atmosphere__svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-/* Partículas e Poeira / Bokeh */
-.hero-atmosphere__dust {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 3;
-}
-
-.hero-dust {
-  position: absolute;
+.salao-horizon-dot {
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  filter: blur(4px);
-  opacity: 0.25;
-  animation: heroDustDrift 14s infinite ease-in-out;
-}
-.hero-dust--1 { width: 5px; height: 5px; top: 25%; left: 18%; animation-duration: 16s; animation-delay: 0s; }
-.hero-dust--2 { width: 4px; height: 4px; top: 55%; left: 32%; animation-duration: 20s; animation-delay: 3s; }
-.hero-dust--3 { width: 6px; height: 6px; top: 38%; right: 22%; animation-duration: 18s; animation-delay: 1.5s; }
-.hero-dust--4 { width: 4px; height: 4px; top: 70%; right: 38%; animation-duration: 22s; animation-delay: 5s; }
-.hero-dust--5 { width: 5px; height: 5px; top: 15%; right: 12%; animation-duration: 15s; animation-delay: 4s; }
-
-@keyframes heroDustDrift {
-  0%, 100% { transform: translate(0, 0); opacity: 0.15; }
-  50% { transform: translate(15px, -25px); opacity: 0.35; }
 }
 
-/* Camada das Luminárias */
-.hero-atmosphere__lanterns-layer {
+.salao-horizon-dot--filled {
+  background-color: #15100b;
+  box-shadow: 0 0 2px rgba(255, 255, 255, 0.4);
+}
+
+.salao-horizon-dot--dim {
+  background-color: rgba(21, 16, 11, 0.35);
+}
+
+.salao-ref-horizon-lines {
   position: absolute;
-  inset: 0;
+  top: 0;
+  right: clamp(20px, 4.5vw, 68px);
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
   pointer-events: none;
-  z-index: 4;
-  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
-  will-change: transform;
+  z-index: 25;
+}
+
+.salao-horizon-line {
+  height: 1.5px;
+  background-color: #15100b;
+  border-radius: 1px;
+}
+
+.salao-horizon-line--long { width: 22px; }
+.salao-horizon-line--short { width: 14px; }
+
+@media (max-width: 900px) {
+  .salao-ref-horizon-dots,
+  .salao-ref-horizon-lines {
+    display: none;
+  }
+}
+
+/* Quadro 50/50 em Tela Cheia no Salão Comunal */
+.salao-ref-frame {
+  position: relative;
+  z-index: 20;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0;
+  min-height: 560px;
+  display: flex;
+  flex-direction: row;
+  background: #000000;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 0;
+  box-shadow: none;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes bounceDown {
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  50% { transform: translateY(6px); opacity: 0.9; }
+}
+
+/* Painéis 50% / 50% em fundo preto puro (#000000) */
+.salao-ref-panel {
+  flex: 1 1 50%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(38px, 4.6vw, 64px);
+  color: #f1f5f9;
+  background: #000000;
+  transition: flex 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+              opacity 0.3s ease,
+              box-shadow 0.3s ease;
+}
+
+.salao-ref-panel--join {
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.salao-ref-panel--master {
+  background: #000000;
+}
+
+/* Estado de Expansão no Hover: o lado apontado ganha 62% e o outro encolhe suavemente para 38% */
+.salao-ref-frame.has-expansion .salao-ref-panel.is-expanded {
+  flex: 1.6 1 62%;
+  background: #000000;
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.9);
+}
+
+.salao-ref-frame.has-expansion .salao-ref-panel.is-shrunk {
+  flex: 0.85 1 38%;
+  background: #000000;
+  opacity: 0.6;
+}
+
+.salao-panel-header {
+  margin-bottom: 24px;
+}
+
+.salao-panel-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 6px;
+  width: fit-content;
+}
+
+.salao-panel-badge--player {
+  background: rgba(242, 236, 225, 0.08);
+  color: #F2ECE1;
+  border: 1px solid rgba(242, 236, 225, 0.28);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.salao-panel-badge--master {
+  background: rgba(242, 236, 225, 0.14);
+  color: #FAF7F2;
+  border: 1px solid rgba(242, 236, 225, 0.42);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.salao-expand-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #C4BBB0;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.salao-ref-panel:hover .salao-expand-hint {
+  color: #FAF7F2;
+  border-color: rgba(242, 236, 225, 0.4);
+  background: rgba(242, 236, 225, 0.1);
+}
+
+.salao-panel-title {
+  margin: 14px 0 10px 0;
+  font-family: var(--font-cinzel);
+  font-size: clamp(28px, 3.5vw, 46px);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.salao-panel-lead {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #cbd5e1;
+}
+
+/* Banner de resumo expandido no topo do painel */
+.salao-expanded-stats-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 16px;
+  margin-top: 20px;
+  padding: 16px 20px;
+  background: #000000;
+  border: 1px solid rgba(242, 236, 225, 0.25);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  animation: salaoStatsFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes salaoStatsFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.salao-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.salao-stat-value {
+  font-family: var(--font-cinzel), serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: #FAF7F2;
+  letter-spacing: 0.02em;
+}
+
+.salao-stat-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+/* Formulário de Chave da Sala */
+.salao-key-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.salao-key-label {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #e2e8f0;
+}
+
+.salao-key-row {
+  display: flex;
+  gap: 12px;
+}
+
+.salao-key-input {
+  flex: 1;
+  min-width: 0;
+  height: 56px;
+  padding: 14px 20px;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  text-align: center;
+  color: #FAF7F2;
+  background: #060606;
+  border: 1.5px solid rgba(242, 236, 225, 0.22);
+  border-radius: 8px;
+  outline: none;
+  box-sizing: border-box;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.7);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.salao-key-input:focus {
+  border-color: #FAF7F2;
+  background: #0B0B0B;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6), 0 0 0 2px rgba(242, 236, 225, 0.3), 0 0 16px rgba(242, 236, 225, 0.15);
+}
+
+.salao-key-input::placeholder {
+  color: rgba(242, 236, 225, 0.25);
+}
+
+.salao-key-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 56px;
+  padding: 0 32px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #f5ecdc;
+  background: #78350f;
+  border: 1px solid #92400e;
+  border-radius: 4px;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.salao-key-submit:hover:not(:disabled) {
+  background: #92400e;
+  color: #ffffff;
+  border-color: #b45309;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(180, 83, 9, 0.45);
+}
+
+.salao-key-submit:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.salao-key-message {
+  margin: 0;
+  min-height: 1.4em;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #cbd5e1;
+}
+
+.salao-key-message.is-error { color: #f87171; }
+.salao-key-message.is-success { color: #34d399; }
+
+/* Ações do Mestre (slots + botão) */
+.salao-master-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.salao-slots-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.salao-slots-dots {
+  display: inline-flex;
+  gap: 7px;
+}
+
+.salao-slot-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.2s;
+}
+
+.salao-slot-dot.is-on {
+  background: #f59e0b;
+  border-color: #f59e0b;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.7);
+}
+
+.salao-slots-box.is-full {
+  color: #FAF7F2;
+}
+
+.salao-slots-box.is-full .salao-slot-dot.is-on {
+  background: #f59e0b;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.9);
+}
+
+.salao-create-room-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 52px;
+  padding: 0 26px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #000000;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  box-sizing: border-box;
+  box-shadow: 0 4px 18px rgba(245, 158, 11, 0.4);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.salao-create-room-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.55);
+}
+
+.salao-create-room-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: #222222;
+  color: #777777;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Cards e Listas de Mesas nos Painéis */
+.salao-ref-list-box {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.salao-ref-list-title {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin-bottom: 12px;
+}
+
+.salao-ref-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 240px;
+  overflow-y: auto;
+  padding-right: 4px;
+  transition: max-height 0.3s ease;
+}
+
+.salao-ref-panel.is-expanded .salao-ref-list {
+  max-height: 320px;
+}
+
+.salao-ref-room-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #000000;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  color: #f1f5f9;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+  width: 100%;
+}
+
+.salao-ref-room-card:hover {
+  background: #121212;
+  border-color: rgba(242, 236, 225, 0.4);
+  transform: translateY(-1px);
+}
+
+.salao-ref-room-card.is-active {
+  background: rgba(242, 236, 225, 0.08);
+  border-color: #F2ECE1;
+  box-shadow: 0 0 16px rgba(242, 236, 225, 0.15);
+}
+
+.salao-ref-room-card.is-expanded-mode {
+  background: #080808;
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.salao-ref-room-card.is-expanded-mode:hover {
+  border-color: #F2ECE1;
+}
+
+.salao-ref-room-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #000000;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  color: #f1f5f9;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+  width: 100%;
+}
+
+.salao-ref-room-btn:hover {
+  background: #121212;
+  border-color: rgba(242, 236, 225, 0.4);
+  transform: translateX(2px);
+}
+
+.salao-ref-room-btn.is-active {
+  background: rgba(242, 236, 225, 0.08);
+  border-color: #F2ECE1;
+}
+
+.salao-room-tag {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #FAF7F2;
+  background: #181818;
+  border: 1px solid rgba(242, 236, 225, 0.28);
+  border-radius: 4px;
+  padding: 2px 8px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.salao-room-players-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #F2ECE1;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(242, 236, 225, 0.18);
+}
+
+.salao-room-expanded-details {
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  animation: salaoStatsFadeIn 0.25s ease-out;
+}
+
+.salao-player-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #FAF7F2;
+  background: #161616;
+  border: 1px solid rgba(242, 236, 225, 0.22);
+  padding: 3px 10px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.salao-ref-empty {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #94a3b8;
+  padding: 18px 0;
+  margin: 0;
+}
+
+@media (max-width: 820px) {
+  .salao-ref-frame {
+    flex-direction: column;
+  }
+  .salao-ref-panel {
+    flex: 1 1 auto !important;
+  }
+  .salao-ref-panel--join {
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
 }
 
 /* ==========================================================================
-   LUMINÁRIAS & VELAS INTERATIVAS (Borradas e Fracas)
+/* ==========================================================================
+   ESTILOS PARA SALA ATIVA NO FUNDO BRANCO/CREME (#F4EDDD)
    ========================================================================== */
 
-.hero-lantern {
-  position: absolute;
+.salao-white-canvas #sala-ativa {
+  color: #15100b;
+}
+
+.salao-white-canvas #sala-ativa h2,
+.salao-white-canvas #sala-ativa h3,
+.salao-white-canvas #sala-ativa h4 {
+  color: #15100b;
+  letter-spacing: normal;
+}
+
+.salao-white-canvas #sala-ativa p {
+  color: #4B3E2E;
+}
+
+/* Barra de Abas da Sala Ativa (Separadores de Tomo Antigo) */
+.salao-tabs-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid #000000;
+  flex-wrap: wrap;
+}
+
+.salao-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 8px;
+  border: 1.5px solid #000000;
+  background: #FAF6EE;
+  color: #000000;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.salao-tab-btn:hover {
+  background: #000000;
+  color: #F4EDDD;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+
+.salao-tab-btn.is-active {
+  background: #000000;
+  color: #F4EDDD;
+  border-color: #000000;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+  font-weight: 800;
+}
+
+.salao-tab-btn--master {
+  margin-left: auto;
+  background: #000000;
+  border: 1.5px solid #000000;
+  color: #F4EDDD;
+}
+
+.salao-tab-btn--master:hover {
+  background: #241c15;
+  color: #ffffff;
+}
+
+.salao-master-tag {
+  background: #f59e0b;
+  color: #000000;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Painel Chave da Sala no Fundo Branco */
+.salao-white-canvas .room-key {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  color: #0f172a;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.salao-white-canvas .room-key__label {
+  color: #64748b;
+  font-weight: 700;
+}
+
+.salao-white-canvas .room-key__code {
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px dashed #cbd5e1;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.salao-white-canvas .room-key__btn {
+  background: #ffffff;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+}
+
+.salao-white-canvas .room-key__btn:hover:not(:disabled) {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+.salao-white-canvas .room-key__hint {
+  color: #64748b;
+}
+
+.salao-white-canvas .room-key__number {
+  color: #0f172a;
+}
+
+.salao-white-canvas .room-key__seat {
+  background: #e2e8f0;
+  border-radius: 3px;
+}
+
+.salao-white-canvas .room-key__seat.is-on {
+  background: #059669;
+}
+
+.salao-white-canvas .room-key__list {
+  border-color: #e2e8f0;
+}
+
+.salao-white-canvas .room-key__player {
+  color: #1e293b;
+  border-top: 1px solid #e2e8f0;
+}
+
+.salao-white-canvas .room-key__remove {
+  color: #94a3b8;
+}
+
+.salao-white-canvas .room-key__remove:hover {
+  color: #ef4444;
+}
+
+/* Cartões em Fundo Branco (Fichas, Lore, Regras) */
+.salao-white-canvas .surface-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  color: #0f172a;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.salao-white-canvas .surface-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 10px 24px -6px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.salao-white-canvas .surface-card h1,
+.salao-white-canvas .surface-card h2,
+.salao-white-canvas .surface-card h3,
+.salao-white-canvas .surface-card h4 {
+  color: #0f172a;
+}
+
+.salao-white-canvas .font-lore {
+  color: #334155 !important;
+}
+
+/* Modais Padronizados em Fundo Branco */
+.tavern-modal-content {
+  background-color: #ffffff;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* ==========================================================================
+   HUB PRINCIPAL: XADREZ DE CORES COM BANNERS 70VH
+   Módulo I: Salão Comunal (Preto #000000)
+   Módulo II: Telas do Alaúde (Branco/Bege #F4EDDD)
+   Módulo III: Taberneiro (Preto #000000)
+   Módulo IV: Portal de Chats (Branco/Bege #F4EDDD)
+   ========================================================================== */
+
+.hub-checkerboard {
+  width: 100%;
   display: flex;
   flex-direction: column;
+  margin: 0;
+  padding: 0;
+  background-color: #000000;
+  margin-top: 0;
+}
+
+/* Cada banner tem proporção de 100 de comprimento (width: 100%) e 80 de altura (80vh / 80dvh) */
+.hub-banner {
+  position: relative;
+  width: 100%;
+  height: 80vh;
+  height: 80dvh;
+  min-height: 80vh;
+  min-height: 80dvh;
+  box-sizing: border-box;
+  display: flex;
   align-items: center;
-  pointer-events: auto;
-  cursor: pointer;
-  user-select: none;
-  outline: none;
-  transition: filter 0.3s ease, transform 0.3s ease;
+  justify-content: center;
+  padding: 0 var(--edge);
+  overflow: hidden;
+  transition: background-color 0.4s ease;
 }
 
-/* LUMINÁRIA 1: Esquerda Superior (Hanging Iron Cage) */
-.hero-lantern--left {
-  top: 14%;
-  left: clamp(20px, 6vw, 90px);
-  filter: blur(6px);
-  transform: scale(0.9);
-}
-.hero-lantern--left:hover,
-.hero-lantern--left:focus-visible {
-  filter: blur(4px);
-  transform: scale(0.95);
+/* O primeiro banner preto se alinha abaixo da barra retangular bege */
+.hub-banner--first {
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
-/* LUMINÁRIA 2: Direita Média (Wall Sconce / Arandela) */
-.hero-lantern--right {
-  top: 52%;
-  right: clamp(24px, 7vw, 110px);
-  filter: blur(8px);
-  transform: scale(0.85);
-}
-.hero-lantern--right:hover,
-.hero-lantern--right:focus-visible {
-  filter: blur(5px);
-  transform: scale(0.9);
+.hub-banner--dark {
+  background-color: #000000;
+  color: #f5ecdc;
 }
 
-/* LUMINÁRIA 3: Distante ao Fundo (Muito Borrada e Fraca) */
-.hero-lantern--distant {
-  top: 22%;
-  right: 30%;
-  filter: blur(12px);
+.hub-banner--light {
+  background-color: #F4EDDD;
+  color: #15100b;
+}
+
+/* ==========================================================================
+   CANTORES MEDIEVAIS DECORATIVOS (ILUMINURA GÓTICA / FILIGRANA)
+   Nos 4 cantos de cada banner, sem conflitar com textos
+   ========================================================================== */
+
+.hub-banner__corners {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 6;
+  overflow: hidden;
+}
+
+.hub-corner {
+  position: absolute;
+  width: clamp(130px, 14vw, 220px);
+  height: clamp(130px, 14vw, 220px);
+  pointer-events: none;
+  transition: opacity 0.35s ease, color 0.35s ease, filter 0.35s ease;
+}
+
+.hub-corner svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* 4 Cantos: Rigorosamente colados nos cantos (sem espaçamento / 0px de distância) */
+.hub-corner--top-left {
+  top: 0;
+  left: 0;
+  transform: none;
+}
+
+.hub-corner--top-right {
+  top: 0;
+  right: 0;
+  transform: scaleX(-1);
+}
+
+.hub-corner--bottom-left {
+  bottom: 0;
+  left: 0;
+  transform: scaleY(-1);
+}
+
+.hub-corner--bottom-right {
+  bottom: 0;
+  right: 0;
+  transform: scale(-1, -1);
+}
+
+/* Estilo Temático Medieval: Tom Misto Branco/Bege (#F4EDDD) nos Banners Escuros */
+.hub-banner--dark .hub-corner {
+  color: #F4EDDD;
+  opacity: 0.72;
+  filter: drop-shadow(0 0 6px rgba(244, 237, 221, 0.22));
+}
+
+.hub-banner--dark:hover .hub-corner,
+.hub-banner--dark.is-hovered .hub-corner {
+  color: #F4EDDD;
+  opacity: 1;
+  filter: drop-shadow(0 0 14px rgba(244, 237, 221, 0.45));
+}
+
+/* Estilo Temático Medieval: Tinta Ferrogálica / Nanquim Escuro nos Banners Claros */
+.hub-banner--light .hub-corner {
+  color: #3b2818;
   opacity: 0.45;
-  transform: scale(0.65);
+  filter: drop-shadow(0 1px 2px rgba(59, 40, 24, 0.2));
 }
-.hero-lantern--distant:hover {
-  filter: blur(8px);
+
+.hub-banner--light:hover .hub-corner,
+.hub-banner--light.is-hovered .hub-corner {
+  color: #170f09;
+  opacity: 0.88;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.25));
+}
+
+/* Em telas mobile, os cantos diminuem proporcionalmente mantendo-se colados */
+@media (max-width: 768px) {
+  .hub-corner {
+    width: clamp(70px, 16vw, 110px);
+    height: clamp(70px, 16vw, 110px);
+    opacity: 0.38;
+  }
+}
+
+.hub-banner__inner {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* Botão interativo que envolve o título e ativa no cursor */
+.hub-banner__title-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  text-align: center;
+  outline: none;
+  z-index: 10;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.hub-banner__title-btn:hover {
+  transform: translateY(-4px);
+}
+
+.hub-banner__title-btn:active {
+  transform: translateY(-1px) scale(0.995);
+}
+
+/* Título Gigante com tipografia Cinzel: PALAVRA 1 no topo, conector + PALAVRA 2 embaixo, aproximadas sem vãos */
+.hub-banner__title {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: 0 auto;
+  font-family: 'Cinzel Hero', var(--font-cinzel), serif;
+  font-weight: 800;
+  font-size: clamp(48px, 9.2vw, 136px);
+  line-height: 0.86;
+  letter-spacing: 0.015em;
+  text-transform: uppercase;
+  text-align: center;
+  transition: letter-spacing 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+              color 0.3s ease,
+              text-shadow 0.3s ease;
+}
+
+.hub-banner--dark .hub-banner__title {
+  color: #f5ecdc;
+  text-shadow: none;
+}
+
+.hub-banner--dark .hub-banner__title-btn:hover .hub-banner__title {
+  color: #F4EDDD;
+  letter-spacing: 0.035em;
+  text-shadow: none;
+}
+
+.hub-banner--light .hub-banner__title {
+  color: #15100b;
+}
+
+.hub-banner--light .hub-banner__title-btn:hover .hub-banner__title {
+  color: #000000;
+  letter-spacing: 0.035em;
+  text-shadow: 0 0 35px rgba(133, 77, 14, 0.22);
+}
+
+/* Linhas do título centralizadas e unidas (PALAVRA 1 na linha A, conector + PALAVRA 2 na linha B) */
+.hub-banner__line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.hub-banner__line--a {
+  justify-content: center;
+}
+
+.hub-banner__line--b {
+  justify-content: center;
+  gap: clamp(14px, 1.8vw, 28px);
+  margin-top: -0.04em;
+}
+
+.hub-banner__word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* Círculo com seta interativa ao lado da linha B */
+.hub-banner__arrow-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(44px, 5.2vw, 76px);
+  height: clamp(44px, 5.2vw, 76px);
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.hub-banner--dark .hub-banner__arrow-wrap {
+  border: 1.5px solid rgba(244, 237, 221, 0.35);
+  color: #F4EDDD;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.hub-banner--dark .hub-banner__title-btn:hover .hub-banner__arrow-wrap {
+  background: #F4EDDD;
+  color: #000000;
+  border-color: #F4EDDD;
+  transform: rotate(45deg) scale(1.1);
+  box-shadow: 0 0 25px rgba(244, 237, 221, 0.45);
+}
+
+.hub-banner--light .hub-banner__arrow-wrap {
+  border: 1.5px solid rgba(21, 16, 11, 0.25);
+  color: #854d0e;
+  background: rgba(21, 16, 11, 0.03);
+}
+
+.hub-banner--light .hub-banner__title-btn:hover .hub-banner__arrow-wrap {
+  background: #15100b;
+  color: #F4EDDD;
+  border-color: #15100b;
+  transform: rotate(45deg) scale(1.1);
+  box-shadow: 0 0 25px rgba(21, 16, 11, 0.35);
+}
+
+.hub-banner__arrow {
+  width: clamp(22px, 2.6vw, 36px);
+  height: clamp(22px, 2.6vw, 36px);
+  transition: transform 0.3s ease;
+}
+
+/* Pill de Ação dinâmico centralizado */
+.hub-banner__pill-tray {
+  margin-top: clamp(14px, 2.2vh, 24px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.hub-banner__title-btn:hover .hub-banner__pill-tray {
+  transform: translateY(-2px);
+}
+
+.hub-banner__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 7px 18px;
+  border-radius: 9999px;
+  transition: all 0.25s ease;
+}
+
+.hub-banner--dark .hub-banner__pill {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.hub-banner--dark .hub-banner__title-btn:hover .hub-banner__pill {
+  background: #F4EDDD;
+  color: #000000;
+  border-color: #F4EDDD;
+  box-shadow: 0 4px 18px rgba(244, 237, 221, 0.35);
+}
+
+.hub-banner--light .hub-banner__pill {
+  background: rgba(21, 16, 11, 0.06);
+  color: #15100b;
+  border: 1px solid rgba(21, 16, 11, 0.16);
+}
+
+.hub-banner--light .hub-banner__title-btn:hover .hub-banner__pill {
+  background: #15100b;
+  color: #F4EDDD;
+  border-color: #15100b;
+  box-shadow: 0 4px 18px rgba(21, 16, 11, 0.25);
+}
+
+/* Legenda inferior explicativa do serviço (em 1 linha só, centralizada inferiormente) */
+.hub-banner__service-desc {
+  position: absolute;
+  bottom: clamp(40px, 6vh, 68px);
+  left: 0;
+  right: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  z-index: 12;
+  pointer-events: auto;
+  box-sizing: border-box;
+  padding: 0 20px;
+}
+
+.hub-banner__service-desc p {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: clamp(16px, 1.35vw, 20px);
+  line-height: 1.45;
+  letter-spacing: 0.012em;
+  font-weight: 400;
+  white-space: nowrap;
+  text-align: center;
+  transition: color 0.3s ease;
+}
+
+@media (max-width: 1200px) {
+  .hub-banner__service-desc p {
+    white-space: normal;
+    max-width: 85ch;
+  }
+}
+
+.hub-banner--dark .hub-banner__service-desc p {
+  color: rgba(245, 236, 220, 0.84);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+
+.hub-banner--light .hub-banner__service-desc p {
+  color: rgba(26, 19, 13, 0.85);
+}
+
+/* Botão de retorno elegante para voltar ao Hub quando em uma subpágina */
+.salao-back-to-hub-bar {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 12px var(--edge) 0;
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 40;
+}
+
+.salao-back-to-hub-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.salao-back-to-hub-btn:hover {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+  transform: translateX(-3px);
+}
+
+.salao-back-to-hub-bar--light .salao-back-to-hub-btn {
+  background: rgba(26, 19, 13, 0.07);
+  border: 1px solid rgba(26, 19, 13, 0.22);
+  color: #2b1f14;
+}
+
+.salao-back-to-hub-bar--light .salao-back-to-hub-btn:hover {
+  background: rgba(180, 83, 9, 0.14);
+  border-color: rgba(180, 83, 9, 0.4);
+  color: #92400e;
+  transform: translateX(-3px);
+}
+
+/* ==========================================================================
+   DESIGNS ÚNICOS & ELEMENTOS INTERATIVOS DAS 4 SALAS (PRETO E BRANCO/BEGE)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   SALA 1: SALÃO COMUNAL (Mesa de Carvalho & Mural da Guilda)
+   -------------------------------------------------------------------------- */
+.salao-mural-bar {
+  width: 100%;
+  display: flex;
+  justifyContent: center;
+  padding: 12px 20px 0;
+  box-sizing: border-box;
+}
+
+.salao-mural-bar__inner {
+  width: min(95vw, 1360px);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 14px 22px;
+  background: #000000;
+  color: #F4EDDD;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  box-sizing: border-box;
+}
+
+.salao-mural-branding {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.salao-mural-crest {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: #14110e;
+  border: 1.5px solid #F4EDDD;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #F4EDDD;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.salao-mural-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.salao-mural-subtitle {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.salao-mural-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: #F4EDDD;
+  font-family: var(--font-display, serif);
+  letter-spacing: 0.04em;
+}
+
+/* Dado do Destino do Salão Comunal */
+.salao-d20-station {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.salao-d20-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #14110e;
+  border: 1.5px solid #F4EDDD;
+  border-radius: 8px;
+  padding: 8px 16px;
+  color: #F4EDDD;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.salao-d20-btn:hover {
+  background: #F4EDDD;
+  color: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+}
+
+.salao-d20-btn.is-rolling .salao-d20-icon-wrap {
+  animation: d20Roll 0.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes d20Roll {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.2); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+.salao-d20-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.salao-d20-tag {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.75;
+}
+
+.salao-d20-val {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.salao-d20-omen-bubble {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 55;
+  width: 300px;
+  background: #F4EDDD;
+  color: #15100b;
+  border: 2px solid #000000;
+  border-radius: 8px;
+  padding: 12px 14px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  animation: salaoFadeIn 0.25s ease-out;
+}
+
+@keyframes salaoFadeIn {
+  from { opacity: 0; transform: translate(-50%, -6px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.salao-d20-omen-text {
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+.salao-d20-omen-close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  color: #15100b;
   opacity: 0.7;
 }
 
-/* Estrutura de Ferro / Gaiola da Luminária */
-.hero-lantern__chain {
-  width: 2px;
-  height: 48px;
-  background: linear-gradient(to bottom, rgba(245, 236, 220, 0.05), rgba(245, 236, 220, 0.25));
-  margin-bottom: -2px;
-}
-.hero-lantern__chain--short {
-  height: 24px;
+.salao-d20-omen-close:hover {
+  opacity: 1;
 }
 
-.hero-lantern__sconce-arm {
-  position: absolute;
-  top: -15px;
-  right: -25px;
-  width: 35px;
-  height: 25px;
-  border-bottom: 2px solid rgba(245, 236, 220, 0.2);
-  border-left: 2px solid rgba(245, 236, 220, 0.2);
-  border-bottom-left-radius: 12px;
-  pointer-events: none;
+/* Filtro Rápido do Mural */
+.salao-mural-filters {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.hero-lantern__cage {
+.salao-mural-filter-tab {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.salao-mural-filter-tab:hover {
+  color: #F4EDDD;
+}
+
+.salao-mural-filter-tab.is-active {
+  background: #F4EDDD;
+  color: #000000;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Botão de Colar Chave */
+.salao-key-paste-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #F4EDDD;
+  padding: 0 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.salao-key-paste-btn:hover {
+  background: #F4EDDD;
+  color: #000000;
+  border-color: #F4EDDD;
+}
+
+/* Lanternas de Vagas de Mestre */
+.salao-master-lanterns {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  margin-bottom: 4px;
+}
+
+.salao-master-lantern {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: #14110e;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 6px;
+  font-size: 12px;
+  color: #F4EDDD;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.salao-master-lantern:hover {
+  border-color: #F4EDDD;
+  background: #1f1a14;
+}
+
+.salao-master-lantern.is-occupied .salao-lantern-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #F2ECE1;
+  box-shadow: 0 0 8px rgba(242, 236, 225, 0.7);
+}
+
+.salao-master-lantern.is-empty .salao-lantern-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #64748b;
+}
+
+.salao-lantern-label {
+  font-weight: 600;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   SALA 2: TELAS DO ALAÚDE (Cavalete do Bardo & Galeria de Iluminuras)
+   -------------------------------------------------------------------------- */
+.bardo-lute-box {
+  margin-top: 6px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed rgba(244, 237, 221, 0.25);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bardo-lute-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 12px;
+  background: #161412;
+  border: 1.5px solid #F4EDDD;
+  border-radius: 6px;
+  color: #F4EDDD;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
   position: relative;
-  width: 44px;
+  transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.bardo-lute-btn:hover:not(:disabled) {
+  background: #F4EDDD;
+  color: #000000;
+  transform: translateY(-2px);
+}
+
+.bardo-lute-btn.is-strumming .bardo-lute-icon {
+  animation: luteStrum 0.4s ease-in-out infinite;
+}
+
+@keyframes luteStrum {
+  0%, 100% { transform: rotate(0deg); }
+  30% { transform: rotate(-15deg); }
+  70% { transform: rotate(15deg); }
+}
+
+.bardo-lute-note {
+  position: absolute;
+  right: 12px;
+  font-size: 16px;
+  color: #fbbf24;
+  animation: luteNoteFly 0.8s ease-out forwards;
+}
+
+@keyframes luteNoteFly {
+  0% { transform: translateY(0) scale(0.6); opacity: 1; }
+  100% { transform: translateY(-26px) scale(1.4); opacity: 0; }
+}
+
+.bardo-lute-hint {
+  margin: 0;
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.35;
+  text-align: center;
+}
+
+/* Seletor de Técnica de Iluminura */
+.bardo__medium-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 0 4px;
+  border-top: 1px dashed rgba(244, 237, 221, 0.15);
+}
+
+.bardo__medium-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #cbd5e1;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.bardo__medium-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.bardo-medium-pill {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #cbd5e1;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bardo-medium-pill:hover {
+  border-color: #F4EDDD;
+  color: #F4EDDD;
+}
+
+.bardo-medium-pill.is-active {
+  background: #F4EDDD;
+  color: #000000;
+  border-color: #F4EDDD;
+  font-weight: 700;
+}
+
+/* Alternador Grade / Cavalete */
+.bardo-wall__view-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 4px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.bardo-view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bardo-view-btn:hover {
+  color: #F4EDDD;
+}
+
+.bardo-view-btn.is-active {
+  background: #F4EDDD;
+  color: #000000;
+  font-weight: 700;
+}
+
+/* Palco do Cavalete */
+.bardo-easel-stage {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-.hero-lantern__cage--round {
-  width: 40px;
-}
-.hero-lantern__cage--tiny {
-  width: 28px;
+  gap: 18px;
+  margin-top: 14px;
 }
 
-.hero-lantern__roof {
-  width: 38px;
-  height: 12px;
-  background: #19140f;
-  border: 1px solid rgba(245, 236, 220, 0.2);
-  border-bottom: none;
-  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
-}
-
-.hero-lantern__chamber {
+.bardo-easel-frame {
   position: relative;
+  max-width: 640px;
   width: 100%;
-  height: 52px;
-  background: rgba(22, 17, 13, 0.35);
-  border: 1px solid rgba(245, 236, 220, 0.16);
-  border-radius: 3px;
+  background: #000000;
+  border: 2px solid #F4EDDD;
+  border-radius: 10px;
+  padding: 22px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
+  box-sizing: border-box;
+}
+
+.bardo-pin-ornament {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 13px;
+  color: #F4EDDD;
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.bardo-easel-image-box {
+  width: 100%;
+  max-height: 480px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #0a0908;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.bardo-easel-img {
+  width: 100%;
+  height: auto;
+  max-height: 480px;
+  object-fit: contain;
+  display: block;
+}
+
+.bardo-easel-details {
+  margin-top: 16px;
+  color: #F4EDDD;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bardo-easel-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.bardo-easel-counter {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.bardo-easel-prompt {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #F4EDDD;
+}
+
+.bardo-easel-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.bardo-easel-nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.bardo-easel-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #14110e;
+  border: 1.5px solid #F4EDDD;
+  color: #F4EDDD;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bardo-easel-arrow:hover {
+  background: #F4EDDD;
+  color: #000000;
+}
+
+/* --------------------------------------------------------------------------
+   SALA 3: URD, O TABERNEIRO (O Balcão de Carvalho & Lareira dos Causos)
+   -------------------------------------------------------------------------- */
+.urd-chamber.has-hearth-glow {
+  background: 
+    radial-gradient(circle at 85% 15%, rgba(245, 158, 11, 0.08) 0%, rgba(0, 0, 0, 0) 65%),
+    #080706;
+}
+
+.urd-toast-box {
+  margin-top: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(244, 237, 221, 0.2);
+  border-radius: 8px;
+}
+
+.urd-toast-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #161310;
+  border: 1.5px solid #F4EDDD;
+  border-radius: 6px;
+  color: #F4EDDD;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+
+.urd-toast-btn:hover {
+  background: #F4EDDD;
+  color: #000000;
+  transform: translateY(-2px);
+}
+
+.urd-toast-btn.is-clinking {
+  animation: urdClink 0.5s ease-in-out;
+}
+
+@keyframes urdClink {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-14deg) translateY(-4px); }
+  60% { transform: rotate(10deg) translateY(-2px); }
+}
+
+.urd-foam-burst {
+  position: absolute;
+  top: -12px;
+  right: 12px;
+  font-size: 18px;
+  animation: urdPop 0.3s ease-out;
+}
+
+@keyframes urdPop {
+  from { transform: scale(0.4); opacity: 0; }
+  to { transform: scale(1.1); opacity: 1; }
+}
+
+.urd-toast-banner {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: #F4EDDD;
+  color: #000000;
+  border-radius: 6px;
+  border: 1.5px solid #000000;
+  animation: salaoFadeIn 0.25s ease;
+}
+
+.urd-toast-quote {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  line-height: 1.45;
+  font-style: italic;
+  color: #15100b;
+}
+
+.urd-toast-ask-btn {
+  background: #000000;
+  color: #F4EDDD;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.urd-toast-ask-btn:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.urd-hearth-toggle-box {
+  margin-top: 6px;
+}
+
+.urd-hearth-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.urd-hearth-btn.is-lit {
+  border-color: rgba(245, 158, 11, 0.5);
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.08);
+}
+
+/* Bolachas de Chopp de Rumores */
+.urd-coasters-bar {
+  margin-top: 10px;
+  padding: 10px 0;
+  border-top: 1px dashed rgba(244, 237, 221, 0.15);
+}
+
+.urd-coasters-grid {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.urd-coaster-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: #14110e;
+  border: 1px solid rgba(244, 237, 221, 0.25);
+  border-radius: 9999px;
+  color: #F4EDDD;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.urd-coaster-btn:hover:not(:disabled) {
+  background: #F4EDDD;
+  color: #000000;
+  border-color: #F4EDDD;
+  transform: translateY(-1px);
+}
+
+/* --------------------------------------------------------------------------
+   SALA 4: PORTAL DE CHATS (Scriptorium & Despacho dos Aventureiros)
+   -------------------------------------------------------------------------- */
+.portal-status-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #161412;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  padding: 5px 12px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #F4EDDD;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.portal-status-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #F4EDDD;
+}
+
+.portal-status-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 70;
+  background: #000000;
+  border: 1.5px solid #F4EDDD;
+  border-radius: 8px;
+  padding: 6px;
+  width: 210px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8);
+}
+
+.portal-status-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 6px;
+  color: #F4EDDD;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.portal-status-item:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.portal-status-item.is-selected {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* Bandeja Rápida de Dados */
+.portal-quick-dice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 8px 14px;
+  background: #0a0908;
+  border-top: 1px solid rgba(244, 237, 221, 0.15);
+}
+
+.portal-quick-dice__left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.portal-quick-dice__btn {
+  background: #161310;
+  border: 1px solid rgba(244, 237, 221, 0.25);
+  color: #F4EDDD;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.portal-dice-modifiers {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.portal-dice-mod-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #8A8275;
+}
+
+.portal-dice-mod-pill {
+  background: #141414;
+  border: 1px solid rgba(242, 236, 225, 0.22);
+  color: #D6CFC4;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 9px;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 4px rgba(0, 0, 0, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.portal-dice-mod-pill:hover {
+  border-color: #FAF7F2;
+  color: #FFFFFF;
+  transform: translateY(-1px);
+}
+
+.portal-dice-mod-pill.is-active {
+  background: #F2ECE1;
+  color: #0A0A0A;
+  border-color: #FAF7F2;
+  font-weight: 800;
+  box-shadow: 0 0 0 1px #0A0A0A, 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Selo de Despacho */
+.portal-seal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #161616;
+  border: 1px solid rgba(242, 236, 225, 0.2);
+  color: #EAE2D3;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 0 14px;
+  border-radius: 6px;
+  height: 42px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.portal-seal-btn:hover {
+  background: #242424;
+  border-color: #F2ECE1;
+  color: #FFFFFF;
+}
+
+.portal-seal-btn.is-active {
+  background: #F2ECE1;
+  border-color: #F2ECE1;
+  color: #0B0B0B;
+  font-weight: 800;
+}
+
+/* Reações Medievais em Mensagens */
+.portal-msg-reactions-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.portal-reaction-badge {
+  background: rgba(244, 237, 221, 0.12);
+  border: 1px solid rgba(244, 237, 221, 0.3);
+  border-radius: 9999px;
+  padding: 2px 8px;
+  font-size: 11px;
+  color: #F4EDDD;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+
+.portal-reaction-badge:hover {
+  background: rgba(244, 237, 221, 0.25);
+}
+
+.portal-reaction-stamps {
+  display: inline-flex;
+  gap: 4px;
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}
+
+.portal-msg:hover .portal-reaction-stamps {
+  opacity: 1;
+}
+
+.portal-reaction-stamp-btn {
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 2px 3px;
+  border-radius: 4px;
+  transition: transform 0.15s ease;
+}
+
+.portal-reaction-stamp-btn:hover {
+  transform: scale(1.3);
+}
+
+/* ==========================================================================
+   BARRA DE ABAS ÚNICA DA TAVERNA (TAVERN ROOM TAB BAR)
+   Navegação única e estilizada entre as 4 salas da taverna
+   ========================================================================== */
+.tavern-room-bar {
+  width: 100%;
+  background: #0A0A0A;
+  border-bottom: 1px solid rgba(242, 236, 225, 0.14);
+  position: sticky;
+  top: 56px;
+  z-index: 700;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.tavern-room-bar__inner {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 10px var(--edge) 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+.tavern-room-bar__top-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.tavern-room-bar__back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #14110e;
+  border: 1px solid rgba(242, 236, 225, 0.25);
+  color: #F2ECE1;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+}
+
+.tavern-room-bar__back-btn:hover {
+  background: #F2ECE1;
+  color: #0B0B0B;
+  transform: translateX(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+}
+
+.tavern-room-bar__tabs-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  width: 100%;
+}
+
+@media (max-width: 960px) {
+  .tavern-room-bar__tabs-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 540px) {
+  .tavern-room-bar__tabs-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tavern-room-tab-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #111111;
+  border: 1px solid rgba(242, 236, 225, 0.15);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #A89A85;
+  cursor: pointer;
+  position: relative;
+  text-align: left;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  min-width: 0;
+}
+
+.tavern-room-tab-card:hover {
+  background: #181818;
+  border-color: rgba(242, 236, 225, 0.35);
+  color: #F2ECE1;
+  transform: translateY(-1px);
+}
+
+.tavern-room-tab-card.is-active {
+  background: #F2ECE1;
+  border-color: #F2ECE1;
+  color: #0B0B0B;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  font-weight: 700;
+}
+
+.tavern-room-tab-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: #1A1A1A;
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.tavern-room-tab-card.is-active .tavern-room-tab-card__icon {
+  background: #0B0B0B;
+  color: #F2ECE1;
+}
+
+.tavern-room-tab-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.tavern-room-tab-card__title {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: #EAE2D3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tavern-room-tab-card.is-active .tavern-room-tab-card__title {
+  color: #0B0B0B;
+}
+
+.tavern-room-tab-card__subtitle {
+  font-size: 9.5px;
+  opacity: 0.75;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #786C5E;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tavern-room-tab-card.is-active .tavern-room-tab-card__subtitle {
+  color: #4a3f35;
+  opacity: 0.9;
+}
+
+.tavern-room-tab-card__badge {
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(242, 236, 225, 0.08);
+  border: 1px solid rgba(242, 236, 225, 0.18);
+  color: #A89A85;
+  flex-shrink: 0;
+}
+
+.tavern-room-tab-card.is-active .tavern-room-tab-card__badge {
+  background: #0B0B0B;
+  color: #F2ECE1;
+  border-color: #0B0B0B;
+}
+
+/* ==========================================================================
+   SALA 3: URD, O TABERNEIRO (O BALCÃO DE PEDRA-FUNDA) - DESIGN ÚNICO
+   ========================================================================== */
+.balcao-view {
+  width: 100%;
+  min-height: calc(100vh - var(--nav-h, 56px));
+  background: var(--bg-parchment, #F2ECE1);
+  color: var(--text-obsidian, #111111);
+  position: relative;
+  box-sizing: border-box;
+}
+
+.balcao-view.has-hearth-glow::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(180, 140, 90, 0.08) 0%, rgba(180, 140, 90, 0) 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Container Principal Unificado em Preto Profundo (#0B0B0B) */
+.balcao-unified-card {
+  width: 100%;
+  background: var(--bg-obsidian, #0B0B0B);
+  border: 1px solid var(--border-subtle, rgba(242, 236, 225, 0.18));
+  border-radius: var(--radius-card, 16px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+  margin-bottom: 40px;
+}
+
+.balcao-ledge {
+  padding: 22px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  border-bottom: 1px solid rgba(242, 236, 225, 0.12);
+  background: #0E0E0E;
+}
+
+.balcao-barkeep-profile {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.balcao-portrait-frame {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(242, 236, 225, 0.25);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+  flex-shrink: 0;
+}
+
+.balcao-portrait-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.balcao-status-pip {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.88);
+  font-size: 9px;
+  font-weight: 700;
+  text-align: center;
+  padding: 2px 4px;
+  color: #F2ECE1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.balcao-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34d399;
+}
+
+.balcao-status-pip.is-busy .balcao-status-dot {
+  background: #F2ECE1;
+  animation: pulse 1s infinite;
+}
+
+.balcao-barkeep-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.balcao-tagline {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #a89a85;
+  font-weight: 700;
+}
+
+.balcao-name {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: #F5F0E6;
+  font-family: var(--font-display, serif);
+  letter-spacing: 0.02em;
+}
+
+.balcao-campaign-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #d1c7b7;
+  background: #161616;
+  border: 1px solid rgba(242, 236, 225, 0.15);
+  border-radius: 4px;
+  padding: 2px 8px;
+  width: fit-content;
+}
+
+/* Widgets da Bancada */
+.balcao-widgets {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.balcao-mug-station {
+  position: relative;
+}
+
+.balcao-mug-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #161616;
+  border: 1px solid rgba(242, 236, 225, 0.22);
+  border-radius: 10px;
+  padding: 10px 16px;
+  color: #EAE2D3;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.balcao-mug-btn:hover {
+  background: #F2ECE1;
+  color: #0B0B0B;
+  border-color: #F2ECE1;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+.balcao-mug-btn:hover .balcao-mug-title,
+.balcao-mug-btn:hover .balcao-mug-desc {
+  color: #0B0B0B;
+}
+
+.balcao-mug-btn.is-clinking {
+  animation: clinkBeer 0.45s ease-in-out;
+}
+
+@keyframes clinkBeer {
+  0% { transform: rotate(0deg) scale(1); }
+  35% { transform: rotate(-18deg) scale(1.15) translateY(-4px); }
+  65% { transform: rotate(12deg) scale(1.1); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+
+.balcao-mug-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.balcao-mug-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.balcao-mug-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #F5F0E6;
+}
+
+.balcao-mug-desc {
+  font-size: 10px;
+  color: #a89a85;
+}
+
+.balcao-foam-splash {
+  font-size: 20px;
+  animation: popFoam 0.5s ease-out;
+}
+
+@keyframes popFoam {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.4); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.balcao-toast-dialog {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 320px;
+  background: #F2ECE1;
+  color: #0B0B0B;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: salaoFadeIn 0.2s ease-out;
+}
+
+.balcao-toast-saying {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+.balcao-toast-prompt-btn {
+  align-self: flex-end;
+  background: #0B0B0B;
+  color: #F2ECE1;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.balcao-toast-prompt-btn:hover {
+  background: #222222;
+  transform: translateY(-1px);
+}
+
+.balcao-hearth-station {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.balcao-hearth-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #161616;
+  border: 1px solid rgba(242, 236, 225, 0.2);
+  padding: 8px 14px;
+  border-radius: 8px;
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.balcao-hearth-switch:hover {
+  border-color: #F2ECE1;
+  background: #F2ECE1;
+  color: #0B0B0B;
+}
+
+.balcao-hearth-switch.is-lit {
+  background: #1E1A17;
+  border-color: rgba(242, 236, 225, 0.35);
+  color: #F2ECE1;
+}
+
+.balcao-hearth-switch.is-lit:hover {
+  background: #F2ECE1;
+  color: #0B0B0B;
+  border-color: #F2ECE1;
+}
+
+.balcao-clear-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #161616;
+  border: 1px solid rgba(242, 236, 225, 0.18);
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: #cbd5e1;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.balcao-clear-btn:hover {
+  color: #0B0B0B;
+  background: #F2ECE1;
+  border-color: #F2ECE1;
+}
+
+/* As 5 Bolachas de Pedra (Alinhadas no estilo da Barra de Técnica de Gravura da Aba 2) */
+.balcao-coasters-strip {
+  padding: 12px 24px;
+  background: #111111;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-bottom: 1px solid rgba(242, 236, 225, 0.12);
+}
+
+.balcao-coasters-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.balcao-coasters-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #a89a85;
+}
+
+.balcao-coasters-hint {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.balcao-coasters-rack {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.balcao-coaster-token {
+  background: #161616;
+  border: 1px solid rgba(242, 236, 225, 0.18);
+  border-radius: 9999px;
+  padding: 5px 12px;
+  color: #EAE2D3;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+}
+
+.balcao-coaster-token:hover:not(:disabled) {
+  background: #222222;
+  color: #FFFFFF;
+  border-color: rgba(242, 236, 225, 0.35);
+  transform: translateY(-1px);
+}
+
+.balcao-coaster-token.is-selected {
+  background: #F2ECE1;
+  color: #0B0B0B;
+  border-color: #F2ECE1;
+  font-weight: 800;
+}
+
+.balcao-coaster-token.is-selected .balcao-coaster-label {
+  color: #0B0B0B;
+}
+
+.balcao-coaster-label {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Diálogo de Balcão */
+.balcao-dialogue-stream {
+  min-height: 380px;
+  max-height: 520px;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  background: #0B0B0B;
+}
+
+.balcao-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  max-width: 85%;
+}
+
+.balcao-message--urd {
+  align-self: flex-start;
+}
+
+.balcao-message--user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.balcao-message__sigil {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(242, 236, 225, 0.25);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #141414;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.balcao-sigil-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.balcao-sigil-user {
+  font-size: 18px;
+}
+
+.balcao-message__slab {
+  background: #141414;
+  border: 1px solid rgba(242, 236, 225, 0.16);
+  border-radius: 10px;
+  padding: 14px 18px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  color: #F4EDDD;
+}
+
+.balcao-message--user .balcao-message__slab {
+  background: #F2ECE1;
+  color: #0B0B0B;
+  border-color: #F2ECE1;
+}
+
+.balcao-message__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.balcao-message__author {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.balcao-message--urd .balcao-message__author {
+  color: #F5F0E6;
+}
+
+.balcao-message--user .balcao-message__author {
+  color: #0B0B0B;
+}
+
+.balcao-message__time {
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+.balcao-message__content {
+  font-size: 14px;
+  line-height: 1.65;
+  white-space: pre-line;
+}
+
+.balcao-message__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(242, 236, 225, 0.15);
+}
+
+.balcao-action-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #161616;
+  border: 1px solid rgba(242, 236, 225, 0.2);
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #EAE2D3;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.balcao-action-chip:hover {
+  background: #F2ECE1;
+  color: #0B0B0B;
+  border-color: #F2ECE1;
+}
+
+.balcao-action-chip--save {
+  border-color: rgba(242, 236, 225, 0.35);
+  font-weight: 700;
+}
+
+.balcao-thinking-state {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  font-style: italic;
+  color: #F4EDDD;
+}
+
+.balcao-mug-rocking {
+  animation: mugRock 0.6s infinite alternate ease-in-out;
+}
+
+@keyframes mugRock {
+  from { transform: rotate(-10deg); }
+  to { transform: rotate(10deg); }
+}
+
+/* O Livro de Comandas (Compositor de Texto) */
+.balcao-ledger-composer {
+  padding: 16px 20px;
+  background: #0E0E0E;
+  border-top: 1px solid rgba(242, 236, 225, 0.12);
+}
+
+.balcao-ledger-desk {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.balcao-ledger-input {
+  flex: 1;
+  background: #141414;
+  border: 1px solid rgba(242, 236, 225, 0.2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #F4EDDD;
+  font-size: 14px;
+  resize: none;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.balcao-ledger-input:focus {
+  border-color: #F2ECE1;
+}
+
+/* Botão Consultar Urd padronizado com o botão Pedir Gravura */
+.balcao-ledger-stamp-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #F2ECE1;
+  color: #0B0B0B;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 22px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.balcao-ledger-stamp-btn:hover:not(:disabled) {
+  background: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.balcao-ledger-stamp-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Seção Inferior: Crônicas e Boatos do Balcão sobre fundo bege da página */
+.balcao-chronicles {
+  width: 100%;
+  margin: 40px auto 0;
+}
+
+.balcao-chronicles__header {
   display: flex;
   align-items: flex-end;
-  justify-content: center;
-  padding-bottom: 5px;
-  overflow: visible;
-}
-.hero-lantern__cage--tiny .hero-lantern__chamber {
-  height: 34px;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+  padding-bottom: 12px;
 }
 
-.hero-lantern__base {
-  width: 42px;
-  height: 6px;
-  background: #17120e;
-  border: 1px solid rgba(245, 236, 220, 0.2);
-  border-top: none;
-  border-radius: 0 0 2px 2px;
+.balcao-chronicles__eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #7a6f5d;
+  font-weight: 700;
 }
 
-/* Vela e Cera */
-.hero-lantern__candle-wax {
-  width: 12px;
-  height: 22px;
-  background: linear-gradient(to right, #78644e, #9c8469 45%, #63503d);
-  border-radius: 2px 2px 0 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-  z-index: 2;
-}
-.hero-lantern__candle-wax--short {
-  height: 16px;
-  width: 14px;
-}
-.hero-lantern__candle-wax--tiny {
-  height: 11px;
-  width: 9px;
+.balcao-chronicles__heading {
+  margin: 2px 0 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: #0B0B0B;
+  font-family: var(--font-display, serif);
 }
 
-/* Chama da Vela — Fraca, Suave e Borrada */
-.hero-lantern__flame-wrapper {
+.balcao-chronicles__counter {
+  font-size: 12px;
+  color: #7a6f5d;
+  font-weight: 500;
+}
+
+.balcao-chronicles__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.balcao-parchment-sheet {
+  background: #0B0B0B;
+  border: 1px solid rgba(242, 236, 225, 0.18);
+  border-radius: 14px;
+  padding: 20px;
+  position: relative;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.balcao-parchment-sheet:hover {
+  transform: translateY(-3px);
+  border-color: rgba(242, 236, 225, 0.35);
+}
+
+.balcao-sheet-wax-seal {
   position: absolute;
-  bottom: 25px;
+  top: 14px;
+  right: 16px;
+  font-size: 18px;
+}
+
+.balcao-sheet-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.balcao-sheet-tag {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: #F2ECE1;
+  background: #181818;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(242, 236, 225, 0.15);
+}
+
+.balcao-sheet-date {
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+.balcao-sheet-title {
+  display: block;
+  font-size: 16px;
+  font-weight: 800;
+  color: #F5F0E6;
+  margin-bottom: 8px;
+  font-family: var(--font-display, serif);
+}
+
+.balcao-sheet-body {
+  font-size: 13px;
+  line-height: 1.55;
+  color: #d5cbba;
+  margin-bottom: 16px;
+}
+
+.balcao-sheet-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.balcao-sheet-investigate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #F2ECE1;
+  color: #0B0B0B;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.balcao-sheet-investigate-btn:hover {
+  background: #ffffff;
+}
+
+.balcao-sheet-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #161616;
+  border: 1px solid rgba(242, 236, 225, 0.2);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 11px;
+  color: #EAE2D3;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.balcao-sheet-copy-btn:hover {
+  background: #F2ECE1;
+  color: #0B0B0B;
+}
+
+/* ==========================================================================
+   SALA 2: TELAS DO ALAÚDE (O ATELIÊ DO BARDO) - DESIGN ÚNICO
+   ========================================================================== */
+.atelier-view {
+  width: 100%;
+  min-height: calc(100vh - var(--nav-h));
+  background: var(--bg-parchment, #F2ECE1);
+  color: #120e0a;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.atelier-stage {
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto 36px;
+  background: #0B0B0B;
+  color: #F2ECE1;
+  border: 1px solid rgba(242, 236, 225, 0.18);
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.atelier-stage__inner {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 520px;
+}
+
+@media (max-width: 900px) {
+  .atelier-stage__inner {
+    grid-template-columns: 1fr;
+  }
+}
+
+.atelier-easel-side {
+  background: #0b0908;
+  border-right: 2px solid rgba(244, 237, 221, 0.2);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.atelier-portrait-frame {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid #F4EDDD;
+  margin: 0 auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+}
+
+.atelier-portrait-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.atelier-status-tag {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.85);
+  font-size: 9px;
+  font-weight: 700;
+  text-align: center;
+  padding: 3px;
+  color: #F4EDDD;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 3;
-}
-.hero-lantern__flame-wrapper--right {
-  bottom: 19px;
+  gap: 4px;
 }
 
-.hero-lantern__flame {
-  width: 10px;
-  height: 18px;
-  background: radial-gradient(ellipse at 50% 80%, #fffbeb 0%, #fcd34d 25%, #f59e0b 60%, #b45309 85%, transparent 100%);
-  border-radius: 50% 50% 35% 35% / 70% 70% 30% 30%;
-  filter: blur(1.5px);
-  opacity: 0.65;
-  animation: heroCandleFlicker 2.8s infinite ease-in-out;
-  transform-origin: 50% 90%;
-}
-.hero-lantern__flame--distant {
-  width: 7px;
-  height: 12px;
-  opacity: 0.5;
-  filter: blur(2.5px);
-}
-
-.hero-lantern.is-flared .hero-lantern__flame {
-  animation: heroCandleFlare 2.2s ease-out;
-  opacity: 0.95;
-  filter: blur(1px);
-}
-
-/* Halo de Luz Ambiente ao Redor da Luminária */
-.hero-lantern__halo {
-  position: absolute;
-  width: 90px;
-  height: 90px;
+.atelier-status-pulse {
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.09) 45%, transparent 70%);
-  pointer-events: none;
-  filter: blur(8px);
-  animation: heroHaloPulse 3.4s infinite ease-in-out;
-}
-.hero-lantern__halo--distant {
-  width: 60px;
-  height: 60px;
-  background: radial-gradient(circle, rgba(245, 158, 11, 0.14) 0%, transparent 65%);
-  filter: blur(10px);
+  background: #22c55e;
 }
 
-.hero-lantern:hover .hero-lantern__halo {
-  background: radial-gradient(circle, rgba(245, 158, 11, 0.35) 0%, rgba(217, 119, 6, 0.14) 50%, transparent 72%);
+.atelier-status-tag.is-drawing .atelier-status-pulse {
+  background: #f59e0b;
+  animation: pulse 1s infinite;
 }
 
-.hero-lantern.is-flared .hero-lantern__halo {
-  width: 130px;
-  height: 130px;
-  background: radial-gradient(circle, rgba(245, 158, 11, 0.45) 0%, rgba(217, 119, 6, 0.2) 50%, transparent 75%);
-  filter: blur(10px);
+.atelier-bardo-bio {
+  text-align: center;
 }
 
-/* Pavio e Fumaça (Vela Apagada) */
-.hero-lantern__wick-smoke {
+.atelier-bio-eyebrow {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.atelier-bio-name {
+  margin: 2px 0 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: #F4EDDD;
+  font-family: var(--font-display, serif);
+}
+
+.atelier-slots-rack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  background: #14110e;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(244, 237, 221, 0.15);
+}
+
+.atelier-slots-meter {
+  display: flex;
+  gap: 6px;
+}
+
+.atelier-slot-pin {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(244, 237, 221, 0.35);
+  background: transparent;
+}
+
+.atelier-slot-pin.is-filled {
+  background: #F4EDDD;
+  border-color: #F4EDDD;
+  box-shadow: 0 0 8px rgba(244, 237, 221, 0.5);
+}
+
+.atelier-slots-counter {
+  font-size: 11px;
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+/* Alaúde de Inspiração */
+.atelier-lute-device {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.atelier-lute-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #161310;
+  border: 1.5px solid #F4EDDD;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #F4EDDD;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.atelier-lute-btn:hover:not(:disabled) {
+  background: #F4EDDD;
+  color: #000000;
+  transform: translateY(-2px);
+}
+
+.atelier-lute-btn.is-strumming {
+  animation: strumVibrate 0.4s ease-in-out;
+}
+
+@keyframes strumVibrate {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.05) rotate(-2deg); }
+  50% { transform: scale(1.05) rotate(2deg); }
+  100% { transform: scale(1); }
+}
+
+.atelier-lute-label-group {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.atelier-lute-title {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.atelier-lute-sub {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.atelier-lute-note-burst {
   position: absolute;
-  bottom: 22px;
+  top: -8px;
+  right: 12px;
+  font-size: 20px;
+  animation: noteFloat 0.6s ease-out;
+}
+
+@keyframes noteFloat {
+  0% { transform: translateY(0) scale(0.5); opacity: 0; }
+  50% { transform: translateY(-16px) scale(1.3); opacity: 1; }
+  100% { transform: translateY(-28px) scale(1); opacity: 0; }
+}
+
+.atelier-lute-caption {
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.4;
+  color: #94a3b8;
+  text-align: center;
+}
+
+/* Núcleo do Estúdio */
+.atelier-studio-core {
+  display: flex;
+  flex-direction: column;
+}
+
+.atelier-medium-bar {
+  padding: 12px 20px;
+  background: #0f0d0b;
+  border-bottom: 1.5px solid rgba(244, 237, 221, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.atelier-medium-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #F4EDDD;
+}
+
+.atelier-medium-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.atelier-medium-chip {
+  background: #1a1613;
+  border: 1px solid rgba(244, 237, 221, 0.25);
+  border-radius: 9999px;
+  padding: 4px 12px;
+  color: #cbd5e1;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.atelier-medium-chip:hover {
+  border-color: #F4EDDD;
+  color: #F4EDDD;
+}
+
+.atelier-medium-chip.is-active {
+  background: #F4EDDD;
+  color: #000000;
+  border-color: #F4EDDD;
+  font-weight: 800;
+}
+
+.atelier-drawing-log {
+  flex: 1;
+  min-height: 340px;
+  max-height: 480px;
+  overflow-y: auto;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.atelier-msg {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: 85%;
+}
+
+.atelier-msg--bard {
+  align-self: flex-start;
+}
+
+.atelier-msg--user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.atelier-msg__sigil {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1.5px solid #F4EDDD;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.atelier-msg__body {
+  background: #14110e;
+  border: 1.5px solid rgba(244, 237, 221, 0.25);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #F4EDDD;
+}
+
+.atelier-msg--user .atelier-msg__body {
+  background: #F4EDDD;
+  color: #000000;
+  border-color: #F4EDDD;
+}
+
+.atelier-msg__text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.atelier-sketching-animation {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 10px;
+  padding: 16px;
 }
-.hero-lantern__wick {
-  width: 3px;
-  height: 5px;
+
+.atelier-sketch-svg {
+  width: 120px;
+  height: 60px;
+  stroke: #F4EDDD;
+  stroke-width: 2;
+  fill: none;
+  animation: sketchStroke 2s infinite ease-in-out;
+}
+
+@keyframes sketchStroke {
+  0% { stroke-dasharray: 0, 100; opacity: 0.3; }
+  50% { stroke-dasharray: 50, 50; opacity: 1; }
+  100% { stroke-dasharray: 100, 0; opacity: 0.6; }
+}
+
+.atelier-sketching-text {
+  font-size: 13px;
+  font-style: italic;
+  color: #F4EDDD;
+}
+
+.atelier-art-easel-frame {
+  margin-top: 10px;
+  border: 2px solid #F4EDDD;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000000;
+}
+
+.atelier-art-easel-img {
+  width: 100%;
+  max-width: 440px;
+  display: block;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.atelier-art-easel-img:hover {
+  transform: scale(1.02);
+}
+
+.atelier-art-easel-bar {
+  padding: 8px 12px;
+  background: #0d0b09;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid rgba(244, 237, 221, 0.2);
+}
+
+.atelier-tool-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid rgba(244, 237, 221, 0.3);
+  color: #F4EDDD;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.atelier-tool-chip:hover {
+  background: #F4EDDD;
+  color: #000000;
+}
+
+.atelier-tool-chip--danger {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+}
+
+.atelier-tool-chip--danger:hover {
   background: #ef4444;
-  border-radius: 2px;
-  box-shadow: 0 0 6px rgba(239, 68, 68, 0.8);
-  filter: blur(1px);
-  animation: heroWickFade 2.5s infinite alternate;
-}
-.hero-lantern__smoke {
-  width: 3px;
-  height: 18px;
-  background: linear-gradient(to top, rgba(160, 160, 160, 0.25), transparent);
-  border-radius: 50%;
-  filter: blur(2px);
-  margin-top: -4px;
-  animation: heroSmokeRise 2s infinite ease-out;
+  color: #ffffff;
 }
 
-/* Fagulhas / Faíscas Subindo */
-.hero-lantern__embers {
-  position: absolute;
-  bottom: 30px;
-  pointer-events: none;
-}
-.hero-ember {
-  position: absolute;
-  width: 3px;
-  height: 3px;
-  background: #fcd34d;
-  border-radius: 50%;
-  box-shadow: 0 0 6px #f59e0b;
-  filter: blur(1px);
-  animation: heroEmberFly 1.8s forwards ease-out;
-}
-.hero-ember--1 { left: -6px; animation-delay: 0.1s; }
-.hero-ember--2 { left: 4px; animation-delay: 0.25s; }
-.hero-ember--3 { left: -1px; animation-delay: 0.4s; }
-
-@keyframes heroEmberFly {
-  0% { transform: translateY(0) scale(1); opacity: 0.9; }
-  100% { transform: translateY(-40px) translateX(6px) scale(0.2); opacity: 0; }
+.atelier-composer-form {
+  padding: 16px 20px;
+  background: #0d0a09;
+  border-top: 2px solid rgba(244, 237, 221, 0.2);
 }
 
-@keyframes heroCandleFlicker {
-  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.62; }
-  22% { transform: scale(0.96, 1.05) rotate(-1.5deg); opacity: 0.70; }
-  45% { transform: scale(1.04, 0.95) rotate(1deg); opacity: 0.58; }
-  68% { transform: scale(0.98, 1.02) rotate(-0.5deg); opacity: 0.66; }
-  85% { transform: scale(1.02, 0.98) rotate(1.5deg); opacity: 0.60; }
+.atelier-composer-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-@keyframes heroCandleFlare {
-  0% { transform: scale(1); opacity: 0.7; }
-  25% { transform: scale(1.35) rotate(-2deg); opacity: 1; }
-  60% { transform: scale(1.2) rotate(1.5deg); opacity: 0.85; }
-  100% { transform: scale(1); opacity: 0.65; }
+.atelier-composer-input {
+  flex: 1;
+  background: #14110e;
+  border: 1.5px solid rgba(244, 237, 221, 0.3);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #F4EDDD;
+  font-size: 14px;
+  resize: none;
+  outline: none;
 }
 
-@keyframes heroHaloPulse {
-  0%, 100% { transform: scale(1); opacity: 0.75; }
-  50% { transform: scale(1.08); opacity: 0.95; }
+.atelier-composer-input:focus {
+  border-color: #F4EDDD;
 }
 
-@keyframes heroWickFade {
-  0% { opacity: 0.4; }
-  100% { opacity: 0.9; }
-}
-
-@keyframes heroSmokeRise {
-  0% { transform: translateY(0) scaleX(1); opacity: 0.3; }
-  100% { transform: translateY(-16px) scaleX(1.8); opacity: 0; }
-}
-
-/* Dica / Tooltip da Luminária no Hover */
-.hero-lantern__hint {
-  position: absolute;
-  bottom: -22px;
+.atelier-composer-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #F4EDDD;
+  color: #000000;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 18px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
   white-space: nowrap;
-  font-size: 10px;
-  font-family: var(--font-body);
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-  background: rgba(14, 11, 8, 0.85);
-  border: 1px solid rgba(245, 236, 220, 0.15);
-  padding: 2px 7px;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(244, 237, 221, 0.25);
+}
+
+.atelier-composer-submit-btn:hover:not(:disabled) {
+  background: #ffffff;
+  transform: translateY(-2px);
+}
+
+/* Galeria do Ateliê */
+.atelier-gallery {
+  max-width: 1260px;
+  margin: 0 auto;
+}
+
+.atelier-gallery__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  border-bottom: 2px solid #000000;
+  padding-bottom: 12px;
+}
+
+.atelier-gallery__eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 800;
+  color: #000000;
+  opacity: 0.7;
+}
+
+.atelier-gallery__heading {
+  margin: 2px 0 0;
+  font-size: 24px;
+  font-weight: 900;
+  color: #000000;
+  font-family: var(--font-display, serif);
+}
+
+.atelier-mode-switcher {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #000000;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.atelier-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: #a89a85;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.atelier-mode-btn:hover {
+  color: #F4EDDD;
+}
+
+.atelier-mode-btn.is-active {
+  background: #F4EDDD;
+  color: #000000;
+}
+
+.atelier-twine-rack {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.atelier-twine-sheet {
+  margin: 0;
+  background: #000000;
+  border: 2px solid #000000;
   border-radius: 10px;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(4px);
-  transition: opacity 0.2s, transform 0.2s;
+  overflow: hidden;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.atelier-twine-sheet:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.3);
+}
+
+.atelier-sheet-image-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #0f0d0b;
+}
+
+.atelier-sheet-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  cursor: pointer;
+}
+
+.atelier-sheet-zoom-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid #F4EDDD;
+  color: #F4EDDD;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.atelier-sheet-zoom-btn:hover {
+  background: #F4EDDD;
+  color: #000000;
+}
+
+.atelier-sheet-caption {
+  padding: 14px 16px;
+  background: #000000;
+  color: #F4EDDD;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.atelier-sheet-badge {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: #a89a85;
+}
+
+.atelier-sheet-prompt {
+  font-size: 13px;
+  line-height: 1.45;
+  color: #F4EDDD;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.atelier-sheet-buttons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.atelier-mini-chip {
+  background: #1a1613;
+  border: 1px solid rgba(244, 237, 221, 0.25);
+  color: #F4EDDD;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.atelier-mini-chip:hover {
+  background: #F4EDDD;
+  color: #000000;
+}
+
+.atelier-mini-chip--danger:hover {
+  background: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+}
+
+/* Modal de Visualização em Detalhe */
+.atelier-lightbox-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  backdrop-filter: blur(8px);
+}
+
+.atelier-lightbox-pane {
+  background: #000000;
+  border: 2px solid #F4EDDD;
+  border-radius: 12px;
+  max-width: 780px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.9);
+}
+
+.atelier-lightbox-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid #F4EDDD;
+  color: #F4EDDD;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
   z-index: 10;
 }
-.hero-lantern:hover .hero-lantern__hint {
-  opacity: 0.9;
-  transform: translateY(0);
+
+.atelier-lightbox-close:hover {
+  background: #F4EDDD;
+  color: #000000;
 }
 
-@media (max-width: 768px) {
-  .hero-lantern--distant {
-    display: none;
-  }
-  .hero-lantern--left {
-    left: 12px;
-    transform: scale(0.75);
-  }
-  .hero-lantern--right {
-    right: 14px;
-    transform: scale(0.75);
-  }
+.atelier-lightbox-img {
+  width: 100%;
+  max-height: 520px;
+  object-fit: contain;
+  background: #0a0807;
+  display: block;
 }
+
+.atelier-lightbox-meta {
+  padding: 20px;
+  color: #F4EDDD;
+}
+
+.atelier-lightbox-title {
+  margin: 4px 0 8px;
+  font-size: 18px;
+  font-weight: 800;
+  font-family: var(--font-display, serif);
+}
+
+.atelier-lightbox-desc {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #cbd5e1;
+}
+
+/* Modal de Confirmação */
+.atelier-confirm-pane {
+  background: #000000;
+  border: 2px solid #F4EDDD;
+  border-radius: 10px;
+  padding: 24px;
+  max-width: 400px;
+  text-align: center;
+}
+
+.atelier-confirm-title {
+  margin: 0 0 8px;
+  color: #F4EDDD;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.atelier-confirm-text {
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: #cbd5e1;
+}
+
+.atelier-confirm-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+
 
 

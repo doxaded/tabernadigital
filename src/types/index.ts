@@ -12,12 +12,36 @@ export interface UserProfile {
   approvedAt?: string;
   approvedBy?: string;
   // Personalização de Perfil de Aventureiro
+  userTag?: string; // Tag única de 7 caracteres (letras e números maiúsculos, ex: K7M9P2X)
+  tag?: string;
   bio?: string;
   title?: string;
   favoriteClass?: string;
   customBadgeColor?: string;
   bannerUrl?: string;
   diceTheme?: string;
+}
+
+export interface UserContact {
+  uid: string;
+  userTag: string;
+  addedAt: string;
+  isFavorite?: boolean;
+}
+
+export interface CustomChatRoom {
+  id: string;
+  name: string;
+  description?: string;
+  iconEmoji?: string;
+  avatarUrl?: string;
+  color?: string;
+  creatorUid: string;
+  creatorName: string;
+  adminUids: string[];
+  memberUids: string[];
+  createdAt: string;
+  updatedAt?: string;
 }
 
 /** Atributo extra criado pelo usuário (sigla de 3 letras maiúsculas). */
@@ -170,7 +194,7 @@ export interface MasterChatMessage {
 // PORTAL DE CHATS — MENSAGENS E CANAIS
 // ==========================================
 
-export type ChatScope = 'campaign-public' | 'campaign-private' | 'direct';
+export type ChatScope = 'campaign-public' | 'campaign-private' | 'direct' | 'group';
 
 export interface ChatDiceResult {
   expression: string;
@@ -213,5 +237,7 @@ export interface ChatChannel {
   unreadCount?: number;
   badgeColor?: string;
   directOtherUser?: UserProfile;
+  customRoom?: CustomChatRoom;
+  isFavorite?: boolean;
 }
 

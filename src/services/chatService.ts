@@ -40,6 +40,8 @@ export const chatService = {
     campaignPublic: ChatChannel[];
     campaignPrivate: ChatChannel[];
     direct: ChatChannel[];
+    favorites: ChatChannel[];
+    rooms: ChatChannel[];
     allChannels: ChatChannel[];
   } {
     const allStoredMessages = storageService.getChatMessages();
@@ -111,26 +113,56 @@ export const chatService = {
       }
     });
 
-    // 3. Canais Diretos (DMs 1-on-1 entre Aventureiros)
+    // 3. Canais Diretos (Apenas para Contatos Adicionados pelo Usuário!)
     const direct: ChatChannel[] = [];
-    // Encontra todos os outros aventureiros
-    const otherUsers = allUsers.filter(u => u.uid !== currentUser.uid && u.email.toLowerCase() !== currentUser.email.toLowerCase());
+    const favorites: ChatChannel[] = [];
+    const userContacts = storageService.getUserContacts(currentUser.uid);
 
-    otherUsers.forEach(other => {
+    userContacts.forEach(contact => {
+      const other = allUsers.find(u => u.uid === contact.uid);
+      if (!other) return;
       const channelId = this.getDirectChannelId(currentUser.uid, other.uid);
       const last = getLastMsg(channelId);
-      
-      direct.push({
+
+      const ch: ChatChannel = {
         id: channelId,
         type: 'direct',
         title: other.displayName,
-        subtitle: `${other.title ? other.title + ' • ' : ''}${other.favoriteClass || 'Aventureiro'}`,
+        subtitle: `${other.title ? other.title + ' • ' : ''}${other.favoriteClass || 'Aventureiro'} #${other.userTag || contact.userTag}`,
         participants: [currentUser.uid, other.uid],
         lastMessage: last ? (last.diceResult ? `🎲 ${last.senderName} rolou ${last.diceResult.expression}` : `${last.senderName}: ${last.text}`) : 'Iniciar conversa particular.',
-        lastMessageAt: last?.createdAt,
+        lastMessageAt: last?.createdAt || contact.addedAt,
         badgeColor: other.customBadgeColor || '#7c3aed',
         directOtherUser: other,
-      });
+        isFavorite: !!contact.isFavorite,
+      };
+
+      direct.push(ch);
+      if (contact.isFavorite) {
+        favorites.push(ch);
+      }
+    });
+
+    // 4. Salas e Grupos de Conversa Customizados
+    const userRooms = storageService.getCustomRooms(currentUser.uid);
+    const rooms: ChatChannel[] = userRooms.map(room => {
+      const channelId = `room_${room.id}`;
+      const last = getLastMsg(channelId);
+      const isOwner = room.creatorUid === currentUser.uid;
+      const isAdmin = room.adminUids.includes(currentUser.uid);
+      const roleLabel = isOwner ? 'Líder / Criador' : (isAdmin ? 'Administrador' : 'Membro');
+
+      return {
+        id: channelId,
+        type: 'group',
+        title: `${room.iconEmoji || '🛡️'} ${room.name}`,
+        subtitle: `${room.memberUids.length} membros • ${roleLabel}`,
+        participants: room.memberUids,
+        lastMessage: last ? (last.diceResult ? `🎲 ${last.senderName} rolou ${last.diceResult.expression}` : `${last.senderName}: ${last.text}`) : (room.description || 'Sala de bate-papo da estalagem.'),
+        lastMessageAt: last?.createdAt || room.updatedAt || room.createdAt,
+        badgeColor: room.color || '#d97706',
+        customRoom: room,
+      };
     });
 
     // Ordena canais por atividade recente
@@ -143,12 +175,16 @@ export const chatService = {
     campaignPublic.sort(sortByRecent);
     campaignPrivate.sort(sortByRecent);
     direct.sort(sortByRecent);
+    favorites.sort(sortByRecent);
+    rooms.sort(sortByRecent);
 
     return {
       campaignPublic,
       campaignPrivate,
       direct,
-      allChannels: [...campaignPublic, ...campaignPrivate, ...direct],
+      favorites,
+      rooms,
+      allChannels: [...rooms, ...direct, ...campaignPublic, ...campaignPrivate],
     };
   },
 
@@ -218,11 +254,16 @@ export const chatService = {
     // Se conectado ao Firebase, sincroniza com o Firestore
     if (isLiveFirebaseConfigured && auth.currentUser) {
       try {
-        const participants = params.channelId.startsWith('dm_')
-          ? params.channelId.replace('dm_', '').split('_')
-          : params.recipientUid
-            ? [params.currentUser.uid, params.recipientUid]
-            : [];
+        let participants: string[] = [];
+        if (params.channelId.startsWith('dm_')) {
+          participants = params.channelId.replace('dm_', '').split('_');
+        } else if (params.channelId.startsWith('room_')) {
+          const roomId = params.channelId.replace('room_', '');
+          const room = storageService.getCustomRooms().find(r => r.id === roomId);
+          participants = room ? room.memberUids : [params.currentUser.uid];
+        } else if (params.recipientUid) {
+          participants = [params.currentUser.uid, params.recipientUid];
+        }
 
         await setDoc(doc(db, 'messages', message.id), {
           ...message,

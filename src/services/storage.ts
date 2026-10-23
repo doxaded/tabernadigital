@@ -1,4 +1,16 @@
-import { Campaign, CharacterSheet, ChatMessage, LoreEntry, RoomPlayer, RuleDocument, SketchAsset, UrdMessage, UserProfile } from '../types';
+import {
+  Campaign,
+  CharacterSheet,
+  ChatMessage,
+  CustomChatRoom,
+  LoreEntry,
+  RoomPlayer,
+  RuleDocument,
+  SketchAsset,
+  UrdMessage,
+  UserContact,
+  UserProfile
+} from '../types';
 
 export const ADMIN_EMAIL = 'henrique.v.berbert@gmail.com';
 export const DEFAULT_MASTER_PASSWORD = 'TabernaMestre2026!';
@@ -25,6 +37,47 @@ export function normalizeJoinKey(raw: string): string | null {
   return clean.slice(0, 4) + '-' + clean.slice(4);
 }
 
+/**
+ * Gera uma tag única de 7 caracteres (contendo variação entre letras maiúsculas e números).
+ * Exemplo: K7M9P2X, T4H9R2K, etc.
+ */
+export function generateUserTag(existingTags: string[] = []): string {
+  const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const numbers = '23456789';
+  const all = letters + numbers;
+
+  let tag = '';
+  let attempts = 0;
+  do {
+    // Garante que tenha variação real: pelo menos 2 letras e 2 números
+    const chars: string[] = [
+      letters[Math.floor(Math.random() * letters.length)],
+      letters[Math.floor(Math.random() * letters.length)],
+      numbers[Math.floor(Math.random() * numbers.length)],
+      numbers[Math.floor(Math.random() * numbers.length)],
+    ];
+    while (chars.length < 7) {
+      chars.push(all[Math.floor(Math.random() * all.length)]);
+    }
+    // Embaralha para que os números e letras fiquem espalhados
+    for (let i = chars.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [chars[i], chars[j]] = [chars[j], chars[i]];
+    }
+    tag = chars.join('');
+    attempts++;
+  } while (existingTags.includes(tag) && attempts < 1000);
+
+  return tag;
+}
+
+/**
+ * Normaliza a tag digitada (remove #, espaços e converte para maiúsculas).
+ */
+export function normalizeUserTag(raw: string): string {
+  return raw.trim().toUpperCase().replace(/^#/, '').replace(/\s+/g, '');
+}
+
 const STORAGE_KEYS = {
   USERS: 'taberna_users_v1',
   CURRENT_USER: 'taberna_current_user_v1',
@@ -33,6 +86,8 @@ const STORAGE_KEYS = {
   URD_MESSAGES: 'taberna_urd_messages_v1',
   PASSWORDS: 'taberna_passwords_v1',
   CHATS: 'taberna_chats_v1',
+  USER_CONTACTS: 'taberna_user_contacts_v1',
+  CUSTOM_ROOMS: 'taberna_custom_rooms_v1',
 };
 
 const DEFAULT_PASSWORDS: Record<string, string> = {
@@ -42,7 +97,7 @@ const DEFAULT_PASSWORDS: Record<string, string> = {
   'garrick.bardo@taberna.rpg': '123456',
 };
 
-// Dados padrão iniciais com perfis personalizados
+// Dados padrão iniciais com perfis personalizados e tags de 7 caracteres
 const DEFAULT_USERS: UserProfile[] = [
   {
     uid: 'admin-henrique',
@@ -52,6 +107,8 @@ const DEFAULT_USERS: UserProfile[] = [
     status: 'APPROVED',
     createdAt: '2026-10-01T12:00:00Z',
     approvedAt: '2026-10-01T12:00:00Z',
+    userTag: 'K7M9P2X',
+    tag: 'K7M9P2X',
     title: 'Mestre da Estalagem',
     favoriteClass: 'Mestre & Mago',
     customBadgeColor: '#d97706',
@@ -67,6 +124,8 @@ const DEFAULT_USERS: UserProfile[] = [
     createdAt: '2026-10-02T10:30:00Z',
     approvedAt: '2026-10-02T11:00:00Z',
     approvedBy: ADMIN_EMAIL,
+    userTag: 'T4H9R2K',
+    tag: 'T4H9R2K',
     title: 'O Quebra-Machado',
     favoriteClass: 'Guerreiro / Patrulheiro',
     customBadgeColor: '#dc2626',
@@ -80,6 +139,8 @@ const DEFAULT_USERS: UserProfile[] = [
     role: 'user',
     status: 'PENDING',
     createdAt: '2026-10-02T20:15:00Z',
+    userTag: 'L8Y3N4S',
+    tag: 'L8Y3N4S',
     title: 'A Silenciosa',
     favoriteClass: 'Ladino / Sombra',
     customBadgeColor: '#7c3aed',
@@ -93,6 +154,8 @@ const DEFAULT_USERS: UserProfile[] = [
     role: 'user',
     status: 'PENDING',
     createdAt: '2026-10-02T21:00:00Z',
+    userTag: 'G7R2K9B',
+    tag: 'G7R2K9B',
     title: 'O Menestrel Andarilho',
     favoriteClass: 'Bardo do Conhecimento',
     customBadgeColor: '#059669',
@@ -358,15 +421,32 @@ export const storageService = {
       users = DEFAULT_USERS;
     }
 
-    // Garante que campos de personalização existam mesmo se vierem do cache antigo
+    // Garante que campos de personalização e userTag única de 7 caracteres existam mesmo se vierem do cache antigo
     let updated = false;
+    const existingTags = users
+      .map(u => (u.userTag ? normalizeUserTag(u.userTag) : ''))
+      .filter(t => t.length === 7);
+
     users = users.map(u => {
       const def = DEFAULT_USERS.find(d => d.uid === u.uid || d.email.toLowerCase() === u.email.toLowerCase());
-      if (def && (!u.title || !u.customBadgeColor || !u.favoriteClass)) {
+      let t = u.userTag || u.tag;
+      if (!t || t.length !== 7) {
+        if (def?.userTag) {
+          t = def.userTag;
+        } else {
+          t = generateUserTag(existingTags);
+        }
+        existingTags.push(t);
+        updated = true;
+      }
+
+      if (def && (!u.title || !u.customBadgeColor || !u.favoriteClass || !u.userTag)) {
         updated = true;
         return {
           ...def,
           ...u,
+          userTag: t,
+          tag: t,
           title: u.title || def.title,
           favoriteClass: u.favoriteClass || def.favoriteClass,
           customBadgeColor: u.customBadgeColor || def.customBadgeColor,
@@ -374,6 +454,16 @@ export const storageService = {
           diceTheme: u.diceTheme || def.diceTheme,
         };
       }
+
+      if (u.userTag !== t || u.tag !== t) {
+        updated = true;
+        return {
+          ...u,
+          userTag: t,
+          tag: t
+        };
+      }
+
       return u;
     });
     if (updated) {
@@ -414,7 +504,19 @@ export const storageService = {
       return null;
     }
     try {
-      return JSON.parse(raw);
+      const user: UserProfile = JSON.parse(raw);
+      const allUsers = this.getUsers();
+      const matched = allUsers.find(u => u.uid === user.uid || u.email.toLowerCase() === user.email.toLowerCase());
+      if (matched && (!user.userTag || user.userTag !== matched.userTag)) {
+        const fixed: UserProfile = {
+          ...user,
+          userTag: matched.userTag,
+          tag: matched.userTag
+        };
+        this.setCurrentUser(fixed);
+        return fixed;
+      }
+      return user;
     } catch {
       return null;
     }
@@ -450,10 +552,15 @@ export const storageService = {
       this.savePasswords(passwords);
     }
 
+    const existingTags = users.map(u => u.userTag).filter(Boolean) as string[];
+    const assignedTag = generateUserTag(existingTags);
+
     const newUser: UserProfile = {
       uid: 'user-' + Date.now(),
       email: cleanEmail,
       displayName: displayName.trim() || cleanEmail.split('@')[0],
+      userTag: assignedTag,
+      tag: assignedTag,
       role: 'user',
       status: 'PENDING',
       createdAt: new Date().toISOString(),
@@ -983,6 +1090,264 @@ export const storageService = {
       window.dispatchEvent(new CustomEvent('taberna-chat-updated', { detail: { channelId } }));
     } catch {
       // ignore
+    }
+  },
+
+  // ==========================================
+  // CONTATOS (ADICIONADOS & FAVORITOS POR TAG)
+  // ==========================================
+  getUserContacts(userUid: string): UserContact[] {
+    const raw = localStorage.getItem(`${STORAGE_KEYS.USER_CONTACTS}_${userUid}`);
+    if (!raw) return [];
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  },
+
+  saveUserContacts(userUid: string, contacts: UserContact[]) {
+    localStorage.setItem(`${STORAGE_KEYS.USER_CONTACTS}_${userUid}`, JSON.stringify(contacts));
+    window.dispatchEvent(new CustomEvent('taberna-contacts-updated', { detail: { userUid } }));
+  },
+
+  addUserContactByTag(currentUserUid: string, rawTag: string): { success: boolean; error?: string; contact?: UserContact; user?: UserProfile } {
+    const cleanTag = normalizeUserTag(rawTag);
+    if (!cleanTag || cleanTag.length !== 7) {
+      return { success: false, error: 'A tag do aventureiro deve conter exatamente 7 caracteres alfanuméricos em maiúsculas (ex: K7M9P2X).' };
+    }
+
+    const allUsers = this.getUsers();
+    const targetUser = allUsers.find(u => {
+      const uTag = u.userTag ? normalizeUserTag(u.userTag) : (u.tag ? normalizeUserTag(u.tag) : '');
+      return uTag === cleanTag;
+    });
+
+    if (!targetUser) {
+      return { success: false, error: `Nenhum aventureiro encontrado com a tag #${cleanTag}. Confirme a tag de 7 caracteres com seu companheiro.` };
+    }
+
+    if (targetUser.uid === currentUserUid) {
+      return { success: false, error: 'Você não pode adicionar a sua própria tag aos contatos.' };
+    }
+
+    const currentContacts = this.getUserContacts(currentUserUid);
+    if (currentContacts.some(c => c.uid === targetUser.uid)) {
+      return { success: false, error: `${targetUser.displayName} já está na sua lista de aventureiros adicionados.` };
+    }
+
+    const newContact: UserContact = {
+      uid: targetUser.uid,
+      userTag: targetUser.userTag || cleanTag,
+      addedAt: new Date().toISOString(),
+      isFavorite: false
+    };
+
+    currentContacts.unshift(newContact);
+    this.saveUserContacts(currentUserUid, currentContacts);
+
+    return { success: true, contact: newContact, user: targetUser };
+  },
+
+  removeUserContact(currentUserUid: string, targetUid: string): boolean {
+    const currentContacts = this.getUserContacts(currentUserUid);
+    const filtered = currentContacts.filter(c => c.uid !== targetUid);
+    if (filtered.length !== currentContacts.length) {
+      this.saveUserContacts(currentUserUid, filtered);
+      return true;
+    }
+    return false;
+  },
+
+  toggleFavoriteContact(currentUserUid: string, targetUid: string): boolean {
+    const currentContacts = this.getUserContacts(currentUserUid);
+    const contact = currentContacts.find(c => c.uid === targetUid);
+    if (!contact) return false;
+    contact.isFavorite = !contact.isFavorite;
+    this.saveUserContacts(currentUserUid, currentContacts);
+    return true;
+  },
+
+  // ==========================================
+  // SALAS E CHATS EM GRUPO CUSTOMIZADOS
+  // ==========================================
+  getCustomRooms(userUid?: string): CustomChatRoom[] {
+    const raw = localStorage.getItem(STORAGE_KEYS.CUSTOM_ROOMS);
+    let rooms: CustomChatRoom[] = [];
+    if (raw) {
+      try {
+        rooms = JSON.parse(raw);
+      } catch {
+        rooms = [];
+      }
+    }
+    if (userUid) {
+      return rooms.filter(r => r.memberUids.includes(userUid) || r.creatorUid === userUid);
+    }
+    return rooms;
+  },
+
+  saveCustomRooms(rooms: CustomChatRoom[]) {
+    localStorage.setItem(STORAGE_KEYS.CUSTOM_ROOMS, JSON.stringify(rooms));
+    window.dispatchEvent(new CustomEvent('taberna-rooms-updated'));
+  },
+
+  createCustomRoom(creator: UserProfile, data: { name: string; description?: string; iconEmoji?: string; memberUids: string[] }): CustomChatRoom {
+    const rooms = this.getCustomRooms();
+    const initialMembers = Array.from(new Set([creator.uid, ...(data.memberUids || [])]));
+    const newRoom: CustomChatRoom = {
+      id: 'room-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+      name: data.name.trim(),
+      description: data.description?.trim(),
+      iconEmoji: data.iconEmoji || '🛡️',
+      color: creator.customBadgeColor || '#d97706',
+      creatorUid: creator.uid,
+      creatorName: creator.displayName,
+      adminUids: [creator.uid],
+      memberUids: initialMembers,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    rooms.unshift(newRoom);
+    this.saveCustomRooms(rooms);
+    return newRoom;
+  },
+
+  updateCustomRoom(roomId: string, userUid: string, updates: Partial<CustomChatRoom>): { success: boolean; error?: string } {
+    const rooms = this.getCustomRooms();
+    const idx = rooms.findIndex(r => r.id === roomId);
+    if (idx === -1) return { success: false, error: 'Sala não encontrada.' };
+    const room = rooms[idx];
+    const isAdmin = room.adminUids.includes(userUid) || room.creatorUid === userUid;
+    if (!isAdmin) return { success: false, error: 'Apenas administradores podem editar as informações da sala.' };
+
+    rooms[idx] = {
+      ...room,
+      ...updates,
+      name: updates.name ? updates.name.trim() : room.name,
+      description: updates.description !== undefined ? updates.description.trim() : room.description,
+      iconEmoji: updates.iconEmoji || room.iconEmoji,
+      color: updates.color || room.color,
+      updatedAt: new Date().toISOString()
+    };
+    this.saveCustomRooms(rooms);
+    return { success: true };
+  },
+
+  toggleAdminCustomRoom(roomId: string, userUid: string, targetUid: string): { success: boolean; error?: string } {
+    const rooms = this.getCustomRooms();
+    const idx = rooms.findIndex(r => r.id === roomId);
+    if (idx === -1) return { success: false, error: 'Sala não encontrada.' };
+    const room = rooms[idx];
+    const isOwner = room.creatorUid === userUid;
+    const isCurrentUserAdmin = room.adminUids.includes(userUid);
+
+    if (!isCurrentUserAdmin && !isOwner) {
+      return { success: false, error: 'Apenas administradores da sala podem gerenciar cargos.' };
+    }
+
+    if (targetUid === room.creatorUid) {
+      return { success: false, error: 'O criador original da sala sempre mantém o cargo de liderança.' };
+    }
+
+    const isTargetAdmin = room.adminUids.includes(targetUid);
+    let updatedAdmins: string[];
+    if (isTargetAdmin) {
+      // Rebaixar cargo
+      if (!isOwner) {
+        return { success: false, error: 'Apenas o criador da sala pode remover o cargo de um administrador.' };
+      }
+      updatedAdmins = room.adminUids.filter(id => id !== targetUid);
+    } else {
+      // Promover cargo
+      updatedAdmins = [...room.adminUids, targetUid];
+    }
+
+    rooms[idx] = {
+      ...room,
+      adminUids: updatedAdmins,
+      updatedAt: new Date().toISOString()
+    };
+    this.saveCustomRooms(rooms);
+    return { success: true };
+  },
+
+  removeMemberFromCustomRoom(roomId: string, userUid: string, targetUid: string): { success: boolean; error?: string } {
+    const rooms = this.getCustomRooms();
+    const idx = rooms.findIndex(r => r.id === roomId);
+    if (idx === -1) return { success: false, error: 'Sala não encontrada.' };
+    const room = rooms[idx];
+    const isOwner = room.creatorUid === userUid;
+    const isCurrentUserAdmin = room.adminUids.includes(userUid);
+
+    // Permite que o próprio membro saia voluntariamente
+    const isSelfLeaving = userUid === targetUid;
+
+    if (!isSelfLeaving && !isCurrentUserAdmin && !isOwner) {
+      return { success: false, error: 'Apenas administradores podem expulsar membros da sala.' };
+    }
+
+    if (!isSelfLeaving && targetUid === room.creatorUid) {
+      return { success: false, error: 'O criador da sala não pode ser expulso.' };
+    }
+
+    // Se quem está expulsando for admin comum, não pode expulsar outro admin (apenas o criador pode)
+    if (!isSelfLeaving && !isOwner && room.adminUids.includes(targetUid)) {
+      return { success: false, error: 'Apenas o criador da sala pode expulsar outro administrador.' };
+    }
+
+    rooms[idx] = {
+      ...room,
+      memberUids: room.memberUids.filter(id => id !== targetUid),
+      adminUids: room.adminUids.filter(id => id !== targetUid),
+      updatedAt: new Date().toISOString()
+    };
+    this.saveCustomRooms(rooms);
+    return { success: true };
+  },
+
+  addMemberToCustomRoom(roomId: string, userUid: string, newMemberUid: string): { success: boolean; error?: string } {
+    const rooms = this.getCustomRooms();
+    const idx = rooms.findIndex(r => r.id === roomId);
+    if (idx === -1) return { success: false, error: 'Sala não encontrada.' };
+    const room = rooms[idx];
+    const isAdmin = room.adminUids.includes(userUid) || room.creatorUid === userUid;
+    if (!isAdmin) return { success: false, error: 'Apenas administradores podem adicionar aventureiros a esta sala.' };
+
+    if (room.memberUids.includes(newMemberUid)) {
+      return { success: false, error: 'Este aventureiro já faz parte da sala.' };
+    }
+
+    rooms[idx] = {
+      ...room,
+      memberUids: [...room.memberUids, newMemberUid],
+      updatedAt: new Date().toISOString()
+    };
+    this.saveCustomRooms(rooms);
+    return { success: true };
+  },
+
+  leaveOrDeleteCustomRoom(roomId: string, userUid: string): { success: boolean; deleted?: boolean; error?: string } {
+    const rooms = this.getCustomRooms();
+    const idx = rooms.findIndex(r => r.id === roomId);
+    if (idx === -1) return { success: false, error: 'Sala não encontrada.' };
+    const room = rooms[idx];
+
+    if (room.creatorUid === userUid) {
+      // Exclui a sala se for o criador
+      const updated = rooms.filter(r => r.id !== roomId);
+      this.saveCustomRooms(updated);
+      return { success: true, deleted: true };
+    } else {
+      // Sai da sala
+      rooms[idx] = {
+        ...room,
+        memberUids: room.memberUids.filter(id => id !== userUid),
+        adminUids: room.adminUids.filter(id => id !== userUid),
+        updatedAt: new Date().toISOString()
+      };
+      this.saveCustomRooms(rooms);
+      return { success: true, deleted: false };
     }
   }
 };

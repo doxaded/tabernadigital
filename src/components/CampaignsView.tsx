@@ -1,15 +1,15 @@
 import React, { useRef, useState } from 'react';
 import { 
   BookOpen, Plus, Shield, Scroll, Library, Edit3, Trash2, Heart, Zap, 
-  Sparkles, FileText, ChevronRight, User, AlertCircle, Eye, Check, X,
-  ExternalLink, Download, Layers, Upload, Loader2, Copy, RefreshCw, LogOut
+  Sparkles, FileText, ChevronRight, User, Users, Maximize2, AlertCircle, Eye, Check, X,
+  ExternalLink, Download, Layers, Upload, Loader2, Copy, RefreshCw, LogOut,
+  Dices, Clipboard
 } from 'lucide-react';
 import { Campaign, CharacterSheet, CustomStat, LoreEntry, RuleDocument, UserProfile } from '../types';
 import { SHEET_IMPORT_ACCEPT, extractCharacterSheetFromFile } from '../services/sheetImportService';
 import { MAX_PLAYERS } from '../services/storage';
 import { DefaultStats, getOrderedStats, validateCustomStats } from '../services/sheetStats';
 import { SheetStatsEditor } from './SheetStatsEditor';
-import { HeroAtmosphere } from './HeroAtmosphere';
 
 interface CampaignsViewProps {
   campaigns: Campaign[];
@@ -59,6 +59,9 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
   // Partições da sala ativa: 'sheets' | 'lore' | 'rules'
   const [activePartition, setActivePartition] = useState<'sheets' | 'lore' | 'rules'>('sheets');
 
+  // Lado expandido pelo cursor no quadro de referência: 'join' | 'master' | null
+  const [expandedRefSide, setExpandedRefSide] = useState<'join' | 'master' | null>(null);
+
   // Modais de Criação & Edição
   const [isNewRoomModalOpen, setIsNewRoomModalOpen] = useState(false);
   const [isEditRoomModalOpen, setIsEditRoomModalOpen] = useState(false);
@@ -89,6 +92,12 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
   const [editRoomName, setEditRoomName] = useState('');
   const [editRoomCover, setEditRoomCover] = useState('');
   const [editRoomDesc, setEditRoomDesc] = useState('');
+
+  // Elementos Interativos do Salão Comunal: Sorte d20 e Filtro de Mesas
+  const [d20Result, setD20Result] = useState<number | null>(null);
+  const [isRollingD20, setIsRollingD20] = useState(false);
+  const [d20Omen, setD20Omen] = useState<string | null>(null);
+  const [tableFilter, setTableFilter] = useState<'all' | 'joined' | 'master'>('all');
 
   // Formulário Nova Ficha
   const [sheetName, setSheetName] = useState('');
@@ -133,6 +142,9 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
   const userMasteredCampaigns = campaigns.filter(c => c.masterId === currentUser.uid);
   const userRoomCount = userMasteredCampaigns.length;
   const isRoomLimitReached = userRoomCount >= 3;
+  const totalPlayersInMasteredRooms = userMasteredCampaigns.reduce(
+    (acc, c) => acc + (c.players?.length || 0), 0
+  );
 
   // Campanha selecionada
   const activeCampaign = campaigns.find(c => c.id === selectedCampaignId) || campaigns[0];
@@ -429,6 +441,45 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
     setJoinMessage(null);
   };
 
+  const handlePasteKey = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        handleJoinKeyChange(text.trim());
+      }
+    } catch {
+      setJoinMessage({ type: 'error', text: 'Permissão para ler a área de transferência não concedida.' });
+    }
+  };
+
+  const handleRollD20 = () => {
+    if (isRollingD20) return;
+    setIsRollingD20(true);
+    setD20Omen(null);
+    let count = 0;
+    const interval = setInterval(() => {
+      setD20Result(Math.floor(Math.random() * 20) + 1);
+      count++;
+      if (count > 7) {
+        clearInterval(interval);
+        const finalVal = Math.floor(Math.random() * 20) + 1;
+        setD20Result(finalVal);
+        setIsRollingD20(false);
+        if (finalVal === 20) {
+          setD20Omen('⭐ 20 Natural! As canecas transbordam e os bardos entoam uma canção sobre seus feitos gloriosos!');
+        } else if (finalVal >= 15) {
+          setD20Omen(`⚔️ Tirou ${finalVal}! Vento favorável nos dados: sua lâmina estará afiada na próxima jornada.`);
+        } else if (finalVal >= 10) {
+          setD20Omen(`🍺 Tirou ${finalVal}! O calor da lareira traz sossego e companheiros fiéis à sua mesa.`);
+        } else if (finalVal >= 2) {
+          setD20Omen(`📜 Tirou ${finalVal}. Cuidado redobrado: boatos na estalagem avisam sobre armadilhas no caminho.`);
+        } else {
+          setD20Omen('💀 1 Natural! Falha crítica: você tropeçou na cadeira de Urd e entornou ensopado na sua bota!');
+        }
+      }
+    }, 60);
+  };
+
   const handleJoinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isJoining) return;
@@ -496,139 +547,373 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
     });
   };
 
-  const renderRoomRow = (camp: Campaign) => {
+  const renderRoomRow = (camp: Campaign, isMasterSide: boolean) => {
     const isSelected = !!activeCampaign && activeCampaign.id === camp.id;
+    const isExpanded = expandedRefSide === (isMasterSide ? 'master' : 'join');
+    const players = camp.players || [];
+
     return (
-      <button
+      <div
         key={camp.id}
-        type="button"
-        className={`salao-room${isSelected ? ' is-selected' : ''}`}
+        className={`salao-ref-room-card${isSelected ? ' is-active' : ''}${isExpanded ? ' is-expanded-mode' : ''}`}
         onClick={() => handlePickRoom(camp.id)}
-        aria-pressed={isSelected}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === 'Enter') handlePickRoom(camp.id); }}
       >
-        <span className="salao-room__system">{camp.system}</span>
-        <span className="salao-room__name">{camp.name}</span>
-        <span className="salao-room__meta">{camp.sheets.length} fichas • {camp.lore.length} crônicas • {(camp.players || []).length}/{MAX_PLAYERS} jogadores</span>
-      </button>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1 }}>
+            <span className="salao-room-tag">{camp.system}</span>
+            <span style={{ fontSize: '14px', fontWeight: 700, color: '#f8fafc', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {camp.name}
+            </span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span className="salao-room-players-badge">
+              <Users size={11} />
+              {players.length}/{MAX_PLAYERS}
+            </span>
+            <ChevronRight size={15} color={isSelected ? '#F2ECE1' : '#64748b'} />
+          </div>
+        </div>
+
+        {/* Detalhes extras quando expandido pelo hover */}
+        {isExpanded ? (
+          <div className="salao-room-expanded-details">
+            {isMasterSide ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '11px', color: '#94a3b8' }}>
+                  <span>Chave da Sala: <strong style={{ color: '#F2ECE1', letterSpacing: '0.08em' }}>{camp.joinKey || '—'}</strong></span>
+                  <span>{camp.sheets.length} fichas • {camp.lore.length} crônicas</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginTop: '2px' }}>
+                  <span style={{ fontSize: '11px', fontWeight: 600, color: '#cbd5e1' }}>Jogadores na mesa:</span>
+                  {players.length > 0 ? (
+                    players.map(p => (
+                      <span key={p.uid} className="salao-player-pill" title={`Jogador: ${p.name}`}>
+                        <User size={10} />
+                        {p.name}
+                      </span>
+                    ))
+                  ) : (
+                    <span style={{ fontSize: '11px', color: '#64748b', fontStyle: 'italic' }}>
+                      Nenhum jogador entrou ainda
+                    </span>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '11px', color: '#94a3b8' }}>
+                  <span>Mestre: <strong style={{ color: '#F2ECE1' }}>{camp.masterName}</strong></span>
+                  <span>{camp.sheets.length} fichas • {camp.lore.length} crônicas</span>
+                </div>
+                {players.length > 0 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginTop: '2px' }}>
+                    <span style={{ fontSize: '11px', fontWeight: 600, color: '#cbd5e1' }}>Companheiros:</span>
+                    {players.map(p => (
+                      <span key={p.uid} className="salao-player-pill" style={{ opacity: p.uid === currentUser.uid ? 1 : 0.85 }}>
+                        <User size={10} />
+                        {p.uid === currentUser.uid ? 'Você' : p.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div style={{ fontSize: '11px', color: '#94a3b8', display: 'flex', justifyContent: 'space-between' }}>
+            <span>{isMasterSide ? `Chave: ${camp.joinKey || '—'}` : `Mestre: ${camp.masterName}`}</span>
+            <span>{camp.sheets.length} fichas • {camp.lore.length} crônicas</span>
+          </div>
+        )}
+      </div>
     );
   };
 
   return (
-    <>
-      {/* Banner: Salão Comunal */}
-      <header className="salao-hero salao-hero--mesa">
-        <HeroAtmosphere variant="comunal" />
-        <div className="salao-hero__inner">
-          <h1 className="salao-hero__title" aria-label="Salão Comunal">
-            <span className="salao-hero__line salao-hero__line--a">
-              <span className="salao-hero__mask">
-                <span className="salao-hero__word">Salão</span>
+    <div
+      className="salao-white-canvas"
+      style={{
+        position: 'relative',
+        width: '100%',
+        backgroundColor: '#000000',
+        color: '#f5ecdc',
+        minHeight: 'calc(100vh - 56px)',
+        paddingBottom: '80px',
+        margin: 0
+      }}
+    >
+        {/* Quadro 50/50 em Tela Cheia Edge-to-Edge */}
+        <div
+          className="salao-card-stage"
+          style={{
+            width: '100%',
+            padding: 0,
+            margin: 0,
+            boxSizing: 'border-box'
+          }}
+        >
+          <section
+            className={`salao-ref-frame${expandedRefSide ? ' has-expansion' : ''}`}
+            aria-label="Acesso e Criação de Mesas"
+            style={{
+              margin: 0,
+              width: '100%',
+              maxWidth: '100%',
+              backgroundColor: '#0A0A0A',
+              border: 'none',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
+              borderRadius: 0,
+              boxShadow: 'none',
+              outline: 'none',
+              overflow: 'hidden'
+            }}
+          >
+          {/* Painel Esquerdo: Juntar-se à mesa */}
+          <div
+            className={`salao-ref-panel salao-ref-panel--join${expandedRefSide === 'join' ? ' is-expanded' : expandedRefSide === 'master' ? ' is-shrunk' : ''}`}
+            id="panel-juntar"
+            onMouseEnter={() => setExpandedRefSide('join')}
+            onMouseLeave={() => setExpandedRefSide(null)}
+          >
+            <div className="salao-panel-header">
+              <span style={{ color: '#f59e0b', fontSize: '12px', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', display: 'inline-block', marginBottom: '8px' }}>
+                JOGADOR
               </span>
-            </span>
-            <span className="salao-hero__line salao-hero__line--b">
-              <span className="salao-hero__mask">
-                <span className="salao-hero__word">Comunal</span>
-              </span>
-            </span>
-          </h1>
-        </div>
-      </header>
+              <h2 className="salao-panel-title" style={{ color: '#f5ecdc', fontFamily: "'Cinzel Hero', var(--font-cinzel)", letterSpacing: '0.04em', margin: '4px 0 10px 0' }}>
+                JUNTAR-SE À MESA
+              </h2>
+              <p className="salao-panel-lead" style={{ color: '#8A8275', fontSize: '15px' }}>
+                Digite a chave que o mestre compartilhou com você.
+              </p>
 
-      {/* Duas abas verticais: juntar-se a uma mesa existente ou mestrar a sua */}
-      <section className="salao-split" aria-label="Mesas">
-        <div className="salao-split__panel salao-split__panel--join" id="panel-juntar">
-          <span className="salao-split__eyebrow">Jogador</span>
-          <h2 className="salao-split__title">Juntar-se à mesa</h2>
-          <p className="salao-split__lead">Digite a chave que o mestre compartilhou com você.</p>
+              {/* Informação expandida de mesas do jogador */}
+              {expandedRefSide === 'join' && (
+                <div className="salao-expanded-stats-banner">
+                  <div className="salao-stat-item">
+                    <span className="salao-stat-value">{joinedCampaigns.length}</span>
+                    <span className="salao-stat-label">Mesas Ingressadas</span>
+                  </div>
+                  <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.1)' }} />
+                  <div className="salao-stat-item">
+                    <span className="salao-stat-value">
+                      {joinedCampaigns.reduce((acc, c) => acc + c.sheets.filter(s => s.player === currentUser.displayName).length, 0)}
+                    </span>
+                    <span className="salao-stat-label">Suas Fichas</span>
+                  </div>
+                  <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.1)' }} />
+                  <div className="salao-stat-item">
+                    <span className="salao-stat-value">{new Set(joinedCampaigns.map(c => c.masterId)).size}</span>
+                    <span className="salao-stat-label">Mestres</span>
+                  </div>
+                </div>
+              )}
+            </div>
 
-          <form className="join-key" onSubmit={handleJoinSubmit}>
-            <label className="join-key__label" htmlFor="join-key-input">Chave da sala</label>
-            <div className="join-key__row">
-              <input
-                id="join-key-input"
-                className="join-key__input"
-                type="text"
-                value={joinKeyInput}
-                onChange={(e) => handleJoinKeyChange(e.target.value)}
-                placeholder="XXXX-XXXX"
-                maxLength={9}
-                autoComplete="off"
-                autoCapitalize="characters"
-                spellCheck={false}
-                aria-describedby="join-key-message"
-              />
-              <button
-                type="submit"
-                id="join-key-submit"
-                className="join-key__submit"
-                disabled={isJoining || joinKeyInput.replace('-', '').length < 8}
+            <form className="salao-key-form" onSubmit={handleJoinSubmit}>
+              <label className="salao-key-label" htmlFor="join-key-input" style={{ color: '#f59e0b', fontSize: '12px', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+                CHAVE DA SALA
+              </label>
+              <div className="salao-key-row">
+                <input
+                  id="join-key-input"
+                  className="salao-key-input"
+                  type="text"
+                  value={joinKeyInput}
+                  onChange={(e) => handleJoinKeyChange(e.target.value)}
+                  placeholder="XXXX-XXXX"
+                  maxLength={9}
+                  autoComplete="off"
+                  autoCapitalize="characters"
+                  spellCheck={false}
+                  aria-describedby="join-key-message"
+                />
+                <button
+                  type="button"
+                  className="salao-key-paste-btn"
+                  onClick={handlePasteKey}
+                  title="Colar chave da área de transferência"
+                >
+                  <Clipboard size={14} />
+                  <span>Colar</span>
+                </button>
+                <button
+                  type="submit"
+                  id="join-key-submit"
+                  className="salao-key-submit"
+                  disabled={isJoining || joinKeyInput.replace('-', '').length < 8}
+                  style={{
+                    backgroundColor: '#78350f',
+                    border: '1px solid #92400e',
+                    color: '#f5ecdc',
+                    fontWeight: 800,
+                    borderRadius: '4px'
+                  }}
+                >
+                  {isJoining ? <Loader2 size={15} className="join-key__spin" /> : null}
+                  <span>{isJoining ? 'Entrando' : 'Entrar'}</span>
+                </button>
+              </div>
+              <p
+                id="join-key-message"
+                className={`salao-key-message${joinMessage ? ` is-${joinMessage.type}` : ''}`}
+                role="status"
+                aria-live="polite"
               >
-                {isJoining ? <Loader2 size={15} className="join-key__spin" /> : null}
-                <span>{isJoining ? 'Entrando' : 'Entrar'}</span>
+                {joinMessage?.text || `Cada sala aceita até ${MAX_PLAYERS} jogadores.`}
+              </p>
+            </form>
+
+            <div className="salao-ref-list-box">
+              <div className="salao-ref-list-title">
+                {expandedRefSide === 'join' ? `Suas ${joinedCampaigns.length} mesas em andamento` : 'Mesas em que você joga'}
+              </div>
+              <div className="salao-ref-list">
+                {joinedCampaigns.length > 0 ? (
+                  joinedCampaigns
+                    .filter(c => tableFilter === 'all' || tableFilter === 'joined')
+                    .map(c => renderRoomRow(c, false))
+                ) : (
+                  <p className="salao-ref-empty">Você ainda não entrou em nenhuma mesa. Peça a chave ao seu mestre.</p>
+                )}
+                {tableFilter === 'master' && (
+                  <p className="salao-ref-empty" style={{ opacity: 0.65 }}>
+                    Filtro &quot;Como Mestre&quot; ativo. Suas salas criadas estão no painel da direita.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Painel Direito: Mestrar */}
+          <div
+            className={`salao-ref-panel salao-ref-panel--master${expandedRefSide === 'master' ? ' is-expanded' : expandedRefSide === 'join' ? ' is-shrunk' : ''}`}
+            id="panel-mestrar"
+            onMouseEnter={() => setExpandedRefSide('master')}
+            onMouseLeave={() => setExpandedRefSide(null)}
+          >
+            <div className="salao-panel-header">
+              <span style={{ color: '#f59e0b', fontSize: '12px', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', display: 'inline-block', marginBottom: '8px' }}>
+                MESTRE
+              </span>
+              <h2 className="salao-panel-title" style={{ color: '#f5ecdc', fontFamily: "'Cinzel Hero', var(--font-cinzel)", letterSpacing: '0.04em', margin: '4px 0 10px 0' }}>
+                MESTRAR
+              </h2>
+              <p className="salao-panel-lead" style={{ color: '#8A8275', fontSize: '15px' }}>
+                Crie e conduza suas próprias campanhas.
+              </p>
+
+              {/* Informação expandida de salas criadas e players nela */}
+              {expandedRefSide === 'master' && (
+                <div className="salao-expanded-stats-banner">
+                  <div className="salao-stat-item">
+                    <span className="salao-stat-value">{userRoomCount} / 3</span>
+                    <span className="salao-stat-label">Salas Criadas</span>
+                  </div>
+                  <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.1)' }} />
+                  <div className="salao-stat-item">
+                    <span className="salao-stat-value">{totalPlayersInMasteredRooms}</span>
+                    <span className="salao-stat-label">Jogadores Inscritos</span>
+                  </div>
+                  <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.1)' }} />
+                  <div className="salao-stat-item">
+                    <span className="salao-stat-value">{3 - userRoomCount}</span>
+                    <span className="salao-stat-label">Vagas de Sala</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="salao-master-actions">
+              <div
+                className={`salao-slots-box${isRoomLimitReached ? ' is-full' : ''}`}
+                title={`Suas Salas: ${userRoomCount} / 3 ativas`}
+              >
+                <span className="salao-slots-dots" aria-hidden="true">
+                  {[0, 1, 2].map(i => (
+                    <span key={i} className={`salao-slot-dot${i < userRoomCount ? ' is-on' : ''}`} />
+                  ))}
+                </span>
+                <span>Suas Salas: {userRoomCount} / 3 ativas</span>
+              </div>
+
+              {/* Lanternas / Vagas de Mestre Interativas */}
+              <div className="salao-master-lanterns">
+                {[0, 1, 2].map(slotIdx => {
+                  const camp = userMasteredCampaigns[slotIdx];
+                  return (
+                    <button
+                      key={slotIdx}
+                      type="button"
+                      className={`salao-master-lantern ${camp ? 'is-occupied' : 'is-empty'}`}
+                      onClick={() => {
+                        if (camp) {
+                          handlePickRoom(camp.id);
+                        } else {
+                          setRoomError('');
+                          setIsNewRoomModalOpen(true);
+                        }
+                      }}
+                      title={camp ? `Mesa: ${camp.name} (Clique para focar)` : 'Vaga livre! Clique para criar nova mesa'}
+                    >
+                      <span className="salao-lantern-dot" />
+                      <span className="salao-lantern-label">
+                        {camp ? camp.name : `+ Vaga ${slotIdx + 1} Livre`}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => {
+                  setRoomError('');
+                  setIsNewRoomModalOpen(true);
+                }}
+                disabled={isRoomLimitReached}
+                className="salao-create-room-btn"
+                style={{
+                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                  border: 'none',
+                  color: '#000000',
+                  fontWeight: 800,
+                  boxShadow: '0 4px 20px rgba(245, 158, 11, 0.45)',
+                  borderRadius: '6px'
+                }}
+                title={isRoomLimitReached ? 'Você atingiu o limite de 3 salas ativas' : 'Criar Nova Campanha'}
+              >
+                <Plus size={18} color="#000000" />
+                <span>Criar Nova Sala</span>
               </button>
             </div>
-            <p
-              id="join-key-message"
-              className={`join-key__message${joinMessage ? ` is-${joinMessage.type}` : ''}`}
-              role="status"
-              aria-live="polite"
-            >
-              {joinMessage?.text || `Cada sala aceita até ${MAX_PLAYERS} jogadores.`}
-            </p>
-          </form>
 
-          <div className="salao-split__list">
-            {joinedCampaigns.length > 0 ? (
-              joinedCampaigns.map(renderRoomRow)
-            ) : (
-              <p className="salao-split__empty">Você ainda não entrou em nenhuma mesa. Peça a chave ao mestre.</p>
-            )}
-          </div>
-        </div>
-
-        <div className="salao-split__panel salao-split__panel--master" id="panel-mestrar">
-          <span className="salao-split__eyebrow">Mestre</span>
-          <h2 className="salao-split__title">Mestrar</h2>
-          <p className="salao-split__lead">Crie e conduza suas próprias campanhas.</p>
-
-          <div className="salao-split__actions">
-            <div
-              className={`salao-hero__slots${isRoomLimitReached ? ' is-full' : ''}`}
-              title={`Suas Salas: ${userRoomCount} / 3 ativas`}
-            >
-              <span className="salao-hero__dots" aria-hidden="true">
-                {[0, 1, 2].map(i => (
-                  <span key={i} className={`salao-hero__dot${i < userRoomCount ? ' is-on' : ''}`} />
-                ))}
-              </span>
-              <span>Suas Salas: {userRoomCount} / 3 ativas</span>
+            <div className="salao-ref-list-box">
+              <div className="salao-ref-list-title">
+                {expandedRefSide === 'master' ? `Suas salas criadas e jogadores nela (${userMasteredCampaigns.length})` : 'Suas campanhas criadas'}
+              </div>
+              <div className="salao-ref-list">
+                {userMasteredCampaigns.length > 0 ? (
+                  userMasteredCampaigns
+                    .filter(c => tableFilter === 'all' || tableFilter === 'master')
+                    .map(c => renderRoomRow(c, true))
+                ) : (
+                  <p className="salao-ref-empty">Crie sua primeira campanha para começar a mestrar!</p>
+                )}
+                {tableFilter === 'joined' && (
+                  <p className="salao-ref-empty" style={{ opacity: 0.65 }}>
+                    Filtro &quot;Como Jogador&quot; ativo. Suas mesas estão no painel da esquerda.
+                  </p>
+                )}
+              </div>
             </div>
-
-            <button
-              onClick={() => {
-                setRoomError('');
-                setIsNewRoomModalOpen(true);
-              }}
-              disabled={isRoomLimitReached}
-              className="btn-tavern btn-primary"
-              title={isRoomLimitReached ? 'Você atingiu o limite de 3 salas de campanha ativas' : 'Criar Nova Campanha'}
-            >
-              <Plus size={16} />
-              <span>Criar Nova Sala</span>
-            </button>
           </div>
-
-          <div className="salao-split__list">
-            {userMasteredCampaigns.length > 0 ? (
-              userMasteredCampaigns.map(renderRoomRow)
-            ) : (
-              <p className="salao-split__empty">Crie sua primeira campanha para começar a mestrar!</p>
-            )}
-          </div>
+        </section>
         </div>
-      </section>
 
-    <div id="sala-ativa" style={{ maxWidth: '1280px', margin: '0 auto', padding: '32px 20px 40px', scrollMarginTop: 'calc(var(--nav-h) + 12px)' }}>
+        {/* Sala Ativa em tela cheia */}
+        <div id="sala-ativa" style={{ width: '100%', maxWidth: '100%', margin: '0', padding: '32px clamp(20px, 4vw, 56px) 80px', boxSizing: 'border-box', scrollMarginTop: 'calc(var(--nav-h) + 12px)' }}>
 
       {/* Active Campaign Room Banner & Master Controls */}
       {activeCampaign ? (
@@ -651,18 +936,18 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '14px' }}>
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                  <span className="wax-badge wax-badge-admin" style={{ fontSize: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                  <span style={{ fontSize: '10px', backgroundColor: '#F2ECE1', color: '#0B0B0B', fontWeight: 800, padding: '3px 8px', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                     {activeCampaign.system}
                   </span>
-                  <span style={{ fontSize: '12px', color: 'var(--amber-torch)', fontWeight: 600 }}>
+                  <span style={{ fontSize: '12px', color: '#EAE2D3', fontWeight: 600 }}>
                     Mestre da Sala: {activeCampaign.masterName}
                   </span>
                 </div>
-                <h2 style={{ fontSize: '26px', fontWeight: 900, color: '#fef3c7', margin: 0 }}>
+                <h2 style={{ fontSize: '26px', fontWeight: 900, color: '#F2ECE1', margin: 0, fontFamily: 'var(--font-cinzel, "Cinzel", serif)' }}>
                   {activeCampaign.name}
                 </h2>
-                <p style={{ fontSize: '13px', color: '#e2e8f0', maxWidth: '650px', marginTop: '6px', lineHeight: 1.4 }}>
+                <p style={{ fontSize: '13px', color: '#cbd5e1', maxWidth: '650px', marginTop: '6px', lineHeight: 1.4 }}>
                   {activeCampaign.description}
                 </p>
               </div>
@@ -678,19 +963,20 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                         padding: '8px 16px',
                         fontSize: '12px',
                         fontWeight: 800,
-                        backgroundColor: '#92400e',
-                        borderColor: '#f59e0b',
-                        color: '#fef08a',
-                        boxShadow: '0 0 16px rgba(245, 158, 11, 0.4)',
+                        backgroundColor: '#F2ECE1',
+                        borderColor: '#F2ECE1',
+                        color: '#0B0B0B',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '8px'
                       }}
                       title="Abrir Mesa de Pergaminhos (Escudo, Dados e Oráculo exclusivo do Mestre)"
                     >
-                      <Scroll size={15} color="#fbbf24" />
+                      <Scroll size={15} color="#0B0B0B" />
                       <span>Mesa de Pergaminhos</span>
-                      <span className="wax-badge wax-badge-admin" style={{ fontSize: '9px', padding: '1px 5px' }}>
+                      <span style={{ fontSize: '9px', padding: '1px 5px', borderRadius: '4px', backgroundColor: '#0B0B0B', color: '#F2ECE1', fontWeight: 800 }}>
                         Mestre
                       </span>
                     </button>
@@ -698,7 +984,7 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                   <button
                     onClick={() => handleOpenEditRoom(activeCampaign)}
                     className="btn-tavern btn-secondary"
-                    style={{ padding: '8px 14px', fontSize: '11px', backdropFilter: 'blur(8px)', backgroundColor: 'rgba(28, 22, 16, 0.85)' }}
+                    style={{ padding: '8px 14px', fontSize: '11px', backdropFilter: 'blur(8px)', backgroundColor: 'rgba(20, 20, 20, 0.85)', color: '#F2ECE1', borderColor: 'rgba(242, 236, 225, 0.25)' }}
                     title="Editar Nome, Descrição e Banner da Campanha (Privilégio do Mestre)"
                   >
                     <Edit3 size={14} />
@@ -710,8 +996,20 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                         onDeleteCampaign(activeCampaign.id);
                       }
                     }}
-                    className="btn-tavern btn-danger"
-                    style={{ padding: '8px 12px', fontSize: '11px' }}
+                    className="btn-tavern"
+                    style={{
+                      padding: '8px 12px',
+                      fontSize: '11px',
+                      backgroundColor: 'rgba(20, 20, 20, 0.85)',
+                      color: '#C4BBB0',
+                      border: '1px solid rgba(242, 236, 225, 0.25)',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      backdropFilter: 'blur(8px)',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#2A2A2A'; e.currentTarget.style.color = '#FAF7F2'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(20, 20, 20, 0.85)'; e.currentTarget.style.color = '#C4BBB0'; }}
                     title="Excluir Campanha"
                   >
                     <Trash2 size={14} />
@@ -794,17 +1092,10 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
           )}
 
           {/* Partitions Tabs (Fichas, Lore, Regras) */}
-          <div style={{
-            display: 'flex',
-            gap: '8px',
-            borderBottom: '2px solid var(--wood-border)',
-            paddingBottom: '8px',
-            marginBottom: '20px'
-          }}>
+          <div className="salao-tabs-bar">
             <button
               onClick={() => setActivePartition('sheets')}
-              className={`btn-tavern ${activePartition === 'sheets' ? 'btn-primary' : 'btn-secondary'}`}
-              style={{ fontSize: '13px', padding: '8px 18px' }}
+              className={`salao-tab-btn ${activePartition === 'sheets' ? 'is-active' : ''}`}
             >
               <Scroll size={16} />
               <span>Fichas ({activeCampaign.sheets.length})</span>
@@ -812,8 +1103,7 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
 
             <button
               onClick={() => setActivePartition('lore')}
-              className={`btn-tavern ${activePartition === 'lore' ? 'btn-primary' : 'btn-secondary'}`}
-              style={{ fontSize: '13px', padding: '8px 18px' }}
+              className={`salao-tab-btn ${activePartition === 'lore' ? 'is-active' : ''}`}
             >
               <BookOpen size={16} />
               <span>Contexto & Lore ({activeCampaign.lore.length})</span>
@@ -821,8 +1111,7 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
 
             <button
               onClick={() => setActivePartition('rules')}
-              className={`btn-tavern ${activePartition === 'rules' ? 'btn-primary' : 'btn-secondary'}`}
-              style={{ fontSize: '13px', padding: '8px 18px' }}
+              className={`salao-tab-btn ${activePartition === 'rules' ? 'is-active' : ''}`}
             >
               <Library size={16} />
               <span>Biblioteca de Regras ({activeCampaign.rules.length})</span>
@@ -831,79 +1120,130 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
             {isMasterOfActive && onOpenMasterScreen && (
               <button
                 onClick={() => onOpenMasterScreen(activeCampaign.id)}
-                className="btn-tavern btn-secondary"
-                style={{
-                  fontSize: '13px',
-                  padding: '8px 18px',
-                  borderColor: 'var(--amber-torch)',
-                  color: '#fbbf24',
-                  backgroundColor: 'rgba(146, 64, 14, 0.25)',
-                  gap: '8px'
-                }}
+                className="salao-tab-btn salao-tab-btn--master"
                 title="Acesso exclusivo ao escudo do Mestre"
               >
-                <Scroll size={16} color="var(--amber-torch)" />
+                <Scroll size={16} />
                 <span>Mesa de Pergaminhos</span>
-                <span className="wax-badge" style={{ backgroundColor: 'rgba(245, 158, 11, 0.25)', color: '#fbbf24', fontSize: '9px', padding: '2px 5px' }}>
-                  Mestre
-                </span>
+                <span className="salao-master-tag">Mestre</span>
               </button>
             )}
           </div>
 
-          {/* PARTITION 1: FICHAS DE PERSONAGENS & NPCS */}
+          {/* PARTITION 1: FICHAS DE PERSONAGENS & NPCS (Mural de Contratos) */}
           {activePartition === 'sheets' && (
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                <h3 style={{ fontSize: '18px', margin: 0 }}>
-                  Repositório de Personagens & NPCs da Mesa
-                </h3>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+                <div>
+                  <span style={{ fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#6A5F52', fontWeight: 800, display: 'block' }}>
+                    Quadro de Avisos &amp; Guilda
+                  </span>
+                  <h3 style={{ fontSize: '22px', margin: '2px 0 0', color: '#0A0A0A', fontFamily: 'var(--font-cinzel, serif)', fontWeight: 800 }}>
+                    Repositório de Personagens &amp; NPCs da Mesa
+                  </h3>
+                </div>
                 <button
                   onClick={handleOpenNewSheet}
-                  className="btn-tavern btn-primary"
-                  style={{ fontSize: '12px', padding: '6px 14px' }}
+                  style={{
+                    fontSize: '12px',
+                    padding: '8px 18px',
+                    backgroundColor: '#0A0A0A',
+                    color: '#F2ECE1',
+                    border: '1.5px solid #0A0A0A',
+                    borderRadius: '8px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 4px 14px rgba(0, 0, 0, 0.15)',
+                    transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#1F1F1F'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#0A0A0A'; e.currentTarget.style.transform = 'translateY(0)'; }}
                 >
                   <Plus size={15} />
-                  Nova Ficha
+                  <span>Novo Contrato de Ficha</span>
                 </button>
               </div>
 
               {activeCampaign.sheets.length === 0 ? (
-                <div className="surface-card" style={{ padding: '36px', textAlign: 'center' }}>
-                  <Scroll size={36} color="var(--amber-deep)" style={{ margin: '0 auto 8px' }} />
-                  <h4 style={{ fontSize: '16px', fontWeight: 700 }}>Nenhum pergaminho de personagem registrado</h4>
-                  <p style={{ fontSize: '13px', color: 'var(--text-soft)', marginTop: '4px' }}>
+                <div style={{ padding: '48px 24px', textAlign: 'center', backgroundColor: '#FAF6EE', border: '1.5px dashed rgba(0, 0, 0, 0.2)', borderRadius: '14px' }}>
+                  <Scroll size={40} color="#4A3F35" style={{ margin: '0 auto 12px' }} />
+                  <h4 style={{ fontSize: '17px', fontWeight: 800, color: '#0A0A0A', margin: '0 0 6px' }}>Nenhum contrato de personagem pregado neste mural</h4>
+                  <p style={{ fontSize: '13px', color: '#5C5245', maxWidth: '460px', margin: '0 auto', lineHeight: 1.5 }}>
                     Adicione os heróis da comitiva ou os NPCs encontrados na taberna para acompanhar seus pontos de vida e habilidades.
                   </p>
                 </div>
               ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
-                  {activeCampaign.sheets.map(sheet => (
-                    <div key={sheet.id} className="surface-card" style={{ padding: '18px' }}>
+                <div className="salao-contract-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
+                  {activeCampaign.sheets.map((sheet, sIdx) => (
+                    <div
+                      key={sheet.id}
+                      className="salao-contract-card"
+                      style={{
+                        padding: '22px',
+                        backgroundColor: '#0D0D0D',
+                        color: '#F2ECE1',
+                        border: '1px solid rgba(242, 236, 225, 0.18)',
+                        borderRadius: '12px',
+                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.14)',
+                        position: 'relative',
+                        transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease',
+                        ['--tilt' as string]: `${((sIdx % 3) - 1) * 0.8}deg`
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-5px) rotate(0.3deg)';
+                        e.currentTarget.style.borderColor = 'rgba(242, 236, 225, 0.4)';
+                        e.currentTarget.style.boxShadow = '0 16px 36px rgba(0, 0, 0, 0.25)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0) rotate(var(--tilt, 0deg))';
+                        e.currentTarget.style.borderColor = 'rgba(242, 236, 225, 0.18)';
+                        e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.14)';
+                      }}
+                    >
+                      <div
+                        className="salao-contract-pin"
+                        style={{
+                          position: 'absolute',
+                          top: '-6px',
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                          width: '12px',
+                          height: '12px',
+                          borderRadius: '50%',
+                          backgroundColor: '#3A322A',
+                          border: '1.5px solid #F2ECE1',
+                          boxShadow: '0 2px 5px rgba(0, 0, 0, 0.5)',
+                          zIndex: 2
+                        }}
+                        aria-hidden="true"
+                      />
                       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
                         <div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <h4 style={{ fontSize: '16px', fontWeight: 800, margin: 0 }}>
+                            <h4 style={{ fontSize: '16px', fontWeight: 800, margin: 0, color: '#FAF7F2' }}>
                               {sheet.name}
                             </h4>
                             {sheet.isNpc && (
-                              <span className="wax-badge" style={{ backgroundColor: 'rgba(180, 83, 9, 0.15)', color: '#92400e', fontSize: '9px', padding: '2px 5px' }}>
+                              <span style={{ backgroundColor: '#1C1C1C', color: '#F2ECE1', border: '1px solid rgba(242, 236, 225, 0.2)', fontSize: '9px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', letterSpacing: '0.06em' }}>
                                 NPC
                               </span>
                             )}
                           </div>
-                          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                          <div style={{ fontSize: '12px', color: '#A89A85', marginTop: '2px' }}>
                             {sheet.race} • {sheet.class} (Nível {sheet.level})
                           </div>
-                          <div style={{ fontSize: '11px', color: 'var(--text-soft)' }}>
-                            Jogador: <strong>{sheet.player}</strong>
+                          <div style={{ fontSize: '11px', color: '#786C5E' }}>
+                            Jogador: <strong style={{ color: '#F2ECE1' }}>{sheet.player}</strong>
                           </div>
                         </div>
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <button
                             onClick={() => handleOpenEditSheet(sheet)}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--amber-deep)', padding: '2px' }}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#F2ECE1', padding: '2px' }}
                             title="Editar Ficha"
                             aria-label={`Editar ficha de ${sheet.name}`}
                           >
@@ -912,7 +1252,9 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                           {isMasterOfActive && (
                             <button
                               onClick={() => onDeleteSheet(activeCampaign.id, sheet.id)}
-                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#991b1b', padding: '2px' }}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#A89A85', padding: '2px', transition: 'color 0.2s' }}
+                              onMouseEnter={(e) => { e.currentTarget.style.color = '#FAF7F2'; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.color = '#A89A85'; }}
                               title="Remover Ficha"
                             >
                               <Trash2 size={16} />
@@ -927,28 +1269,29 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                         gridTemplateColumns: 'repeat(3, 1fr)',
                         gap: '8px',
                         margin: '14px 0',
-                        backgroundColor: 'rgba(60, 36, 18, 0.08)',
-                        padding: '8px',
-                        borderRadius: '6px',
+                        backgroundColor: '#141414',
+                        border: '1px solid rgba(242, 236, 225, 0.12)',
+                        padding: '10px 8px',
+                        borderRadius: '8px',
                         textAlign: 'center'
                       }}>
                         <div>
-                          <div style={{ fontSize: '10px', color: '#991b1b', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px' }}>
-                            <Heart size={12} fill="#ef4444" color="#ef4444" /> HP
+                          <div style={{ fontSize: '10px', color: '#D6CFC4', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                            <Heart size={11} strokeWidth={2.2} color="#F2ECE1" /> HP
                           </div>
-                          <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-strong)' }}>
+                          <div style={{ fontSize: '15px', fontWeight: 800, color: '#FAF7F2', marginTop: '2px' }}>
                             {sheet.hp} / {sheet.maxHp}
                           </div>
-                          <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '2px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '4px' }}>
                             <button
                               onClick={() => onUpdateSheet(activeCampaign.id, sheet.id, { hp: Math.max(0, sheet.hp - 1) })}
-                              style={{ width: '20px', height: '20px', fontSize: '12px', fontWeight: 700, border: '1px solid var(--line-soft)', background: 'rgba(60, 36, 18, 0.08)', cursor: 'pointer', borderRadius: '3px' }}
+                              style={{ width: '22px', height: '22px', fontSize: '12px', fontWeight: 700, border: '1px solid rgba(242, 236, 225, 0.2)', background: '#222222', color: '#F2ECE1', cursor: 'pointer', borderRadius: '4px' }}
                             >
                               -
                             </button>
                             <button
                               onClick={() => onUpdateSheet(activeCampaign.id, sheet.id, { hp: Math.min(sheet.maxHp + 10, sheet.hp + 1) })}
-                              style={{ width: '20px', height: '20px', fontSize: '12px', fontWeight: 700, border: '1px solid var(--line-soft)', background: 'rgba(60, 36, 18, 0.08)', cursor: 'pointer', borderRadius: '3px' }}
+                              style={{ width: '22px', height: '22px', fontSize: '12px', fontWeight: 700, border: '1px solid rgba(242, 236, 225, 0.2)', background: '#222222', color: '#F2ECE1', cursor: 'pointer', borderRadius: '4px' }}
                             >
                               +
                             </button>
@@ -956,22 +1299,22 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                         </div>
 
                         <div>
-                          <div style={{ fontSize: '10px', color: '#1d4ed8', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px' }}>
-                            <Zap size={12} fill="#3b82f6" color="#3b82f6" /> Mana
+                          <div style={{ fontSize: '10px', color: '#D6CFC4', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                            <Zap size={11} strokeWidth={2.2} color="#F2ECE1" /> Mana
                           </div>
-                          <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-strong)' }}>
+                          <div style={{ fontSize: '15px', fontWeight: 800, color: '#FAF7F2', marginTop: '2px' }}>
                             {sheet.mp} / {sheet.maxMp}
                           </div>
-                          <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '2px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '4px' }}>
                             <button
                               onClick={() => onUpdateSheet(activeCampaign.id, sheet.id, { mp: Math.max(0, sheet.mp - 1) })}
-                              style={{ width: '20px', height: '20px', fontSize: '12px', fontWeight: 700, border: '1px solid var(--line-soft)', background: 'rgba(60, 36, 18, 0.08)', cursor: 'pointer', borderRadius: '3px' }}
+                              style={{ width: '22px', height: '22px', fontSize: '12px', fontWeight: 700, border: '1px solid rgba(242, 236, 225, 0.2)', background: '#222222', color: '#F2ECE1', cursor: 'pointer', borderRadius: '4px' }}
                             >
                               -
                             </button>
                             <button
                               onClick={() => onUpdateSheet(activeCampaign.id, sheet.id, { mp: sheet.mp + 1 })}
-                              style={{ width: '20px', height: '20px', fontSize: '12px', fontWeight: 700, border: '1px solid var(--line-soft)', background: 'rgba(60, 36, 18, 0.08)', cursor: 'pointer', borderRadius: '3px' }}
+                              style={{ width: '22px', height: '22px', fontSize: '12px', fontWeight: 700, border: '1px solid rgba(242, 236, 225, 0.2)', background: '#222222', color: '#F2ECE1', cursor: 'pointer', borderRadius: '4px' }}
                             >
                               +
                             </button>
@@ -979,13 +1322,13 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                         </div>
 
                         <div>
-                          <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px' }}>
-                            <Shield size={12} /> C.A.
+                          <div style={{ fontSize: '10px', color: '#D6CFC4', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                            <Shield size={11} strokeWidth={2.2} color="#F2ECE1" /> C.A.
                           </div>
-                          <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-strong)' }}>
+                          <div style={{ fontSize: '15px', fontWeight: 800, color: '#FAF7F2', marginTop: '2px' }}>
                             {sheet.armorClass}
                           </div>
-                          <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                          <div style={{ fontSize: '10px', color: '#A89A85', marginTop: '6px' }}>
                             Armadura
                           </div>
                         </div>
@@ -1001,11 +1344,11 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                         marginBottom: '10px'
                       }}>
                         {getOrderedStats(sheet).map(({ code, value }) => (
-                          <div key={code} style={{ border: '1px solid var(--line-soft)', padding: '3px', borderRadius: '4px', background: 'rgba(60, 36, 18, 0.08)' }}>
-                            <span style={{ fontWeight: 700, textTransform: 'uppercase', fontSize: '9px', color: 'var(--text-muted)' }}>
+                          <div key={code} style={{ border: '1px solid rgba(242, 236, 225, 0.12)', padding: '4px 2px', borderRadius: '4px', background: '#141414' }}>
+                            <span style={{ fontWeight: 800, textTransform: 'uppercase', fontSize: '9px', color: '#A89A85' }}>
                               {code}
                             </span>
-                            <div style={{ fontWeight: 800, fontSize: '12px' }}>{value}</div>
+                            <div style={{ fontWeight: 800, fontSize: '12px', color: '#FAF7F2' }}>{value}</div>
                           </div>
                         ))}
                       </div>
@@ -1046,36 +1389,36 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
               </div>
 
               {activeCampaign.lore.length === 0 ? (
-                <div className="surface-card" style={{ padding: '36px', textAlign: 'center' }}>
-                  <BookOpen size={36} color="var(--amber-deep)" style={{ margin: '0 auto 8px' }} />
-                  <h4 style={{ fontSize: '16px', fontWeight: 700 }}>Nenhum registro de crônica gravado</h4>
-                  <p style={{ fontSize: '13px', color: 'var(--text-soft)', marginTop: '4px' }}>
+                <div style={{ padding: '48px 24px', textAlign: 'center', backgroundColor: '#FAF6EE', border: '1.5px dashed rgba(0, 0, 0, 0.2)', borderRadius: '14px' }}>
+                  <BookOpen size={40} color="#4A3F35" style={{ margin: '0 auto 12px' }} />
+                  <h4 style={{ fontSize: '17px', fontWeight: 800, color: '#0A0A0A', margin: '0 0 6px' }}>Nenhum registro de crônica gravado</h4>
+                  <p style={{ fontSize: '13px', color: '#5C5245', maxWidth: '460px', margin: '0 auto', lineHeight: 1.5 }}>
                     Registre o resumo da primeira sessão ou consulte o oráculo Urd para gerar lendas para o mundo!
                   </p>
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {activeCampaign.lore.map(entry => (
-                    <div key={entry.id} className="surface-card" style={{ padding: '20px' }}>
+                    <div key={entry.id} className="surface-card" style={{ padding: '22px', backgroundColor: '#0D0D0D', color: '#F2ECE1', border: '1px solid rgba(242, 236, 225, 0.18)', borderRadius: '12px', boxShadow: '0 6px 18px rgba(0,0,0,0.12)' }}>
                       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
                         <div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                            <span className="wax-badge" style={{ backgroundColor: 'rgba(245, 236, 220, 0.1)', color: 'var(--amber-glow)', fontSize: '9px' }}>
+                            <span style={{ backgroundColor: '#1C1C1C', color: '#F2ECE1', border: '1px solid rgba(242, 236, 225, 0.2)', fontSize: '9px', fontWeight: 800, padding: '2px 8px', borderRadius: '4px', letterSpacing: '0.06em' }}>
                               {entry.category.toUpperCase()}
                             </span>
-                            <h4 style={{ fontSize: '17px', fontWeight: 800, margin: 0 }}>
+                            <h4 style={{ fontSize: '17px', fontWeight: 800, margin: 0, color: '#FAF7F2' }}>
                               {entry.title}
                             </h4>
                           </div>
-                          <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '3px' }}>
-                            Gravado por <strong>{entry.author}</strong> em {new Date(entry.createdAt).toLocaleDateString('pt-BR')}
+                          <div style={{ fontSize: '11px', color: '#A89A85', marginTop: '3px' }}>
+                            Gravado por <strong style={{ color: '#F2ECE1' }}>{entry.author}</strong> em {new Date(entry.createdAt).toLocaleDateString('pt-BR')}
                           </div>
                         </div>
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <button
                             onClick={() => handleOpenEditLore(entry)}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--amber-deep)', padding: '4px' }}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#F2ECE1', padding: '4px' }}
                             title="Editar Anotação"
                             aria-label={`Editar anotação ${entry.title}`}
                           >
@@ -1084,7 +1427,7 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                           {isMasterOfActive && (
                             <button
                               onClick={() => onDeleteLore(activeCampaign.id, entry.id)}
-                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#991b1b', padding: '4px' }}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '4px' }}
                               title="Excluir Anotação"
                             >
                               <Trash2 size={16} />
@@ -1093,14 +1436,14 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                         </div>
                       </div>
 
-                      <div className="font-lore" style={{ fontSize: '15px', color: 'var(--text-strong)', lineHeight: 1.6, margin: '14px 0', whiteSpace: 'pre-line' }}>
+                      <div className="font-lore" style={{ fontSize: '15px', color: '#EAE2D3', lineHeight: 1.6, margin: '14px 0', whiteSpace: 'pre-line' }}>
                         {entry.content}
                       </div>
 
                       {entry.tags && entry.tags.length > 0 && (
                         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                           {entry.tags.map(t => (
-                            <span key={t} style={{ fontSize: '10px', backgroundColor: 'rgba(180, 83, 9, 0.12)', color: '#92400e', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>
+                            <span key={t} style={{ fontSize: '10px', backgroundColor: '#1C1C1C', color: '#F2ECE1', border: '1px solid rgba(242, 236, 225, 0.15)', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>
                               #{t}
                             </span>
                           ))}
@@ -1118,10 +1461,10 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
                 <div>
-                  <h3 style={{ fontSize: '18px', margin: 0 }}>
-                    Grimório & Biblioteca de Regras (.PDFs e Guias de Apoio)
+                  <h3 style={{ fontSize: '18px', margin: 0, color: '#0A0A0A', fontFamily: 'var(--font-cinzel, serif)', fontWeight: 800 }}>
+                    Grimório &amp; Biblioteca de Regras (.PDFs e Guias de Apoio)
                   </h3>
-                  <p style={{ fontSize: '12px', color: 'var(--text-soft)', margin: '2px 0 0' }}>
+                  <p style={{ fontSize: '12px', color: '#5C5245', margin: '2px 0 0' }}>
                     Manuais de combate, magias e livros de regras oficiais e da casa para consulta rápida durante a sessão.
                   </p>
                 </div>
@@ -1136,26 +1479,26 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
               </div>
 
               {activeCampaign.rules.length === 0 ? (
-                <div className="surface-card" style={{ padding: '36px', textAlign: 'center' }}>
-                  <Library size={36} color="var(--amber-deep)" style={{ margin: '0 auto 8px' }} />
-                  <h4 style={{ fontSize: '16px', fontWeight: 700 }}>Nenhum documento de regras arquivado</h4>
-                  <p style={{ fontSize: '13px', color: 'var(--text-soft)', marginTop: '4px' }}>
+                <div style={{ padding: '48px 24px', textAlign: 'center', backgroundColor: '#FAF6EE', border: '1.5px dashed rgba(0, 0, 0, 0.2)', borderRadius: '14px' }}>
+                  <Library size={40} color="#4A3F35" style={{ margin: '0 auto 12px' }} />
+                  <h4 style={{ fontSize: '17px', fontWeight: 800, color: '#0A0A0A', margin: '0 0 6px' }}>Nenhum documento de regras arquivado</h4>
+                  <p style={{ fontSize: '13px', color: '#5C5245', maxWidth: '460px', margin: '0 auto', lineHeight: 1.5 }}>
                     Envie guias de combate, listas de magias ou PDFs do sistema de RPG para consulta imediata na mesa.
                   </p>
                 </div>
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
                   {activeCampaign.rules.map(doc => (
-                    <div key={doc.id} className="surface-card" style={{ padding: '18px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <div key={doc.id} className="surface-card" style={{ padding: '20px', backgroundColor: '#0D0D0D', color: '#F2ECE1', border: '1px solid rgba(242, 236, 225, 0.18)', borderRadius: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 6px 18px rgba(0,0,0,0.12)' }}>
                       <div>
                         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <FileText size={22} color="var(--amber-deep)" />
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <FileText size={24} color="#F2ECE1" />
                             <div>
-                              <h4 style={{ fontSize: '15px', fontWeight: 800, margin: 0 }}>
+                              <h4 style={{ fontSize: '15px', fontWeight: 800, margin: 0, color: '#FAF7F2' }}>
                                 {doc.title}
                               </h4>
-                              <span style={{ fontSize: '11px', color: 'var(--amber-torch)', fontWeight: 600 }}>
+                              <span style={{ fontSize: '11px', color: '#A89A85', fontWeight: 600 }}>
                                 {doc.fileSize || 'PDF'} • Categoria: {doc.category}
                               </span>
                             </div>
@@ -1188,12 +1531,12 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
 
                         {doc.contentSnippet && (
                           <div style={{
-                            backgroundColor: 'rgba(60, 36, 18, 0.08)',
-                            padding: '8px',
+                            backgroundColor: '#141414',
+                            padding: '10px',
                             borderRadius: '4px',
                             fontSize: '11px',
-                            color: 'var(--text-strong)',
-                            borderLeft: '2px solid var(--amber-deep)',
+                            color: '#EAE2D3',
+                            borderLeft: '2px solid #F2ECE1',
                             fontFamily: 'monospace',
                             whiteSpace: 'pre-line'
                           }}>
@@ -1220,6 +1563,7 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
           )}
         </div>
       ) : null}
+      </div>
 
       {/* MODAL: CRIAR NOVA CAMPANHA (Limitação estrita de 3) */}
       {isNewRoomModalOpen && (
@@ -1227,7 +1571,7 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
           <div className="tavern-modal-content surface-card" onClick={e => e.stopPropagation()} style={{ padding: '28px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Shield size={20} color="var(--amber-deep)" />
+                <Shield size={20} color="#0A0A0A" />
                 <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800 }}>Criar Nova Sala de Campanha</h3>
               </div>
               <button onClick={() => setIsNewRoomModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
@@ -1658,6 +2002,5 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
         </div>
       )}
     </div>
-    </>
   );
 };
