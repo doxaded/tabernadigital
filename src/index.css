@@ -3631,14 +3631,14 @@ h1, h2, h3, h4, .font-cinzel {
 
 /* Banner Claro: pergaminho iluminado, estaticamente borrado e opaco com paleta creme encorpada */
 .hub-banner--light .hub-banner__bg-img {
-  opacity: 0.26;
-  filter: blur(6px) saturate(0.95) brightness(0.94);
+  opacity: 0.55;
+  filter: blur(6px) saturate(1.05) brightness(0.96);
 }
 
 .hub-banner--light .hub-banner__bg-overlay {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 50%, rgba(236, 224, 202, 0.45) 0%, rgba(222, 205, 176, 0.72) 65%, rgba(206, 186, 153, 0.92) 100%);
+  background: radial-gradient(ellipse at 50% 50%, rgba(236, 224, 202, 0.20) 0%, rgba(222, 205, 176, 0.48) 65%, rgba(206, 186, 153, 0.78) 100%);
   pointer-events: none;
 }
 
@@ -3806,12 +3806,12 @@ h1, h2, h3, h4, .font-cinzel {
 }
 
 .hub-banner--light .hub-banner__title {
-  color: #120b06;
+  color: #2b170c;
   text-shadow: 0 2px 16px rgba(244, 237, 221, 0.95), 0 1px 4px rgba(255, 255, 255, 0.9);
 }
 
 .hub-banner--light .hub-banner__title-btn:hover .hub-banner__title {
-  color: #000000;
+  color: #1e0e06;
   letter-spacing: 0.035em;
   text-shadow: 0 2px 20px rgba(244, 237, 221, 1), 0 1px 6px rgba(255, 255, 255, 0.95);
 }
@@ -3866,17 +3866,17 @@ h1, h2, h3, h4, .font-cinzel {
 }
 
 .hub-banner--light .hub-banner__arrow-wrap {
-  border: 1.5px solid rgba(21, 16, 11, 0.25);
-  color: #854d0e;
-  background: rgba(21, 16, 11, 0.03);
+  border: 1.5px solid rgba(43, 23, 12, 0.35);
+  color: #2b170c;
+  background: rgba(43, 23, 12, 0.05);
 }
 
 .hub-banner--light .hub-banner__title-btn:hover .hub-banner__arrow-wrap {
-  background: #15100b;
+  background: #2b170c;
   color: #F4EDDD;
-  border-color: #15100b;
+  border-color: #2b170c;
   transform: rotate(45deg) scale(1.08);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 4px 14px rgba(43, 23, 12, 0.35);
 }
 
 .hub-banner__arrow {
@@ -3925,16 +3925,16 @@ h1, h2, h3, h4, .font-cinzel {
 }
 
 .hub-banner--light .hub-banner__pill {
-  background: rgba(21, 16, 11, 0.06);
-  color: #15100b;
-  border: 1px solid rgba(21, 16, 11, 0.16);
+  background: rgba(43, 23, 12, 0.08);
+  color: #2b170c;
+  border: 1px solid rgba(43, 23, 12, 0.22);
 }
 
 .hub-banner--light .hub-banner__title-btn:hover .hub-banner__pill {
-  background: #15100b;
+  background: #2b170c;
   color: #F4EDDD;
-  border-color: #15100b;
-  box-shadow: 0 4px 18px rgba(21, 16, 11, 0.25);
+  border-color: #2b170c;
+  box-shadow: 0 4px 18px rgba(43, 23, 12, 0.35);
 }
 
 /* Legenda inferior explicativa do serviço (em 1 linha só, centralizada inferiormente) */
