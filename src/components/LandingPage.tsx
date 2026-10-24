@@ -47,7 +47,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
         }}
       >
         <img
-          src="/assets/landing_parchment_bg.png"
+          src="/assets/landing_parchment_bg.jpg"
           alt=""
           style={{
             position: 'absolute',
@@ -188,7 +188,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
           style={{
             position: 'absolute',
             inset: '-10%',
-            backgroundImage: 'url("/assets/landing_parchment_bg.png")',
+            backgroundImage: 'url("/assets/landing_parchment_bg.jpg")',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             opacity: 0.32,
