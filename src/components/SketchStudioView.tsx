@@ -280,7 +280,7 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
   };
 
   return (
-    <div className="sketch-studio-view" style={{ width: '100%', minHeight: '100vh', backgroundColor: '#000000', color: '#f5ecdc', padding: 0, margin: 0 }}>
+    <div className="sketch-studio-view" style={{ width: '100%', minHeight: '100vh', backgroundColor: '#0e0906', backgroundImage: 'radial-gradient(ellipse at 50% 20%, rgba(217, 119, 6, 0.12) 0%, rgba(14, 9, 6, 0.98) 75%)', color: '#f5ecdc', padding: 0, margin: 0 }}>
       {/* ========================================================================= */}
       {/* ATELIÊ DO BARDO — Cavalete com Orlan Pena-Fina e Estúdio de Gravura */}
       {/* ========================================================================= */}

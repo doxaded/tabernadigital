@@ -482,7 +482,7 @@ export const ChatPortalView: React.FC<ChatPortalViewProps> = ({
   const myTagDisplay = currentUser?.userTag || currentUser?.tag || 'TABERNA';
 
   return (
-    <div className="portal-chamber" style={{ width: '100%', height: '100vh', minHeight: '100vh', backgroundColor: '#0B0B0B', color: '#FAF7F2', padding: 0, margin: 0, boxSizing: 'border-box', overflow: 'hidden' }}>
+    <div className="portal-chamber" style={{ width: '100%', height: '100vh', minHeight: '100vh', backgroundColor: '#0e0906', backgroundImage: 'radial-gradient(ellipse at 50% 20%, rgba(217, 119, 6, 0.12) 0%, rgba(14, 9, 6, 0.98) 75%)', color: '#FAF7F2', padding: 0, margin: 0, boxSizing: 'border-box', overflow: 'hidden' }}>
       <div className="portal-unified-stage" aria-label="Recanto dos Bardos - Mensageria da Taberna" style={{ width: '100%', height: '100%', margin: 0, borderRadius: 0, border: 'none', boxShadow: 'none' }}>
         <div className="portal-inner">
           
