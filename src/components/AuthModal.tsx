@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Flame, AlertTriangle, Check, RefreshCw } from 'lucide-react';
+import { X, AlertTriangle, Check, RefreshCw } from 'lucide-react';
 import { ADMIN_EMAIL, storageService } from '../services/storage';
 import { firebaseAuthService, parseFirebaseError } from '../services/firebase';
 import { UserProfile } from '../types';

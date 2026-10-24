@@ -7,17 +7,18 @@ import {
   LogIn,
   Copy,
   Check,
-  Flame,
   Volume2,
   VolumeX,
   Coins,
-  X
+  X,
+  Menu
 } from 'lucide-react';
 import { UserProfile } from '../types';
 import { ADMIN_EMAIL } from '../services/storage';
 import { tavernAudio } from '../services/tavernAudio';
 import { AvatarFrame } from './AvatarFrame';
 import { getEffectiveGold } from '../services/tavernShopCatalog';
+import { TavernSteinIcon } from './TavernSteinIcon';
 
 interface NavbarProps {
   currentUser: UserProfile | null;
@@ -99,57 +100,187 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <>
-      {/* 1. Sensor Interativo na Borda Esquerda da Tela (Aproximação do Cursor) */}
-      <div
-        id="tavern-sidebar-edge-sensor"
-        onMouseEnter={() => setIsOpen(true)}
+      {/* 1. Barra de Tarefas SUPERIOR: Estática, cor própria de madeira defumada sem linha inferior */}
+      <header
+        id="tavern-top-taskbar"
         style={{
-          position: 'fixed',
+          position: 'sticky',
           top: 0,
           left: 0,
-          width: '20px',
-          height: '100vh',
-          zIndex: 994,
-          cursor: 'pointer',
-          pointerEvents: isOpen ? 'none' : 'auto'
-        }}
-        title="Aproxime o cursor para abrir as Ferramentas da Taverna"
-        aria-hidden="true"
-      />
-
-      {/* 2. Ícone / Logo Flutuante no Canto Superior Esquerdo da Tela */}
-      <button
-        id="tavern-topleft-seal-btn"
-        type="button"
-        onMouseEnter={() => setIsOpen(true)}
-        onClick={() => setIsOpen((prev) => !prev)}
-        title="Abrir Ferramentas da Taverna (ou aproxime o cursor do canto esquerdo)"
-        style={{
-          position: 'fixed',
-          top: '12px',
-          left: '12px',
-          zIndex: 995,
-          width: '42px',
-          height: '42px',
-          borderRadius: '50%',
-          background: 'linear-gradient(135deg, #d97706 0%, #78350f 100%)',
-          color: '#fef3c7',
+          width: '100%',
+          height: '54px',
+          zIndex: 990,
+          backgroundColor: '#181008',
+          borderBottom: 'none',
+          border: 'none',
+          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.45)',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          border: '1px solid rgba(245, 158, 11, 0.4)',
-          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.75)',
-          cursor: 'pointer',
-          transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease',
-          opacity: isOpen ? 0 : 1,
-          pointerEvents: isOpen ? 'none' : 'auto',
-          transform: isOpen ? 'scale(0.8) translateX(-15px)' : 'scale(1) translateX(0)'
+          justifyContent: 'space-between',
+          padding: '0 16px',
+          boxSizing: 'border-box',
+          userSelect: 'none'
         }}
       >
-        <Flame size={20} style={{ color: '#fffbeb' }} />
-      </button>
+        {/* Canto Superior Esquerdo: Ícone para puxar barra lateral + Logo Minimalista de Caneca de Chopp */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <button
+            id="tavern-toggle-sidebar-btn"
+            type="button"
+            onClick={() => setIsOpen((prev) => !prev)}
+            title={isOpen ? 'Recolher Ferramentas da Taverna' : 'Expandir Ferramentas da Taverna'}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '36px',
+              height: '36px',
+              borderRadius: '10px',
+              backgroundColor: isOpen ? 'rgba(217, 119, 6, 0.22)' : 'rgba(255, 255, 255, 0.05)',
+              border: 'none',
+              color: isOpen ? '#fbbf24' : '#d4b896',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              padding: 0
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(217, 119, 6, 0.25)';
+              e.currentTarget.style.color = '#fffbeb';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = isOpen ? 'rgba(217, 119, 6, 0.22)' : 'rgba(255, 255, 255, 0.05)';
+              e.currentTarget.style.color = isOpen ? '#fbbf24' : '#d4b896';
+            }}
+          >
+            <Menu size={20} />
+          </button>
 
-      {/* 3. Backdrop Semitransparente ao Abrir */}
+          {/* Logo Minimalista Medieval: Caneca de Chopp + Nome */}
+          <div
+            onClick={() => {
+              setActiveTab('hub');
+              setIsOpen(false);
+            }}
+            title="Voltar ao Salão Principal da Taverna"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '9px',
+              cursor: 'pointer'
+            }}
+          >
+            <div
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, #d97706 0%, #78350f 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#fef3c7',
+                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.4)'
+              }}
+            >
+              <TavernSteinIcon size={19} color="#fffbeb" />
+            </div>
+
+            <span
+              style={{
+                fontFamily: 'var(--font-cinzel), Georgia, serif',
+                fontSize: '13.5px',
+                fontWeight: 800,
+                letterSpacing: '0.08em',
+                color: '#fef3c7'
+              }}
+            >
+              TABERNA DIGITAL
+            </span>
+          </div>
+        </div>
+
+        {/* Lado Direito: Ações (Bazar e Música) - TOTALMENTE SEM BORDAS */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {currentUser && (
+            <button
+              type="button"
+              onClick={onOpenShop}
+              title="Abrir Bazar da Taverna (Títulos de Honra & Molduras Místicas)"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 14px',
+                borderRadius: '9999px',
+                border: 'none',
+                background: 'rgba(217, 119, 6, 0.16)',
+                color: '#fbbf24',
+                fontSize: '11px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                fontFamily: 'var(--font-cinzel), Georgia, serif',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(217, 119, 6, 0.28)';
+                e.currentTarget.style.color = '#fffbeb';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(217, 119, 6, 0.16)';
+                e.currentTarget.style.color = '#fbbf24';
+              }}
+            >
+              <Coins size={14} style={{ color: '#fbbf24' }} />
+              <span>{getEffectiveGold(currentUser).toLocaleString('pt-BR')} PO</span>
+              <span style={{ opacity: 0.8, fontWeight: 500 }}>• Bazar</span>
+            </button>
+          )}
+
+          {/* Botão de Música da Taverna - TOTALMENTE SEM BORDA */}
+          <button
+            type="button"
+            onClick={handleToggleAudio}
+            title={isPlayingAudio ? 'Silenciar Alaúde & Lareira' : 'Ouvir Música da Taverna (Alaúde & Lareira)'}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '7px',
+              padding: '6px 14px',
+              borderRadius: '9999px',
+              border: 'none',
+              background: isPlayingAudio ? 'rgba(217, 119, 6, 0.22)' : 'rgba(255, 255, 255, 0.05)',
+              color: isPlayingAudio ? '#fef3c7' : '#cfc6b8',
+              fontSize: '11px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              fontFamily: 'var(--font-cinzel), Georgia, serif',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = isPlayingAudio ? 'rgba(217, 119, 6, 0.32)' : 'rgba(255, 255, 255, 0.1)';
+              e.currentTarget.style.color = '#ffffff';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = isPlayingAudio ? 'rgba(217, 119, 6, 0.22)' : 'rgba(255, 255, 255, 0.05)';
+              e.currentTarget.style.color = isPlayingAudio ? '#fef3c7' : '#cfc6b8';
+            }}
+          >
+            {isPlayingAudio ? (
+              <>
+                <Volume2 size={14} style={{ color: '#f59e0b' }} />
+                <span>Alaúde & Lareira</span>
+              </>
+            ) : (
+              <>
+                <VolumeX size={14} />
+                <span>Ouvir Música</span>
+              </>
+            )}
+          </button>
+        </div>
+      </header>
+
+      {/* 2. Backdrop Semitransparente ao Abrir */}
       {isOpen && (
         <div
           id="tavern-sidebar-backdrop"
@@ -166,12 +297,10 @@ export const Navbar: React.FC<NavbarProps> = ({
         />
       )}
 
-      {/* 4. Barra Lateral de Ferramentas (Esconde-se inteiramente até ser ativada) */}
+      {/* 3. Barra Lateral de Ferramentas (Estática quando aberta, sem fechar em onMouseLeave) */}
       <aside
         id="tavern-lateral-toolbar"
         className="tavern-sidebar tavern-wood-beam"
-        onMouseEnter={() => setIsOpen(true)}
-        onMouseLeave={() => setIsOpen(false)}
         aria-label="Barra de ferramentas lateral da Taberna Digital"
         style={{
           position: 'fixed',
@@ -191,7 +320,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
           opacity: isOpen ? 1 : 0,
           pointerEvents: isOpen ? 'auto' : 'none',
-          transition: 'transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease, box-shadow 0.28s ease',
+          transition: 'transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease',
           boxShadow: isOpen
             ? '16px 0 40px rgba(0, 0, 0, 0.85)'
             : 'none',
@@ -199,7 +328,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           userSelect: 'none'
         }}
       >
-        {/* Topo da Barra: Brasão da Taberna e Botão Fechar */}
+        {/* Topo da Barra: Brasão de Caneca de Chopp da Taberna e Botão Fechar */}
         <div
           style={{
             height: '66px',
@@ -221,7 +350,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }}
             title="Voltar ao Salão Principal da Taberna"
           >
-            {/* Medalhão da Taberna com Chama */}
+            {/* Medalhão da Taberna com Caneca de Chopp Minimalista Medieval */}
             <div
               style={{
                 width: '38px',
@@ -237,7 +366,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 border: '1px solid rgba(245, 158, 11, 0.35)'
               }}
             >
-              <Flame size={18} style={{ color: '#fffbeb' }} />
+              <TavernSteinIcon size={20} color="#fffbeb" />
             </div>
 
             <div style={{ marginLeft: '12px', display: 'flex', flexDirection: 'column' }}>

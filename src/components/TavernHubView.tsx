@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowUpRight, Volume2, VolumeX, Flame, Coins } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowUpRight } from 'lucide-react';
 import { Campaign, UserProfile } from '../types';
-import { tavernAudio } from '../services/tavernAudio';
-import { getEffectiveGold } from '../services/tavernShopCatalog';
 
 interface TavernHubViewProps {
   currentUser: UserProfile | null;
@@ -62,133 +60,13 @@ const HUB_MODULES: HubModuleConfig[] = [
 ];
 
 export const TavernHubView: React.FC<TavernHubViewProps> = ({
-  currentUser,
   onNavigate,
-  onOpenShop
 }) => {
   const [hoveredModule, setHoveredModule] = useState<string | null>(null);
-  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
-
-  useEffect(() => {
-    return tavernAudio.subscribe((playing) => {
-      setIsPlayingAudio(playing);
-    });
-  }, []);
 
   return (
     <div className="hub-checkerboard" role="main" aria-label="Portal de Opções da Taberna Digital">
-      {/* Barra Suspensa Superior de Clima da Taverna & Música */}
-      <div
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 50,
-          width: '100%',
-          background: 'linear-gradient(180deg, rgba(22, 14, 8, 0.95) 0%, rgba(14, 9, 5, 0.85) 100%)',
-          backdropFilter: 'blur(8px)',
-          borderBottom: '1.5px solid rgba(245, 158, 11, 0.25)',
-          padding: '8px var(--edge)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          boxSizing: 'border-box'
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Flame size={15} style={{ color: '#f59e0b' }} />
-          <span
-            style={{
-              fontSize: '11px',
-              fontWeight: 800,
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              color: '#fef3c7',
-              fontFamily: 'var(--font-cinzel), Georgia, serif'
-            }}
-          >
-            Salão Principal da Taverna
-          </span>
-        </div>
-
-        {/* Ações da Taverna: Bazar e Música */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {/* Botão do Bazar da Taverna */}
-          {currentUser && (
-            <button
-              type="button"
-              onClick={onOpenShop}
-              title="Abrir Bazar da Taverna (Títulos de Honra & Molduras Místicas)"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '7px 16px',
-                borderRadius: '9999px',
-                border: '1px solid rgba(245, 158, 11, 0.3)',
-                background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.25) 0%, rgba(120, 53, 15, 0.3) 100%)',
-                color: '#fbbf24',
-                fontSize: '11px',
-                fontWeight: 800,
-                cursor: 'pointer',
-                fontFamily: 'var(--font-cinzel), Georgia, serif',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.45)',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-1px)';
-                e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.35)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.backgroundColor = 'rgba(217, 119, 6, 0.25)';
-              }}
-            >
-              <Coins size={14} style={{ color: '#fbbf24' }} />
-              <span>{getEffectiveGold(currentUser).toLocaleString('pt-BR')} PO</span>
-              <span style={{ opacity: 0.8, fontWeight: 500 }}>• Bazar</span>
-            </button>
-          )}
-
-          {/* Botão de Música da Taverna */}
-          <button
-            type="button"
-            onClick={() => tavernAudio.toggle()}
-            title={isPlayingAudio ? 'Silenciar Alaúde & Lareira' : 'Ouvir Música da Taverna (Alaúde & Lareira)'}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '7px 16px',
-              borderRadius: '9999px',
-              border: isPlayingAudio ? '1px solid rgba(245, 158, 11, 0.4)' : '1px solid rgba(255, 255, 255, 0.1)',
-              background: isPlayingAudio
-                ? 'linear-gradient(135deg, rgba(217, 119, 6, 0.28) 0%, rgba(120, 53, 15, 0.2) 100%)'
-                : 'rgba(0, 0, 0, 0.4)',
-              color: isPlayingAudio ? '#fef3c7' : '#cfc6b8',
-              fontSize: '11px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              fontFamily: 'var(--font-cinzel), Georgia, serif',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            {isPlayingAudio ? (
-              <>
-                <Volume2 size={14} style={{ color: '#f59e0b' }} />
-                <span>Alaúde & Lareira Ativos</span>
-              </>
-            ) : (
-              <>
-                <VolumeX size={14} />
-                <span>Ouvir Música</span>
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* Os 4 Banners Gigantes de Salas da Taverna */}
+      {/* Os 4 Banners Gigantes de Salas da Taverna com Legendas */}
       {HUB_MODULES.map((mod, index) => {
         const isHovered = hoveredModule === mod.id;
         const isFirst = index === 0;
@@ -223,6 +101,11 @@ export const TavernHubView: React.FC<TavernHubViewProps> = ({
                   </span>
                 </h2>
               </button>
+
+              {/* Legenda dos Banners Restaurada (Design limpo, sem balões ou bordas pesadas) */}
+              <div className="hub-banner__service-desc">
+                <p>{mod.description}</p>
+              </div>
             </div>
           </section>
         );
