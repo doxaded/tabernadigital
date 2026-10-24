@@ -3608,49 +3608,49 @@ h1, h2, h3, h4, .font-cinzel {
   height: 100%;
   object-fit: cover;
   object-position: center;
-  transform: scale(1.08);
-  filter: blur(14px);
-  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), filter 0.7s ease, opacity 0.5s ease;
+  transform: scale(1.04);
+  filter: blur(3px);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease, opacity 0.4s ease;
   will-change: transform, filter, opacity;
 }
 
-/* Banner Escuro: fundo de madeira e âmbar */
+/* Banner Escuro: fundo de madeira e âmbar, arte nítida e decifrável */
 .hub-banner--dark .hub-banner__bg-img {
-  opacity: 0.34;
-  filter: blur(14px) saturate(0.9) brightness(0.6);
+  opacity: 0.68;
+  filter: blur(3px) saturate(1.05) brightness(0.78);
 }
 
 .hub-banner--dark:hover .hub-banner__bg-img,
 .hub-banner--dark.is-hovered .hub-banner__bg-img {
-  opacity: 0.44;
-  filter: blur(10px) saturate(1.05) brightness(0.72);
-  transform: scale(1.12);
+  opacity: 0.82;
+  filter: blur(0px) saturate(1.1) brightness(0.86);
+  transform: scale(1.07);
 }
 
 .hub-banner--dark .hub-banner__bg-overlay {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 50%, rgba(18, 11, 6, 0.52) 0%, rgba(18, 11, 6, 0.94) 85%);
+  background: radial-gradient(ellipse at 50% 50%, rgba(18, 11, 6, 0.20) 0%, rgba(18, 11, 6, 0.58) 65%, rgba(18, 11, 6, 0.88) 100%);
   pointer-events: none;
 }
 
-/* Banner Claro: pergaminho iluminado */
+/* Banner Claro: pergaminho iluminado, arte nítida e decifrável */
 .hub-banner--light .hub-banner__bg-img {
-  opacity: 0.20;
-  filter: blur(14px) saturate(0.8) brightness(1.02);
+  opacity: 0.45;
+  filter: blur(3px) saturate(0.95) brightness(0.98);
 }
 
 .hub-banner--light:hover .hub-banner__bg-img,
 .hub-banner--light.is-hovered .hub-banner__bg-img {
-  opacity: 0.28;
-  filter: blur(10px) saturate(0.95) brightness(1.0);
-  transform: scale(1.12);
+  opacity: 0.58;
+  filter: blur(0px) saturate(1.0) brightness(1.0);
+  transform: scale(1.07);
 }
 
 .hub-banner--light .hub-banner__bg-overlay {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 50%, rgba(244, 237, 221, 0.6) 0%, rgba(235, 225, 207, 0.94) 85%);
+  background: radial-gradient(ellipse at 50% 50%, rgba(244, 237, 221, 0.35) 0%, rgba(235, 225, 207, 0.65) 65%, rgba(235, 225, 207, 0.88) 100%);
   pointer-events: none;
 }
 
@@ -3807,24 +3807,25 @@ h1, h2, h3, h4, .font-cinzel {
 }
 
 .hub-banner--dark .hub-banner__title {
-  color: #f5ecdc;
-  text-shadow: none;
+  color: #fef3c7;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.95), 0 2px 8px rgba(0, 0, 0, 0.9);
 }
 
 .hub-banner--dark .hub-banner__title-btn:hover .hub-banner__title {
-  color: #F4EDDD;
+  color: #ffffff;
   letter-spacing: 0.035em;
-  text-shadow: none;
+  text-shadow: 0 4px 28px rgba(0, 0, 0, 1), 0 2px 10px rgba(0, 0, 0, 0.95);
 }
 
 .hub-banner--light .hub-banner__title {
-  color: #15100b;
+  color: #120b06;
+  text-shadow: 0 2px 16px rgba(244, 237, 221, 0.95), 0 1px 4px rgba(255, 255, 255, 0.9);
 }
 
 .hub-banner--light .hub-banner__title-btn:hover .hub-banner__title {
   color: #000000;
   letter-spacing: 0.035em;
-  text-shadow: none;
+  text-shadow: 0 2px 20px rgba(244, 237, 221, 1), 0 1px 6px rgba(255, 255, 255, 0.95);
 }
 
 /* Linhas do título centralizadas e unidas (PALAVRA 1 na linha A, conector + PALAVRA 2 na linha B) */
@@ -3985,12 +3986,13 @@ h1, h2, h3, h4, .font-cinzel {
 }
 
 .hub-banner--dark .hub-banner__service-desc p {
-  color: rgba(245, 236, 220, 0.84);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+  color: #fef3c7;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.95), 0 1px 4px rgba(0, 0, 0, 0.9);
 }
 
 .hub-banner--light .hub-banner__service-desc p {
-  color: rgba(26, 19, 13, 0.85);
+  color: #1a1008;
+  text-shadow: 0 1px 8px rgba(244, 237, 221, 0.95), 0 1px 3px rgba(255, 255, 255, 0.9);
 }
 
 /* Botão de retorno elegante para voltar ao Hub quando em uma subpágina */
