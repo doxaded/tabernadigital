@@ -111,34 +111,36 @@ export const TavernInteractiveDesk: React.FC<TavernInteractiveDeskProps> = ({ co
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: compact ? '8px' : '12px',
-        padding: compact ? '4px 8px' : '6px 12px',
-        backgroundColor: 'rgba(24, 16, 8, 0.85)',
-        border: '1px solid rgba(245, 158, 11, 0.22)',
+        gap: '6px',
+        padding: '3px 8px',
+        backgroundColor: 'rgba(24, 24, 27, 0.65)',
+        border: '1px solid rgba(245, 158, 11, 0.2)',
         borderRadius: '9999px',
-        boxShadow: '0 4px 14px rgba(0, 0, 0, 0.45)',
+        boxShadow: '0 2px 10px rgba(0, 0, 0, 0.35)',
         userSelect: 'none',
         position: 'relative'
       }}
     >
-      {/* 1. Tocha Mística Interativa */}
+      {/* 1. Tocha Mística Interativa (Ícone compacto com tooltip) */}
       <button
         type="button"
         onClick={handleToggleTorch}
         title={
           torchLevel === 2
-            ? 'Tocha: Labareda Crepitante (Clique para diminuir)'
+            ? 'Tocha: Fogo Alto (Clique para diminuir)'
             : torchLevel === 1
             ? 'Tocha: Chama Suave (Clique para apagar)'
             : 'Tocha: Apagada (Clique para acender)'
         }
+        aria-label="Controle de Tocha"
         style={{
+          width: '28px',
+          height: '28px',
           display: 'flex',
           alignItems: 'center',
-          gap: '5px',
-          padding: '4px 9px',
-          borderRadius: '9999px',
-          border: torchLevel > 0 ? '1px solid rgba(245, 158, 11, 0.4)' : '1px solid rgba(255, 255, 255, 0.1)',
+          justifyContent: 'center',
+          borderRadius: '50%',
+          border: torchLevel > 0 ? '1px solid rgba(245, 158, 11, 0.35)' : '1px solid rgba(255, 255, 255, 0.1)',
           backgroundColor:
             torchLevel === 2
               ? 'rgba(217, 119, 6, 0.28)'
@@ -148,8 +150,7 @@ export const TavernInteractiveDesk: React.FC<TavernInteractiveDeskProps> = ({ co
           color: torchLevel === 2 ? '#fbbf24' : torchLevel === 1 ? '#f59e0b' : '#78716c',
           cursor: 'pointer',
           transition: 'all 0.2s ease',
-          fontSize: '11px',
-          fontWeight: 700
+          padding: 0
         }}
       >
         <Flame
@@ -160,25 +161,26 @@ export const TavernInteractiveDesk: React.FC<TavernInteractiveDeskProps> = ({ co
             transition: 'transform 0.2s ease'
           }}
         />
-        <span style={{ fontFamily: 'var(--font-body)' }}>
-          {torchLevel === 2 ? 'Fogo Alto' : torchLevel === 1 ? 'Chama Suave' : 'Apagada'}
-        </span>
       </button>
 
-      {/* 2. Dado d20 da Sorte Interativo */}
+      {/* 2. Dado d20 da Sorte Interativo (Ícone compacto ou pill se rolado) */}
       <button
         type="button"
         onClick={handleRollD20}
         disabled={isRolling}
-        title="Lançar d20 da Sorte na Mesa da Taverna"
+        title={d20Val !== null ? `Último d20: ${d20Val}. Clique para rolar novamente` : 'Rolar d20 da Sorte'}
+        aria-label="Rolar d20"
         style={{
+          height: '28px',
+          minWidth: '28px',
+          padding: d20Val !== null ? '0 8px' : '0',
           display: 'flex',
           alignItems: 'center',
-          gap: '6px',
-          padding: '4px 10px',
+          justifyContent: 'center',
+          gap: '4px',
           borderRadius: '9999px',
-          border: '1px solid rgba(245, 158, 11, 0.35)',
-          backgroundColor: isRolling ? 'rgba(245, 158, 11, 0.3)' : 'rgba(217, 119, 6, 0.18)',
+          border: '1px solid rgba(245, 158, 11, 0.3)',
+          backgroundColor: isRolling ? 'rgba(245, 158, 11, 0.3)' : 'rgba(217, 119, 6, 0.15)',
           color: d20Val === 20 ? '#22c55e' : d20Val === 1 ? '#ef4444' : '#fef3c7',
           cursor: isRolling ? 'wait' : 'pointer',
           transition: 'all 0.2s ease',
@@ -194,29 +196,32 @@ export const TavernInteractiveDesk: React.FC<TavernInteractiveDeskProps> = ({ co
             transition: isRolling ? 'transform 0.35s cubic-bezier(0.4, 0, 0.2, 1)' : 'none'
           }}
         />
-        <span style={{ fontFamily: 'monospace', fontSize: '12px' }}>
-          {d20Val !== null ? `d20: ${d20Val}` : 'Rolar d20'}
-        </span>
+        {d20Val !== null && (
+          <span style={{ fontFamily: 'monospace', fontSize: '11px' }}>
+            {d20Val}
+          </span>
+        )}
       </button>
 
-      {/* 3. Brinde de Hidromel (Caneca) */}
+      {/* 3. Brinde de Hidromel (Ícone compacto com tooltip) */}
       <button
         type="button"
         onClick={handleToast}
         title="Erguer Caneca e Fazer um Brinde"
+        aria-label="Brindar"
         style={{
+          width: '28px',
+          height: '28px',
           display: 'flex',
           alignItems: 'center',
-          gap: '4px',
-          padding: '4px 9px',
-          borderRadius: '9999px',
+          justifyContent: 'center',
+          borderRadius: '50%',
           border: '1px solid rgba(245, 158, 11, 0.25)',
           backgroundColor: isToastActive ? 'rgba(217, 119, 6, 0.35)' : 'rgba(255, 255, 255, 0.05)',
           color: '#fef3c7',
           cursor: 'pointer',
           transition: 'all 0.2s ease',
-          fontSize: '11px',
-          fontWeight: 700
+          padding: 0
         }}
       >
         <Sparkles
@@ -227,27 +232,27 @@ export const TavernInteractiveDesk: React.FC<TavernInteractiveDeskProps> = ({ co
             transition: 'transform 0.2s ease'
           }}
         />
-        <span style={{ fontFamily: 'var(--font-body)' }}>Brindar</span>
       </button>
 
-      {/* 4. Sino de Balcão (Latão) */}
+      {/* 4. Sino de Balcão (Ícone compacto com tooltip) */}
       <button
         type="button"
         onClick={handleRingBell}
         title="Tocar o Sino de Latão do Balcão"
+        aria-label="Tocar Sino"
         style={{
+          width: '28px',
+          height: '28px',
           display: 'flex',
           alignItems: 'center',
-          gap: '4px',
-          padding: '4px 9px',
-          borderRadius: '9999px',
+          justifyContent: 'center',
+          borderRadius: '50%',
           border: '1px solid rgba(245, 158, 11, 0.25)',
           backgroundColor: isRinging ? 'rgba(245, 158, 11, 0.3)' : 'rgba(255, 255, 255, 0.05)',
           color: '#fbbf24',
           cursor: 'pointer',
           transition: 'all 0.2s ease',
-          fontSize: '11px',
-          fontWeight: 700
+          padding: 0
         }}
       >
         <Bell
@@ -257,7 +262,6 @@ export const TavernInteractiveDesk: React.FC<TavernInteractiveDeskProps> = ({ co
             transition: 'transform 0.15s ease'
           }}
         />
-        <span style={{ fontFamily: 'var(--font-body)' }}>Sino</span>
       </button>
 
       {/* Tooltip / Notificação Flutuante de Interação (Presságio do d20, Brinde ou Sino) */}

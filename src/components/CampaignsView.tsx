@@ -3,7 +3,7 @@ import {
   Crown, ArrowLeft, BookOpen, Plus, Shield, Scroll, Library, Edit3, Trash2, Heart, Zap, 
   Sparkles, FileText, ChevronRight, User, Users, Maximize2, AlertCircle, Eye, Check, X,
   ExternalLink, Download, Layers, Upload, Loader2, Copy, RefreshCw, LogOut,
-  Dices, Clipboard, Search, KeyRound
+  Dices, Clipboard, Search, KeyRound, PanelLeftClose, PanelLeftOpen, MoreVertical
 } from 'lucide-react';
 import { Campaign, CharacterSheet, CustomStat, LoreEntry, RuleDocument, UserProfile } from '../types';
 import { SHEET_IMPORT_ACCEPT, extractCharacterSheetFromFile } from '../services/sheetImportService';
@@ -66,6 +66,10 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
 
   // Lado expandido pelo cursor no quadro de referência: 'join' | 'master' | null
   const [expandedRefSide, setExpandedRefSide] = useState<'join' | 'master' | null>(null);
+
+  // Barra lateral retrátil de mesas e menu contextual de fichas
+  const [isLeftCollapsed, setIsLeftCollapsed] = useState(false);
+  const [openSheetMenuId, setOpenSheetMenuId] = useState<string | null>(null);
 
   // Modais de Criação & Edição
   const [isNewRoomModalOpen, setIsNewRoomModalOpen] = useState(false);
@@ -752,168 +756,229 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
 
       {/* COCKPIT BODY: 3 COLUNAS EM TELA ÚNICA */}
       <div className="tavern-cockpit-body">
-        {/* COLUNA 1: MESAS DA TABERNA */}
-        <aside
-          className="tavern-cockpit-panel"
-          style={{ width: '280px', flexShrink: 0, display: 'flex', flexDirection: 'column' }}
-        >
-          {/* Topo da Coluna 1 */}
-          <div style={{ padding: '12px 14px', borderBottom: '1px solid rgba(217, 119, 6, 0.15)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <span style={{ fontSize: '11px', fontWeight: 800, color: '#fef3c7', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Mesas Disponíveis
-              </span>
-              <span style={{ fontSize: '11px', color: '#d97706', fontWeight: 700 }}>
-                {campaigns.length} {campaigns.length === 1 ? 'mesa' : 'mesas'}
-              </span>
+        {/* COLUNA 1: MESAS DA TABERNA (RETRÁTIL) */}
+        {isLeftCollapsed ? (
+          <aside
+            className="tavern-cockpit-panel"
+            style={{
+              width: '46px',
+              flexShrink: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              padding: '12px 6px',
+              gap: '14px',
+              backgroundColor: 'rgba(9, 9, 11, 0.5)'
+            }}
+          >
+            <button
+              onClick={() => setIsLeftCollapsed(false)}
+              className="tavern-btn tavern-btn-secondary"
+              style={{
+                width: '32px',
+                height: '32px',
+                padding: 0,
+                borderRadius: '8px'
+              }}
+              title={`Expandir Mesas Disponíveis (${campaigns.length})`}
+              aria-label="Expandir Mesas Disponíveis"
+            >
+              <PanelLeftOpen size={16} color="#fbbf24" />
+            </button>
+            <div
+              style={{
+                writingMode: 'vertical-rl',
+                transform: 'rotate(180deg)',
+                fontSize: '10px',
+                fontWeight: 800,
+                letterSpacing: '0.12em',
+                color: '#a89a8a',
+                textTransform: 'uppercase',
+                marginTop: '12px',
+                userSelect: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              <span>Mesas Disponíveis</span>
+              <span style={{ color: '#fbbf24' }}>({campaigns.length})</span>
             </div>
-
-            {/* Filtros rápidos */}
-            <div style={{ display: 'flex', gap: '4px', marginBottom: '8px' }}>
-              {(['all', 'master', 'joined'] as const).map(tab => (
+          </aside>
+        ) : (
+          <aside
+            className="tavern-cockpit-panel"
+            style={{ width: '280px', flexShrink: 0, display: 'flex', flexDirection: 'column' }}
+          >
+            {/* Topo da Coluna 1 */}
+            <div style={{ padding: '12px 14px', borderBottom: '1px solid rgba(245, 158, 11, 0.1)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '11px', fontWeight: 800, color: '#fef3c7', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Mesas Disponíveis
+                  </span>
+                  <span style={{ fontSize: '11px', color: '#d97706', fontWeight: 700 }}>
+                    {campaigns.length} {campaigns.length === 1 ? 'mesa' : 'mesas'}
+                  </span>
+                </div>
                 <button
-                  key={tab}
-                  onClick={() => setTableFilter(tab)}
-                  style={{
-                    flex: 1,
-                    padding: '4px 2px',
-                    fontSize: '10px',
-                    fontWeight: 700,
-                    borderRadius: '4px',
-                    background: tableFilter === tab ? 'rgba(217, 119, 6, 0.25)' : 'rgba(0,0,0,0.3)',
-                    color: tableFilter === tab ? '#fbbf24' : '#a89a8a',
-                    border: tableFilter === tab ? '1px solid rgba(245, 158, 11, 0.5)' : '1px solid rgba(255,255,255,0.05)',
-                    cursor: 'pointer'
-                  }}
+                  onClick={() => setIsLeftCollapsed(true)}
+                  className="tavern-btn tavern-btn-ghost"
+                  style={{ width: '24px', height: '24px', padding: 0, borderRadius: '6px', color: '#a89a8a' }}
+                  title="Recolher lista de mesas"
+                  aria-label="Recolher lista de mesas"
                 >
-                  {tab === 'all' ? 'Todas' : tab === 'master' ? 'Mestre' : 'Jogador'}
-                </button>
-              ))}
-            </div>
-
-            {/* Busca rápida */}
-            <div style={{ position: 'relative' }}>
-              <Search
-                size={13}
-                style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#78716c' }}
-              />
-              <input
-                type="text"
-                placeholder="Filtrar por nome ou sistema..."
-                value={roomSearch}
-                onChange={e => setRoomSearch(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '6px 10px 6px 30px',
-                  backgroundColor: 'rgba(0, 0, 0, 0.4)',
-                  border: '1px solid rgba(217, 119, 6, 0.25)',
-                  borderRadius: '6px',
-                  color: '#f5ecdc',
-                  fontSize: '12px',
-                  outline: 'none',
-                  boxSizing: 'border-box'
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Lista com scrollbar interna fina */}
-          <div className="tavern-thin-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
-            {filteredCampaigns.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '30px 10px', color: '#78716c' }}>
-                <p style={{ fontSize: '12px', margin: '0 0 8px 0' }}>Nenhuma mesa encontrada.</p>
-                <button
-                  onClick={() => setIsNewRoomModalOpen(true)}
-                  disabled={isRoomLimitReached}
-                  style={{
-                    background: 'none',
-                    border: '1px dashed rgba(217, 119, 6, 0.4)',
-                    color: '#f59e0b',
-                    padding: '6px 12px',
-                    borderRadius: '6px',
-                    fontSize: '11px',
-                    cursor: isRoomLimitReached ? 'not-allowed' : 'pointer'
-                  }}
-                >
-                  + Criar nova mesa
+                  <PanelLeftClose size={15} />
                 </button>
               </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {filteredCampaigns.map(camp => {
-                  const isSelected = activeCampaign?.id === camp.id;
-                  const isMaster = camp.masterId === currentUser.uid;
-                  return (
-                    <div
-                      key={camp.id}
-                      onClick={() => {
-                        onSelectCampaign(camp.id);
-                        tavernAudio.playBellChime();
-                      }}
-                      style={{
-                        padding: '10px 12px',
-                        borderRadius: '8px',
-                        backgroundColor: isSelected
-                          ? 'rgba(217, 119, 6, 0.18)'
-                          : 'rgba(24, 16, 11, 0.75)',
-                        border: isSelected
-                          ? '1px solid rgba(245, 158, 11, 0.6)'
-                          : '1px solid rgba(217, 119, 6, 0.12)',
-                        boxShadow: isSelected ? '0 0 14px rgba(217, 119, 6, 0.2)' : 'none',
-                        cursor: 'pointer',
-                        transition: 'all 0.18s ease'
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
-                          {isMaster && <Crown size={12} color="#fbbf24" />}
-                          <h4
+
+              {/* Filtros rápidos */}
+              <div style={{ display: 'flex', gap: '4px', marginBottom: '8px' }}>
+                {(['all', 'master', 'joined'] as const).map(tab => (
+                  <button
+                    key={tab}
+                    onClick={() => setTableFilter(tab)}
+                    style={{
+                      flex: 1,
+                      padding: '4px 2px',
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      borderRadius: '4px',
+                      background: tableFilter === tab ? 'rgba(217, 119, 6, 0.25)' : 'rgba(0,0,0,0.3)',
+                      color: tableFilter === tab ? '#fbbf24' : '#a89a8a',
+                      border: tableFilter === tab ? '1px solid rgba(245, 158, 11, 0.5)' : '1px solid rgba(255,255,255,0.05)',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {tab === 'all' ? 'Todas' : tab === 'master' ? 'Mestre' : 'Jogador'}
+                  </button>
+                ))}
+              </div>
+
+              {/* Busca rápida */}
+              <div style={{ position: 'relative' }}>
+                <Search
+                  size={13}
+                  style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#78716c' }}
+                />
+                <input
+                  type="text"
+                  placeholder="Filtrar por nome ou sistema..."
+                  value={roomSearch}
+                  onChange={e => setRoomSearch(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '6px 10px 6px 30px',
+                    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                    border: '1px solid rgba(217, 119, 6, 0.25)',
+                    borderRadius: '6px',
+                    color: '#f5ecdc',
+                    fontSize: '12px',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Lista com scrollbar interna fina */}
+            <div className="tavern-thin-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
+              {filteredCampaigns.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '30px 10px', color: '#78716c' }}>
+                  <p style={{ fontSize: '12px', margin: '0 0 8px 0' }}>Nenhuma mesa encontrada.</p>
+                  <button
+                    onClick={() => setIsNewRoomModalOpen(true)}
+                    disabled={isRoomLimitReached}
+                    style={{
+                      background: 'none',
+                      border: '1px dashed rgba(217, 119, 6, 0.4)',
+                      color: '#f59e0b',
+                      padding: '6px 12px',
+                      borderRadius: '6px',
+                      fontSize: '11px',
+                      cursor: isRoomLimitReached ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    + Criar nova mesa
+                  </button>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {filteredCampaigns.map(camp => {
+                    const isSelected = activeCampaign?.id === camp.id;
+                    const isMaster = camp.masterId === currentUser.uid;
+                    return (
+                      <div
+                        key={camp.id}
+                        onClick={() => {
+                          onSelectCampaign(camp.id);
+                          tavernAudio.playBellChime();
+                        }}
+                        style={{
+                          padding: '10px 12px',
+                          borderRadius: '8px',
+                          backgroundColor: isSelected
+                            ? 'rgba(217, 119, 6, 0.18)'
+                            : 'rgba(24, 16, 11, 0.75)',
+                          border: isSelected
+                            ? '1px solid rgba(245, 158, 11, 0.6)'
+                            : '1px solid rgba(217, 119, 6, 0.12)',
+                          boxShadow: isSelected ? '0 0 14px rgba(217, 119, 6, 0.2)' : 'none',
+                          cursor: 'pointer',
+                          transition: 'all 0.18s ease'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
+                            {isMaster && <Crown size={12} color="#fbbf24" />}
+                            <h4
+                              style={{
+                                margin: 0,
+                                fontSize: '13px',
+                                fontWeight: 700,
+                                color: isSelected ? '#fff' : '#f5ecdc',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                maxWidth: '150px'
+                              }}
+                            >
+                              {camp.name}
+                            </h4>
+                          </div>
+                          <span
                             style={{
-                              margin: 0,
-                              fontSize: '13px',
+                              fontSize: '9px',
                               fontWeight: 700,
-                              color: isSelected ? '#fff' : '#f5ecdc',
-                              whiteSpace: 'nowrap',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              maxWidth: '150px'
+                              padding: '1px 5px',
+                              borderRadius: '4px',
+                              backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                              color: '#d6c7b2'
                             }}
                           >
-                            {camp.name}
-                          </h4>
-                        </div>
-                        <span
-                          style={{
-                            fontSize: '9px',
-                            fontWeight: 700,
-                            padding: '1px 5px',
-                            borderRadius: '4px',
-                            backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                            color: '#d6c7b2'
-                          }}
-                        >
-                          {camp.system || 'D&D 5e'}
-                        </span>
-                      </div>
-
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '11px', color: '#a89a8a' }}>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <Users size={11} />
-                          {(camp.players?.length || 0) + 1} membros
-                        </span>
-                        {camp.joinKey && (
-                          <span style={{ fontSize: '10px', color: '#d97706', fontFamily: 'monospace' }}>
-                            {camp.joinKey}
+                            {camp.system || 'D&D 5e'}
                           </span>
-                        )}
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '11px', color: '#a89a8a' }}>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <Users size={11} />
+                            {(camp.players?.length || 0) + 1} membros
+                          </span>
+                          {camp.joinKey && (
+                            <span style={{ fontSize: '10px', color: '#d97706', fontFamily: 'monospace' }}>
+                              {camp.joinKey}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </aside>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </aside>
+        )}
 
         {/* COLUNA 2: PAINEL DA MESA ATIVA (CENTRAL) */}
         <main
@@ -926,11 +991,11 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
               <div
                 style={{
                   padding: '12px 18px',
-                  borderBottom: '1px solid rgba(217, 119, 6, 0.18)',
+                  borderBottom: '1px solid rgba(245, 158, 11, 0.1)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  backgroundColor: 'rgba(0, 0, 0, 0.25)',
+                  backgroundColor: 'rgba(0, 0, 0, 0.2)',
                   flexWrap: 'wrap',
                   gap: '10px'
                 }}
@@ -941,8 +1006,8 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                       width: '38px',
                       height: '38px',
                       borderRadius: '8px',
-                      backgroundColor: 'rgba(217, 119, 6, 0.2)',
-                      border: '1px solid rgba(217, 119, 6, 0.4)',
+                      backgroundColor: 'rgba(217, 119, 6, 0.15)',
+                      border: '1px solid rgba(217, 119, 6, 0.3)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -961,8 +1026,9 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                           fontSize: '11px',
                           padding: '2px 8px',
                           borderRadius: '4px',
-                          backgroundColor: 'rgba(217, 119, 6, 0.2)',
-                          color: '#f59e0b',
+                          backgroundColor: 'rgba(217, 119, 6, 0.15)',
+                          color: '#fbbf24',
+                          border: '1px solid rgba(217, 119, 6, 0.3)',
                           fontWeight: 700
                         }}
                       >
@@ -980,7 +1046,7 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                     <button
                       onClick={() => handleCopyJoinKey(activeCampaign.joinKey)}
                       className="tavern-btn tavern-btn-secondary"
-                      style={{ padding: '6px 10px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '5px' }}
+                      style={{ padding: '6px 12px', fontSize: '11.5px', display: 'flex', alignItems: 'center', gap: '5px' }}
                       title="Copiar chave de entrada para novos jogadores"
                     >
                       <Copy size={12} color="#f59e0b" />
@@ -991,8 +1057,8 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                   {onOpenMasterScreen && isMasterOfActive && (
                     <button
                       onClick={() => onOpenMasterScreen(activeCampaign.id)}
-                      className="tavern-btn tavern-btn-primary"
-                      style={{ padding: '6px 12px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '5px' }}
+                      className="tavern-btn tavern-btn-secondary"
+                      style={{ padding: '6px 12px', fontSize: '11.5px', display: 'flex', alignItems: 'center', gap: '5px', color: '#fbbf24', borderColor: 'rgba(245, 158, 11, 0.35)' }}
                       title="Abrir Tela do Mestre com ferramentas ao vivo"
                     >
                       <Maximize2 size={12} />
@@ -1004,10 +1070,11 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                     <button
                       onClick={() => handleOpenEditRoom(activeCampaign)}
                       className="tavern-btn tavern-btn-secondary"
-                      style={{ padding: '6px 10px', fontSize: '11px' }}
+                      style={{ width: '30px', height: '30px', padding: 0 }}
                       title="Editar detalhes da mesa"
+                      aria-label="Editar detalhes da mesa"
                     >
-                      <Edit3 size={12} />
+                      <Edit3 size={13} />
                     </button>
                   ) : null}
 
@@ -1018,11 +1085,12 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                           onDeleteCampaign(activeCampaign.id);
                         }
                       }}
-                      className="tavern-btn tavern-btn-secondary"
-                      style={{ padding: '6px 10px', fontSize: '11px', color: '#f87171', borderColor: 'rgba(239, 68, 68, 0.3)' }}
+                      className="tavern-btn tavern-btn-danger"
+                      style={{ width: '30px', height: '30px', padding: 0 }}
                       title="Dissolver mesa"
+                      aria-label="Dissolver mesa"
                     >
-                      <Trash2 size={12} />
+                      <Trash2 size={13} />
                     </button>
                   )}
                 </div>
@@ -1158,8 +1226,16 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                             setEditingSheetId(null);
                             setIsNewSheetModalOpen(true);
                           }}
-                          className="tavern-btn tavern-btn-primary"
-                          style={{ padding: '6px 14px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                          className="tavern-btn tavern-btn-secondary"
+                          style={{
+                            padding: '6px 14px',
+                            fontSize: '12px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            color: '#fbbf24',
+                            borderColor: 'rgba(245, 158, 11, 0.35)'
+                          }}
                         >
                           <Plus size={13} />
                           <span>Adicionar Ficha</span>
@@ -1189,8 +1265,8 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                             setEditingSheetId(null);
                             setIsNewSheetModalOpen(true);
                           }}
-                          className="tavern-btn tavern-btn-primary"
-                          style={{ padding: '8px 16px', fontSize: '12px' }}
+                          className="tavern-btn tavern-btn-secondary"
+                          style={{ padding: '8px 16px', fontSize: '12px', color: '#fbbf24', borderColor: 'rgba(245, 158, 11, 0.4)' }}
                         >
                           Criar Primeira Ficha
                         </button>
@@ -1200,90 +1276,157 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                         {activeCampaign.sheets.map(sheet => (
                           <div
                             key={sheet.id}
-                            style={{
-                              backgroundColor: 'rgba(20, 13, 9, 0.85)',
-                              border: '1px solid rgba(217, 119, 6, 0.25)',
-                              borderRadius: '10px',
-                              padding: '14px',
-                              display: 'flex',
-                              flexDirection: 'column',
-                              gap: '10px',
-                              boxShadow: '0 4px 14px rgba(0, 0, 0, 0.4)'
-                            }}
+                            onClick={() => handleOpenEditSheet(sheet)}
+                            className="tavern-character-card"
+                            title="Clique para abrir e editar a ficha"
                           >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                              <AvatarFrame
-                                displayName={sheet.name}
-                                size="md"
-                                showTitleBadge={Boolean(sheet.level)}
-                                customTitle={sheet.level ? `Nv ${sheet.level}` : undefined}
-                              />
-                              <div style={{ minWidth: 0, flex: 1 }}>
-                                <h4 style={{ margin: 0, fontSize: '13px', fontWeight: 800, color: '#fef3c7', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                  {sheet.name}
-                                </h4>
-                                <p style={{ margin: 0, fontSize: '11px', color: '#fbbf24' }}>
-                                  {sheet.class || 'Aventureiro'} {sheet.race ? `• ${sheet.race}` : ''}
-                                </p>
+                            {/* Linha Superior: Avatar, Informações e Menu de Contexto (...) */}
+                            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
+                                <AvatarFrame
+                                  displayName={sheet.name}
+                                  size="md"
+                                  showTitleBadge={Boolean(sheet.level)}
+                                  customTitle={sheet.level ? `Nv ${sheet.level}` : undefined}
+                                />
+                                <div style={{ minWidth: 0, flex: 1 }}>
+                                  <h4 style={{ margin: 0, fontSize: '13px', fontWeight: 800, color: '#fef3c7', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    {sheet.name}
+                                  </h4>
+                                  <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#fbbf24', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    {sheet.class || 'Aventureiro'} {sheet.race ? `• ${sheet.race}` : ''}
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Menu de Contexto (...) no canto superior direito para evitar cliques acidentais */}
+                              <div style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setOpenSheetMenuId(openSheetMenuId === sheet.id ? null : sheet.id);
+                                  }}
+                                  className="tavern-btn tavern-btn-ghost"
+                                  style={{
+                                    width: '26px',
+                                    height: '26px',
+                                    padding: 0,
+                                    borderRadius: '6px',
+                                    color: '#a1a1aa'
+                                  }}
+                                  title="Opções da ficha"
+                                  aria-label="Opções da ficha"
+                                >
+                                  <MoreVertical size={14} />
+                                </button>
+
+                                {openSheetMenuId === sheet.id && (
+                                  <div
+                                    style={{
+                                      position: 'absolute',
+                                      top: '100%',
+                                      right: 0,
+                                      marginTop: '4px',
+                                      backgroundColor: '#18181b',
+                                      border: '1px solid rgba(245, 158, 11, 0.3)',
+                                      borderRadius: '8px',
+                                      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.75)',
+                                      padding: '4px',
+                                      zIndex: 30,
+                                      minWidth: '120px'
+                                    }}
+                                  >
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setOpenSheetMenuId(null);
+                                        handleOpenEditSheet(sheet);
+                                      }}
+                                      style={{
+                                        width: '100%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        padding: '6px 8px',
+                                        fontSize: '11px',
+                                        background: 'none',
+                                        border: 'none',
+                                        color: '#f4f4f5',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        textAlign: 'left'
+                                      }}
+                                    >
+                                      <Edit3 size={12} color="#fbbf24" />
+                                      <span>Editar Ficha</span>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setOpenSheetMenuId(null);
+                                        if (confirm(`Remover ficha de "${sheet.name}"?`)) {
+                                          onDeleteSheet(activeCampaign.id, sheet.id);
+                                        }
+                                      }}
+                                      style={{
+                                        width: '100%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        padding: '6px 8px',
+                                        fontSize: '11px',
+                                        background: 'none',
+                                        border: 'none',
+                                        color: '#f87171',
+                                        borderRadius: '4px',
+                                        cursor: 'pointer',
+                                        textAlign: 'left'
+                                      }}
+                                    >
+                                      <Trash2 size={12} />
+                                      <span>Excluir</span>
+                                    </button>
+                                  </div>
+                                )}
                               </div>
                             </div>
 
-                            {/* Vigor / Vida & CA */}
-                            <div style={{ display: 'flex', gap: '8px', fontSize: '11px' }}>
-                              <div style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)', padding: '6px', borderRadius: '6px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
-                                <span style={{ color: '#f87171', fontWeight: 700 }}>HP: </span>
-                                <span style={{ color: '#fff' }}>{sheet.hp ?? 10} / {sheet.maxHp ?? 10}</span>
-                              </div>
-                              <div style={{ width: '60px', backgroundColor: 'rgba(0,0,0,0.3)', padding: '6px', borderRadius: '6px', border: '1px solid rgba(59, 130, 246, 0.2)', textAlign: 'center' }}>
-                                <span style={{ color: '#60a5fa', fontWeight: 700 }}>CA: </span>
-                                <span style={{ color: '#fff' }}>{sheet.armorClass ?? 10}</span>
-                              </div>
-                            </div>
-
-                            <div style={{ display: 'flex', gap: '6px', marginTop: 'auto', paddingTop: '6px' }}>
-                              <button
-                                onClick={() => {
-                                  setEditingSheetId(sheet.id);
-                                  setSheetName(sheet.name);
-                                  setSheetPlayer(sheet.player || '');
-                                  setSheetClass(sheet.class);
-                                  setSheetLevel(sheet.level);
-                                  setSheetRace(sheet.race);
-                                  setSheetHp(sheet.maxHp);
-                                  setSheetMp(sheet.maxMp || 10);
-                                  setSheetAc(sheet.armorClass);
-                                  setSheetIsNpc(Boolean(sheet.isNpc));
-                                  setSheetStats(sheet.stats || DEFAULT_SHEET_STATS);
-                                  setSheetCustomStats(sheet.customStats || []);
-                                  setSheetTraits((sheet.traits || []).join('\n'));
-                                  setSheetEquipment((sheet.equipment || []).join('\n'));
-                                  setSheetNotes(sheet.notes || '');
-                                  setIsNewSheetModalOpen(true);
-                                }}
-                                className="tavern-btn tavern-btn-secondary"
-                                style={{ flex: 1, padding: '5px 10px', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
-                              >
-                                <Eye size={12} />
-                                <span>Ver / Editar</span>
-                              </button>
-                              <button
-                                onClick={() => {
-                                  if (confirm(`Remover ficha de "${sheet.name}"?`)) {
-                                    onDeleteSheet(activeCampaign.id, sheet.id);
-                                  }
-                                }}
+                            {/* HP e CA como badges limpos lado a lado sem caixas pesadas ao redor */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', marginTop: '2px' }}>
+                              <span
                                 style={{
-                                  background: 'none',
-                                  border: '1px solid rgba(239, 68, 68, 0.3)',
-                                  color: '#f87171',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  padding: '3px 8px',
                                   borderRadius: '6px',
-                                  padding: '5px 8px',
-                                  cursor: 'pointer'
+                                  backgroundColor: 'rgba(239, 68, 68, 0.14)',
+                                  color: '#fca5a5',
+                                  fontWeight: 700
                                 }}
-                                title="Remover ficha"
                               >
-                                <Trash2 size={12} />
-                              </button>
+                                <Heart size={11} color="#ef4444" />
+                                <span>HP {sheet.hp ?? 10}/{sheet.maxHp ?? 10}</span>
+                              </span>
+
+                              <span
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  padding: '3px 8px',
+                                  borderRadius: '6px',
+                                  backgroundColor: 'rgba(59, 130, 246, 0.14)',
+                                  color: '#93c5fd',
+                                  fontWeight: 700
+                                }}
+                              >
+                                <Shield size={11} color="#3b82f6" />
+                                <span>CA {sheet.armorClass ?? 10}</span>
+                              </span>
                             </div>
                           </div>
                         ))}
@@ -1313,8 +1456,8 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                           setLoreTags('Aventura, Mistério');
                           setIsNewLoreModalOpen(true);
                         }}
-                        className="tavern-btn tavern-btn-primary"
-                        style={{ padding: '6px 14px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                        className="tavern-btn tavern-btn-secondary"
+                        style={{ padding: '6px 14px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px', color: '#fbbf24', borderColor: 'rgba(245, 158, 11, 0.35)' }}
                       >
                         <Plus size={13} />
                         <span>Novo Registro</span>
@@ -1343,8 +1486,8 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                             setEditingLoreId(null);
                             setIsNewLoreModalOpen(true);
                           }}
-                          className="tavern-btn tavern-btn-primary"
-                          style={{ padding: '6px 14px', fontSize: '11px' }}
+                          className="tavern-btn tavern-btn-secondary"
+                          style={{ padding: '6px 14px', fontSize: '11px', color: '#fbbf24', borderColor: 'rgba(245, 158, 11, 0.35)' }}
                         >
                           Escrever Primeiro Registro
                         </button>
@@ -1403,13 +1546,10 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                                       onDeleteLore(activeCampaign.id, entry.id);
                                     }
                                   }}
+                                  className="tavern-btn tavern-btn-danger"
                                   style={{
-                                    background: 'none',
-                                    border: '1px solid rgba(239, 68, 68, 0.3)',
-                                    color: '#f87171',
-                                    borderRadius: '6px',
                                     padding: '4px 8px',
-                                    cursor: 'pointer'
+                                    fontSize: '11px'
                                   }}
                                 >
                                   <Trash2 size={11} />
@@ -1447,8 +1587,8 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                           setRuleContent('');
                           setIsNewRuleModalOpen(true);
                         }}
-                        className="tavern-btn tavern-btn-primary"
-                        style={{ padding: '6px 12px', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                        className="tavern-btn tavern-btn-secondary"
+                        style={{ padding: '6px 12px', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#fbbf24', borderColor: 'rgba(245, 158, 11, 0.35)' }}
                       >
                         <Plus size={13} />
                         <span>Adicionar Manual</span>
@@ -1477,8 +1617,8 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                             setEditingRuleId(null);
                             setIsNewRuleModalOpen(true);
                           }}
-                          className="tavern-btn tavern-btn-primary"
-                          style={{ padding: '6px 14px', fontSize: '11px' }}
+                          className="tavern-btn tavern-btn-secondary"
+                          style={{ padding: '6px 14px', fontSize: '11px', color: '#fbbf24', borderColor: 'rgba(245, 158, 11, 0.35)' }}
                         >
                           Adicionar Regra
                         </button>
