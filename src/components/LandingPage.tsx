@@ -32,6 +32,48 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
         overflow: 'hidden'
       }}
     >
+      {/* Arte de Fundo Borrada e Opaca no Padrão da Taberna */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100vh',
+          overflow: 'hidden',
+          pointerEvents: 'none',
+          zIndex: 1
+        }}
+      >
+        <img
+          src="/assets/landing_tavern_bg.jpg"
+          alt=""
+          style={{
+            position: 'absolute',
+            width: 'calc(100% + 28px)',
+            height: 'calc(100% + 28px)',
+            top: '-14px',
+            left: '-14px',
+            objectFit: 'cover',
+            objectPosition: 'center 45%',
+            filter: 'blur(6px) saturate(1.05) brightness(0.68)',
+            opacity: 0.55,
+            pointerEvents: 'none',
+            userSelect: 'none'
+          }}
+        />
+        {/* Overlay com Vinheta e Iluminação Quente de Lareira */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'radial-gradient(ellipse at 50% 45%, rgba(18, 11, 6, 0.30) 0%, rgba(14, 9, 6, 0.70) 65%, rgba(14, 9, 6, 0.96) 100%)',
+            pointerEvents: 'none'
+          }}
+        />
+      </div>
+
       {/* Luz ambiente de lareira no topo */}
       <div
         style={{
@@ -43,7 +85,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
           height: '350px',
           background: 'radial-gradient(circle, rgba(245, 158, 11, 0.22) 0%, rgba(180, 83, 9, 0.05) 50%, transparent 70%)',
           pointerEvents: 'none',
-          filter: 'blur(50px)'
+          filter: 'blur(50px)',
+          zIndex: 2
         }}
       />
 
@@ -145,11 +188,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
           style={{
             position: 'absolute',
             inset: '-10%',
-            backgroundImage: 'url("https://images.unsplash.com/photo-1605806616949-1e87b487cb2a?q=80&w=2560&auto=format&fit=crop")',
+            backgroundImage: 'url("/assets/landing_tavern_bg.jpg")',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            opacity: 0.25,
-            filter: 'sepia(40%) contrast(110%)',
+            opacity: 0.30,
+            filter: 'blur(5px) sepia(35%) contrast(105%) brightness(0.70)',
             zIndex: 1
           }}
         />
