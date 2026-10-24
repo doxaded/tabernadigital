@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
+  ArrowLeft,
   Download,
   Trash2,
   Maximize2,
@@ -11,8 +12,11 @@ import {
 } from 'lucide-react';
 import { SketchAsset } from '../types';
 import { aiService } from '../services/aiService';
+import { TavernInteractiveDesk } from './TavernInteractiveDesk';
+import { tavernAudio } from '../services/tavernAudio';
 
 interface SketchStudioViewProps {
+  onBack?: () => void;
   sketches: SketchAsset[];
   campaigns?: { id: string; name: string }[];
   activeCampaignId?: string | null;
@@ -107,6 +111,7 @@ function renderRich(text: string): React.ReactNode[] {
 }
 
 export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
+  onBack,
   sketches,
   activeCampaignId,
   onSaveSketch,
@@ -280,266 +285,501 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
   };
 
   return (
-    <div className="sketch-studio-view" style={{ width: '100%', minHeight: '100vh', backgroundColor: '#0e0906', backgroundImage: 'radial-gradient(ellipse at 50% 20%, rgba(217, 119, 6, 0.12) 0%, rgba(14, 9, 6, 0.98) 75%)', color: '#f5ecdc', padding: 0, margin: 0 }}>
-      {/* ========================================================================= */}
-      {/* ATELIÊ DO BARDO — Cavalete com Orlan Pena-Fina e Estúdio de Gravura */}
-      {/* ========================================================================= */}
-      <section className="bardo" aria-label="Ateliê Iluminurista de Orlan Pena-Fina">
-        <div className="bardo__inner">
-          <aside className="bardo__side">
-            <div
-              className="bardo__portrait"
-              onMouseMove={(e) => {
-                const r = e.currentTarget.getBoundingClientRect();
-                setTilt({
-                  x: -((e.clientY - r.top) / r.height - 0.5) * 8,
-                  y: ((e.clientX - r.left) / r.width - 0.5) * 8,
-                });
+    <div className="tavern-cockpit-view">
+      {/* COCKPIT HEADER */}
+      <header className="tavern-cockpit-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', minWidth: '240px' }}>
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="tavern-btn tavern-btn-secondary"
+              style={{
+                padding: '6px 12px',
+                fontSize: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                borderRadius: '6px'
               }}
-              onMouseLeave={() => setTilt({ x: 0, y: 0 })}
-              style={{ transform: `perspective(700px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)` }}
+              title="Voltar ao Salão Principal"
             >
-              <img src="/assets/bardo_portrait.jpg" alt="Orlan Pena-Fina, o bardo da taverna" width={640} height={640} />
-              <span className={`bardo__status${isGenerating ? ' is-drawing' : ''}`}>
-                <span className="bardo__status-dot" aria-hidden="true" />
-                {isGenerating ? 'Desenhando' : 'Afinando o alaúde'}
-              </span>
-            </div>
+              <ArrowLeft size={14} />
+              <span>Salão</span>
+            </button>
+          )}
 
-            <div className="bardo__who">
-              <span className="bardo__eyebrow">Bardo e retratista</span>
-              <strong className="bardo__name">Orlan Pena-Fina</strong>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div
+              style={{
+                width: '34px',
+                height: '34px',
+                borderRadius: '8px',
+                backgroundColor: 'rgba(217, 119, 6, 0.15)',
+                border: '1px solid rgba(217, 119, 6, 0.35)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#f59e0b'
+              }}
+            >
+              <Feather size={19} />
             </div>
-
-            <div className="bardo__slots" title={`Pergaminhos na parede: ${sketches.length} de ${MAX_SKETCHES}`}>
-              <span className="bardo__dots" aria-hidden="true">
-                {Array.from({ length: MAX_SKETCHES }, (_, i) => (
-                  <span key={i} className={`bardo__dot${i < sketches.length ? ' is-on' : ''}${isFull ? ' is-full' : ''}`} />
-                ))}
-              </span>
-              <span>Pergaminhos na parede: {sketches.length} de {MAX_SKETCHES}</span>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h1 style={{ fontSize: '15px', fontWeight: 800, color: '#fef3c7', margin: 0, letterSpacing: '0.02em' }}>
+                  Telas do Alaúde
+                </h1>
+                <span
+                  style={{
+                    fontSize: '10px',
+                    padding: '2px 7px',
+                    borderRadius: '999px',
+                    backgroundColor: 'rgba(217, 119, 6, 0.2)',
+                    color: '#fbbf24',
+                    border: '1px solid rgba(217, 119, 6, 0.3)',
+                    fontWeight: 700
+                  }}
+                >
+                  ATELIÊ DE GRAVURAS
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: '11px', color: '#a89a8a' }}>
+                Retratos, mapas, armas e cenários desenhados pelo bardo Orlan
+              </p>
             </div>
+          </div>
+        </div>
 
-            {/* Dedilhar Alaúde: Injeção de Inspiração */}
-            <div style={{ marginTop: '4px' }}>
-              <button
-                type="button"
-                onClick={handleStrumLute}
-                disabled={isGenerating}
-                className="bardo-chip"
-                style={{ width: '100%', justifyContent: 'center', padding: '9px 12px', gap: '8px' }}
-                title="Dedilhar as cordas do alaúde para obter uma inspiração mística"
-              >
-                <Music size={15} />
-                <span>{isStrumming ? (strumNote || '♪') : 'Dedilhar Alaúde'}</span>
-              </button>
+        {/* CENTRO: UTENSÍLIOS E DECORAÇÕES INTERATIVAS DA TABERNA */}
+        <TavernInteractiveDesk />
+
+        {/* AÇÕES NO TOPO */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ fontSize: '11px', color: '#a89a8a', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span>Pergaminhos no mural:</span>
+            <strong style={{ color: isFull ? '#ef4444' : '#fbbf24' }}>
+              {sketches.length}/{MAX_SKETCHES}
+            </strong>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleStrumLute}
+            disabled={isGenerating}
+            className="tavern-btn tavern-btn-secondary"
+            style={{
+              padding: '6px 12px',
+              fontSize: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+            title="Dedilhar as cordas do alaúde para obter uma inspiração mística"
+          >
+            <Music size={14} color="#f59e0b" />
+            <span>{isStrumming ? (strumNote || '♪') : 'Dedilhar Alaúde'}</span>
+          </button>
+        </div>
+      </header>
+
+      {/* COCKPIT BODY: 3 PAINÉIS EM TELA ÚNICA */}
+      <div className="tavern-cockpit-body">
+        {/* COLUNA 1: O RETRATISTA & TÉCNICAS */}
+        <aside
+          className="tavern-cockpit-panel tavern-thin-scrollbar"
+          style={{ width: '270px', flexShrink: 0, display: 'flex', flexDirection: 'column', overflowY: 'auto', padding: '14px', gap: '12px' }}
+        >
+          {/* Retrato do Bardo */}
+          <div
+            className="bardo__portrait"
+            onMouseMove={(e) => {
+              const r = e.currentTarget.getBoundingClientRect();
+              setTilt({
+                x: -((e.clientY - r.top) / r.height - 0.5) * 8,
+                y: ((e.clientX - r.left) / r.width - 0.5) * 8,
+              });
+            }}
+            onMouseLeave={() => setTilt({ x: 0, y: 0 })}
+            style={{
+              transform: `perspective(700px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+              height: '140px',
+              borderRadius: '10px',
+              position: 'relative',
+              overflow: 'hidden'
+            }}
+          >
+            <img src="/assets/bardo_portrait.jpg" alt="Orlan Pena-Fina" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <span className={`bardo__status${isGenerating ? ' is-drawing' : ''}`}>
+              <span className="bardo__status-dot" aria-hidden="true" />
+              {isGenerating ? 'Desenhando...' : 'Afinando alaúde'}
+            </span>
+          </div>
+
+          <div>
+            <div style={{ fontSize: '10px', color: '#f59e0b', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              Bardo e Retratista
             </div>
-          </aside>
+            <h3 style={{ margin: '2px 0 0 0', fontSize: '14px', fontWeight: 800, color: '#fef3c7' }}>
+              Orlan Pena-Fina
+            </h3>
+          </div>
 
-          <div className="bardo__chat">
-            <div className="bardo__log" ref={logRef} role="log" aria-live="polite" aria-label="Conversa com o bardo">
-              {messages.map(m => (
-                <div key={m.id} className={`bardo-msg bardo-msg--${m.from}${m.tone ? ` is-${m.tone}` : ''}`}>
-                  {m.from === 'bard' && (
-                    <img className="bardo-msg__avatar" src="/assets/bardo_portrait.jpg" alt="" width={32} height={32} />
-                  )}
-                  <div className="bardo-msg__body">
-                    {m.pending ? (
-                      <div className="bardo-draw" aria-label="O bardo está desenhando">
-                        <svg className="bardo-draw__svg" viewBox="0 0 120 80" aria-hidden="true">
-                          <path d="M8 62 C 28 20, 52 16, 68 42 S 100 66, 112 18" />
-                          <path d="M14 70 C 40 52, 62 60, 90 48" />
-                          <path d="M30 30 L 44 56 M40 26 L 54 52 M50 24 L 64 50" />
-                        </svg>
-                        <span className="bardo-draw__line">
-                          <em className="bardo-msg__act">{DRAWING_LINES[drawingStep]}</em>
-                        </span>
-                      </div>
-                    ) : (
-                      <>
-                        {m.text && <p className="bardo-msg__text font-lore">{renderRich(m.text)}</p>}
-                        {m.art && (
-                          <figure className="bardo-art">
-                            <button
-                              type="button"
-                              className="bardo-art__frame"
-                              onClick={() => setLightbox({ imageUrl: m.art!.imageUrl, prompt: m.art!.prompt, description: m.art!.description, category: m.art!.category })}
-                              aria-label="Ampliar a ilustração"
-                            >
-                              <img src={m.art.imageUrl} alt={m.art.prompt} />
-                              <span className="bardo-art__zoom"><Maximize2 size={14} /></span>
-                            </button>
-                            <figcaption className="bardo-art__bar" style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
-                              <button type="button" className="bardo-chip" onClick={() => handleDownload(m.art!.imageUrl, m.art!.category)}>
-                                <Download size={13} /> Baixar
-                              </button>
-                              <button type="button" className="bardo-chip" onClick={() => askAdjustment(m.art!.prompt, m.art!.category)}>
-                                <PenLine size={13} /> Pedir ajuste
-                              </button>
-                            </figcaption>
-                          </figure>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
+          {/* Seletores de Técnica */}
+          <div>
+            <span style={{ fontSize: '10px', color: '#a89a8a', fontWeight: 700, textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
+              Técnica de Gravura
+            </span>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
+              {TECHNIQUES.map(t => (
+                <button
+                  key={t.value}
+                  type="button"
+                  onClick={() => setTechnique(t.value)}
+                  style={{
+                    padding: '5px 6px',
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    borderRadius: '4px',
+                    background: technique === t.value ? 'rgba(217, 119, 6, 0.3)' : 'rgba(0,0,0,0.3)',
+                    color: technique === t.value ? '#fbbf24' : '#a89a8a',
+                    border: technique === t.value ? '1px solid rgba(245, 158, 11, 0.6)' : '1px solid rgba(255,255,255,0.06)',
+                    cursor: 'pointer',
+                    textAlign: 'center'
+                  }}
+                >
+                  {t.label}
+                </button>
               ))}
             </div>
+          </div>
 
-            <div className="bardo__ideas" aria-label="Ideias rápidas">
-              <span className="bardo__eyebrow">Ideias do balcão:</span>
+          {/* Categoria do Desenho */}
+          <div>
+            <span style={{ fontSize: '10px', color: '#a89a8a', fontWeight: 700, textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
+              Categoria
+            </span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+              {CATEGORIES.map(c => (
+                <button
+                  key={c.value}
+                  type="button"
+                  onClick={() => {
+                    setCategory(c.value);
+                    setAspect(c.aspect);
+                  }}
+                  style={{
+                    padding: '4px 8px',
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    borderRadius: '4px',
+                    background: category === c.value ? 'rgba(217, 119, 6, 0.3)' : 'rgba(0,0,0,0.3)',
+                    color: category === c.value ? '#fbbf24' : '#a89a8a',
+                    border: category === c.value ? '1px solid rgba(245, 158, 11, 0.6)' : '1px solid rgba(255,255,255,0.06)',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Formato */}
+          <div>
+            <span style={{ fontSize: '10px', color: '#a89a8a', fontWeight: 700, textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
+              Formato
+            </span>
+            <div style={{ display: 'flex', gap: '4px' }}>
+              {ASPECTS.map(a => (
+                <button
+                  key={a.value}
+                  type="button"
+                  onClick={() => setAspect(a.value)}
+                  style={{
+                    flex: 1,
+                    padding: '4px 6px',
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    borderRadius: '4px',
+                    background: aspect === a.value ? 'rgba(217, 119, 6, 0.3)' : 'rgba(0,0,0,0.3)',
+                    color: aspect === a.value ? '#fbbf24' : '#a89a8a',
+                    border: aspect === a.value ? '1px solid rgba(245, 158, 11, 0.6)' : '1px solid rgba(255,255,255,0.06)',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {a.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Ideias Rápidas */}
+          <div style={{ marginTop: 'auto', paddingTop: '8px', borderTop: '1px solid rgba(217, 119, 6, 0.15)' }}>
+            <span style={{ fontSize: '10px', color: '#f59e0b', fontWeight: 800, textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
+              Ideias do Balcão
+            </span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
               {IDEAS.map(idea => (
-                <button key={idea.label} type="button" className="bardo-chip" disabled={isGenerating} onClick={() => pickIdea(idea)}>
+                <button
+                  key={idea.label}
+                  type="button"
+                  disabled={isGenerating}
+                  onClick={() => pickIdea(idea)}
+                  style={{
+                    padding: '4px 8px',
+                    fontSize: '10px',
+                    borderRadius: '4px',
+                    background: 'rgba(255,255,255,0.04)',
+                    color: '#d6c7b2',
+                    border: '1px solid rgba(217, 119, 6, 0.2)',
+                    cursor: 'pointer'
+                  }}
+                >
                   {idea.label}
                 </button>
               ))}
             </div>
-
-            <form className="bardo__composer" onSubmit={handleSend}>
-              <div className="bardo__options">
-                <div className="bardo__group bardo__group--tech" role="group" aria-label="Técnica de Gravura">
-                  {TECHNIQUES.map(t => (
-                    <button
-                      key={t.value}
-                      type="button"
-                      className={`bardo-pill bardo-pill--tech${technique === t.value ? ' is-on' : ''}`}
-                      aria-pressed={technique === t.value}
-                      onClick={() => setTechnique(t.value)}
-                    >
-                      {t.label}
-                    </button>
-                  ))}
-                </div>
-                <div className="bardo__group" role="group" aria-label="O que desenhar">
-                  {CATEGORIES.map(c => (
-                    <button
-                      key={c.value}
-                      type="button"
-                      className={`bardo-pill${category === c.value ? ' is-on' : ''}`}
-                      aria-pressed={category === c.value}
-                      onClick={() => {
-                        setCategory(c.value);
-                        setAspect(c.aspect);
-                      }}
-                    >
-                      {c.label}
-                    </button>
-                  ))}
-                </div>
-                <div className="bardo__group" role="group" aria-label="Formato do pergaminho">
-                  {ASPECTS.map(a => (
-                    <button
-                      key={a.value}
-                      type="button"
-                      className={`bardo-pill${aspect === a.value ? ' is-on' : ''}`}
-                      aria-pressed={aspect === a.value}
-                      onClick={() => setAspect(a.value)}
-                      title={a.value}
-                    >
-                      {a.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bardo__input-row">
-                <textarea
-                  ref={inputRef}
-                  id="bardo-input"
-                  className="bardo__input font-lore"
-                  rows={2}
-                  value={draft}
-                  onChange={e => setDraft(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  disabled={isGenerating}
-                  placeholder={isFull ? 'A parede está cheia. Rasgue um pergaminho para pedir outro…' : 'Peça ao bardo… ex.: um dragão velho dormindo sobre moedas de ouro'}
-                  aria-label="Seu pedido ao bardo"
-                />
-                <button
-                  type="submit"
-                  id="bardo-send"
-                  className="bardo__send"
-                  disabled={isGenerating || !draft.trim()}
-                  aria-label="Enviar pedido ao bardo"
-                >
-                  <Feather size={16} className={isGenerating ? 'bardo__send-icon is-busy' : 'bardo__send-icon'} />
-                  <span>{isGenerating ? 'Desenhando' : 'Pedir'}</span>
-                  <Send size={14} className="bardo__send-arrow" />
-                </button>
-              </div>
-            </form>
           </div>
-        </div>
-      </section>
+        </aside>
 
-      {/* ========================================================================= */}
-      {/* PERGAMINHOS NA PAREDE — Galeria de Gravuras em Manuscrito */}
-      {/* ========================================================================= */}
-      <section className="bardo-wall" aria-label="Pergaminhos na Parede">
-        <div className="bardo-wall__head">
-          <h2 className="bardo-wall__title" style={{ color: '#f5ecdc', fontFamily: "'Cinzel Hero', var(--font-cinzel)", letterSpacing: '0.04em' }}>
-            PERGAMINHOS NA PAREDE
-          </h2>
-          <span className="bardo-wall__count" style={{ color: '#a89a85', fontWeight: 600 }}>
-            {sketches.length}/{MAX_SKETCHES}
-          </span>
-        </div>
-
-        {sketches.length > 0 ? (
-          <div className="bardo-wall__grid">
-            {sketches.map((item, i) => (
-              <figure
-                key={item.id}
-                className="bardo-card"
-                style={{ ['--tilt' as string]: `${((i % 5) - 2) * 1.5}deg` }}
-              >
-                <button
-                  type="button"
-                  className="bardo-card__frame"
-                  onClick={() => setLightbox({
-                    imageUrl: item.imageUrl,
-                    prompt: item.prompt,
-                    description: item.description,
-                    category: item.category
-                  })}
-                  aria-label={`Ampliar: ${item.prompt}`}
-                >
-                  <img src={item.imageUrl} alt={item.prompt} loading="lazy" />
-                  <span className="bardo-art__zoom"><Maximize2 size={14} /></span>
-                </button>
-                <figcaption className="bardo-card__caption">
-                  <span className="bardo-card__cat">{item.category}</span>
-                  <p className="bardo-card__prompt font-lore">{item.prompt}</p>
-                  <div className="bardo-card__actions">
-                    <button
-                      type="button"
-                      className="bardo-icon"
-                      onClick={() => handleDownload(item.imageUrl, item.category)}
-                      aria-label="Baixar ilustração"
-                      title="Baixar"
-                    >
-                      <Download size={14} />
-                    </button>
-                    <button
-                      type="button"
-                      className="bardo-icon bardo-icon--danger"
-                      onClick={() => setToDelete(item)}
-                      aria-label="Rasgar pergaminho"
-                      title="Rasgar pergaminho"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                </figcaption>
-              </figure>
+        {/* COLUNA 2: O CAVALETE DE CRIAÇÃO (CENTRAL) */}
+        <main
+          className="tavern-cockpit-panel"
+          style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}
+        >
+          {/* Chat com o Bardo (Com scroll interno) */}
+          <div
+            className="bardo__log tavern-thin-scrollbar"
+            ref={logRef}
+            role="log"
+            aria-live="polite"
+            style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '14px' }}
+          >
+            {messages.map(m => (
+              <div key={m.id} className={`bardo-msg bardo-msg--${m.from}${m.tone ? ` is-${m.tone}` : ''}`}>
+                {m.from === 'bard' && (
+                  <img className="bardo-msg__avatar" src="/assets/bardo_portrait.jpg" alt="" width={32} height={32} />
+                )}
+                <div className="bardo-msg__body">
+                  {m.pending ? (
+                    <div className="bardo-draw" aria-label="O bardo está desenhando">
+                      <svg className="bardo-draw__svg" viewBox="0 0 120 80" aria-hidden="true">
+                        <path d="M8 62 C 28 20, 52 16, 68 42 S 100 66, 112 18" />
+                        <path d="M14 70 C 40 52, 62 60, 90 48" />
+                        <path d="M30 30 L 44 56 M40 26 L 54 52 M50 24 L 64 50" />
+                      </svg>
+                      <span className="bardo-draw__line">
+                        <em className="bardo-msg__act">{DRAWING_LINES[drawingStep]}</em>
+                      </span>
+                    </div>
+                  ) : (
+                    <>
+                      {m.text && <p className="bardo-msg__text font-lore">{renderRich(m.text)}</p>}
+                      {m.art && (
+                        <figure className="bardo-art">
+                          <button
+                            type="button"
+                            className="bardo-art__frame"
+                            onClick={() => setLightbox({ imageUrl: m.art!.imageUrl, prompt: m.art!.prompt, description: m.art!.description, category: m.art!.category })}
+                            aria-label="Ampliar a ilustração"
+                          >
+                            <img src={m.art.imageUrl} alt={m.art.prompt} />
+                            <span className="bardo-art__zoom"><Maximize2 size={14} /></span>
+                          </button>
+                          <figcaption className="bardo-art__bar" style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                            <button type="button" className="bardo-chip" onClick={() => handleDownload(m.art!.imageUrl, m.art!.category)}>
+                              <Download size={13} /> Baixar
+                            </button>
+                            <button type="button" className="bardo-chip" onClick={() => askAdjustment(m.art!.prompt, m.art!.category)}>
+                              <PenLine size={13} /> Pedir ajuste
+                            </button>
+                          </figcaption>
+                        </figure>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
             ))}
           </div>
-        ) : (
-          <p className="bardo-wall__empty font-lore">
-            A parede está vazia. Faça o primeiro pedido ao bardo acima.
-          </p>
-        )}
-      </section>
+
+          {/* Barra de entrada / Encomenda de ilustração */}
+          <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(217, 119, 6, 0.18)', backgroundColor: 'rgba(15, 10, 7, 0.7)' }}>
+            <form onSubmit={handleSend} style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <textarea
+                ref={inputRef}
+                rows={2}
+                value={draft}
+                onChange={e => setDraft(e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={isGenerating}
+                placeholder={isFull ? 'O mural está cheio. Rasgue um pergaminho ao lado para pedir outro…' : 'Peça ao bardo… ex.: um guerreiro anão com martelo de guerra e runas douradas'}
+                style={{
+                  flex: 1,
+                  padding: '10px 14px',
+                  backgroundColor: 'rgba(0, 0, 0, 0.45)',
+                  border: '1px solid rgba(217, 119, 6, 0.25)',
+                  borderRadius: '8px',
+                  color: '#f5ecdc',
+                  fontSize: '13px',
+                  lineHeight: 1.5,
+                  resize: 'none',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+              <button
+                type="submit"
+                disabled={isGenerating || !draft.trim() || isFull}
+                className="tavern-btn tavern-btn-primary"
+                style={{
+                  padding: '12px 20px',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  height: '52px',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                <Feather size={16} />
+                <span>{isGenerating ? 'Desenhando...' : 'Pedir Gravura'}</span>
+                <Send size={13} />
+              </button>
+            </form>
+          </div>
+        </main>
+
+        {/* COLUNA 3: MURAL DE PERGAMINHOS NA PAREDE (GALERIA) */}
+        <aside
+          className="tavern-cockpit-panel"
+          style={{ width: '310px', flexShrink: 0, display: 'flex', flexDirection: 'column' }}
+        >
+          {/* Topo Coluna 3 */}
+          <div style={{ padding: '12px 14px', borderBottom: '1px solid rgba(217, 119, 6, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '11px', fontWeight: 800, color: '#fef3c7', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Pergaminhos no Mural
+            </span>
+            <span style={{ fontSize: '11px', color: '#fbbf24', fontWeight: 700 }}>
+              {sketches.length}/{MAX_SKETCHES}
+            </span>
+          </div>
+
+          {/* Grid de gravuras salvas com scrollbar fina */}
+          <div className="tavern-thin-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
+            {sketches.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '36px 12px', color: '#78716c' }}>
+                <Feather size={32} color="#d97706" style={{ margin: '0 auto 10px auto', opacity: 0.5 }} />
+                <p style={{ fontSize: '12px', margin: '0 0 4px 0', color: '#fef3c7' }}>O mural está vazio</p>
+                <p style={{ fontSize: '11px', margin: 0, color: '#a89a8a' }}>
+                  Faça um pedido ao bardo para pregar o primeiro pergaminho na parede.
+                </p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {sketches.map((item) => (
+                  <div
+                    key={item.id}
+                    style={{
+                      padding: '8px',
+                      borderRadius: '8px',
+                      backgroundColor: 'rgba(20, 13, 9, 0.85)',
+                      border: '1px solid rgba(217, 119, 6, 0.22)',
+                      display: 'flex',
+                      gap: '10px',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setLightbox({
+                        imageUrl: item.imageUrl,
+                        prompt: item.prompt,
+                        description: item.description,
+                        category: item.category
+                      })}
+                      style={{
+                        width: '64px',
+                        height: '64px',
+                        borderRadius: '6px',
+                        overflow: 'hidden',
+                        flexShrink: 0,
+                        border: '1px solid rgba(217, 119, 6, 0.3)',
+                        padding: 0,
+                        background: '#000',
+                        cursor: 'pointer'
+                      }}
+                      title="Clique para ampliar"
+                    >
+                      <img src={item.imageUrl} alt={item.prompt} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </button>
+
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <span
+                        style={{
+                          fontSize: '9px',
+                          fontWeight: 700,
+                          padding: '1px 5px',
+                          borderRadius: '4px',
+                          backgroundColor: 'rgba(217, 119, 6, 0.2)',
+                          color: '#fbbf24',
+                          textTransform: 'uppercase'
+                        }}
+                      >
+                        {item.category}
+                      </span>
+                      <p
+                        className="font-lore"
+                        style={{
+                          margin: '4px 0 6px 0',
+                          fontSize: '11px',
+                          color: '#f5ecdc',
+                          lineHeight: 1.3,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}
+                        title={item.prompt}
+                      >
+                        {item.prompt}
+                      </p>
+
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        <button
+                          type="button"
+                          onClick={() => handleDownload(item.imageUrl, item.category)}
+                          className="tavern-btn tavern-btn-secondary"
+                          style={{ padding: '3px 8px', fontSize: '10px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                          title="Baixar gravura"
+                        >
+                          <Download size={11} />
+                          <span>Baixar</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setToDelete(item)}
+                          style={{
+                            background: 'none',
+                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                            color: '#f87171',
+                            borderRadius: '4px',
+                            padding: '3px 6px',
+                            cursor: 'pointer'
+                          }}
+                          title="Rasgar pergaminho"
+                        >
+                          <Trash2 size={11} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </aside>
+      </div>
 
       {/* Lightbox / Modal de Gravura */}
       {lightbox && (
@@ -571,7 +811,7 @@ export const SketchStudioView: React.FC<SketchStudioViewProps> = ({
               Rasgar este pergaminho?
             </h3>
             <p className="font-lore" style={{ fontSize: '14px', color: 'var(--text-soft)', margin: '0 0 20px', lineHeight: 1.5 }}>
-              A gravura será descartada e liberará um espaço na parede de carvalho.
+              A gravura será descartada e liberará um espaço no mural de carvalho.
             </p>
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
               <button type="button" className="bardo-chip" onClick={() => setToDelete(null)}>

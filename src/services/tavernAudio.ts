@@ -262,6 +262,106 @@ class TavernAudioService {
       }
     }, 380);
   }
+
+  private getOrCreateContext(): AudioContext | null {
+    try {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!this.ctx) {
+        this.ctx = new AudioCtx();
+      }
+      if (this.ctx.state === 'suspended') {
+        void this.ctx.resume();
+      }
+      return this.ctx;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Efeito Sonoro: Rolagem de Dado d20 sobre madeira rústica
+   */
+  public playDiceRoll() {
+    const ctx = this.getOrCreateContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    [0, 0.07, 0.15, 0.24].forEach((delay, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(340 + Math.random() * 220, now + delay);
+      osc.frequency.exponentialRampToValueAtTime(120 + Math.random() * 50, now + delay + 0.05);
+      gain.gain.setValueAtTime(0.22 / (i + 1), now + delay);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.05);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + delay);
+      osc.stop(now + delay + 0.06);
+    });
+  }
+
+  /**
+   * Efeito Sonoro: Sino de Balcão da Taverna (Chime límpido de latão)
+   */
+  public playBellChime() {
+    const ctx = this.getOrCreateContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    [1560, 3120, 4680].forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(0.2 / (idx + 1), now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 1.3);
+    });
+  }
+
+  /**
+   * Efeito Sonoro: Brinde com Caneca de Carvalho / Taça da Taverna
+   */
+  public playToastSound() {
+    const ctx = this.getOrCreateContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    [1920, 2450].forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + idx * 0.04);
+      gain.gain.setValueAtTime(0.22, now + idx * 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.04 + 0.6);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + idx * 0.04);
+      osc.stop(now + idx * 0.04 + 0.7);
+    });
+  }
+
+  /**
+   * Efeito Sonoro: Labareda da Tocha / Fogo Crepitante
+   */
+  public playFlameWhoosh() {
+    const ctx = this.getOrCreateContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(160, now);
+    osc.frequency.exponentialRampToValueAtTime(380, now + 0.12);
+    osc.frequency.exponentialRampToValueAtTime(110, now + 0.35);
+    gain.gain.setValueAtTime(0.18, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.4);
+  }
 }
 
 export const tavernAudio = new TavernAudioService();

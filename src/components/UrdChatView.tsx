@@ -1,9 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Beer, Sparkles, BookOpen, Copy, Check, RotateCcw, Flame, Swords, Skull, HelpCircle, Scroll as ScrollIcon, Trash2 } from 'lucide-react';
+import { ArrowLeft, Send, Beer, Sparkles, BookOpen, Copy, Check, RotateCcw, Flame, Swords, Skull, HelpCircle, Scroll as ScrollIcon, Trash2 } from 'lucide-react';
 import { Campaign, UrdMessage } from '../types';
 import { aiService } from '../services/aiService';
+import { TavernInteractiveDesk } from './TavernInteractiveDesk';
+import { tavernAudio } from '../services/tavernAudio';
 
 interface UrdChatViewProps {
+  onBack?: () => void;
   messages: UrdMessage[];
   campaigns: Campaign[];
   activeCampaignId: string | null;
@@ -34,6 +37,7 @@ const STONE_COASTERS: Array<{
 ];
 
 export const UrdChatView: React.FC<UrdChatViewProps> = ({
+  onBack,
   messages,
   campaigns,
   activeCampaignId,
@@ -122,371 +126,470 @@ export const UrdChatView: React.FC<UrdChatViewProps> = ({
     setTimeout(() => setSavedToLoreId(null), 3000);
   };
 
+  const allRumors = [
+    ...(activeCampaign?.lore?.filter(l => l.category === 'rumores').map(l => ({
+      id: l.id,
+      title: l.title,
+      cat: 'LORE DA MESA',
+      text: l.content
+    })) || []),
+    {
+      id: 'd1',
+      title: 'O Sino do Abismo',
+      cat: 'RUMOR',
+      text: 'Três mineiros juram ter ouvido o badalar de um carrilhão de bronze no fundo do poço da mina velha... mas não há sino lá há mais de cem anos.'
+    },
+    {
+      id: 'd2',
+      title: 'O Corvo de Prata',
+      cat: 'CAUSO',
+      text: 'Um mercador jurou que um corvo com penas metálicas deixou uma moeda sem face em seu prato na taverna antes de alçar voo rumo às montanhas.'
+    },
+    {
+      id: 'd3',
+      title: 'A Noite Sem Estrelas',
+      cat: 'SEGREDO',
+      text: 'O antigo livro de registros da estalagem tem doze páginas rasgadas do ano da Geada Negra. Ninguém em Pedra-Funda ousa falar o porquê.'
+    }
+  ];
+
   return (
-    <div className="urd-view" style={{ width: '100%', minHeight: '100vh', backgroundColor: '#0e0906', backgroundImage: 'radial-gradient(ellipse at 50% 20%, rgba(217, 119, 6, 0.16) 0%, rgba(14, 9, 6, 0.98) 75%)', color: '#f5ecdc', padding: 0, margin: 0 }}>
-      {/* ========================================================================= */}
-      {/* BALCÃO DO TABERNEIRO — Tela maximizada com Urd de Pedra-Funda */}
-      {/* ========================================================================= */}
-      <section className="bardo urd-chamber" aria-label="Balcão de Pedra e Lareira de Urd">
-        <div className="bardo__inner">
-          <aside className="bardo__side">
-            <div
-              className="bardo__portrait"
-              onMouseMove={onPortraitMove}
-              onMouseLeave={() => setTilt({ x: 0, y: 0 })}
-              style={{ transform: `perspective(700px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)` }}
+    <div className="tavern-cockpit-view">
+      {/* COCKPIT HEADER */}
+      <header className="tavern-cockpit-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', minWidth: '240px' }}>
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="tavern-btn tavern-btn-secondary"
+              style={{
+                padding: '6px 12px',
+                fontSize: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                borderRadius: '6px'
+              }}
+              title="Voltar ao Salão Principal"
             >
-              <img
-                src="/assets/urd_portrait.jpg"
-                alt="Urd de Pedra-Funda, o taberneiro"
-                width={640}
-                height={640}
-              />
-              <span className={`bardo__status${isLoading ? ' is-drawing' : ''}`}>
-                <span className="bardo__status-dot" aria-hidden="true" />
-                {isLoading ? 'Lembrando causos' : 'Ao balcão'}
-              </span>
-            </div>
+              <ArrowLeft size={14} />
+              <span>Salão</span>
+            </button>
+          )}
 
-            <div className="bardo__who">
-              <span className="bardo__eyebrow" style={{ color: '#f59e0b', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase' }}>TABERNEIRO &amp; ORÁCULO</span>
-              <strong className="bardo__name">URD DE PEDRA-FUNDA</strong>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div
+              style={{
+                width: '34px',
+                height: '34px',
+                borderRadius: '8px',
+                backgroundColor: 'rgba(217, 119, 6, 0.15)',
+                border: '1px solid rgba(217, 119, 6, 0.35)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#f59e0b'
+              }}
+            >
+              <Beer size={19} />
             </div>
-
-            <div className="bardo__slots" title={`Mesa ativa: ${activeCampaign ? activeCampaign.name : 'Nenhuma selecionada'}`}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#f59e0b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                <Beer size={14} color="#f59e0b" />
-                <span>Caneca de Carvalho</span>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h1 style={{ fontSize: '15px', fontWeight: 800, color: '#fef3c7', margin: 0, letterSpacing: '0.02em' }}>
+                  Urd o Taberneiro
+                </h1>
+                <span
+                  style={{
+                    fontSize: '10px',
+                    padding: '2px 7px',
+                    borderRadius: '999px',
+                    backgroundColor: 'rgba(217, 119, 6, 0.2)',
+                    color: '#fbbf24',
+                    border: '1px solid rgba(217, 119, 6, 0.3)',
+                    fontWeight: 700
+                  }}
+                >
+                  ORÁCULO DA TAVERNA
+                </span>
               </div>
-              <span style={{ fontSize: '11px', color: '#8A8275', lineHeight: 1.4, textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
-                {activeCampaign ? (
-                  <>Vinculado à mesa <strong>{activeCampaign.name}</strong></>
-                ) : (
-                  'PRONTO PARA OUVIR SEUS PEDIDOS'
-                )}
-              </span>
+              <p style={{ margin: 0, fontSize: '11px', color: '#a89a8a' }}>
+                {activeCampaign ? `Vinculado à mesa: ${activeCampaign.name}` : 'Consulte causos, ganchos de aventura e segredos de taverna'}
+              </p>
             </div>
+          </div>
+        </div>
 
-            {/* Ações do Balcão */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
-              <button
-                type="button"
-                onClick={handleToastWithUrd}
-                className="bardo-chip urd-action-btn"
-                style={{
-                  justifyContent: 'center',
-                  background: isToastClinking ? '#FAF7F2' : 'rgba(255, 255, 255, 0.05)',
-                  color: isToastClinking ? '#0A0A0A' : '#FAF7F2',
-                  borderColor: 'rgba(242, 236, 225, 0.25)',
-                  transition: 'all 0.2s ease'
-                }}
-                title="Bater canecos e ouvir um brinde anão"
-              >
-                <Beer size={14} />
-                <span>{isToastClinking ? 'Bate Canecos!' : 'Brinde com Urd!'}</span>
-              </button>
+        {/* CENTRO: UTENSÍLIOS E DECORAÇÕES INTERATIVAS DA TABERNA */}
+        <TavernInteractiveDesk />
 
-              {currentToast && (
-                <div style={{ padding: '10px 12px', background: '#141414', border: '1px solid rgba(242, 236, 225, 0.25)', borderRadius: '6px', fontSize: '12px', color: '#FAF7F2', fontStyle: 'italic', lineHeight: 1.4 }}>
-                  &ldquo;{currentToast}&rdquo;
-                </div>
-              )}
+        {/* AÇÕES NO TOPO */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button
+            type="button"
+            onClick={handleToastWithUrd}
+            className="tavern-btn tavern-btn-secondary"
+            style={{
+              padding: '6px 12px',
+              fontSize: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+            title="Brindar com Urd e ouvir um causo anão"
+          >
+            <Beer size={13} color="#f59e0b" />
+            <span>{isToastClinking ? 'Tilintando!' : 'Brinde com Urd'}</span>
+          </button>
 
-              <button
-                type="button"
-                onClick={() => setIsHearthActive(prev => !prev)}
-                className="bardo-chip urd-action-btn"
-                style={{
-                  justifyContent: 'center',
-                  color: '#FAF7F2',
-                  borderColor: isHearthActive ? 'rgba(242, 236, 225, 0.4)' : 'rgba(242, 236, 225, 0.15)',
-                  background: isHearthActive ? 'rgba(255, 255, 255, 0.08)' : 'transparent'
-                }}
-                title="Alternar estado da lareira da taberna"
-              >
-                <Flame size={13} style={{ opacity: isHearthActive ? 1 : 0.4 }} />
-                <span>{isHearthActive ? 'Lareira: Crepitante' : 'Lareira: Baixa'}</span>
-              </button>
+          <button
+            type="button"
+            onClick={() => setIsHearthActive(prev => !prev)}
+            className="tavern-btn tavern-btn-secondary"
+            style={{
+              padding: '6px 10px',
+              fontSize: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              color: isHearthActive ? '#fbbf24' : '#a89a8a'
+            }}
+            title="Alternar fogo da lareira"
+          >
+            <Flame size={13} color={isHearthActive ? '#f59e0b' : '#78716c'} />
+            <span>{isHearthActive ? 'Fogo Alto' : 'Brasa'}</span>
+          </button>
+        </div>
+      </header>
 
-              <button
-                type="button"
-                onClick={onClearChat}
-                className="bardo-chip urd-action-btn"
-                title="Limpar balcão e reiniciar conversa"
-                style={{ justifyContent: 'center', color: '#EAE2D3', borderColor: 'rgba(242, 236, 225, 0.2)' }}
-              >
-                <RotateCcw size={13} />
-                <span>Limpar Balcão</span>
-              </button>
+      {/* COCKPIT BODY: 3 COLUNAS EM TELA ÚNICA */}
+      <div className="tavern-cockpit-body">
+        {/* COLUNA 1: O TABERNEIRO & GATILHOS RÁPIDOS */}
+        <aside
+          className="tavern-cockpit-panel tavern-thin-scrollbar"
+          style={{ width: '270px', flexShrink: 0, display: 'flex', flexDirection: 'column', overflowY: 'auto', padding: '14px', gap: '12px' }}
+        >
+          {/* Retrato de Urd */}
+          <div
+            className="bardo__portrait"
+            onMouseMove={onPortraitMove}
+            onMouseLeave={() => setTilt({ x: 0, y: 0 })}
+            style={{
+              transform: `perspective(700px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+              height: '140px',
+              borderRadius: '10px',
+              position: 'relative',
+              overflow: 'hidden'
+            }}
+          >
+            <img src="/assets/urd_portrait.jpg" alt="Urd de Pedra-Funda" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <span className={`bardo__status${isLoading ? ' is-drawing' : ''}`}>
+              <span className="bardo__status-dot" aria-hidden="true" />
+              {isLoading ? 'Lembrando causos...' : 'Ao balcão'}
+            </span>
+          </div>
+
+          <div>
+            <div style={{ fontSize: '10px', color: '#f59e0b', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              Taberneiro & Oráculo
             </div>
-          </aside>
+            <h3 style={{ margin: '2px 0 0 0', fontSize: '14px', fontWeight: 800, color: '#fef3c7' }}>
+              Urd de Pedra-Funda
+            </h3>
+          </div>
 
-          <div className="bardo__chat">
-            <div className="bardo__log" ref={logRef} role="log" aria-live="polite" aria-label="Conversa com o taberneiro">
-              {messages.map(msg => {
-                const isUrd = msg.sender === 'urd';
+          {currentToast && (
+            <div
+              style={{
+                padding: '8px 10px',
+                backgroundColor: 'rgba(217, 119, 6, 0.15)',
+                border: '1px solid rgba(245, 158, 11, 0.35)',
+                borderRadius: '6px',
+                fontSize: '11px',
+                fontStyle: 'italic',
+                color: '#fef3c7',
+                lineHeight: 1.4
+              }}
+            >
+              &ldquo;{currentToast}&rdquo;
+            </div>
+          )}
+
+          {/* Bolachas de Chopp (Tópicos Rápidos) */}
+          <div>
+            <span style={{ fontSize: '10px', color: '#f59e0b', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '8px' }}>
+              Perguntas Rápidas:
+            </span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              {STONE_COASTERS.map(c => {
+                const isSelected = activeCoaster === c.id;
                 return (
-                  <div key={msg.id} className={`bardo-msg ${isUrd ? '' : 'bardo-msg--user'}`}>
-                    {isUrd && (
-                      <img className="bardo-msg__avatar" src="/assets/urd_portrait.jpg" alt="Urd" width={32} height={32} />
-                    )}
-                    <div className="bardo-msg__body">
-                      <div className="bardo-msg__text">
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '4px' }}>
-                          <span style={{ fontSize: '11px', fontWeight: 700, color: '#FAF7F2', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-                            {isUrd ? 'Urd, o Taberneiro' : 'Aventureiro'}
-                          </span>
-                          <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
-                            {msg.timestamp}
-                          </span>
-                        </div>
-                        <div className={isUrd ? 'font-lore' : ''} style={{ whiteSpace: 'pre-line', fontSize: '14px', lineHeight: 1.65 }}>
-                          {msg.text}
-                        </div>
-
-                        {isUrd && (
-                          <div style={{ display: 'flex', gap: '8px', marginTop: '10px', paddingTop: '8px', borderTop: '1px dashed rgba(245, 236, 225, 0.15)' }}>
-                            <button
-                              type="button"
-                              onClick={() => handleCopy(msg.id, msg.text)}
-                              className="bardo-chip"
-                              style={{ padding: '3px 8px', fontSize: '11px' }}
-                            >
-                              {copiedId === msg.id ? <Check size={12} color="#34d399" /> : <Copy size={12} />}
-                              <span>{copiedId === msg.id ? 'Copiado' : 'Copiar'}</span>
-                            </button>
-
-                            {activeCampaign && (
-                              <button
-                                type="button"
-                                onClick={() => handleSaveToLore(msg)}
-                                className="bardo-chip"
-                                style={{ padding: '3px 8px', fontSize: '11px', color: '#FAF7F2', borderColor: 'rgba(242, 236, 225, 0.25)' }}
-                              >
-                                {savedToLoreId === msg.id ? <Check size={12} color="#34d399" /> : <BookOpen size={12} />}
-                                <span>{savedToLoreId === msg.id ? 'Salvo no Lore!' : 'Salvar no Lore'}</span>
-                              </button>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveCoaster(c.id);
+                      handleSend(c.text);
+                    }}
+                    disabled={isLoading}
+                    style={{
+                      padding: '7px 10px',
+                      borderRadius: '6px',
+                      backgroundColor: isSelected ? 'rgba(217, 119, 6, 0.25)' : 'rgba(255, 255, 255, 0.04)',
+                      border: isSelected ? '1px solid #f59e0b' : '1px solid rgba(217, 119, 6, 0.15)',
+                      color: isSelected ? '#fbbf24' : '#f5ecdc',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'all 0.15s ease'
+                    }}
+                    title={c.text}
+                  >
+                    <span style={{ color: '#f59e0b' }}>{c.icon}</span>
+                    <span style={{ flex: 1 }}>{c.label}</span>
+                  </button>
                 );
               })}
+            </div>
+          </div>
 
-              {isLoading && (
-                <div className="bardo-msg">
-                  <img className="bardo-msg__avatar" src="/assets/urd_portrait.jpg" alt="Urd" width={32} height={32} />
+          {/* Limpar conversa */}
+          <div style={{ marginTop: 'auto', paddingTop: '10px', borderTop: '1px solid rgba(217, 119, 6, 0.15)' }}>
+            <button
+              type="button"
+              onClick={onClearChat}
+              className="tavern-btn tavern-btn-secondary"
+              style={{ width: '100%', padding: '6px', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+              title="Limpar mensagens e reiniciar conversa"
+            >
+              <RotateCcw size={12} />
+              <span>Limpar Balcão</span>
+            </button>
+          </div>
+        </aside>
+
+        {/* COLUNA 2: A CONVERSA NO BALCÃO (CENTRAL) */}
+        <main
+          className="tavern-cockpit-panel"
+          style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}
+        >
+          {/* Feed de mensagens com scrollbar fina */}
+          <div
+            className="bardo__log tavern-thin-scrollbar"
+            ref={logRef}
+            role="log"
+            aria-live="polite"
+            style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '14px' }}
+          >
+            {messages.map(msg => {
+              const isUrd = msg.sender === 'urd';
+              return (
+                <div key={msg.id} className={`bardo-msg ${isUrd ? '' : 'bardo-msg--user'}`}>
+                  {isUrd && (
+                    <img className="bardo-msg__avatar" src="/assets/urd_portrait.jpg" alt="Urd" width={32} height={32} />
+                  )}
                   <div className="bardo-msg__body">
-                    <div className="bardo-draw" aria-label="Urd está lembrando causos">
-                      <Beer size={22} className="torch-flicker" color="#FAF7F2" />
-                      <span className="font-lore" style={{ fontStyle: 'italic', fontSize: '14px' }}>
-                        Urd está enxugando a caneca de carvalho e rebuscando histórias antigas...
-                      </span>
+                    <div className="bardo-msg__text">
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '4px' }}>
+                        <span style={{ fontSize: '11px', fontWeight: 800, color: isUrd ? '#fbbf24' : '#f5ecdc', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                          {isUrd ? 'Urd, o Taberneiro' : 'Aventureiro'}
+                        </span>
+                        <span style={{ fontSize: '10px', color: '#78716c' }}>
+                          {msg.timestamp}
+                        </span>
+                      </div>
+                      <div className={isUrd ? 'font-lore' : ''} style={{ whiteSpace: 'pre-line', fontSize: '14px', lineHeight: 1.65, color: '#f5ecdc' }}>
+                        {msg.text}
+                      </div>
+
+                      {isUrd && (
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '10px', paddingTop: '8px', borderTop: '1px dashed rgba(245, 236, 225, 0.15)' }}>
+                          <button
+                            type="button"
+                            onClick={() => handleCopy(msg.id, msg.text)}
+                            className="tavern-btn tavern-btn-secondary"
+                            style={{ padding: '3px 8px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                          >
+                            {copiedId === msg.id ? <Check size={12} color="#34d399" /> : <Copy size={12} />}
+                            <span>{copiedId === msg.id ? 'Copiado' : 'Copiar'}</span>
+                          </button>
+
+                          {activeCampaign && (
+                            <button
+                              type="button"
+                              onClick={() => handleSaveToLore(msg)}
+                              className="tavern-btn tavern-btn-primary"
+                              style={{ padding: '3px 10px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                            >
+                              {savedToLoreId === msg.id ? <Check size={12} color="#34d399" /> : <BookOpen size={12} />}
+                              <span>{savedToLoreId === msg.id ? 'Salvo no Lore!' : 'Salvar no Lore'}</span>
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
+              );
+            })}
 
-            {/* Bolachas de Chopp de Pedra (Medalhões Táteis do Balcão) */}
-            <div className="urd-coasters-container" aria-label="Perguntar ao Urd">
-              <span className="bardo__eyebrow" style={{ color: '#f59e0b', letterSpacing: '0.14em', marginBottom: '8px', display: 'block', fontWeight: 800 }}>
-                PERGUNTAR AO URD:
-              </span>
-              <div className="urd-coasters-tray">
-                {STONE_COASTERS.map(c => {
-                  const isSelected = activeCoaster === c.id;
-                  return (
-                    <button
-                      key={c.id}
-                      type="button"
-                      onClick={() => {
-                        setActiveCoaster(c.id);
-                        handleSend(c.text);
-                      }}
-                      disabled={isLoading}
-                      className={`urd-stone-coaster ${isSelected ? 'is-selected' : ''}`}
-                      title={c.text}
-                    >
-                      <span className="urd-stone-coaster__icon">{c.icon}</span>
-                      <span className="urd-stone-coaster__label">{c.label}</span>
-                    </button>
-                  );
-                })}
+            {isLoading && (
+              <div className="bardo-msg">
+                <img className="bardo-msg__avatar" src="/assets/urd_portrait.jpg" alt="Urd" width={32} height={32} />
+                <div className="bardo-msg__body">
+                  <div className="bardo-draw" aria-label="Urd está lembrando causos">
+                    <Beer size={20} className="torch-flicker" color="#f59e0b" />
+                    <span className="font-lore" style={{ fontStyle: 'italic', fontSize: '13px', color: '#fbbf24' }}>
+                      Urd está enxugando a caneca de carvalho e rebuscando memórias ancestrais...
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
 
-            {/* Compositor de Mensagem */}
+          {/* Barra de entrada / Compositor */}
+          <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(217, 119, 6, 0.18)', backgroundColor: 'rgba(15, 10, 7, 0.7)' }}>
             <form
-              className="bardo__composer"
               onSubmit={e => {
                 e.preventDefault();
                 handleSend(inputText);
               }}
+              style={{ display: 'flex', gap: '10px', alignItems: 'center' }}
             >
-              <div className="bardo__input-row">
-                <textarea
-                  rows={2}
-                  value={inputText}
-                  onChange={e => setInputText(e.target.value)}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSend(inputText);
-                    }
-                  }}
-                  placeholder="Pergunte ao Urd sobre ideias de trama, ganchos de aventura, enigmas, boatos da taverna..."
-                  disabled={isLoading}
-                  className="bardo__input font-lore"
-                />
-                <button
-                  type="submit"
-                  disabled={isLoading || !inputText.trim()}
-                  className="bardo__send"
-                >
-                  <span>Consultar Urd</span>
-                  <Send size={15} className="bardo__send-arrow" />
-                </button>
-              </div>
+              <textarea
+                rows={2}
+                value={inputText}
+                onChange={e => setInputText(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend(inputText);
+                  }
+                }}
+                placeholder="Pergunte ao Urd sobre ideias de trama, ganchos de aventura, enigmas, boatos da taverna..."
+                disabled={isLoading}
+                style={{
+                  flex: 1,
+                  padding: '10px 14px',
+                  backgroundColor: 'rgba(0, 0, 0, 0.45)',
+                  border: '1px solid rgba(217, 119, 6, 0.25)',
+                  borderRadius: '8px',
+                  color: '#f5ecdc',
+                  fontSize: '13px',
+                  lineHeight: 1.5,
+                  resize: 'none',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+              <button
+                type="submit"
+                disabled={isLoading || !inputText.trim()}
+                className="tavern-btn tavern-btn-primary"
+                style={{
+                  padding: '12px 18px',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  height: '52px',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                <span>Consultar Urd</span>
+                <Send size={14} />
+              </button>
             </form>
           </div>
-        </div>
-      </section>
+        </main>
 
-      {/* ========================================================================= */}
-      {/* REGISTRO DA TAVERNA — Memória da Estalagem & Boatos do Balcão */}
-      {/* ========================================================================= */}
-      <section className="bardo-wall urd-wall" aria-label="Memória da Estalagem - Boatos do Balcão">
-        <div className="bardo-wall__head">
-          <div>
-            <span className="bardo__eyebrow" style={{ display: 'block', marginBottom: '6px', color: '#f59e0b', letterSpacing: '0.16em', fontWeight: 800 }}>
-              MEMÓRIA DA ESTALAGEM
+        {/* COLUNA 3: BOATOS DO BALCÃO & REGISTROS */}
+        <aside
+          className="tavern-cockpit-panel"
+          style={{ width: '310px', flexShrink: 0, display: 'flex', flexDirection: 'column' }}
+        >
+          {/* Topo Coluna 3 */}
+          <div style={{ padding: '12px 14px', borderBottom: '1px solid rgba(217, 119, 6, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '11px', fontWeight: 800, color: '#fef3c7', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Boatos do Balcão
             </span>
-            <h2 className="bardo-wall__title" style={{ color: '#f5ecdc', fontFamily: "'Cinzel Hero', var(--font-cinzel)", letterSpacing: '0.04em' }}>
-              BOATOS DO BALCÃO
-            </h2>
+            <span style={{ fontSize: '10px', color: '#a89a8a' }}>
+              {allRumors.length} registros
+            </span>
           </div>
-          <span className="bardo-wall__count" style={{ color: '#a89a85', fontWeight: 600 }}>
-            Segredos sussurrados entre canecas
-          </span>
-        </div>
 
-        {/* Grid de boatos e sabedorias em estilo despojado de taverna */}
-        <div className="bardo-wall__grid">
-          {activeCampaign && activeCampaign.lore.filter(l => l.category === 'rumores').length > 0 ? (
-            activeCampaign.lore.filter(l => l.category === 'rumores').map((lore, idx) => (
-              <figure key={lore.id} className="bardo-card" style={{ ['--tilt' as string]: `${((idx % 5) - 2) * 1.5}deg` }}>
-                <div className="bardo-card__frame" style={{ cursor: 'default' }}>
-                  <div style={{ padding: '16px 14px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '8px' }}>
-                      <span className="bardo-card__cat">Boato Registrado</span>
-                      <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
-                        {new Date(lore.createdAt).toLocaleDateString('pt-BR')}
-                      </span>
-                    </div>
-                    <strong style={{ display: 'block', fontSize: '15px', color: 'var(--text-strong)', marginBottom: '8px', fontFamily: 'var(--font-cinzel)' }}>
-                      {lore.title}
-                    </strong>
-                    <p className="bardo-card__prompt font-lore" style={{ fontSize: '13px', WebkitLineClamp: 4, color: 'var(--text-soft)' }}>
-                      {lore.content}
-                    </p>
-                    <div className="bardo-card__actions">
-                      <button
-                        type="button"
-                        onClick={() => handleSend(`Urd, me conte mais sobre "${lore.title}": o que os viajantes andam falando a respeito?`)}
-                        className="bardo-chip urd-investigate-btn"
-                        style={{ padding: '6px 12px', fontSize: '11px', color: '#0A0A0A', background: '#F2ECE1', borderColor: '#FAF7F2', fontWeight: 700 }}
-                        disabled={isLoading}
-                      >
-                        <Sparkles size={12} />
-                        <span>Investigar com Urd</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleCopy(lore.id, lore.content)}
-                        className="bardo-chip"
-                        style={{ padding: '6px 12px', fontSize: '11px', color: '#FAF7F2', borderColor: 'rgba(242, 236, 225, 0.2)' }}
-                      >
-                        {copiedId === lore.id ? <Check size={12} color="#34d399" /> : <Copy size={12} />}
-                        <span>Copiar</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </figure>
-            ))
-          ) : (
-            // Cartões de Boatos da Taverna Padrão
-            [
-              {
-                id: 'rumor-1',
-                title: 'O Sino Submerso do Pântano',
-                text: 'Dizem que nas noites de lua nova, quando a névoa engole os juncos, um sino de bronze toca debaixo d’água onde afundou a capela.',
-                cat: 'Pântano dos Sussurros'
-              },
-              {
-                id: 'rumor-2',
-                title: 'A Caravana Sem Rastros',
-                text: 'Três carroções blindados de mercadores anões entraram na garganta do desfiladeiro e jamais saíram. Nem cinzas, nem rodas partidas foram achadas.',
-                cat: 'Passo do Corvo'
-              },
-              {
-                id: 'rumor-3',
-                title: 'O Espelho Rachado da Cripta',
-                text: 'Quem se olha naquele vidro antigo no sarcófago do barão vê o reflexo de si mesmo com dez anos a mais — e com uma ferida fatal visível no peito.',
-                cat: 'Ruínas do Castelo Cinzento'
-              }
-            ].map((r, idx) => (
-              <figure
+          {/* Lista com scrollbar interna fina */}
+          <div className="tavern-thin-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {allRumors.map(r => (
+              <div
                 key={r.id}
-                className="bardo-card"
-                style={{ ['--tilt' as string]: `${((idx % 3) - 1) * 2}deg` }}
+                style={{
+                  padding: '10px 12px',
+                  borderRadius: '8px',
+                  backgroundColor: 'rgba(20, 13, 9, 0.85)',
+                  border: '1px solid rgba(217, 119, 6, 0.22)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '6px'
+                }}
               >
-                <div className="bardo-card__frame" style={{ cursor: 'default' }}>
-                  <div style={{ padding: '16px 14px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', marginBottom: '8px' }}>
-                      <span className="bardo-card__cat" style={{ color: '#f59e0b', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em', fontSize: '11px', background: 'transparent', padding: 0 }}>
-                        {r.cat}
-                      </span>
-                      <Trash2 size={13} color="#f59e0b" style={{ opacity: 0.8 }} />
-                    </div>
-                    <strong style={{ display: 'block', fontSize: '15px', color: '#f5ecdc', marginBottom: '8px', fontFamily: "'Cinzel Hero', var(--font-cinzel)", letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-                      {r.title}
-                    </strong>
-                    <p className="bardo-card__prompt font-lore" style={{ fontSize: '13px', WebkitLineClamp: 4, color: '#c4b8a5' }}>
-                      &ldquo;{r.text}&rdquo;
-                    </p>
-                    <div className="bardo-card__actions">
-                      <button
-                        type="button"
-                        onClick={() => handleSend(`Urd, me conte mais sobre "${r.title}": o que os viajantes andam falando a respeito?`)}
-                        className="bardo-chip urd-investigate-btn"
-                        style={{ padding: '6px 12px', fontSize: '11px', color: '#f59e0b', background: 'rgba(245, 158, 11, 0.08)', borderColor: 'rgba(245, 158, 11, 0.35)', fontWeight: 700 }}
-                        disabled={isLoading}
-                      >
-                        <Sparkles size={12} color="#f59e0b" />
-                        <span>Investigar</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleCopy(r.id, r.text)}
-                        className="bardo-chip"
-                        style={{ padding: '6px 12px', fontSize: '11px', color: '#f5ecdc', borderColor: 'rgba(242, 236, 225, 0.2)', background: 'rgba(255, 255, 255, 0.04)' }}
-                      >
-                        {copiedId === r.id ? <Check size={12} color="#34d399" /> : <Copy size={12} />}
-                        <span>Copiar</span>
-                      </button>
-                    </div>
-                  </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span
+                    style={{
+                      fontSize: '9px',
+                      fontWeight: 800,
+                      padding: '1px 5px',
+                      borderRadius: '4px',
+                      backgroundColor: 'rgba(217, 119, 6, 0.2)',
+                      color: '#fbbf24',
+                      textTransform: 'uppercase'
+                    }}
+                  >
+                    {r.cat}
+                  </span>
+                  <span style={{ fontSize: '10px', color: '#78716c' }}>#segredo</span>
                 </div>
-              </figure>
-            ))
-          )}
-        </div>
-      </section>
+
+                <h4 style={{ margin: 0, fontSize: '12px', fontWeight: 800, color: '#fef3c7' }}>
+                  {r.title}
+                </h4>
+
+                <p className="font-lore" style={{ margin: 0, fontSize: '11px', color: '#d6c7b2', lineHeight: 1.4 }}>
+                  &ldquo;{r.text}&rdquo;
+                </p>
+
+                <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
+                  <button
+                    type="button"
+                    onClick={() => handleSend(`Urd, me conte mais sobre "${r.title}": o que os viajantes andam falando a respeito?`)}
+                    disabled={isLoading}
+                    className="tavern-btn tavern-btn-secondary"
+                    style={{ padding: '3px 8px', fontSize: '10px', display: 'flex', alignItems: 'center', gap: '4px', color: '#fbbf24' }}
+                  >
+                    <Sparkles size={10} color="#f59e0b" />
+                    <span>Investigar</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(r.id, r.text)}
+                    className="tavern-btn tavern-btn-secondary"
+                    style={{ padding: '3px 6px', fontSize: '10px' }}
+                    title="Copiar texto"
+                  >
+                    {copiedId === r.id ? <Check size={10} color="#34d399" /> : <Copy size={10} />}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </aside>
+      </div>
     </div>
   );
 };

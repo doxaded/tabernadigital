@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
+  ArrowLeft,
   MessageSquare,
   Shield,
   Sparkles,
@@ -34,8 +35,10 @@ import { Campaign, ChatChannel, ChatMessage, ChatScope, CustomChatRoom, UserCont
 import { chatService } from '../services/chatService';
 import { storageService, ADMIN_EMAIL, normalizeUserTag } from '../services/storage';
 import { AvatarFrame } from './AvatarFrame';
+import { TavernInteractiveDesk } from './TavernInteractiveDesk';
 
 interface ChatPortalViewProps {
+  onBack?: () => void;
   currentUser: UserProfile | null;
   campaigns: Campaign[];
   allUsers: UserProfile[];
@@ -80,6 +83,7 @@ const EMOJI_CATEGORIES = {
 const ROOM_ICON_PRESETS = ['🛡️', '⚔️', '🍺', '👑', '📜', '🐉', '🏹', '🏰', '💎', '🎲', '🔮', '🗡️', '🕯️', '🐺'];
 
 export const ChatPortalView: React.FC<ChatPortalViewProps> = ({
+  onBack,
   currentUser,
   campaigns,
   allUsers,
@@ -496,9 +500,23 @@ export const ChatPortalView: React.FC<ChatPortalViewProps> = ({
               {/* Topo do Header: Título da Sala e Tag Única do Usuário */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
                 <div>
-                  <span className="portal-eyebrow" style={{ color: '#f59e0b', display: 'block', fontSize: '11px', fontWeight: 800 }}>
-                    RECANTO DOS BARDOS
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {onBack && (
+                      <button
+                        type="button"
+                        onClick={onBack}
+                        className="tavern-btn tavern-btn-secondary"
+                        style={{ padding: '3px 8px', fontSize: '11px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                        title="Voltar ao Salão Principal"
+                      >
+                        <ArrowLeft size={12} />
+                        <span>Salão</span>
+                      </button>
+                    )}
+                    <span className="portal-eyebrow" style={{ color: '#f59e0b', display: 'block', fontSize: '11px', fontWeight: 800 }}>
+                      RECANTO DOS BARDOS
+                    </span>
+                  </div>
                   <div style={{ fontSize: '11px', color: '#a89a85', marginTop: '2px' }}>
                     Sua Tag: <strong style={{ color: '#FCD34D', fontFamily: 'monospace' }}>#{myTagDisplay}</strong>
                   </div>
@@ -1193,6 +1211,9 @@ export const ChatPortalView: React.FC<ChatPortalViewProps> = ({
                   </div>
 
                   {/* Ações do Header do Canal */}
+                  {/* Utensílios interativos do balcão */}
+                  <TavernInteractiveDesk />
+
                   <div className="portal-chat-header__actions" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     
                     {/* Botão de Ferramentas de Gerenciamento da Sala de Grupo */}
@@ -1596,7 +1617,8 @@ export const ChatPortalView: React.FC<ChatPortalViewProps> = ({
               </div>
             ) : (
               <div className="portal-no-channel">
-                <Shield size={48} style={{ color: 'var(--text-parchment, #F2ECE1)', opacity: 0.5 }} />
+                <TavernInteractiveDesk />
+                <Shield size={42} style={{ color: 'var(--text-parchment, #F2ECE1)', opacity: 0.5, marginTop: '16px' }} />
                 <h3>Selecione um Salão ou Companheiro</h3>
                 <p>Escolha um companheiro na barra lateral ou adicione aventureiros pela tag de 7 caracteres para começar.</p>
               </div>

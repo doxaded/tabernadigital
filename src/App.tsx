@@ -426,6 +426,7 @@ export function App() {
 
                         {activeTab === 'campaigns' && (
                           <CampaignsView
+                            onBack={() => setActiveTab('hub')}
                             campaigns={visibleCampaigns}
                             currentUser={currentUser}
                             selectedCampaignId={selectedCampaignId}
@@ -451,6 +452,7 @@ export function App() {
 
                         {activeTab === 'sketch' && (
                           <SketchStudioView
+                            onBack={() => setActiveTab('hub')}
                             sketches={sketches}
                             campaigns={visibleCampaigns}
                             activeCampaignId={selectedCampaignId}
@@ -461,6 +463,7 @@ export function App() {
 
                         {activeTab === 'urd' && (
                           <UrdChatView
+                            onBack={() => setActiveTab('hub')}
                             messages={urdMessages}
                             campaigns={visibleCampaigns}
                             activeCampaignId={selectedCampaignId}
@@ -480,6 +483,7 @@ export function App() {
 
                         {activeTab === 'chat' && (
                           <ChatPortalView
+                            onBack={() => setActiveTab('hub')}
                             currentUser={currentUser}
                             campaigns={visibleCampaigns}
                             allUsers={users}

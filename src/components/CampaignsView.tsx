@@ -1,17 +1,21 @@
 import React, { useRef, useState } from 'react';
 import { 
-  BookOpen, Plus, Shield, Scroll, Library, Edit3, Trash2, Heart, Zap, 
+  Crown, ArrowLeft, BookOpen, Plus, Shield, Scroll, Library, Edit3, Trash2, Heart, Zap, 
   Sparkles, FileText, ChevronRight, User, Users, Maximize2, AlertCircle, Eye, Check, X,
   ExternalLink, Download, Layers, Upload, Loader2, Copy, RefreshCw, LogOut,
-  Dices, Clipboard
+  Dices, Clipboard, Search, KeyRound
 } from 'lucide-react';
 import { Campaign, CharacterSheet, CustomStat, LoreEntry, RuleDocument, UserProfile } from '../types';
 import { SHEET_IMPORT_ACCEPT, extractCharacterSheetFromFile } from '../services/sheetImportService';
 import { MAX_PLAYERS } from '../services/storage';
 import { DefaultStats, getOrderedStats, validateCustomStats } from '../services/sheetStats';
 import { SheetStatsEditor } from './SheetStatsEditor';
+import { TavernInteractiveDesk } from './TavernInteractiveDesk';
+import { tavernAudio } from '../services/tavernAudio';
+import { AvatarFrame } from './AvatarFrame';
 
 interface CampaignsViewProps {
+  onBack?: () => void;
   campaigns: Campaign[];
   currentUser: UserProfile;
   selectedCampaignId: string | null;
@@ -35,6 +39,7 @@ interface CampaignsViewProps {
 }
 
 export const CampaignsView: React.FC<CampaignsViewProps> = ({
+  onBack,
   campaigns,
   currentUser,
   selectedCampaignId,
@@ -93,11 +98,24 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
   const [editRoomCover, setEditRoomCover] = useState('');
   const [editRoomDesc, setEditRoomDesc] = useState('');
 
-  // Elementos Interativos do Salão Comunal: Sorte d20 e Filtro de Mesas
-  const [d20Result, setD20Result] = useState<number | null>(null);
-  const [isRollingD20, setIsRollingD20] = useState(false);
-  const [d20Omen, setD20Omen] = useState<string | null>(null);
+  // Painel de Controle: Estados de Busca, Filtro e Dados
   const [tableFilter, setTableFilter] = useState<'all' | 'joined' | 'master'>('all');
+  const [roomSearch, setRoomSearch] = useState('');
+  const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
+  const [quickDiceHistory, setQuickDiceHistory] = useState<Array<{ die: string; result: number; time: string }>>([]);
+  const [isRollingQuick, setIsRollingQuick] = useState<string | null>(null);
+
+  const handleRollQuickDie = (die: string, sides: number) => {
+    if (isRollingQuick) return;
+    setIsRollingQuick(die);
+    tavernAudio.playDiceRoll();
+    setTimeout(() => {
+      const val = Math.floor(Math.random() * sides) + 1;
+      const time = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      setQuickDiceHistory(prev => [{ die, result: val, time }, ...prev.slice(0, 6)]);
+      setIsRollingQuick(null);
+    }, 280);
+  };
 
   // Formulário Nova Ficha
   const [sheetName, setSheetName] = useState('');
@@ -452,33 +470,6 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
     }
   };
 
-  const handleRollD20 = () => {
-    if (isRollingD20) return;
-    setIsRollingD20(true);
-    setD20Omen(null);
-    let count = 0;
-    const interval = setInterval(() => {
-      setD20Result(Math.floor(Math.random() * 20) + 1);
-      count++;
-      if (count > 7) {
-        clearInterval(interval);
-        const finalVal = Math.floor(Math.random() * 20) + 1;
-        setD20Result(finalVal);
-        setIsRollingD20(false);
-        if (finalVal === 20) {
-          setD20Omen('⭐ 20 Natural! As canecas transbordam e os bardos entoam uma canção sobre seus feitos gloriosos!');
-        } else if (finalVal >= 15) {
-          setD20Omen(`⚔️ Tirou ${finalVal}! Vento favorável nos dados: sua lâmina estará afiada na próxima jornada.`);
-        } else if (finalVal >= 10) {
-          setD20Omen(`🍺 Tirou ${finalVal}! O calor da lareira traz sossego e companheiros fiéis à sua mesa.`);
-        } else if (finalVal >= 2) {
-          setD20Omen(`📜 Tirou ${finalVal}. Cuidado redobrado: boatos na estalagem avisam sobre armadilhas no caminho.`);
-        } else {
-          setD20Omen('💀 1 Natural! Falha crítica: você tropeçou na cadeira de Urd e entornou ensopado na sua bota!');
-        }
-      }
-    }, 60);
-  };
 
   const handleJoinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -632,939 +623,1288 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
     );
   };
 
+  const filteredCampaigns = campaigns.filter(c => {
+    const q = roomSearch.trim().toLowerCase();
+    if (q) {
+      const matchName = c.name.toLowerCase().includes(q);
+      const matchSystem = c.system?.toLowerCase().includes(q);
+      const matchMaster = c.masterName?.toLowerCase().includes(q);
+      if (!matchName && !matchSystem && !matchMaster) return false;
+    }
+    if (tableFilter === 'master') return c.masterId === currentUser.uid;
+    if (tableFilter === 'joined') return c.masterId !== currentUser.uid;
+    return true;
+  });
+
+  const handleCopyJoinKey = (key?: string) => {
+    if (!key) return;
+    navigator.clipboard.writeText(key);
+    setKeyCopied(true);
+    tavernAudio.playBellChime();
+    setTimeout(() => setKeyCopied(false), 2000);
+  };
+
+  const handleQuickJoin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!joinKeyInput.trim() || isJoining) return;
+    setIsJoining(true);
+    setJoinMessage(null);
+    const res = await onJoinByKey(joinKeyInput.trim());
+    setIsJoining(false);
+    if (res.success) {
+      setIsJoinModalOpen(false);
+      setJoinKeyInput('');
+      tavernAudio.playToastSound();
+      if (res.campaignId) onSelectCampaign(res.campaignId);
+    } else {
+      setJoinMessage({ type: 'error', text: res.error || 'Chave de mesa inválida ou lotada.' });
+    }
+  };
+
   return (
-    <div
-      className="salao-white-canvas"
-      style={{
-        position: 'relative',
-        width: '100%',
-        backgroundColor: '#0e0906',
-        backgroundImage: 'radial-gradient(ellipse at 50% 20%, rgba(217, 119, 6, 0.12) 0%, rgba(14, 9, 6, 0.98) 75%)',
-        color: '#f5ecdc',
-        minHeight: '100vh',
-        paddingBottom: '80px',
-        margin: 0
-      }}
-    >
-        {/* Quadro 50/50 em Tela Cheia Edge-to-Edge */}
-        <div
-          className="salao-card-stage"
-          style={{
-            width: '100%',
-            padding: 0,
-            margin: 0,
-            boxSizing: 'border-box'
-          }}
-        >
-          <section
-            className={`salao-ref-frame${expandedRefSide ? ' has-expansion' : ''}`}
-            aria-label="Acesso e Criação de Mesas"
-            style={{
-              margin: 0,
-              width: '100%',
-              maxWidth: '100%',
-              backgroundColor: '#140c07',
-              border: 'none',
-              borderBottom: '1px solid rgba(245, 158, 11, 0.2)',
-              borderRadius: 0,
-              boxShadow: 'none',
-              outline: 'none',
-              overflow: 'hidden'
-            }}
-          >
-          {/* Painel Esquerdo: Juntar-se à mesa */}
-          <div
-            className={`salao-ref-panel salao-ref-panel--join${expandedRefSide === 'join' ? ' is-expanded' : expandedRefSide === 'master' ? ' is-shrunk' : ''}`}
-            id="panel-juntar"
-            onMouseEnter={() => setExpandedRefSide('join')}
-            onMouseLeave={() => setExpandedRefSide(null)}
-          >
-            <div className="salao-panel-header">
-              <span style={{ color: '#f59e0b', fontSize: '12px', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', display: 'inline-block', marginBottom: '8px' }}>
-                JOGADOR
-              </span>
-              <h2 className="salao-panel-title" style={{ color: '#f5ecdc', fontFamily: "'Cinzel Hero', var(--font-cinzel)", letterSpacing: '0.04em', margin: '4px 0 10px 0' }}>
-                JUNTAR-SE À MESA
-              </h2>
-              <p className="salao-panel-lead" style={{ color: '#8A8275', fontSize: '15px' }}>
-                Digite a chave que o mestre compartilhou com você.
-              </p>
-
-              {/* Informação expandida de mesas do jogador */}
-              {expandedRefSide === 'join' && (
-                <div className="salao-expanded-stats-banner">
-                  <div className="salao-stat-item">
-                    <span className="salao-stat-value">{joinedCampaigns.length}</span>
-                    <span className="salao-stat-label">Mesas Ingressadas</span>
-                  </div>
-                  <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.1)' }} />
-                  <div className="salao-stat-item">
-                    <span className="salao-stat-value">
-                      {joinedCampaigns.reduce((acc, c) => acc + c.sheets.filter(s => s.player === currentUser.displayName).length, 0)}
-                    </span>
-                    <span className="salao-stat-label">Suas Fichas</span>
-                  </div>
-                  <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.1)' }} />
-                  <div className="salao-stat-item">
-                    <span className="salao-stat-value">{new Set(joinedCampaigns.map(c => c.masterId)).size}</span>
-                    <span className="salao-stat-label">Mestres</span>
-                  </div>
-                </div>
-              )}
+    <div className="tavern-cockpit-view">
+      {/* COCKPIT HEADER */}
+      <header className="tavern-cockpit-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', minWidth: '240px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div
+              style={{
+                width: '34px',
+                height: '34px',
+                borderRadius: '8px',
+                backgroundColor: 'rgba(217, 119, 6, 0.15)',
+                border: '1px solid rgba(217, 119, 6, 0.35)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#f59e0b'
+              }}
+            >
+              <Dices size={20} />
             </div>
-
-            <form className="salao-key-form" onSubmit={handleJoinSubmit}>
-              <label className="salao-key-label" htmlFor="join-key-input" style={{ color: '#f59e0b', fontSize: '12px', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase' }}>
-                CHAVE DA SALA
-              </label>
-              <div className="salao-key-row">
-                <input
-                  id="join-key-input"
-                  className="salao-key-input"
-                  type="text"
-                  value={joinKeyInput}
-                  onChange={(e) => handleJoinKeyChange(e.target.value)}
-                  placeholder="XXXX-XXXX"
-                  maxLength={9}
-                  autoComplete="off"
-                  autoCapitalize="characters"
-                  spellCheck={false}
-                  aria-describedby="join-key-message"
-                />
-                <button
-                  type="button"
-                  className="salao-key-paste-btn"
-                  onClick={handlePasteKey}
-                  title="Colar chave da área de transferência"
-                >
-                  <Clipboard size={14} />
-                  <span>Colar</span>
-                </button>
-                <button
-                  type="submit"
-                  id="join-key-submit"
-                  className="salao-key-submit"
-                  disabled={isJoining || joinKeyInput.replace('-', '').length < 8}
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h1 style={{ fontSize: '15px', fontWeight: 800, color: '#fef3c7', margin: 0, letterSpacing: '0.02em' }}>
+                  Mesa dos Apostadores
+                </h1>
+                <span
                   style={{
-                    backgroundColor: '#78350f',
-                    border: '1px solid #92400e',
-                    color: '#f5ecdc',
-                    fontWeight: 800,
-                    borderRadius: '4px'
+                    fontSize: '10px',
+                    padding: '2px 7px',
+                    borderRadius: '999px',
+                    backgroundColor: 'rgba(217, 119, 6, 0.2)',
+                    color: '#fbbf24',
+                    border: '1px solid rgba(217, 119, 6, 0.3)',
+                    fontWeight: 700
                   }}
                 >
-                  {isJoining ? <Loader2 size={15} className="join-key__spin" /> : null}
-                  <span>{isJoining ? 'Entrando' : 'Entrar'}</span>
-                </button>
+                  PAINEL DE CONTROLE
+                </span>
               </div>
-              <p
-                id="join-key-message"
-                className={`salao-key-message${joinMessage ? ` is-${joinMessage.type}` : ''}`}
-                role="status"
-                aria-live="polite"
-              >
-                {joinMessage?.text || `Cada sala aceita até ${MAX_PLAYERS} jogadores.`}
+              <p style={{ margin: 0, fontSize: '11px', color: '#a89a8a' }}>
+                {activeCampaign ? `Mesa ativa: ${activeCampaign.name}` : 'Gerencie campanhas, fichas e rolagens em tela única'}
               </p>
-            </form>
+            </div>
+          </div>
+        </div>
 
-            <div className="salao-ref-list-box">
-              <div className="salao-ref-list-title">
-                {expandedRefSide === 'join' ? `Suas ${joinedCampaigns.length} mesas em andamento` : 'Mesas em que você joga'}
-              </div>
-              <div className="salao-ref-list">
-                {joinedCampaigns.length > 0 ? (
-                  joinedCampaigns
-                    .filter(c => tableFilter === 'all' || tableFilter === 'joined')
-                    .map(c => renderRoomRow(c, false))
-                ) : (
-                  <p className="salao-ref-empty">Você ainda não entrou em nenhuma mesa. Peça a chave ao seu mestre.</p>
-                )}
-                {tableFilter === 'master' && (
-                  <p className="salao-ref-empty" style={{ opacity: 0.65 }}>
-                    Filtro &quot;Como Mestre&quot; ativo. Suas salas criadas estão no painel da direita.
-                  </p>
-                )}
-              </div>
+        {/* CENTRO: UTENSÍLIOS E DECORAÇÕES INTERATIVAS DA TABERNA */}
+        <TavernInteractiveDesk />
+
+        {/* AÇÕES RÁPIDAS NO TOPO */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button
+            onClick={() => setIsJoinModalOpen(true)}
+            className="tavern-btn tavern-btn-secondary"
+            style={{
+              padding: '6px 12px',
+              fontSize: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            <KeyRound size={13} color="#f59e0b" />
+            <span>Chave de Entrada</span>
+          </button>
+
+          <button
+            onClick={() => setIsNewRoomModalOpen(true)}
+            disabled={isRoomLimitReached}
+            className="tavern-btn tavern-btn-primary"
+            style={{
+              padding: '6px 14px',
+              fontSize: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              opacity: isRoomLimitReached ? 0.5 : 1,
+              cursor: isRoomLimitReached ? 'not-allowed' : 'pointer'
+            }}
+            title={isRoomLimitReached ? 'Limite máximo de 3 campanhas como mestre atingido' : 'Criar nova mesa'}
+          >
+            <Plus size={14} />
+            <span>Nova Mesa</span>
+            <span style={{ fontSize: '10px', opacity: 0.85 }}>({userRoomCount}/3)</span>
+          </button>
+        </div>
+      </header>
+
+      {/* COCKPIT BODY: 3 COLUNAS EM TELA ÚNICA */}
+      <div className="tavern-cockpit-body">
+        {/* COLUNA 1: MESAS DA TABERNA */}
+        <aside
+          className="tavern-cockpit-panel"
+          style={{ width: '280px', flexShrink: 0, display: 'flex', flexDirection: 'column' }}
+        >
+          {/* Topo da Coluna 1 */}
+          <div style={{ padding: '12px 14px', borderBottom: '1px solid rgba(217, 119, 6, 0.15)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <span style={{ fontSize: '11px', fontWeight: 800, color: '#fef3c7', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Mesas Disponíveis
+              </span>
+              <span style={{ fontSize: '11px', color: '#d97706', fontWeight: 700 }}>
+                {campaigns.length} {campaigns.length === 1 ? 'mesa' : 'mesas'}
+              </span>
+            </div>
+
+            {/* Filtros rápidos */}
+            <div style={{ display: 'flex', gap: '4px', marginBottom: '8px' }}>
+              {(['all', 'master', 'joined'] as const).map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setTableFilter(tab)}
+                  style={{
+                    flex: 1,
+                    padding: '4px 2px',
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    borderRadius: '4px',
+                    background: tableFilter === tab ? 'rgba(217, 119, 6, 0.25)' : 'rgba(0,0,0,0.3)',
+                    color: tableFilter === tab ? '#fbbf24' : '#a89a8a',
+                    border: tableFilter === tab ? '1px solid rgba(245, 158, 11, 0.5)' : '1px solid rgba(255,255,255,0.05)',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {tab === 'all' ? 'Todas' : tab === 'master' ? 'Mestre' : 'Jogador'}
+                </button>
+              ))}
+            </div>
+
+            {/* Busca rápida */}
+            <div style={{ position: 'relative' }}>
+              <Search
+                size={13}
+                style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#78716c' }}
+              />
+              <input
+                type="text"
+                placeholder="Filtrar por nome ou sistema..."
+                value={roomSearch}
+                onChange={e => setRoomSearch(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '6px 10px 6px 30px',
+                  backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                  border: '1px solid rgba(217, 119, 6, 0.25)',
+                  borderRadius: '6px',
+                  color: '#f5ecdc',
+                  fontSize: '12px',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
             </div>
           </div>
 
-          {/* Painel Direito: Mestrar */}
-          <div
-            className={`salao-ref-panel salao-ref-panel--master${expandedRefSide === 'master' ? ' is-expanded' : expandedRefSide === 'join' ? ' is-shrunk' : ''}`}
-            id="panel-mestrar"
-            onMouseEnter={() => setExpandedRefSide('master')}
-            onMouseLeave={() => setExpandedRefSide(null)}
-          >
-            <div className="salao-panel-header">
-              <span style={{ color: '#f59e0b', fontSize: '12px', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', display: 'inline-block', marginBottom: '8px' }}>
-                MESTRE
-              </span>
-              <h2 className="salao-panel-title" style={{ color: '#f5ecdc', fontFamily: "'Cinzel Hero', var(--font-cinzel)", letterSpacing: '0.04em', margin: '4px 0 10px 0' }}>
-                MESTRAR
-              </h2>
-              <p className="salao-panel-lead" style={{ color: '#8A8275', fontSize: '15px' }}>
-                Crie e conduza suas próprias campanhas.
-              </p>
-
-              {/* Informação expandida de salas criadas e players nela */}
-              {expandedRefSide === 'master' && (
-                <div className="salao-expanded-stats-banner">
-                  <div className="salao-stat-item">
-                    <span className="salao-stat-value">{userRoomCount} / 3</span>
-                    <span className="salao-stat-label">Salas Criadas</span>
-                  </div>
-                  <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.1)' }} />
-                  <div className="salao-stat-item">
-                    <span className="salao-stat-value">{totalPlayersInMasteredRooms}</span>
-                    <span className="salao-stat-label">Jogadores Inscritos</span>
-                  </div>
-                  <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.1)' }} />
-                  <div className="salao-stat-item">
-                    <span className="salao-stat-value">{3 - userRoomCount}</span>
-                    <span className="salao-stat-label">Vagas de Sala</span>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="salao-master-actions">
-              <div
-                className={`salao-slots-box${isRoomLimitReached ? ' is-full' : ''}`}
-                title={`Suas Salas: ${userRoomCount} / 3 ativas`}
-              >
-                <span className="salao-slots-dots" aria-hidden="true">
-                  {[0, 1, 2].map(i => (
-                    <span key={i} className={`salao-slot-dot${i < userRoomCount ? ' is-on' : ''}`} />
-                  ))}
-                </span>
-                <span>Suas Salas: {userRoomCount} / 3 ativas</span>
+          {/* Lista com scrollbar interna fina */}
+          <div className="tavern-thin-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '10px' }}>
+            {filteredCampaigns.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '30px 10px', color: '#78716c' }}>
+                <p style={{ fontSize: '12px', margin: '0 0 8px 0' }}>Nenhuma mesa encontrada.</p>
+                <button
+                  onClick={() => setIsNewRoomModalOpen(true)}
+                  disabled={isRoomLimitReached}
+                  style={{
+                    background: 'none',
+                    border: '1px dashed rgba(217, 119, 6, 0.4)',
+                    color: '#f59e0b',
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    fontSize: '11px',
+                    cursor: isRoomLimitReached ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  + Criar nova mesa
+                </button>
               </div>
-
-              {/* Lanternas / Vagas de Mestre Interativas */}
-              <div className="salao-master-lanterns">
-                {[0, 1, 2].map(slotIdx => {
-                  const camp = userMasteredCampaigns[slotIdx];
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {filteredCampaigns.map(camp => {
+                  const isSelected = activeCampaign?.id === camp.id;
+                  const isMaster = camp.masterId === currentUser.uid;
                   return (
-                    <button
-                      key={slotIdx}
-                      type="button"
-                      className={`salao-master-lantern ${camp ? 'is-occupied' : 'is-empty'}`}
+                    <div
+                      key={camp.id}
                       onClick={() => {
-                        if (camp) {
-                          handlePickRoom(camp.id);
-                        } else {
-                          setRoomError('');
-                          setIsNewRoomModalOpen(true);
-                        }
+                        onSelectCampaign(camp.id);
+                        tavernAudio.playBellChime();
                       }}
-                      title={camp ? `Mesa: ${camp.name} (Clique para focar)` : 'Vaga livre! Clique para criar nova mesa'}
+                      style={{
+                        padding: '10px 12px',
+                        borderRadius: '8px',
+                        backgroundColor: isSelected
+                          ? 'rgba(217, 119, 6, 0.18)'
+                          : 'rgba(24, 16, 11, 0.75)',
+                        border: isSelected
+                          ? '1px solid rgba(245, 158, 11, 0.6)'
+                          : '1px solid rgba(217, 119, 6, 0.12)',
+                        boxShadow: isSelected ? '0 0 14px rgba(217, 119, 6, 0.2)' : 'none',
+                        cursor: 'pointer',
+                        transition: 'all 0.18s ease'
+                      }}
                     >
-                      <span className="salao-lantern-dot" />
-                      <span className="salao-lantern-label">
-                        {camp ? camp.name : `+ Vaga ${slotIdx + 1} Livre`}
-                      </span>
-                    </button>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
+                          {isMaster && <Crown size={12} color="#fbbf24" />}
+                          <h4
+                            style={{
+                              margin: 0,
+                              fontSize: '13px',
+                              fontWeight: 700,
+                              color: isSelected ? '#fff' : '#f5ecdc',
+                              whiteSpace: 'nowrap',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              maxWidth: '150px'
+                            }}
+                          >
+                            {camp.name}
+                          </h4>
+                        </div>
+                        <span
+                          style={{
+                            fontSize: '9px',
+                            fontWeight: 700,
+                            padding: '1px 5px',
+                            borderRadius: '4px',
+                            backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                            color: '#d6c7b2'
+                          }}
+                        >
+                          {camp.system || 'D&D 5e'}
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '11px', color: '#a89a8a' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <Users size={11} />
+                          {(camp.players?.length || 0) + 1} membros
+                        </span>
+                        {camp.joinKey && (
+                          <span style={{ fontSize: '10px', color: '#d97706', fontFamily: 'monospace' }}>
+                            {camp.joinKey}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   );
                 })}
               </div>
-
-              <button
-                onClick={() => {
-                  setRoomError('');
-                  setIsNewRoomModalOpen(true);
-                }}
-                disabled={isRoomLimitReached}
-                className="salao-create-room-btn"
-                style={{
-                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                  border: 'none',
-                  color: '#000000',
-                  fontWeight: 800,
-                  boxShadow: '0 4px 20px rgba(245, 158, 11, 0.45)',
-                  borderRadius: '6px'
-                }}
-                title={isRoomLimitReached ? 'Você atingiu o limite de 3 salas ativas' : 'Criar Nova Campanha'}
-              >
-                <Plus size={18} color="#000000" />
-                <span>Criar Nova Sala</span>
-              </button>
-            </div>
-
-            <div className="salao-ref-list-box">
-              <div className="salao-ref-list-title">
-                {expandedRefSide === 'master' ? `Suas salas criadas e jogadores nela (${userMasteredCampaigns.length})` : 'Suas campanhas criadas'}
-              </div>
-              <div className="salao-ref-list">
-                {userMasteredCampaigns.length > 0 ? (
-                  userMasteredCampaigns
-                    .filter(c => tableFilter === 'all' || tableFilter === 'master')
-                    .map(c => renderRoomRow(c, true))
-                ) : (
-                  <p className="salao-ref-empty">Crie sua primeira campanha para começar a mestrar!</p>
-                )}
-                {tableFilter === 'joined' && (
-                  <p className="salao-ref-empty" style={{ opacity: 0.65 }}>
-                    Filtro &quot;Como Jogador&quot; ativo. Suas mesas estão no painel da esquerda.
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
-        </div>
-
-        {/* Sala Ativa em tela cheia */}
-        <div id="sala-ativa" style={{ width: '100%', maxWidth: '100%', margin: '0', padding: '32px clamp(20px, 4vw, 56px) 80px', boxSizing: 'border-box', scrollMarginTop: 'calc(var(--nav-h) + 12px)' }}>
-
-      {/* Active Campaign Room Banner & Master Controls */}
-      {activeCampaign ? (
-        <div>
-          <div style={{
-            position: 'relative',
-            borderRadius: '12px',
-            overflow: 'hidden',
-            marginBottom: '20px',
-            border: '2px solid var(--wood-border)',
-            boxShadow: 'var(--shadow-card)',
-            backgroundImage: `linear-gradient(to top, rgba(14, 8, 4, 0.95) 0%, rgba(20, 12, 7, 0.6) 60%, rgba(0, 0, 0, 0.4) 100%), url(${activeCampaign.coverUrl})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            minHeight: '190px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'flex-end',
-            padding: '24px'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '14px' }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                  <span style={{ fontSize: '10px', backgroundColor: '#F2ECE1', color: '#0B0B0B', fontWeight: 800, padding: '3px 8px', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                    {activeCampaign.system}
-                  </span>
-                  <span style={{ fontSize: '12px', color: '#EAE2D3', fontWeight: 600 }}>
-                    Mestre da Sala: {activeCampaign.masterName}
-                  </span>
-                </div>
-                <h2 style={{ fontSize: '26px', fontWeight: 900, color: '#F2ECE1', margin: 0, fontFamily: 'var(--font-cinzel, "Cinzel", serif)' }}>
-                  {activeCampaign.name}
-                </h2>
-                <p style={{ fontSize: '13px', color: '#cbd5e1', maxWidth: '650px', marginTop: '6px', lineHeight: 1.4 }}>
-                  {activeCampaign.description}
-                </p>
-              </div>
-
-              {/* Master Exclusive Room Controls */}
-              {isMasterOfActive && (
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {onOpenMasterScreen && (
-                    <button
-                      onClick={() => onOpenMasterScreen(activeCampaign.id)}
-                      className="btn-tavern"
-                      style={{
-                        padding: '8px 16px',
-                        fontSize: '12px',
-                        fontWeight: 800,
-                        backgroundColor: '#F2ECE1',
-                        borderColor: '#F2ECE1',
-                        color: '#0B0B0B',
-                        borderRadius: '8px',
-                        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px'
-                      }}
-                      title="Abrir Mesa de Pergaminhos (Escudo, Dados e Oráculo exclusivo do Mestre)"
-                    >
-                      <Scroll size={15} color="#0B0B0B" />
-                      <span>Mesa de Pergaminhos</span>
-                      <span style={{ fontSize: '9px', padding: '1px 5px', borderRadius: '4px', backgroundColor: '#0B0B0B', color: '#F2ECE1', fontWeight: 800 }}>
-                        Mestre
-                      </span>
-                    </button>
-                  )}
-                  <button
-                    onClick={() => handleOpenEditRoom(activeCampaign)}
-                    className="btn-tavern btn-secondary"
-                    style={{ padding: '8px 14px', fontSize: '11px', backdropFilter: 'blur(8px)', backgroundColor: 'rgba(20, 20, 20, 0.85)', color: '#F2ECE1', borderColor: 'rgba(242, 236, 225, 0.25)' }}
-                    title="Editar Nome, Descrição e Banner da Campanha (Privilégio do Mestre)"
-                  >
-                    <Edit3 size={14} />
-                    <span>Personalizar Sala</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (confirm(`Tem certeza que deseja encerrar e excluir a campanha "${activeCampaign.name}"?`)) {
-                        onDeleteCampaign(activeCampaign.id);
-                      }
-                    }}
-                    className="btn-tavern"
-                    style={{
-                      padding: '8px 12px',
-                      fontSize: '11px',
-                      backgroundColor: 'rgba(20, 20, 20, 0.85)',
-                      color: '#C4BBB0',
-                      border: '1px solid rgba(242, 236, 225, 0.25)',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      backdropFilter: 'blur(8px)',
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#2A2A2A'; e.currentTarget.style.color = '#FAF7F2'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'rgba(20, 20, 20, 0.85)'; e.currentTarget.style.color = '#C4BBB0'; }}
-                    title="Excluir Campanha"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Chave da sala (mestre): compartilhar, gerar nova e gerenciar jogadores */}
-          {isMasterOfActive && (
-            <section className="room-key" aria-label="Chave da sala e jogadores">
-              <div className="room-key__main">
-                <span className="room-key__label">Chave da sala</span>
-                <div className="room-key__row">
-                  <code className="room-key__code" id="room-key-code">{activeCampaign.joinKey || '—'}</code>
-                  <button type="button" id="room-key-copy" className="room-key__btn" onClick={handleCopyKey}>
-                    {keyCopied ? <Check size={14} /> : <Copy size={14} />}
-                    <span>{keyCopied ? 'Copiado' : 'Copiar'}</span>
-                  </button>
-                  <button type="button" id="room-key-regenerate" className="room-key__btn" onClick={handleRegenerateKey} disabled={keyBusy}>
-                    <RefreshCw size={14} />
-                    <span>Gerar nova chave</span>
-                  </button>
-                </div>
-                <p className="room-key__hint">
-                  Compartilhe esta chave. Quem digitar em “Juntar-se à mesa” entra na sua sala.
-                </p>
-                {keyError && <p className="room-key__error" role="alert">{keyError}</p>}
-              </div>
-
-              <div className="room-key__players">
-                <div className="room-key__count">
-                  <span className="room-key__label">Jogadores</span>
-                  <span className="room-key__number">{(activeCampaign.players || []).length}/{MAX_PLAYERS}</span>
-                </div>
-                <div className="room-key__seats" aria-hidden="true">
-                  {Array.from({ length: MAX_PLAYERS }, (_, i) => (
-                    <span key={i} className={`room-key__seat${i < (activeCampaign.players || []).length ? ' is-on' : ''}`} />
-                  ))}
-                </div>
-                {(activeCampaign.players || []).length > 0 ? (
-                  <ul className="room-key__list">
-                    {(activeCampaign.players || []).map(p => (
-                      <li key={p.uid} className="room-key__player">
-                        <span>{p.name}</span>
-                        <button
-                          type="button"
-                          className="room-key__remove"
-                          onClick={() => handleRemovePlayer(p.uid, p.name)}
-                          disabled={keyBusy}
-                          aria-label={`Remover ${p.name} da sala`}
-                          title="Remover da sala"
-                        >
-                          <X size={14} />
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="room-key__hint">Nenhum jogador entrou ainda.</p>
-                )}
-                {(activeCampaign.players || []).length >= MAX_PLAYERS && (
-                  <p className="room-key__hint">Sala cheia. Remova alguém para liberar uma vaga.</p>
-                )}
-              </div>
-            </section>
-          )}
-
-          {/* Jogador: aviso e saída da mesa */}
-          {isPlayerOfActive && (
-            <div className="room-key room-key--player">
-              <span className="room-key__hint">Você participa desta mesa como jogador.</span>
-              <button type="button" id="room-leave" className="room-key__btn" onClick={handleLeaveRoom} disabled={keyBusy}>
-                <LogOut size={14} />
-                <span>Sair da mesa</span>
-              </button>
-              {keyError && <p className="room-key__error" role="alert">{keyError}</p>}
-            </div>
-          )}
-
-          {/* Partitions Tabs (Fichas, Lore, Regras) */}
-          <div className="salao-tabs-bar">
-            <button
-              onClick={() => setActivePartition('sheets')}
-              className={`salao-tab-btn ${activePartition === 'sheets' ? 'is-active' : ''}`}
-            >
-              <Scroll size={16} />
-              <span>Fichas ({activeCampaign.sheets.length})</span>
-            </button>
-
-            <button
-              onClick={() => setActivePartition('lore')}
-              className={`salao-tab-btn ${activePartition === 'lore' ? 'is-active' : ''}`}
-            >
-              <BookOpen size={16} />
-              <span>Contexto & Lore ({activeCampaign.lore.length})</span>
-            </button>
-
-            <button
-              onClick={() => setActivePartition('rules')}
-              className={`salao-tab-btn ${activePartition === 'rules' ? 'is-active' : ''}`}
-            >
-              <Library size={16} />
-              <span>Biblioteca de Regras ({activeCampaign.rules.length})</span>
-            </button>
-
-            {isMasterOfActive && onOpenMasterScreen && (
-              <button
-                onClick={() => onOpenMasterScreen(activeCampaign.id)}
-                className="salao-tab-btn salao-tab-btn--master"
-                title="Acesso exclusivo ao escudo do Mestre"
-              >
-                <Scroll size={16} />
-                <span>Mesa de Pergaminhos</span>
-                <span className="salao-master-tag">Mestre</span>
-              </button>
             )}
           </div>
+        </aside>
 
-          {/* PARTITION 1: FICHAS DE PERSONAGENS & NPCS (Mural de Contratos) */}
-          {activePartition === 'sheets' && (
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
-                <div>
-                  <span style={{ fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#6A5F52', fontWeight: 800, display: 'block' }}>
-                    Quadro de Avisos &amp; Guilda
-                  </span>
-                  <h3 style={{ fontSize: '22px', margin: '2px 0 0', color: '#0A0A0A', fontFamily: 'var(--font-cinzel, serif)', fontWeight: 800 }}>
-                    Repositório de Personagens &amp; NPCs da Mesa
-                  </h3>
+        {/* COLUNA 2: PAINEL DA MESA ATIVA (CENTRAL) */}
+        <main
+          className="tavern-cockpit-panel"
+          style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}
+        >
+          {activeCampaign ? (
+            <>
+              {/* Barra da Mesa Ativa */}
+              <div
+                style={{
+                  padding: '12px 18px',
+                  borderBottom: '1px solid rgba(217, 119, 6, 0.18)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  backgroundColor: 'rgba(0, 0, 0, 0.25)',
+                  flexWrap: 'wrap',
+                  gap: '10px'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div
+                    style={{
+                      width: '38px',
+                      height: '38px',
+                      borderRadius: '8px',
+                      backgroundColor: 'rgba(217, 119, 6, 0.2)',
+                      border: '1px solid rgba(217, 119, 6, 0.4)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#f59e0b'
+                    }}
+                  >
+                    <Shield size={20} />
+                  </div>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <h2 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#fef3c7' }}>
+                        {activeCampaign.name}
+                      </h2>
+                      <span
+                        style={{
+                          fontSize: '11px',
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          backgroundColor: 'rgba(217, 119, 6, 0.2)',
+                          color: '#f59e0b',
+                          fontWeight: 700
+                        }}
+                      >
+                        {activeCampaign.system}
+                      </span>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '11px', color: '#a89a8a' }}>
+                      Mestre: <strong style={{ color: '#fbbf24' }}>{activeCampaign.masterName || 'Ancião'}</strong> • {activeCampaign.description || 'Campanha em andamento na Taberna Digital'}
+                    </p>
+                  </div>
                 </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  {activeCampaign.joinKey && (
+                    <button
+                      onClick={() => handleCopyJoinKey(activeCampaign.joinKey)}
+                      className="tavern-btn tavern-btn-secondary"
+                      style={{ padding: '6px 10px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '5px' }}
+                      title="Copiar chave de entrada para novos jogadores"
+                    >
+                      <Copy size={12} color="#f59e0b" />
+                      <span>{keyCopied ? 'Chave Copiada!' : `Chave: ${activeCampaign.joinKey}`}</span>
+                    </button>
+                  )}
+
+                  {onOpenMasterScreen && isMasterOfActive && (
+                    <button
+                      onClick={() => onOpenMasterScreen(activeCampaign.id)}
+                      className="tavern-btn tavern-btn-primary"
+                      style={{ padding: '6px 12px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '5px' }}
+                      title="Abrir Tela do Mestre com ferramentas ao vivo"
+                    >
+                      <Maximize2 size={12} />
+                      <span>Tela do Mestre</span>
+                    </button>
+                  )}
+
+                  {isMasterOfActive ? (
+                    <button
+                      onClick={() => handleOpenEditRoom(activeCampaign)}
+                      className="tavern-btn tavern-btn-secondary"
+                      style={{ padding: '6px 10px', fontSize: '11px' }}
+                      title="Editar detalhes da mesa"
+                    >
+                      <Edit3 size={12} />
+                    </button>
+                  ) : null}
+
+                  {isMasterOfActive && (
+                    <button
+                      onClick={() => {
+                        if (confirm(`Deseja realmente dissolver a mesa "${activeCampaign.name}"?`)) {
+                          onDeleteCampaign(activeCampaign.id);
+                        }
+                      }}
+                      className="tavern-btn tavern-btn-secondary"
+                      style={{ padding: '6px 10px', fontSize: '11px', color: '#f87171', borderColor: 'rgba(239, 68, 68, 0.3)' }}
+                      title="Dissolver mesa"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Seletor de Abas Internas da Mesa */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '8px 16px 0 16px',
+                  borderBottom: '1px solid rgba(217, 119, 6, 0.15)',
+                  backgroundColor: 'rgba(15, 10, 7, 0.5)'
+                }}
+              >
                 <button
-                  onClick={handleOpenNewSheet}
+                  onClick={() => setActivePartition('sheets')}
                   style={{
+                    padding: '8px 14px',
                     fontSize: '12px',
-                    padding: '8px 18px',
-                    backgroundColor: '#0A0A0A',
-                    color: '#F2ECE1',
-                    border: '1.5px solid #0A0A0A',
-                    borderRadius: '8px',
                     fontWeight: 700,
+                    background: 'none',
+                    border: 'none',
+                    borderBottom: activePartition === 'sheets' ? '2px solid #f59e0b' : '2px solid transparent',
+                    color: activePartition === 'sheets' ? '#fef3c7' : '#a89a8a',
                     cursor: 'pointer',
-                    display: 'inline-flex',
+                    display: 'flex',
                     alignItems: 'center',
-                    gap: '6px',
-                    boxShadow: '0 4px 14px rgba(0, 0, 0, 0.15)',
-                    transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
+                    gap: '6px'
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#1F1F1F'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#0A0A0A'; e.currentTarget.style.transform = 'translateY(0)'; }}
                 >
-                  <Plus size={15} />
-                  <span>Novo Contrato de Ficha</span>
+                  <Users size={13} />
+                  <span>Fichas de Personagem</span>
+                  <span
+                    style={{
+                      fontSize: '10px',
+                      padding: '1px 5px',
+                      borderRadius: '999px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.08)'
+                    }}
+                  >
+                    {activeCampaign.sheets?.length || 0}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setActivePartition('lore')}
+                  style={{
+                    padding: '8px 14px',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    background: 'none',
+                    border: 'none',
+                    borderBottom: activePartition === 'lore' ? '2px solid #f59e0b' : '2px solid transparent',
+                    color: activePartition === 'lore' ? '#fef3c7' : '#a89a8a',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <BookOpen size={13} />
+                  <span>Grimório & Diário de Bordo</span>
+                  <span
+                    style={{
+                      fontSize: '10px',
+                      padding: '1px 5px',
+                      borderRadius: '999px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.08)'
+                    }}
+                  >
+                    {activeCampaign.lore?.length || 0}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setActivePartition('rules')}
+                  style={{
+                    padding: '8px 14px',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    background: 'none',
+                    border: 'none',
+                    borderBottom: activePartition === 'rules' ? '2px solid #f59e0b' : '2px solid transparent',
+                    color: activePartition === 'rules' ? '#fef3c7' : '#a89a8a',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <FileText size={13} />
+                  <span>Compêndio & Manuais PDF</span>
+                  <span
+                    style={{
+                      fontSize: '10px',
+                      padding: '1px 5px',
+                      borderRadius: '999px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.08)'
+                    }}
+                  >
+                    {activeCampaign.rules?.length || 0}
+                  </span>
                 </button>
               </div>
 
-              {activeCampaign.sheets.length === 0 ? (
-                <div style={{ padding: '48px 24px', textAlign: 'center', backgroundColor: '#FAF6EE', border: '1.5px dashed rgba(0, 0, 0, 0.2)', borderRadius: '14px' }}>
-                  <Scroll size={40} color="#4A3F35" style={{ margin: '0 auto 12px' }} />
-                  <h4 style={{ fontSize: '17px', fontWeight: 800, color: '#0A0A0A', margin: '0 0 6px' }}>Nenhum contrato de personagem pregado neste mural</h4>
-                  <p style={{ fontSize: '13px', color: '#5C5245', maxWidth: '460px', margin: '0 auto', lineHeight: 1.5 }}>
-                    Adicione os heróis da comitiva ou os NPCs encontrados na taberna para acompanhar seus pontos de vida e habilidades.
-                  </p>
-                </div>
-              ) : (
-                <div className="salao-contract-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
-                  {activeCampaign.sheets.map((sheet, sIdx) => (
+              {/* CONTEÚDO DA ABA SELECIONADA */}
+              <div className="tavern-thin-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '16px 20px' }}>
+                {activePartition === 'sheets' && (
+                  <div>
+                    {/* Ações de Fichas */}
                     <div
-                      key={sheet.id}
-                      className="salao-contract-card"
                       style={{
-                        padding: '22px',
-                        backgroundColor: '#0D0D0D',
-                        color: '#F2ECE1',
-                        border: '1px solid rgba(242, 236, 225, 0.18)',
-                        borderRadius: '12px',
-                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.14)',
-                        position: 'relative',
-                        transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease',
-                        ['--tilt' as string]: `${((sIdx % 3) - 1) * 0.8}deg`
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-5px) rotate(0.3deg)';
-                        e.currentTarget.style.borderColor = 'rgba(242, 236, 225, 0.4)';
-                        e.currentTarget.style.boxShadow = '0 16px 36px rgba(0, 0, 0, 0.25)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'translateY(0) rotate(var(--tilt, 0deg))';
-                        e.currentTarget.style.borderColor = 'rgba(242, 236, 225, 0.18)';
-                        e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.14)';
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        marginBottom: '16px'
                       }}
                     >
+                      <div>
+                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 800, color: '#fef3c7' }}>
+                          Personagens Vinculados à Mesa
+                        </h3>
+                        <p style={{ margin: 0, fontSize: '11px', color: '#a89a8a' }}>
+                          Visualize atributos, perícias, pontos de vida e magias dos jogadores.
+                        </p>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          onClick={() => {
+                            setEditingSheetId(null);
+                            setIsNewSheetModalOpen(true);
+                          }}
+                          className="tavern-btn tavern-btn-primary"
+                          style={{ padding: '6px 14px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                        >
+                          <Plus size={13} />
+                          <span>Adicionar Ficha</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {!activeCampaign.sheets || activeCampaign.sheets.length === 0 ? (
                       <div
-                        className="salao-contract-pin"
                         style={{
-                          position: 'absolute',
-                          top: '-6px',
-                          left: '50%',
-                          transform: 'translateX(-50%)',
-                          width: '12px',
-                          height: '12px',
-                          borderRadius: '50%',
-                          backgroundColor: '#3A322A',
-                          border: '1.5px solid #F2ECE1',
-                          boxShadow: '0 2px 5px rgba(0, 0, 0, 0.5)',
-                          zIndex: 2
+                          textAlign: 'center',
+                          padding: '40px 20px',
+                          border: '1px dashed rgba(217, 119, 6, 0.25)',
+                          borderRadius: '12px',
+                          backgroundColor: 'rgba(0, 0, 0, 0.2)'
                         }}
-                        aria-hidden="true"
-                      />
-                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
-                        <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <h4 style={{ fontSize: '16px', fontWeight: 800, margin: 0, color: '#FAF7F2' }}>
-                              {sheet.name}
-                            </h4>
-                            {sheet.isNpc && (
-                              <span style={{ backgroundColor: '#1C1C1C', color: '#F2ECE1', border: '1px solid rgba(242, 236, 225, 0.2)', fontSize: '9px', fontWeight: 800, padding: '2px 6px', borderRadius: '4px', letterSpacing: '0.06em' }}>
-                                NPC
-                              </span>
-                            )}
-                          </div>
-                          <div style={{ fontSize: '12px', color: '#A89A85', marginTop: '2px' }}>
-                            {sheet.race} • {sheet.class} (Nível {sheet.level})
-                          </div>
-                          <div style={{ fontSize: '11px', color: '#786C5E' }}>
-                            Jogador: <strong style={{ color: '#F2ECE1' }}>{sheet.player}</strong>
-                          </div>
-                        </div>
-
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <button
-                            onClick={() => handleOpenEditSheet(sheet)}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#F2ECE1', padding: '2px' }}
-                            title="Editar Ficha"
-                            aria-label={`Editar ficha de ${sheet.name}`}
+                      >
+                        <Shield size={36} color="#d97706" style={{ margin: '0 auto 12px auto', opacity: 0.6 }} />
+                        <h4 style={{ margin: '0 0 6px 0', fontSize: '14px', color: '#fef3c7' }}>
+                          Nenhuma ficha vinculada a esta mesa
+                        </h4>
+                        <p style={{ margin: '0 0 16px 0', fontSize: '12px', color: '#a89a8a', maxWidth: '380px', marginLeft: 'auto', marginRight: 'auto' }}>
+                          Crie a ficha do seu aventureiro ou importe um PDF preenchido para extrair atributos automaticamente.
+                        </p>
+                        <button
+                          onClick={() => {
+                            setEditingSheetId(null);
+                            setIsNewSheetModalOpen(true);
+                          }}
+                          className="tavern-btn tavern-btn-primary"
+                          style={{ padding: '8px 16px', fontSize: '12px' }}
+                        >
+                          Criar Primeira Ficha
+                        </button>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '12px' }}>
+                        {activeCampaign.sheets.map(sheet => (
+                          <div
+                            key={sheet.id}
+                            style={{
+                              backgroundColor: 'rgba(20, 13, 9, 0.85)',
+                              border: '1px solid rgba(217, 119, 6, 0.25)',
+                              borderRadius: '10px',
+                              padding: '14px',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '10px',
+                              boxShadow: '0 4px 14px rgba(0, 0, 0, 0.4)'
+                            }}
                           >
-                            <Edit3 size={16} />
-                          </button>
-                          {isMasterOfActive && (
-                            <button
-                              onClick={() => onDeleteSheet(activeCampaign.id, sheet.id)}
-                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#A89A85', padding: '2px', transition: 'color 0.2s' }}
-                              onMouseEnter={(e) => { e.currentTarget.style.color = '#FAF7F2'; }}
-                              onMouseLeave={(e) => { e.currentTarget.style.color = '#A89A85'; }}
-                              title="Remover Ficha"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          )}
-                        </div>
-                      </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              <AvatarFrame
+                                displayName={sheet.name}
+                                size="md"
+                                showTitleBadge={Boolean(sheet.level)}
+                                customTitle={sheet.level ? `Nv ${sheet.level}` : undefined}
+                              />
+                              <div style={{ minWidth: 0, flex: 1 }}>
+                                <h4 style={{ margin: 0, fontSize: '13px', fontWeight: 800, color: '#fef3c7', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                  {sheet.name}
+                                </h4>
+                                <p style={{ margin: 0, fontSize: '11px', color: '#fbbf24' }}>
+                                  {sheet.class || 'Aventureiro'} {sheet.race ? `• ${sheet.race}` : ''}
+                                </p>
+                              </div>
+                            </div>
 
-                      {/* Stat Counters: HP, MP, AC */}
-                      <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(3, 1fr)',
-                        gap: '8px',
-                        margin: '14px 0',
-                        backgroundColor: '#141414',
-                        border: '1px solid rgba(242, 236, 225, 0.12)',
-                        padding: '10px 8px',
-                        borderRadius: '8px',
-                        textAlign: 'center'
-                      }}>
-                        <div>
-                          <div style={{ fontSize: '10px', color: '#D6CFC4', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                            <Heart size={11} strokeWidth={2.2} color="#F2ECE1" /> HP
-                          </div>
-                          <div style={{ fontSize: '15px', fontWeight: 800, color: '#FAF7F2', marginTop: '2px' }}>
-                            {sheet.hp} / {sheet.maxHp}
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '4px' }}>
-                            <button
-                              onClick={() => onUpdateSheet(activeCampaign.id, sheet.id, { hp: Math.max(0, sheet.hp - 1) })}
-                              style={{ width: '22px', height: '22px', fontSize: '12px', fontWeight: 700, border: '1px solid rgba(242, 236, 225, 0.2)', background: '#222222', color: '#F2ECE1', cursor: 'pointer', borderRadius: '4px' }}
-                            >
-                              -
-                            </button>
-                            <button
-                              onClick={() => onUpdateSheet(activeCampaign.id, sheet.id, { hp: Math.min(sheet.maxHp + 10, sheet.hp + 1) })}
-                              style={{ width: '22px', height: '22px', fontSize: '12px', fontWeight: 700, border: '1px solid rgba(242, 236, 225, 0.2)', background: '#222222', color: '#F2ECE1', cursor: 'pointer', borderRadius: '4px' }}
-                            >
-                              +
-                            </button>
-                          </div>
-                        </div>
+                            {/* Vigor / Vida & CA */}
+                            <div style={{ display: 'flex', gap: '8px', fontSize: '11px' }}>
+                              <div style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.3)', padding: '6px', borderRadius: '6px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                                <span style={{ color: '#f87171', fontWeight: 700 }}>HP: </span>
+                                <span style={{ color: '#fff' }}>{sheet.hp ?? 10} / {sheet.maxHp ?? 10}</span>
+                              </div>
+                              <div style={{ width: '60px', backgroundColor: 'rgba(0,0,0,0.3)', padding: '6px', borderRadius: '6px', border: '1px solid rgba(59, 130, 246, 0.2)', textAlign: 'center' }}>
+                                <span style={{ color: '#60a5fa', fontWeight: 700 }}>CA: </span>
+                                <span style={{ color: '#fff' }}>{sheet.armorClass ?? 10}</span>
+                              </div>
+                            </div>
 
-                        <div>
-                          <div style={{ fontSize: '10px', color: '#D6CFC4', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                            <Zap size={11} strokeWidth={2.2} color="#F2ECE1" /> Mana
-                          </div>
-                          <div style={{ fontSize: '15px', fontWeight: 800, color: '#FAF7F2', marginTop: '2px' }}>
-                            {sheet.mp} / {sheet.maxMp}
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '4px' }}>
-                            <button
-                              onClick={() => onUpdateSheet(activeCampaign.id, sheet.id, { mp: Math.max(0, sheet.mp - 1) })}
-                              style={{ width: '22px', height: '22px', fontSize: '12px', fontWeight: 700, border: '1px solid rgba(242, 236, 225, 0.2)', background: '#222222', color: '#F2ECE1', cursor: 'pointer', borderRadius: '4px' }}
-                            >
-                              -
-                            </button>
-                            <button
-                              onClick={() => onUpdateSheet(activeCampaign.id, sheet.id, { mp: sheet.mp + 1 })}
-                              style={{ width: '22px', height: '22px', fontSize: '12px', fontWeight: 700, border: '1px solid rgba(242, 236, 225, 0.2)', background: '#222222', color: '#F2ECE1', cursor: 'pointer', borderRadius: '4px' }}
-                            >
-                              +
-                            </button>
-                          </div>
-                        </div>
-
-                        <div>
-                          <div style={{ fontSize: '10px', color: '#D6CFC4', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                            <Shield size={11} strokeWidth={2.2} color="#F2ECE1" /> C.A.
-                          </div>
-                          <div style={{ fontSize: '15px', fontWeight: 800, color: '#FAF7F2', marginTop: '2px' }}>
-                            {sheet.armorClass}
-                          </div>
-                          <div style={{ fontSize: '10px', color: '#A89A85', marginTop: '6px' }}>
-                            Armadura
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Atributos: padrões primeiro, depois os extras */}
-                      <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(44px, 1fr))',
-                        gap: '4px',
-                        textAlign: 'center',
-                        fontSize: '11px',
-                        marginBottom: '10px'
-                      }}>
-                        {getOrderedStats(sheet).map(({ code, value }) => (
-                          <div key={code} style={{ border: '1px solid rgba(242, 236, 225, 0.12)', padding: '4px 2px', borderRadius: '4px', background: '#141414' }}>
-                            <span style={{ fontWeight: 800, textTransform: 'uppercase', fontSize: '9px', color: '#A89A85' }}>
-                              {code}
-                            </span>
-                            <div style={{ fontWeight: 800, fontSize: '12px', color: '#FAF7F2' }}>{value}</div>
+                            <div style={{ display: 'flex', gap: '6px', marginTop: 'auto', paddingTop: '6px' }}>
+                              <button
+                                onClick={() => {
+                                  setEditingSheetId(sheet.id);
+                                  setSheetName(sheet.name);
+                                  setSheetPlayer(sheet.player || '');
+                                  setSheetClass(sheet.class);
+                                  setSheetLevel(sheet.level);
+                                  setSheetRace(sheet.race);
+                                  setSheetHp(sheet.maxHp);
+                                  setSheetMp(sheet.maxMp || 10);
+                                  setSheetAc(sheet.armorClass);
+                                  setSheetIsNpc(Boolean(sheet.isNpc));
+                                  setSheetStats(sheet.stats || DEFAULT_SHEET_STATS);
+                                  setSheetCustomStats(sheet.customStats || []);
+                                  setSheetTraits((sheet.traits || []).join('\n'));
+                                  setSheetEquipment((sheet.equipment || []).join('\n'));
+                                  setSheetNotes(sheet.notes || '');
+                                  setIsNewSheetModalOpen(true);
+                                }}
+                                className="tavern-btn tavern-btn-secondary"
+                                style={{ flex: 1, padding: '5px 10px', fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+                              >
+                                <Eye size={12} />
+                                <span>Ver / Editar</span>
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (confirm(`Remover ficha de "${sheet.name}"?`)) {
+                                    onDeleteSheet(activeCampaign.id, sheet.id);
+                                  }
+                                }}
+                                style={{
+                                  background: 'none',
+                                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                                  color: '#f87171',
+                                  borderRadius: '6px',
+                                  padding: '5px 8px',
+                                  cursor: 'pointer'
+                                }}
+                                title="Remover ficha"
+                              >
+                                <Trash2 size={12} />
+                              </button>
+                            </div>
                           </div>
                         ))}
                       </div>
+                    )}
+                  </div>
+                )}
 
-                      {/* Equipment or Notes */}
-                      {sheet.notes && (
-                        <div style={{ fontSize: '12px', color: 'var(--text-soft)', fontStyle: 'italic', borderTop: '1px dashed var(--line-soft)', paddingTop: '8px' }}>
-                          "{sheet.notes}"
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* PARTITION 2: CONTEXTO & LORE */}
-          {activePartition === 'lore' && (
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                <div>
-                  <h3 style={{ fontSize: '18px', margin: 0 }}>
-                    Worldbuilding, Diário de Sessão & Linhas Narrativas
-                  </h3>
-                  <p style={{ fontSize: '12px', color: 'var(--text-soft)', margin: '2px 0 0' }}>
-                    Cronologias, mistérios, locais explorados e notas do Mestre e jogadores.
-                  </p>
-                </div>
-                <button
-                  onClick={handleOpenNewLore}
-                  className="btn-tavern btn-primary"
-                  style={{ fontSize: '12px', padding: '6px 14px' }}
-                >
-                  <Plus size={15} />
-                  Nova Anotação de Lore
-                </button>
-              </div>
-
-              {activeCampaign.lore.length === 0 ? (
-                <div style={{ padding: '48px 24px', textAlign: 'center', backgroundColor: '#FAF6EE', border: '1.5px dashed rgba(0, 0, 0, 0.2)', borderRadius: '14px' }}>
-                  <BookOpen size={40} color="#4A3F35" style={{ margin: '0 auto 12px' }} />
-                  <h4 style={{ fontSize: '17px', fontWeight: 800, color: '#0A0A0A', margin: '0 0 6px' }}>Nenhum registro de crônica gravado</h4>
-                  <p style={{ fontSize: '13px', color: '#5C5245', maxWidth: '460px', margin: '0 auto', lineHeight: 1.5 }}>
-                    Registre o resumo da primeira sessão ou consulte o oráculo Urd para gerar lendas para o mundo!
-                  </p>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  {activeCampaign.lore.map(entry => (
-                    <div key={entry.id} className="surface-card" style={{ padding: '22px', backgroundColor: '#0D0D0D', color: '#F2ECE1', border: '1px solid rgba(242, 236, 225, 0.18)', borderRadius: '12px', boxShadow: '0 6px 18px rgba(0,0,0,0.12)' }}>
-                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
-                        <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                            <span style={{ backgroundColor: '#1C1C1C', color: '#F2ECE1', border: '1px solid rgba(242, 236, 225, 0.2)', fontSize: '9px', fontWeight: 800, padding: '2px 8px', borderRadius: '4px', letterSpacing: '0.06em' }}>
-                              {entry.category.toUpperCase()}
-                            </span>
-                            <h4 style={{ fontSize: '17px', fontWeight: 800, margin: 0, color: '#FAF7F2' }}>
-                              {entry.title}
-                            </h4>
-                          </div>
-                          <div style={{ fontSize: '11px', color: '#A89A85', marginTop: '3px' }}>
-                            Gravado por <strong style={{ color: '#F2ECE1' }}>{entry.author}</strong> em {new Date(entry.createdAt).toLocaleDateString('pt-BR')}
-                          </div>
-                        </div>
-
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <button
-                            onClick={() => handleOpenEditLore(entry)}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#F2ECE1', padding: '4px' }}
-                            title="Editar Anotação"
-                            aria-label={`Editar anotação ${entry.title}`}
-                          >
-                            <Edit3 size={16} />
-                          </button>
-                          {isMasterOfActive && (
-                            <button
-                              onClick={() => onDeleteLore(activeCampaign.id, entry.id)}
-                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '4px' }}
-                              title="Excluir Anotação"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="font-lore" style={{ fontSize: '15px', color: '#EAE2D3', lineHeight: 1.6, margin: '14px 0', whiteSpace: 'pre-line' }}>
-                        {entry.content}
-                      </div>
-
-                      {entry.tags && entry.tags.length > 0 && (
-                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                          {entry.tags.map(t => (
-                            <span key={t} style={{ fontSize: '10px', backgroundColor: '#1C1C1C', color: '#F2ECE1', border: '1px solid rgba(242, 236, 225, 0.15)', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>
-                              #{t}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* PARTITION 3: BIBLIOTECA DE REGRAS & PDFS */}
-          {activePartition === 'rules' && (
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                <div>
-                  <h3 style={{ fontSize: '18px', margin: 0, color: '#0A0A0A', fontFamily: 'var(--font-cinzel, serif)', fontWeight: 800 }}>
-                    Grimório &amp; Biblioteca de Regras (.PDFs e Guias de Apoio)
-                  </h3>
-                  <p style={{ fontSize: '12px', color: '#5C5245', margin: '2px 0 0' }}>
-                    Manuais de combate, magias e livros de regras oficiais e da casa para consulta rápida durante a sessão.
-                  </p>
-                </div>
-                <button
-                  onClick={handleOpenNewRule}
-                  className="btn-tavern btn-primary"
-                  style={{ fontSize: '12px', padding: '6px 14px' }}
-                >
-                  <Plus size={15} />
-                  Adicionar Documento / PDF
-                </button>
-              </div>
-
-              {activeCampaign.rules.length === 0 ? (
-                <div style={{ padding: '48px 24px', textAlign: 'center', backgroundColor: '#FAF6EE', border: '1.5px dashed rgba(0, 0, 0, 0.2)', borderRadius: '14px' }}>
-                  <Library size={40} color="#4A3F35" style={{ margin: '0 auto 12px' }} />
-                  <h4 style={{ fontSize: '17px', fontWeight: 800, color: '#0A0A0A', margin: '0 0 6px' }}>Nenhum documento de regras arquivado</h4>
-                  <p style={{ fontSize: '13px', color: '#5C5245', maxWidth: '460px', margin: '0 auto', lineHeight: 1.5 }}>
-                    Envie guias de combate, listas de magias ou PDFs do sistema de RPG para consulta imediata na mesa.
-                  </p>
-                </div>
-              ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
-                  {activeCampaign.rules.map(doc => (
-                    <div key={doc.id} className="surface-card" style={{ padding: '20px', backgroundColor: '#0D0D0D', color: '#F2ECE1', border: '1px solid rgba(242, 236, 225, 0.18)', borderRadius: '12px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 6px 18px rgba(0,0,0,0.12)' }}>
+                {activePartition === 'lore' && (
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
                       <div>
-                        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <FileText size={24} color="#F2ECE1" />
-                            <div>
-                              <h4 style={{ fontSize: '15px', fontWeight: 800, margin: 0, color: '#FAF7F2' }}>
-                                {doc.title}
-                              </h4>
-                              <span style={{ fontSize: '11px', color: '#A89A85', fontWeight: 600 }}>
-                                {doc.fileSize || 'PDF'} • Categoria: {doc.category}
-                              </span>
-                            </div>
-                          </div>
-
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <button
-                              onClick={() => handleOpenEditRule(doc)}
-                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--amber-deep)', padding: '2px' }}
-                              title="Editar Documento"
-                              aria-label={`Editar documento ${doc.title}`}
-                            >
-                              <Edit3 size={16} />
-                            </button>
-                            {isMasterOfActive && (
-                              <button
-                                onClick={() => onDeleteRule(activeCampaign.id, doc.id)}
-                                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#991b1b', padding: '2px' }}
-                                title="Remover Documento"
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-
-                        <p style={{ fontSize: '12px', color: 'var(--text-soft)', margin: '10px 0', lineHeight: 1.4 }}>
-                          {doc.description}
+                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 800, color: '#fef3c7' }}>
+                          Grimório & Crônicas da Mesa
+                        </h3>
+                        <p style={{ margin: 0, fontSize: '11px', color: '#a89a8a' }}>
+                          Registros históricos, pistas, mapas e rumores desvendados pelo grupo.
                         </p>
-
-                        {doc.contentSnippet && (
-                          <div style={{
-                            backgroundColor: '#141414',
-                            padding: '10px',
-                            borderRadius: '4px',
-                            fontSize: '11px',
-                            color: '#EAE2D3',
-                            borderLeft: '2px solid #F2ECE1',
-                            fontFamily: 'monospace',
-                            whiteSpace: 'pre-line'
-                          }}>
-                            {doc.contentSnippet}
-                          </div>
-                        )}
                       </div>
 
-                      <div style={{ display: 'flex', gap: '8px', marginTop: '14px' }}>
+                      <button
+                        onClick={() => {
+                          setEditingLoreId(null);
+                          setLoreTitle('');
+                          setLoreContent('');
+                          setLoreCategory('diario');
+                          setLoreTags('Aventura, Mistério');
+                          setIsNewLoreModalOpen(true);
+                        }}
+                        className="tavern-btn tavern-btn-primary"
+                        style={{ padding: '6px 14px', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                      >
+                        <Plus size={13} />
+                        <span>Novo Registro</span>
+                      </button>
+                    </div>
+
+                    {!activeCampaign.lore || activeCampaign.lore.length === 0 ? (
+                      <div
+                        style={{
+                          textAlign: 'center',
+                          padding: '36px',
+                          border: '1px dashed rgba(217, 119, 6, 0.25)',
+                          borderRadius: '10px',
+                          backgroundColor: 'rgba(0, 0, 0, 0.2)'
+                        }}
+                      >
+                        <BookOpen size={32} color="#d97706" style={{ margin: '0 auto 10px auto', opacity: 0.6 }} />
+                        <h4 style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#fef3c7' }}>
+                          O Tomo desta aventura ainda está em branco
+                        </h4>
+                        <p style={{ margin: '0 0 12px 0', fontSize: '11px', color: '#a89a8a' }}>
+                          Registre a crônica da última sessão, nomes de estalagens, relíquias e pistas de investigação.
+                        </p>
                         <button
-                          onClick={() => setViewingRuleDoc(doc)}
-                          className="btn-tavern btn-primary"
-                          style={{ flex: 1, padding: '6px 10px', fontSize: '11px' }}
+                          onClick={() => {
+                            setEditingLoreId(null);
+                            setIsNewLoreModalOpen(true);
+                          }}
+                          className="tavern-btn tavern-btn-primary"
+                          style={{ padding: '6px 14px', fontSize: '11px' }}
                         >
-                          <Eye size={14} />
-                          Abrir Leitor PDF
+                          Escrever Primeiro Registro
                         </button>
                       </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {activeCampaign.lore.map(entry => (
+                          <div
+                            key={entry.id}
+                            style={{
+                              padding: '12px 16px',
+                              backgroundColor: 'rgba(20, 13, 9, 0.8)',
+                              border: '1px solid rgba(217, 119, 6, 0.2)',
+                              borderRadius: '8px'
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <Scroll size={15} color="#f59e0b" />
+                                <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 800, color: '#fef3c7' }}>
+                                  {entry.title}
+                                </h4>
+                                <span
+                                  style={{
+                                    fontSize: '9px',
+                                    padding: '1px 6px',
+                                    borderRadius: '4px',
+                                    backgroundColor: 'rgba(217, 119, 6, 0.2)',
+                                    color: '#fbbf24',
+                                    fontWeight: 700,
+                                    textTransform: 'uppercase'
+                                  }}
+                                >
+                                  {entry.category}
+                                </span>
+                              </div>
+
+                              <div style={{ display: 'flex', gap: '6px' }}>
+                                <button
+                                  onClick={() => {
+                                    setEditingLoreId(entry.id);
+                                    setLoreTitle(entry.title);
+                                    setLoreContent(entry.content);
+                                    setLoreCategory(entry.category);
+                                    setLoreTags(entry.tags?.join(', ') || '');
+                                    setIsNewLoreModalOpen(true);
+                                  }}
+                                  className="tavern-btn tavern-btn-secondary"
+                                  style={{ padding: '4px 8px', fontSize: '11px' }}
+                                >
+                                  <Edit3 size={11} />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    if (confirm(`Excluir o registro "${entry.title}"?`)) {
+                                      onDeleteLore(activeCampaign.id, entry.id);
+                                    }
+                                  }}
+                                  style={{
+                                    background: 'none',
+                                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                                    color: '#f87171',
+                                    borderRadius: '6px',
+                                    padding: '4px 8px',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  <Trash2 size={11} />
+                                </button>
+                              </div>
+                            </div>
+
+                            <p style={{ margin: 0, fontSize: '12px', color: '#d6c7b2', lineHeight: 1.5, whiteSpace: 'pre-line' }}>
+                              {entry.content}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {activePartition === 'rules' && (
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+                      <div>
+                        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 800, color: '#fef3c7' }}>
+                          Manuais e Documentos em PDF
+                        </h3>
+                        <p style={{ margin: 0, fontSize: '11px', color: '#a89a8a' }}>
+                          Consulte regras oficiais, suplementos e tabelas durante a partida.
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          setEditingRuleId(null);
+                          setRuleTitle('');
+                          setRuleDesc('');
+                          setRuleContent('');
+                          setIsNewRuleModalOpen(true);
+                        }}
+                        className="tavern-btn tavern-btn-primary"
+                        style={{ padding: '6px 12px', fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                      >
+                        <Plus size={13} />
+                        <span>Adicionar Manual</span>
+                      </button>
                     </div>
-                  ))}
+
+                    {!activeCampaign.rules || activeCampaign.rules.length === 0 ? (
+                      <div
+                        style={{
+                          textAlign: 'center',
+                          padding: '36px',
+                          border: '1px dashed rgba(217, 119, 6, 0.25)',
+                          borderRadius: '10px',
+                          backgroundColor: 'rgba(0, 0, 0, 0.2)'
+                        }}
+                      >
+                        <FileText size={32} color="#d97706" style={{ margin: '0 auto 10px auto', opacity: 0.6 }} />
+                        <h4 style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#fef3c7' }}>
+                          Nenhum documento adicionado a esta mesa
+                        </h4>
+                        <p style={{ margin: '0 0 12px 0', fontSize: '11px', color: '#a89a8a' }}>
+                          Adicione resumos de regras, tabelas de monstros ou suplementos para consulta direta no painel.
+                        </p>
+                        <button
+                          onClick={() => {
+                            setEditingRuleId(null);
+                            setIsNewRuleModalOpen(true);
+                          }}
+                          className="tavern-btn tavern-btn-primary"
+                          style={{ padding: '6px 14px', fontSize: '11px' }}
+                        >
+                          Adicionar Regra
+                        </button>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {activeCampaign.rules.map(doc => (
+                          <div
+                            key={doc.id}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              padding: '10px 14px',
+                              backgroundColor: 'rgba(20, 13, 9, 0.8)',
+                              border: '1px solid rgba(217, 119, 6, 0.2)',
+                              borderRadius: '8px'
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              <FileText size={18} color="#f59e0b" />
+                              <div>
+                                <h4 style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: '#fef3c7' }}>
+                                  {doc.title}
+                                </h4>
+                                <span style={{ fontSize: '10px', color: '#a89a8a' }}>
+                                  {doc.category} • {doc.fileSize || '1.4 MB'}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '6px' }}>
+                              <button
+                                onClick={() => setViewingRuleDoc(doc)}
+                                className="tavern-btn tavern-btn-secondary"
+                                style={{ padding: '4px 10px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                              >
+                                <Eye size={12} />
+                                <span>Abrir</span>
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (confirm(`Remover manual "${doc.title}"?`)) {
+                                    onDeleteRule(activeCampaign.id, doc.id);
+                                  }
+                                }}
+                                style={{
+                                  background: 'none',
+                                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                                  color: '#f87171',
+                                  borderRadius: '6px',
+                                  padding: '4px 8px',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                <Trash2 size={12} />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            /* ESTADO QUANDO NENHUMA MESA ESTÁ SELECIONADA */
+            <div
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '40px 24px',
+                textAlign: 'center'
+              }}
+            >
+              <div
+                style={{
+                  width: '64px',
+                  height: '64px',
+                  borderRadius: '16px',
+                  backgroundColor: 'rgba(217, 119, 6, 0.15)',
+                  border: '1px solid rgba(217, 119, 6, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#f59e0b',
+                  marginBottom: '16px'
+                }}
+              >
+                <Dices size={32} />
+              </div>
+              <h2 style={{ fontSize: '18px', fontWeight: 800, color: '#fef3c7', margin: '0 0 8px 0' }}>
+                O Salão dos Apostadores Aguarda Seus Dados
+              </h2>
+              <p style={{ fontSize: '13px', color: '#a89a8a', maxWidth: '440px', margin: '0 0 20px 0', lineHeight: 1.5 }}>
+                Selecione uma mesa à esquerda para gerenciar fichas e compêndios, ou funde uma nova campanha com até 3 mesas simultâneas.
+              </p>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  onClick={() => setIsNewRoomModalOpen(true)}
+                  disabled={isRoomLimitReached}
+                  className="tavern-btn tavern-btn-primary"
+                  style={{ padding: '8px 18px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <Plus size={15} />
+                  <span>Fundar Nova Mesa</span>
+                </button>
+                <button
+                  onClick={() => setIsJoinModalOpen(true)}
+                  className="tavern-btn tavern-btn-secondary"
+                  style={{ padding: '8px 16px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <KeyRound size={14} color="#f59e0b" />
+                  <span>Entrar com Chave</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </main>
+
+        {/* COLUNA 3: AVENTUREIROS & BANDEJA DE ROLAGENS RÁPIDA */}
+        <aside
+          className="tavern-cockpit-panel"
+          style={{ width: '290px', flexShrink: 0, display: 'flex', flexDirection: 'column' }}
+        >
+          {/* Topo Coluna 3: Membros da Mesa / Aventureiros */}
+          <div style={{ padding: '12px 14px', borderBottom: '1px solid rgba(217, 119, 6, 0.15)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '11px', fontWeight: 800, color: '#fef3c7', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Aventureiros na Mesa
+              </span>
+              <span style={{ fontSize: '10px', color: '#22c55e', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 700 }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#22c55e' }} />
+                Online
+              </span>
+            </div>
+          </div>
+
+          <div
+            className="tavern-thin-scrollbar"
+            style={{ maxHeight: '160px', overflowY: 'auto', padding: '10px', borderBottom: '1px solid rgba(217, 119, 6, 0.15)' }}
+          >
+            {activeCampaign ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {/* Mestre da Mesa */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '6px 8px',
+                    borderRadius: '6px',
+                    backgroundColor: 'rgba(217, 119, 6, 0.12)',
+                    border: '1px solid rgba(217, 119, 6, 0.25)'
+                  }}
+                >
+                  <AvatarFrame
+                    displayName={activeCampaign.masterName || 'Mestre'}
+                    size="sm"
+                  />
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span style={{ fontSize: '12px', fontWeight: 700, color: '#fbbf24', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {activeCampaign.masterName || 'Mestre da Mesa'}
+                      </span>
+                      <Crown size={11} color="#fbbf24" />
+                    </div>
+                    <span style={{ fontSize: '10px', color: '#f59e0b' }}>
+                      {activeCampaign.masterId === currentUser.uid ? 'Você (Mestre)' : 'Mestre do Jogo'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Jogadores Conectados */}
+                {activeCampaign.players && activeCampaign.players.map((p, i) => (
+                  <div
+                    key={p.uid || i}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '6px 8px',
+                      borderRadius: '6px',
+                      backgroundColor: 'rgba(0,0,0,0.25)'
+                    }}
+                  >
+                    <AvatarFrame
+                      displayName={p.name || `Hero ${i}`}
+                      size="sm"
+                    />
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span style={{ fontSize: '12px', fontWeight: 700, color: '#f5ecdc', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {p.name || 'Aventureiro'}
+                        </span>
+                      </div>
+                      <span style={{ fontSize: '10px', color: '#a89a8a' }}>
+                        Jogador {p.uid === currentUser.uid ? '(Você)' : ''}
+                      </span>
+                    </div>
+
+                    {isMasterOfActive && p.uid !== currentUser.uid && (
+                      <button
+                        onClick={() => {
+                          if (confirm(`Remover ${p.name} da mesa?`)) {
+                            onRemovePlayer(activeCampaign.id, p.uid);
+                          }
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#78716c',
+                          cursor: 'pointer',
+                          padding: '2px 4px'
+                        }}
+                        title="Remover jogador da mesa"
+                      >
+                        <X size={12} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px' }}>
+                <AvatarFrame displayName={currentUser.displayName || 'Você'} size="sm" />
+                <div>
+                  <span style={{ fontSize: '12px', fontWeight: 700, color: '#f5ecdc' }}>
+                    {currentUser.displayName || 'Você'}
+                  </span>
+                  <p style={{ margin: 0, fontSize: '10px', color: '#a89a8a' }}>Pronto para rolar</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* BANDEJA DE DADOS INTERATIVA */}
+          <div style={{ padding: '12px 14px', borderBottom: '1px solid rgba(217, 119, 6, 0.15)', backgroundColor: 'rgba(0,0,0,0.2)' }}>
+            <span style={{ fontSize: '11px', fontWeight: 800, color: '#fef3c7', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '8px' }}>
+              Bandeja de Rolagens
+            </span>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
+              {[
+                { sides: 4, label: 'd4' },
+                { sides: 6, label: 'd6' },
+                { sides: 8, label: 'd8' },
+                { sides: 10, label: 'd10' },
+                { sides: 12, label: 'd12' },
+                { sides: 20, label: 'd20' },
+                { sides: 100, label: 'd100' }
+              ].map(die => (
+                <button
+                  key={die.sides}
+                  onClick={() => handleRollQuickDie(die.label, die.sides)}
+                  disabled={Boolean(isRollingQuick)}
+                  style={{
+                    padding: '8px 4px',
+                    borderRadius: '6px',
+                    backgroundColor: die.sides === 20 ? 'rgba(217, 119, 6, 0.25)' : 'rgba(255, 255, 255, 0.05)',
+                    border: die.sides === 20 ? '1px solid rgba(245, 158, 11, 0.5)' : '1px solid rgba(217, 119, 6, 0.2)',
+                    color: die.sides === 20 ? '#fbbf24' : '#f5ecdc',
+                    fontWeight: 800,
+                    fontSize: '11px',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  {isRollingQuick === die.label ? '...' : die.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* HISTÓRICO DE ROLAGENS */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+            <div style={{ padding: '8px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '10px', color: '#a89a8a', fontWeight: 700 }}>ÚLTIMOS RESULTADOS</span>
+              {quickDiceHistory.length > 0 && (
+                <button
+                  onClick={() => setQuickDiceHistory([])}
+                  style={{ background: 'none', border: 'none', color: '#78716c', fontSize: '10px', cursor: 'pointer' }}
+                >
+                  Limpar
+                </button>
+              )}
+            </div>
+
+            <div className="tavern-thin-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '0 10px 10px 10px' }}>
+              {quickDiceHistory.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '24px 10px', color: '#78716c', fontSize: '11px' }}>
+                  Clique em um dado acima para rolar na mesa.
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {quickDiceHistory.map((item, idx) => {
+                    const isCrit = item.die === 'd20' && item.result === 20;
+                    const isFumble = item.die === 'd20' && item.result === 1;
+                    return (
+                      <div
+                        key={idx}
+                        style={{
+                          padding: '6px 10px',
+                          borderRadius: '6px',
+                          backgroundColor: isCrit
+                            ? 'rgba(217, 119, 6, 0.2)'
+                            : isFumble
+                            ? 'rgba(239, 68, 68, 0.15)'
+                            : 'rgba(0, 0, 0, 0.3)',
+                          border: isCrit
+                            ? '1px solid #f59e0b'
+                            : isFumble
+                            ? '1px solid #ef4444'
+                            : '1px solid rgba(255, 255, 255, 0.05)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between'
+                        }}
+                      >
+                        <span style={{ fontSize: '11px', color: '#d6c7b2', fontWeight: 600 }}>
+                          {item.die}
+                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span
+                            style={{
+                              fontSize: '14px',
+                              fontWeight: 900,
+                              color: isCrit ? '#fbbf24' : isFumble ? '#f87171' : '#fff'
+                            }}
+                          >
+                            {item.result}
+                          </span>
+                          {isCrit && <span style={{ fontSize: '9px', color: '#fbbf24', fontWeight: 800 }}>CRÍTICO!</span>}
+                          {isFumble && <span style={{ fontSize: '9px', color: '#f87171', fontWeight: 800 }}>FALHA!</span>}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
-          )}
-        </div>
-      ) : null}
+          </div>
+        </aside>
       </div>
+
+      {/* MODAL: ENTRAR COM CHAVE DE MESA */}
+      {isJoinModalOpen && (
+        <div className="tavern-modal-backdrop" onClick={() => setIsJoinModalOpen(false)}>
+          <div className="tavern-modal-content surface-card" onClick={e => e.stopPropagation()} style={{ padding: '24px', maxWidth: '380px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <KeyRound size={18} color="#d97706" />
+                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800 }}>Entrar com Chave</h3>
+              </div>
+              <button onClick={() => setIsJoinModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                <X size={16} />
+              </button>
+            </div>
+
+            <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 14px 0' }}>
+              Insira a chave da mesa compartilhada pelo Mestre (ex: TAB-7821).
+            </p>
+
+            {joinMessage && (
+              <div
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  marginBottom: '12px',
+                  backgroundColor: joinMessage.type === 'error' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(34, 197, 94, 0.15)',
+                  color: joinMessage.type === 'error' ? '#ef4444' : '#22c55e',
+                  border: `1px solid ${joinMessage.type === 'error' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(34, 197, 94, 0.3)'}`
+                }}
+              >
+                {joinMessage.text}
+              </div>
+            )}
+
+            <form onSubmit={handleQuickJoin} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <input
+                type="text"
+                placeholder="Ex: TAB-7821"
+                maxLength={12}
+                value={joinKeyInput}
+                onChange={e => setJoinKeyInput(e.target.value.toUpperCase())}
+                style={{
+                  padding: '10px',
+                  borderRadius: '6px',
+                  border: '1px solid #d97706',
+                  fontSize: '16px',
+                  fontWeight: 800,
+                  textAlign: 'center',
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase'
+                }}
+                required
+              />
+
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '6px' }}>
+                <button
+                  type="button"
+                  onClick={() => setIsJoinModalOpen(false)}
+                  className="tavern-btn tavern-btn-secondary"
+                  style={{ padding: '8px 14px', fontSize: '12px' }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isJoining}
+                  className="tavern-btn tavern-btn-primary"
+                  style={{ padding: '8px 16px', fontSize: '12px' }}
+                >
+                  {isJoining ? 'Entrando...' : 'Entrar na Mesa'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
 
       {/* MODAL: CRIAR NOVA CAMPANHA (Limitação estrita de 3) */}
       {isNewRoomModalOpen && (

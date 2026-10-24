@@ -6661,6 +6661,112 @@ h1, h2, h3, h4, .font-cinzel {
   gap: 10px;
 }
 
+/* ==========================================================================
+   PAINEL DE CONTROLE EM 1 TELA (TAVERN COCKPIT / DASHBOARD UNIFICADO)
+   Garante todas as funcionalidades visíveis em 1 única tela com design limpo,
+   estética medieval e decorações interativas.
+   ========================================================================== */
+
+.tavern-cockpit-view {
+  width: 100%;
+  height: calc(100vh - 54px);
+  max-height: calc(100vh - 54px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+  background-color: #0e0906;
+  background-image: radial-gradient(ellipse at 50% 20%, rgba(217, 119, 6, 0.12) 0%, rgba(14, 9, 6, 0.98) 75%);
+  color: #f5ecdc;
+}
+
+@media (max-width: 768px) {
+  .tavern-cockpit-view {
+    height: auto;
+    min-height: calc(100vh - 54px);
+    max-height: none;
+    overflow-y: auto;
+  }
+}
+
+.tavern-cockpit-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 18px;
+  background-color: rgba(22, 14, 8, 0.94);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.15);
+  box-sizing: border-box;
+  flex-shrink: 0;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+}
+
+.tavern-cockpit-body {
+  flex: 1;
+  display: flex;
+  gap: 14px;
+  padding: 12px 18px 14px;
+  overflow: hidden;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+@media (max-width: 992px) {
+  .tavern-cockpit-body {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+}
+
+.tavern-cockpit-panel {
+  background: rgba(20, 13, 7, 0.88);
+  border: 1px solid rgba(245, 158, 11, 0.18);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(10px);
+  box-sizing: border-box;
+}
+
+.tavern-cockpit-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(245, 158, 11, 0.12);
+  background: rgba(255, 255, 255, 0.02);
+  flex-shrink: 0;
+}
+
+.tavern-cockpit-panel__content {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+/* Scrollbars finas e elegantes da taverna */
+.tavern-cockpit-view ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.tavern-cockpit-view ::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+.tavern-cockpit-view ::-webkit-scrollbar-thumb {
+  background: rgba(245, 158, 11, 0.25);
+  border-radius: 4px;
+}
+.tavern-cockpit-view ::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 158, 11, 0.45);
+}
+
 
 
 
