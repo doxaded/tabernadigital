@@ -3,8 +3,8 @@ import { ArrowUpRight } from 'lucide-react';
 import { Campaign, UserProfile } from '../types';
 
 interface TavernHubViewProps {
-  currentUser: UserProfile | null;
-  campaigns: Campaign[];
+  currentUser?: UserProfile | null;
+  campaigns?: Campaign[];
   sketchesCount?: number;
   onNavigate: (tab: 'campaigns' | 'sketch' | 'urd' | 'chat') => void;
   onOpenShop?: () => void;
@@ -18,6 +18,7 @@ interface HubModuleConfig {
   badge: string;
   description: string;
   actionText: string;
+  bgImage?: string;
 }
 
 const HUB_MODULES: HubModuleConfig[] = [
@@ -29,6 +30,7 @@ const HUB_MODULES: HubModuleConfig[] = [
     badge: 'MESA DE CARVALHO & FICHAS',
     description: 'Junte-se a uma mesa compartilhada pela chave do mestre ou crie e conduza sua própria saga com fichas, lore e regras.',
     actionText: 'Acessar Mesa dos Apostadores',
+    bgImage: '/assets/banner_mesa_alchemist.png', // Ilustração do Alquimista e Orbe fornecida pelo usuário
   },
   {
     id: 'sketch',
@@ -38,6 +40,7 @@ const HUB_MODULES: HubModuleConfig[] = [
     badge: 'ATELIÊ DO BARDO & PINTURA',
     description: 'Ilustre itens lendários, mapas arcanos, criaturas e heróis com o traço aveludado e a imaginação do bardo Orlan Pena-Fina.',
     actionText: 'Abrir Telas do Alaúde',
+    bgImage: '/assets/bardo_portrait.jpg',
   },
   {
     id: 'urd',
@@ -47,6 +50,7 @@ const HUB_MODULES: HubModuleConfig[] = [
     badge: 'LAREIRA DE PEDRA & ORÁCULO',
     description: 'Consulte a sabedoria ancestral de Urd, desvende profecias, ouça os boatos sussurrados na lareira e crie crônicas vivas.',
     actionText: 'Consultar o Taberneiro',
+    bgImage: '/assets/urd_portrait.jpg',
   },
   {
     id: 'chat',
@@ -56,6 +60,7 @@ const HUB_MODULES: HubModuleConfig[] = [
     badge: 'SCRIPTORIUM & CHAT AO VIVO',
     description: 'Comunique-se em tempo real com taverneiros e companheiros de aventura, planeje suas sessões e troque mensagens diretas.',
     actionText: 'Entrar no Recanto dos Bardos',
+    bgImage: '/assets/tavern_bg.jpg',
   },
 ];
 
@@ -66,7 +71,7 @@ export const TavernHubView: React.FC<TavernHubViewProps> = ({
 
   return (
     <div className="hub-checkerboard" role="main" aria-label="Portal de Opções da Taberna Digital">
-      {/* Os 4 Banners Gigantes de Salas da Taverna com Legendas */}
+      {/* Os 4 Banners Gigantes de Salas da Taverna com Arte de Fundo e Legendas */}
       {HUB_MODULES.map((mod, index) => {
         const isHovered = hoveredModule === mod.id;
         const isFirst = index === 0;
@@ -78,6 +83,19 @@ export const TavernHubView: React.FC<TavernHubViewProps> = ({
             className={`hub-banner hub-banner--${mod.theme}${isFirst ? ' hub-banner--first' : ''}${isHovered ? ' is-hovered' : ''}`}
             aria-label={`${mod.lineA} ${mod.lineB}`}
           >
+            {/* Arte de Fundo Borrada respeitando a paleta e a atmosfera medieval */}
+            {mod.bgImage && (
+              <div className="hub-banner__bg-art" aria-hidden="true">
+                <img
+                  src={mod.bgImage}
+                  alt=""
+                  className="hub-banner__bg-img"
+                  loading={isFirst ? 'eager' : 'lazy'}
+                />
+                <div className="hub-banner__bg-overlay" />
+              </div>
+            )}
+
             <div className="hub-banner__inner">
               {/* Botão Interativo com o Título Gigante */}
               <button
