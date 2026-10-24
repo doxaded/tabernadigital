@@ -31,8 +31,8 @@ const HUB_MODULES: HubModuleConfig[] = [
     badge: 'MESA DE CARVALHO & FICHAS',
     description: 'Junte-se a uma mesa compartilhada pela chave do mestre ou crie e conduza sua própria saga com fichas, lore e regras.',
     actionText: 'Acessar Mesa dos Apostadores',
-    bgImage: '/assets/banner_mesa_apostadores.jpg', // Ilustração 1: Dragão sobrevoando a costa
-    bgPosition: 'center 40%',
+    bgImage: '/assets/banner_mesa_apostadores.jpg', // Ilustração: Salão acolhedor dos apostadores com lareira, sofá e vinho
+    bgPosition: 'center 45%',
   },
   {
     id: 'sketch',
