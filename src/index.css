@@ -102,8 +102,8 @@
 html, body {
   width: 100%;
   min-height: 100vh;
-  background-color: #000000;
-  background-image: none;
+  background-color: #0e0906;
+  background-image: radial-gradient(ellipse at 50% 15%, rgba(217, 119, 6, 0.12) 0%, rgba(14, 9, 6, 0.98) 75%);
   color: var(--text-strong);
   font-family: var(--font-body);
   font-size: 15px;
@@ -112,21 +112,22 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Scrollbar Medieval Personalizada */
+/* Scrollbar Medieval Personalizada em Madeira e Brasa */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: #120a06;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2a2016;
+  background: #382114;
   border-radius: 4px;
-  border: 1px solid rgba(245, 236, 220, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.25);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--amber-torch);
+  background: #d97706;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
 }
 
 /* Animação Crepitante de Tocha */
@@ -466,14 +467,14 @@ h1, h2, h3, h4, .font-cinzel {
     left: 0;
     right: 0;
     height: 64px;
-    background: #000000;
-    border-top: 1px solid rgba(245, 236, 220, 0.15);
+    background: linear-gradient(180deg, #1b120a 0%, #120905 100%);
+    border-top: 2px solid #3c2415;
     display: flex;
     align-items: center;
     justify-content: space-around;
     z-index: 900;
     padding-bottom: env(safe-area-inset-bottom);
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.9);
+    box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(245, 158, 11, 0.2);
   }
 
   .content-with-bottom-nav {
@@ -4904,12 +4905,12 @@ h1, h2, h3, h4, .font-cinzel {
    ========================================================================== */
 .tavern-room-bar {
   width: 100%;
-  background: #0A0A0A;
-  border-bottom: 1px solid rgba(242, 236, 225, 0.14);
+  background: linear-gradient(180deg, #1b1109 0%, #120905 100%);
+  border-bottom: 2px solid #3c2415;
   position: sticky;
   top: 0;
   z-index: 700;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65), inset 0 -1px 0 rgba(245, 158, 11, 0.15);
 }
 
 .tavern-room-bar__inner {
@@ -4933,10 +4934,10 @@ h1, h2, h3, h4, .font-cinzel {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #14110e;
-  border: 1px solid rgba(242, 236, 225, 0.25);
-  color: #F2ECE1;
-  font-family: var(--font-body);
+  background: linear-gradient(180deg, #2a1a10 0%, #170d07 100%);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #fef3c7;
+  font-family: var(--font-cinzel), Georgia, serif;
   font-size: 12px;
   font-weight: 700;
   padding: 6px 14px;
@@ -4948,10 +4949,11 @@ h1, h2, h3, h4, .font-cinzel {
 }
 
 .tavern-room-bar__back-btn:hover {
-  background: #F2ECE1;
-  color: #0B0B0B;
+  background: linear-gradient(180deg, #d97706 0%, #92400e 100%);
+  border-color: #f59e0b;
+  color: #ffffff;
   transform: translateX(-3px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.5);
 }
 
 .tavern-room-bar__tabs-grid {
@@ -4977,11 +4979,11 @@ h1, h2, h3, h4, .font-cinzel {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #111111;
-  border: 1px solid rgba(242, 236, 225, 0.15);
+  background: rgba(28, 17, 10, 0.85);
+  border: 1px solid rgba(245, 158, 11, 0.2);
   border-radius: 10px;
   padding: 10px 14px;
-  color: #A89A85;
+  color: #a89a85;
   cursor: pointer;
   position: relative;
   text-align: left;
@@ -4990,17 +4992,18 @@ h1, h2, h3, h4, .font-cinzel {
 }
 
 .tavern-room-tab-card:hover {
-  background: #181818;
-  border-color: rgba(242, 236, 225, 0.35);
-  color: #F2ECE1;
+  background: rgba(45, 27, 15, 0.95);
+  border-color: rgba(245, 158, 11, 0.45);
+  color: #fef3c7;
   transform: translateY(-1px);
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);
 }
 
 .tavern-room-tab-card.is-active {
-  background: #F2ECE1;
-  border-color: #F2ECE1;
-  color: #0B0B0B;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.35) 0%, rgba(120, 53, 15, 0.2) 100%);
+  border-color: #f59e0b;
+  color: #fef3c7;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.35), inset 0 1px 0 rgba(254, 243, 199, 0.2);
   font-weight: 700;
 }
 
@@ -5011,14 +5014,17 @@ h1, h2, h3, h4, .font-cinzel {
   width: 32px;
   height: 32px;
   border-radius: 6px;
-  background: #1A1A1A;
-  color: inherit;
+  background: rgba(0, 0, 0, 0.4);
+  color: #f59e0b;
   flex-shrink: 0;
+  border: 1px solid rgba(245, 158, 11, 0.2);
 }
 
 .tavern-room-tab-card.is-active .tavern-room-tab-card__icon {
-  background: #0B0B0B;
-  color: #F2ECE1;
+  background: #d97706;
+  color: #ffffff;
+  box-shadow: 0 0 10px #f59e0b;
+  border-color: #fcd34d;
 }
 
 .tavern-room-tab-card__content {

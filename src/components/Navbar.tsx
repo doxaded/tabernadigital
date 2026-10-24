@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Compass,
   BookOpen,
@@ -12,10 +12,15 @@ import {
   LogIn,
   ChevronRight,
   Copy,
-  Check
+  Check,
+  Flame,
+  Volume2,
+  VolumeX,
+  Music
 } from 'lucide-react';
 import { UserProfile } from '../types';
 import { ADMIN_EMAIL } from '../services/storage';
+import { tavernAudio } from '../services/tavernAudio';
 
 interface NavbarProps {
   currentUser: UserProfile | null;
@@ -40,8 +45,8 @@ interface NavItemConfig {
 const NAV_ITEMS: NavItemConfig[] = [
   {
     id: 'hub',
-    label: 'Início',
-    subtitle: 'Taverna Hub',
+    label: 'Salão da Taverna',
+    subtitle: 'Lareira & Início',
     icon: <Compass size={20} strokeWidth={2.2} />
   },
   {
@@ -59,7 +64,7 @@ const NAV_ITEMS: NavItemConfig[] = [
   {
     id: 'urd',
     label: 'Urd, o Taberneiro',
-    subtitle: 'Oráculo & Lareira',
+    subtitle: 'Balcão & Lareira',
     icon: <Beer size={20} strokeWidth={2.2} />
   },
   {
@@ -86,13 +91,18 @@ export const Navbar: React.FC<NavbarProps> = ({
   // Estado que controla se a barra lateral está aberta (cursor interagindo sobre a mesma)
   const [isHovered, setIsHovered] = useState(false);
   const [copiedTag, setCopiedTag] = useState(false);
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
-  // Paleta da barra lateral no tom bege/pergaminho editorial exato dos banners (#F4EDDD)
-  const barBg = '#F4EDDD';
-  const fg = '#0B0B0B';
-  const fgMuted = '#5c4e40';
-  const fgSubtle = '#857563';
-  const borderColor = 'rgba(0, 0, 0, 0.12)';
+  useEffect(() => {
+    return tavernAudio.subscribe((playing) => {
+      setIsPlayingAudio(playing);
+    });
+  }, []);
+
+  const handleToggleAudio = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    tavernAudio.toggle();
+  };
 
   const handleCopyTag = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -106,7 +116,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <aside
       id="tavern-lateral-toolbar"
-      className="tavern-sidebar"
+      className="tavern-sidebar tavern-wood-beam"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onFocus={() => setIsHovered(true)}
@@ -123,8 +133,8 @@ export const Navbar: React.FC<NavbarProps> = ({
         bottom: 0,
         height: '100vh',
         width: isHovered ? '264px' : '64px',
-        backgroundColor: barBg,
-        borderRight: `1px solid ${borderColor}`,
+        background: 'linear-gradient(180deg, #1b120a 0%, #130b06 100%)',
+        borderRight: '2px solid #3c2415',
         zIndex: 1000,
         display: 'flex',
         flexDirection: 'column',
@@ -133,28 +143,30 @@ export const Navbar: React.FC<NavbarProps> = ({
         overflowY: 'auto',
         transition: 'width 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
         boxShadow: isHovered
-          ? '14px 0 42px rgba(0, 0, 0, 0.65), 4px 0 12px rgba(0, 0, 0, 0.25)'
-          : '3px 0 10px rgba(0, 0, 0, 0.15)',
-        fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, sans-serif',
+          ? '16px 0 45px rgba(0, 0, 0, 0.85), inset -1px 0 0 rgba(245, 158, 11, 0.2)'
+          : '4px 0 16px rgba(0, 0, 0, 0.65)',
+        fontFamily: 'var(--font-cinzel), Georgia, serif',
         userSelect: 'none'
       }}
     >
-      {/* Topo: Logotipo / Monograma */}
+      {/* Topo: Selo de Latão / Brasão da Taberna */}
       <div
         style={{
-          height: '64px',
-          minHeight: '64px',
+          height: '66px',
+          minHeight: '66px',
           display: 'flex',
           alignItems: 'center',
           padding: '0 12px',
-          borderBottom: `1px solid ${borderColor}`,
+          borderBottom: '1px solid rgba(245, 158, 11, 0.15)',
+          background: 'linear-gradient(180deg, rgba(245, 158, 11, 0.08) 0%, transparent 100%)',
           boxSizing: 'border-box',
           cursor: 'pointer',
           position: 'relative'
         }}
         onClick={() => setActiveTab('hub')}
-        title="Voltar ao início da Taberna Digital"
+        title="Voltar ao Salão Principal da Taberna"
       >
+        {/* Medalhão da Taberna em Ouro Envelhecido com Brasa */}
         <div
           style={{
             width: '40px',
@@ -163,19 +175,21 @@ export const Navbar: React.FC<NavbarProps> = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            borderRadius: '8px',
-            background: '#0B0B0B',
-            color: '#F4EDDD',
+            borderRadius: '10px',
+            background: 'linear-gradient(135deg, #d97706 0%, #78350f 100%)',
+            color: '#fef3c7',
             fontWeight: 900,
-            fontSize: '14px',
+            fontSize: '13px',
             letterSpacing: '0.04em',
-            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.2)'
+            boxShadow: '0 0 14px rgba(245, 158, 11, 0.35), inset 0 1px 1px rgba(254, 243, 199, 0.5)',
+            border: '1px solid #f59e0b',
+            position: 'relative'
           }}
         >
-          TD.
+          <Flame size={18} style={{ color: '#fffbeb', filter: 'drop-shadow(0 0 4px #f59e0b)' }} />
         </div>
 
-        {/* Logo completa com texto quando expandida */}
+        {/* Nome da Taberna e subtítulo quando expandido */}
         <div
           style={{
             marginLeft: '12px',
@@ -188,62 +202,129 @@ export const Navbar: React.FC<NavbarProps> = ({
             pointerEvents: isHovered ? 'auto' : 'none'
           }}
         >
-          <img
-            src="/assets/taberna_logo_exact_2x.png"
-            alt="TABERNADIGITAL."
+          <span
             style={{
-              height: '13px',
-              width: 'auto',
-              display: 'block'
+              fontSize: '14px',
+              fontWeight: 800,
+              letterSpacing: '0.08em',
+              color: '#fef3c7',
+              textShadow: '0 0 10px rgba(245, 158, 11, 0.4)'
             }}
-          />
+          >
+            TABERNA DIGITAL
+          </span>
           <span
             style={{
               fontSize: '9px',
-              letterSpacing: '0.12em',
+              letterSpacing: '0.14em',
               textTransform: 'uppercase',
               fontWeight: 700,
-              color: fgSubtle,
-              marginTop: '3px'
+              color: '#d97706',
+              marginTop: '2px',
+              fontFamily: 'var(--font-body)'
             }}
           >
-            Taverna Virtual
+            RPG Companion
           </span>
         </div>
 
-        {/* Indicador sutil de hover na lateral */}
+        {/* Indicador de expansão */}
         <div
           style={{
             position: 'absolute',
             right: '8px',
             top: '50%',
             transform: `translateY(-50%) rotate(${isHovered ? '180deg' : '0deg'})`,
-            opacity: isHovered ? 0.6 : 0.3,
+            opacity: isHovered ? 0.8 : 0.4,
             transition: 'transform 0.3s ease, opacity 0.2s ease',
-            color: fg,
+            color: '#f59e0b',
             display: 'flex',
             alignItems: 'center'
           }}
-          title={isHovered ? 'Fechar barra lateral' : 'Expandir barra lateral'}
+          title={isHovered ? 'Recolher menu' : 'Expandir menu'}
         >
-          <ChevronRight size={14} />
+          <ChevronRight size={15} />
         </div>
       </div>
 
-      {/* Rótulo de Seção quando expandido */}
+      {/* Botão de Música da Taverna (Lareira & Alaúde) */}
+      <div
+        style={{
+          padding: isHovered ? '10px 12px 6px' : '10px 10px 4px',
+          boxSizing: 'border-box'
+        }}
+      >
+        <button
+          type="button"
+          onClick={handleToggleAudio}
+          title={isPlayingAudio ? 'Silenciar Alaúde & Lareira' : 'Ouvir Música da Taverna (Alaúde & Lareira)'}
+          style={{
+            width: '100%',
+            height: isHovered ? '38px' : '40px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: isHovered ? 'flex-start' : 'center',
+            gap: '10px',
+            padding: isHovered ? '0 10px' : '0',
+            borderRadius: '8px',
+            border: isPlayingAudio ? '1px solid #f59e0b' : '1px solid rgba(245, 158, 11, 0.25)',
+            background: isPlayingAudio
+              ? 'linear-gradient(90deg, rgba(217, 119, 6, 0.3) 0%, rgba(120, 53, 15, 0.2) 100%)'
+              : 'rgba(0, 0, 0, 0.35)',
+            color: isPlayingAudio ? '#fef3c7' : '#cfc6b8',
+            cursor: 'pointer',
+            boxShadow: isPlayingAudio ? '0 0 12px rgba(245, 158, 11, 0.3)' : 'none',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <div
+            style={{
+              width: '24px',
+              height: '24px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: isPlayingAudio ? '#f59e0b' : '#a89a85',
+              flexShrink: 0
+            }}
+          >
+            {isPlayingAudio ? <Volume2 size={18} /> : <VolumeX size={18} />}
+          </div>
+
+          {isHovered && (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              <span style={{ fontSize: '11px', fontWeight: 700, color: isPlayingAudio ? '#fef3c7' : '#d6c6b2' }}>
+                {isPlayingAudio ? 'Música da Taverna' : 'Tocar Música'}
+              </span>
+              <span style={{ fontSize: '9px', color: '#f59e0b', fontFamily: 'var(--font-body)' }}>
+                {isPlayingAudio ? 'Lareira & Alaúde ligados' : 'Lareira & Alaúde'}
+              </span>
+            </div>
+          )}
+        </button>
+      </div>
+
+      {/* Rótulo de Seção no modo expandido */}
       {isHovered && (
         <div
           style={{
-            padding: '16px 16px 6px',
+            padding: '12px 16px 4px',
             fontSize: '9.5px',
-            letterSpacing: '0.1em',
+            letterSpacing: '0.12em',
             textTransform: 'uppercase',
             fontWeight: 800,
-            color: fgSubtle,
+            color: '#b45309',
             whiteSpace: 'nowrap'
           }}
         >
-          Salas & Ferramentas
+          Aposentos da Taverna
         </div>
       )}
 
@@ -253,7 +334,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           display: 'flex',
           flexDirection: 'column',
           gap: '6px',
-          padding: isHovered ? '8px 12px' : '12px 10px',
+          padding: isHovered ? '6px 12px' : '8px 10px',
           flex: 1
         }}
       >
@@ -269,32 +350,37 @@ export const Navbar: React.FC<NavbarProps> = ({
                 alignItems: 'center',
                 gap: '12px',
                 width: '100%',
-                height: '44px',
-                minHeight: '44px',
+                height: '46px',
+                minHeight: '46px',
                 padding: '0 10px',
                 borderRadius: '8px',
-                border: 'none',
+                border: isActive ? '1px solid rgba(245, 158, 11, 0.4)' : '1px solid transparent',
+                borderLeft: isActive ? '3px solid #f59e0b' : '1px solid transparent',
                 cursor: 'pointer',
-                background: isActive ? '#0B0B0B' : 'transparent',
-                color: isActive ? '#F4EDDD' : fg,
-                boxShadow: isActive ? '0 3px 10px rgba(0, 0, 0, 0.25)' : 'none',
-                transition: 'background-color 0.15s ease, color 0.15s ease, transform 0.1s ease',
+                background: isActive
+                  ? 'linear-gradient(90deg, rgba(217, 119, 6, 0.28) 0%, rgba(120, 53, 15, 0.12) 100%)'
+                  : 'transparent',
+                color: isActive ? '#fef3c7' : '#cfc6b8',
+                boxShadow: isActive ? '0 0 16px rgba(245, 158, 11, 0.25), inset 0 1px 0 rgba(254, 243, 199, 0.15)' : 'none',
+                transition: 'all 0.15s ease',
                 textAlign: 'left',
                 position: 'relative',
                 boxSizing: 'border-box'
               }}
               onMouseEnter={(e) => {
                 if (!isActive) {
-                  e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.06)';
+                  e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.1)';
+                  e.currentTarget.style.color = '#fffbeb';
                 }
               }}
               onMouseLeave={(e) => {
                 if (!isActive) {
                   e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = '#cfc6b8';
                 }
               }}
             >
-              {/* Ícone fixo de 20px centralizado no slot */}
+              {/* Ícone fixo de 20px com brilho âmbar se ativo */}
               <div
                 style={{
                   width: '24px',
@@ -302,7 +388,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  flexShrink: 0
+                  flexShrink: 0,
+                  color: isActive ? '#f59e0b' : 'inherit',
+                  filter: isActive ? 'drop-shadow(0 0 6px #f59e0b)' : 'none'
                 }}
               >
                 {item.icon}
@@ -322,9 +410,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 <span
                   style={{
-                    fontSize: '13px',
-                    fontWeight: isActive ? 700 : 600,
-                    lineHeight: 1.2
+                    fontSize: '12.5px',
+                    fontWeight: isActive ? 800 : 600,
+                    lineHeight: 1.2,
+                    letterSpacing: '0.02em',
+                    fontFamily: 'var(--font-cinzel), Georgia, serif'
                   }}
                 >
                   {item.label}
@@ -333,9 +423,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                   style={{
                     fontSize: '10px',
                     fontWeight: 500,
-                    color: isActive ? 'rgba(244, 237, 221, 0.7)' : fgSubtle,
+                    color: isActive ? '#fcd34d' : '#8c7a6b',
                     lineHeight: 1.2,
-                    marginTop: '2px'
+                    marginTop: '2px',
+                    fontFamily: 'var(--font-body)'
                   }}
                 >
                   {item.subtitle}
@@ -345,21 +436,21 @@ export const Navbar: React.FC<NavbarProps> = ({
           );
         })}
 
-        {/* Divisor */}
+        {/* Divisor de Madeira Rústica */}
         <div
           style={{
             height: '1px',
-            backgroundColor: borderColor,
+            backgroundColor: 'rgba(245, 158, 11, 0.15)',
             margin: '8px 4px'
           }}
         />
 
-        {/* Botão de Área Administrativa (Exclusivo SuperAdmin) */}
+        {/* Botão de Área Administrativa (SuperAdmin) */}
         {isSuperAdmin && (
           <button
             id="admin-exclusive-btn"
             onClick={onOpenAdmin}
-            title="Área Administrativa"
+            title="Área Administrativa do Mestre Guardião"
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -369,20 +460,20 @@ export const Navbar: React.FC<NavbarProps> = ({
               minHeight: '44px',
               padding: '0 10px',
               borderRadius: '8px',
-              border: 'none',
+              border: '1px solid rgba(245, 158, 11, 0.2)',
               cursor: 'pointer',
-              background: 'transparent',
-              color: '#854d0e',
+              background: 'rgba(217, 119, 6, 0.08)',
+              color: '#fcd34d',
               transition: 'background-color 0.15s ease',
               textAlign: 'left',
               position: 'relative',
               boxSizing: 'border-box'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(234, 179, 8, 0.12)';
+              e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.2)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.backgroundColor = 'rgba(217, 119, 6, 0.08)';
             }}
           >
             <div
@@ -393,19 +484,19 @@ export const Navbar: React.FC<NavbarProps> = ({
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
-                position: 'relative'
+                position: 'relative',
+                color: '#f59e0b'
               }}
             >
               <Crown size={20} strokeWidth={2.2} />
-              {/* Badge no modo colapsado */}
               {!isHovered && pendingCount > 0 && (
                 <span
                   style={{
                     position: 'absolute',
                     top: '-4px',
                     right: '-6px',
-                    backgroundColor: '#000000',
-                    color: '#F4EDDD',
+                    backgroundColor: '#ef4444',
+                    color: '#ffffff',
                     fontSize: '9px',
                     fontWeight: 800,
                     width: '15px',
@@ -413,7 +504,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                     borderRadius: '50%',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
+                    boxShadow: '0 0 6px #ef4444'
                   }}
                 >
                   {pendingCount}
@@ -434,14 +526,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                 transition: 'opacity 0.22s ease, transform 0.22s ease'
               }}
             >
-              <span style={{ fontSize: '13px', fontWeight: 700, color: '#713f12' }}>
+              <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#fcd34d' }}>
                 Administração
               </span>
               {pendingCount > 0 && (
                 <span
                   style={{
-                    backgroundColor: '#0B0B0B',
-                    color: '#F4EDDD',
+                    backgroundColor: '#ef4444',
+                    color: '#ffffff',
                     fontSize: '10px',
                     fontWeight: 800,
                     padding: '2px 7px',
@@ -456,12 +548,12 @@ export const Navbar: React.FC<NavbarProps> = ({
         )}
       </nav>
 
-      {/* Rodapé: Área do Usuário / Perfil & Logout */}
+      {/* Rodapé: Cartão de Couro do Aventureiro / Perfil & Logout */}
       <div
         style={{
-          borderTop: `1px solid ${borderColor}`,
+          borderTop: '1px solid rgba(245, 158, 11, 0.15)',
           padding: isHovered ? '12px' : '10px',
-          backgroundColor: isHovered ? 'rgba(0, 0, 0, 0.02)' : 'transparent',
+          background: 'rgba(0, 0, 0, 0.25)',
           boxSizing: 'border-box',
           display: 'flex',
           flexDirection: 'column',
@@ -470,7 +562,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       >
         {currentUser ? (
           <>
-            {/* Bloco Perfil / Identificação do Usuário */}
+            {/* Bloco Perfil / Identificação do Aventureiro */}
             <div
               onClick={() => onOpenMyProfile?.()}
               title={`${currentUser.displayName || currentUser.email} (Abrir Perfil)`}
@@ -482,31 +574,34 @@ export const Navbar: React.FC<NavbarProps> = ({
                 borderRadius: '8px',
                 cursor: 'pointer',
                 transition: 'background-color 0.15s ease',
-                overflow: 'hidden'
+                overflow: 'hidden',
+                border: '1px solid rgba(245, 158, 11, 0.15)',
+                background: 'linear-gradient(180deg, rgba(40, 25, 15, 0.6) 0%, rgba(20, 12, 7, 0.8) 100%)'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.06)';
+                e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.15)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'transparent';
               }}
             >
-              {/* Avatar do Usuário */}
+              {/* Moldura do Avatar em Couro & Latão */}
               <div
                 style={{
                   width: '36px',
                   height: '36px',
                   minWidth: '36px',
                   borderRadius: '50%',
-                  background: '#0B0B0B',
-                  color: '#F4EDDD',
+                  background: 'linear-gradient(135deg, #d97706, #451a03)',
+                  color: '#fef3c7',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: '14px',
                   fontWeight: 800,
                   overflow: 'hidden',
-                  border: '1.5px solid #0B0B0B'
+                  border: '1.5px solid #f59e0b',
+                  boxShadow: '0 0 8px rgba(245, 158, 11, 0.35)'
                 }}
               >
                 {(currentUser.photoURL || currentUser.avatarUrl) ? (
@@ -536,7 +631,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   style={{
                     fontSize: '12.5px',
                     fontWeight: 700,
-                    color: fg,
+                    color: '#fef3c7',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     maxWidth: '170px'
@@ -545,19 +640,19 @@ export const Navbar: React.FC<NavbarProps> = ({
                   {currentUser.displayName || currentUser.email.split('@')[0]}
                 </span>
 
-                {/* Tag de 7 Caracteres Única com botão de cópia rápida */}
+                {/* Tag de 7 Caracteres Única em Pergaminho com Selo */}
                 {currentUser.userTag && (
                   <div
                     onClick={handleCopyTag}
-                    title="Clique para copiar sua tag"
+                    title="Clique para copiar sua tag de aventureiro"
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '4px',
                       fontSize: '10px',
                       fontFamily: 'monospace',
-                      fontWeight: 700,
-                      color: copiedTag ? '#15803d' : fgSubtle,
+                      fontWeight: 800,
+                      color: copiedTag ? '#22c55e' : '#f59e0b',
                       marginTop: '2px',
                       cursor: 'pointer'
                     }}
@@ -581,7 +676,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <button
                   type="button"
                   onClick={onOpenChangePassword}
-                  title="Alterar Senha"
+                  title="Alterar Senha do Aventureiro"
                   style={{
                     flex: 1,
                     display: 'flex',
@@ -590,21 +685,22 @@ export const Navbar: React.FC<NavbarProps> = ({
                     gap: '6px',
                     padding: '7px 8px',
                     borderRadius: '6px',
-                    border: `1px solid ${borderColor}`,
-                    background: '#FFFFFF',
-                    color: fgMuted,
+                    border: '1px solid rgba(245, 158, 11, 0.25)',
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    color: '#cfc6b8',
                     fontSize: '11px',
                     fontWeight: 600,
                     cursor: 'pointer',
-                    transition: 'all 0.15s ease'
+                    transition: 'all 0.15s ease',
+                    fontFamily: 'var(--font-body)'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = fg;
-                    e.currentTarget.style.color = fg;
+                    e.currentTarget.style.borderColor = '#f59e0b';
+                    e.currentTarget.style.color = '#fef3c7';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = borderColor;
-                    e.currentTarget.style.color = fgMuted;
+                    e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.25)';
+                    e.currentTarget.style.color = '#cfc6b8';
                   }}
                 >
                   <KeyRound size={13} />
@@ -614,28 +710,28 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <button
                   type="button"
                   onClick={onLogout}
-                  title="Encerrar Sessão e Sair"
+                  title="Sair da Taverna"
                   style={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     padding: '7px 10px',
                     borderRadius: '6px',
-                    border: '1px solid rgba(220, 38, 38, 0.25)',
-                    background: 'rgba(220, 38, 38, 0.08)',
-                    color: '#dc2626',
+                    border: '1px solid rgba(239, 68, 68, 0.4)',
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    color: '#ef4444',
                     fontSize: '11px',
                     fontWeight: 600,
                     cursor: 'pointer',
                     transition: 'all 0.15s ease'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#dc2626';
-                    e.currentTarget.style.color = '#FFFFFF';
+                    e.currentTarget.style.background = '#ef4444';
+                    e.currentTarget.style.color = '#ffffff';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(220, 38, 38, 0.08)';
-                    e.currentTarget.style.color = '#dc2626';
+                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                    e.currentTarget.style.color = '#ef4444';
                   }}
                 >
                   <LogOut size={13} />
@@ -644,7 +740,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
           </>
         ) : (
-          /* Usuário não logado: Botão Entrar */
+          /* Usuário não logado: Botão Entrar na Taverna */
           <button
             onClick={onOpenAuth}
             title="Entrar na Taverna Digital"
@@ -657,20 +753,20 @@ export const Navbar: React.FC<NavbarProps> = ({
               gap: '10px',
               padding: isHovered ? '0 14px' : '0',
               borderRadius: '8px',
-              border: 'none',
-              background: '#0B0B0B',
-              color: '#F4EDDD',
+              border: '1px solid #f59e0b',
+              background: 'linear-gradient(135deg, #d97706 0%, #78350f 100%)',
+              color: '#fef3c7',
               fontWeight: 700,
               fontSize: '12px',
               cursor: 'pointer',
-              boxShadow: '0 2px 6px rgba(0, 0, 0, 0.25)',
-              transition: 'background-color 0.15s ease'
+              boxShadow: '0 0 14px rgba(245, 158, 11, 0.4)',
+              transition: 'all 0.15s ease'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#26201a';
+              e.currentTarget.style.filter = 'brightness(1.15)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#0B0B0B';
+              e.currentTarget.style.filter = 'none';
             }}
           >
             <LogIn size={18} />

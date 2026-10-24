@@ -1,5 +1,6 @@
-import React from 'react';
-import { Shield, Palette, Beer, Scroll, ArrowLeft } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Shield, Palette, Beer, Scroll, ArrowLeft, Volume2, VolumeX } from 'lucide-react';
+import { tavernAudio } from '../services/tavernAudio';
 
 export type TavernRoomTab = 'campaigns' | 'sketch' | 'urd' | 'chat';
 
@@ -39,7 +40,7 @@ const ROOM_TABS: Array<{
   },
   {
     id: 'chat',
-    title: 'Canto dos Bardos',
+    title: 'Recanto dos Bardos',
     subtitle: 'SCRIPTORIUM & MISSIVAS',
     icon: <Scroll size={18} strokeWidth={2.2} />,
     badge: 'AO VIVO'
@@ -51,19 +52,52 @@ export const TavernRoomTabBar: React.FC<TavernRoomTabBarProps> = ({
   onSelectTab,
   onBackToHub
 }) => {
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+
+  useEffect(() => {
+    return tavernAudio.subscribe((playing) => {
+      setIsPlayingAudio(playing);
+    });
+  }, []);
+
   return (
-    <nav className="tavern-room-bar" aria-label="Navegação entre Salas da Taverna">
+    <nav className="tavern-room-bar tavern-wood-beam" aria-label="Navegação entre Salas da Taverna">
       <div className="tavern-room-bar__inner">
-        {/* Linha 1: Botão de retorno ao Menu Principal */}
-        <div className="tavern-room-bar__top-row">
+        {/* Linha 1: Botão de retorno ao Salão Principal + Áudio da Taverna */}
+        <div className="tavern-room-bar__top-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
           <button
             type="button"
             onClick={onBackToHub}
             className="tavern-room-bar__back-btn"
-            title="Retornar aos grandes banners do Menu Inicial"
+            title="Retornar ao Grande Salão da Taverna"
           >
             <ArrowLeft size={14} />
-            <span>Menu Inicial</span>
+            <span>Salão Principal</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => tavernAudio.toggle()}
+            title={isPlayingAudio ? 'Silenciar Alaúde & Lareira' : 'Ouvir Música da Taverna (Alaúde & Lareira)'}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '5px 12px',
+              borderRadius: '20px',
+              border: isPlayingAudio ? '1px solid #f59e0b' : '1px solid rgba(245, 158, 11, 0.25)',
+              background: isPlayingAudio ? 'rgba(217, 119, 6, 0.25)' : 'rgba(0, 0, 0, 0.4)',
+              color: isPlayingAudio ? '#fef3c7' : '#a89a85',
+              fontSize: '11px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              fontFamily: 'var(--font-cinzel), Georgia, serif',
+              boxShadow: isPlayingAudio ? '0 0 10px rgba(245, 158, 11, 0.3)' : 'none',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            {isPlayingAudio ? <Volume2 size={13} style={{ color: '#f59e0b' }} /> : <VolumeX size={13} />}
+            <span>{isPlayingAudio ? 'Alaúde & Lareira' : 'Tocar Música'}</span>
           </button>
         </div>
 
