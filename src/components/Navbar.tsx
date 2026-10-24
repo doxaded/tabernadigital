@@ -18,7 +18,6 @@ import { ADMIN_EMAIL } from '../services/storage';
 import { tavernAudio } from '../services/tavernAudio';
 import { AvatarFrame } from './AvatarFrame';
 import { getEffectiveGold } from '../services/tavernShopCatalog';
-import { TavernSteinIcon } from './TavernSteinIcon';
 
 interface NavbarProps {
   currentUser: UserProfile | null;
@@ -155,7 +154,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Menu size={20} />
           </button>
 
-          {/* Logo Minimalista Medieval: Caneca de Chopp + Nome */}
+          {/* Logo Minimalista Medieval: Nome da Taverna */}
           <div
             onClick={() => {
               setActiveTab('hub');
@@ -165,30 +164,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '9px',
               cursor: 'pointer'
             }}
           >
-            <div
-              style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '8px',
-                background: 'linear-gradient(135deg, #d97706 0%, #78350f 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#fef3c7',
-                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.4)'
-              }}
-            >
-              <TavernSteinIcon size={19} color="#fffbeb" />
-            </div>
-
             <span
               style={{
                 fontFamily: 'var(--font-cinzel), Georgia, serif',
-                fontSize: '13.5px',
+                fontSize: '14px',
                 fontWeight: 800,
                 letterSpacing: '0.08em',
                 color: '#fef3c7'
@@ -280,38 +262,21 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </header>
 
-      {/* 2. Backdrop Semitransparente ao Abrir */}
-      {isOpen && (
-        <div
-          id="tavern-sidebar-backdrop"
-          onClick={() => setIsOpen(false)}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.45)',
-            backdropFilter: 'blur(3px)',
-            zIndex: 998,
-            transition: 'opacity 0.25s ease'
-          }}
-          aria-hidden="true"
-        />
-      )}
-
-      {/* 3. Barra Lateral de Ferramentas (Estática quando aberta, sem fechar em onMouseLeave) */}
+      {/* 2. Barra Lateral de Ferramentas (Integrada à tela sem backdrop e sem desfoque do fundo) */}
       <aside
         id="tavern-lateral-toolbar"
         className="tavern-sidebar tavern-wood-beam"
         aria-label="Barra de ferramentas lateral da Taberna Digital"
         style={{
           position: 'fixed',
-          top: 0,
+          top: '54px',
           left: 0,
           bottom: 0,
-          height: '100vh',
-          width: '272px',
-          background: 'linear-gradient(180deg, #1c1109 0%, #120a05 100%)',
-          borderRight: '1px solid #4a2810',
-          zIndex: 1000,
+          height: 'calc(100vh - 54px)',
+          width: '258px',
+          background: 'linear-gradient(180deg, #181008 0%, #120a05 100%)',
+          borderRight: '1px solid #3c2415',
+          zIndex: 980,
           display: 'flex',
           flexDirection: 'column',
           boxSizing: 'border-box',
@@ -320,19 +285,19 @@ export const Navbar: React.FC<NavbarProps> = ({
           transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
           opacity: isOpen ? 1 : 0,
           pointerEvents: isOpen ? 'auto' : 'none',
-          transition: 'transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease',
+          transition: 'transform 0.26s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease',
           boxShadow: isOpen
-            ? '16px 0 40px rgba(0, 0, 0, 0.85)'
+            ? '4px 0 20px rgba(0, 0, 0, 0.55)'
             : 'none',
           fontFamily: 'var(--font-cinzel), Georgia, serif',
           userSelect: 'none'
         }}
       >
-        {/* Topo da Barra: Brasão de Caneca de Chopp da Taberna e Botão Fechar */}
+        {/* Topo da Barra: Nome da Taberna e Botão Fechar */}
         <div
           style={{
-            height: '66px',
-            minHeight: '66px',
+            height: '56px',
+            minHeight: '56px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -348,28 +313,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               setActiveTab('hub');
               setIsOpen(false);
             }}
-            title="Voltar ao Salão Principal da Taberna"
+            title="Voltar ao Salão Principal da Taverna"
           >
-            {/* Medalhão da Taberna com Caneca de Chopp Minimalista Medieval */}
-            <div
-              style={{
-                width: '38px',
-                height: '38px',
-                minWidth: '38px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #d97706 0%, #78350f 100%)',
-                color: '#fef3c7',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.5)',
-                border: '1px solid rgba(245, 158, 11, 0.35)'
-              }}
-            >
-              <TavernSteinIcon size={20} color="#fffbeb" />
-            </div>
-
-            <div style={{ marginLeft: '12px', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
               <span
                 style={{
                   fontSize: '13.5px',

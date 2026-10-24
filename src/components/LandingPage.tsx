@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { TavernSteinIcon } from './TavernSteinIcon';
+import { ArrowRight } from 'lucide-react';
 
 interface LandingPageProps {
   onEnter: () => void;
@@ -163,7 +163,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
               }}
             >
               <span>Entrar na Taverna</span>
-              <TavernSteinIcon size={18} color="#ffffff" />
+              <ArrowRight size={18} color="#ffffff" />
             </button>
           </div>
         </div>
