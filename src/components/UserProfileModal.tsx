@@ -603,7 +603,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   boxShadow: '0 0 12px rgba(245, 158, 11, 0.25)'
                 }}
               >
-                <span style={{ fontSize: '15px' }}>🪙</span>
+                <Coins size={15} style={{ color: '#fbbf24' }} />
                 <span>{getEffectiveGold(targetUser).toLocaleString('pt-BR')} Peças de Ouro</span>
               </div>
             </div>

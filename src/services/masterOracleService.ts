@@ -148,20 +148,20 @@ export const masterOracleService = {
       }
 
       const rows = list.slice(0, 100).map(m => `| ${m.title} | ${m.title_en || '—'} | ND ${m.cr} | ${m.type} | Ficha oficial D&D 2024 |`).join('\n');
-      return `### 🐉 ${filterTitle} (${list.length} criaturas)\n\n| Monstro (PT-BR) | Nome Original (EN) | ND / CR | Tipo | Resumo / Detalhes |\n| :--- | :--- | :---: | :--- | :--- |\n${rows}`;
+      return `### ${filterTitle} (${list.length} criaturas)\n\n| Monstro (PT-BR) | Nome Original (EN) | ND / CR | Tipo | Resumo / Detalhes |\n| :--- | :--- | :---: | :--- | :--- |\n${rows}`;
     }
 
     // 2. Magias / Grimório
     if (qLower.includes('magia') || qLower.includes('grimorio') || qLower.includes('grimório') || qLower.includes('feitico') || qLower.includes('feitiço')) {
       const list = compendium.catalog.magias;
       const rows = list.slice(0, 100).map(s => `| ${s.title} | ${s.title_en || '—'} | ${s.info || 'Magia'} | Grimório oficial D&D 2024 |`).join('\n');
-      return `### 🔮 Grimório Oficial de Magias (${list.length} magias indexadas)\n\n| Magia (PT-BR) | Nome Original (EN) | Círculo / Tipo | Resumo / Uso |\n| :--- | :--- | :--- | :--- |\n${rows}`;
+      return `### Grimório Oficial de Magias (${list.length} magias indexadas)\n\n| Magia (PT-BR) | Nome Original (EN) | Círculo / Tipo | Resumo / Uso |\n| :--- | :--- | :--- | :--- |\n${rows}`;
     }
 
     // 3. Classes e Subclasses
     if (qLower.includes('classe') || qLower.includes('subclasse')) {
       const rows = compendium.catalog.classes.map(c => `| ${c.title} | ${c.title_en || '—'} | Classe Básica | Livro do Jogador D&D 2024 |`).join('\n');
-      return `### ⚔️ Classes Oficiais do D&D 2024\n\n| Classe (PT-BR) | Nome Original (EN) | Categoria | Descrição |\n| :--- | :--- | :--- | :--- |\n${rows}`;
+      return `### Classes Oficiais do D&D 2024\n\n| Classe (PT-BR) | Nome Original (EN) | Categoria | Descrição |\n| :--- | :--- | :--- | :--- |\n${rows}`;
     }
 
     return null;
@@ -274,7 +274,7 @@ ${loreSummary}
     if (retrievedDocs.length > 0) {
       const topDoc = retrievedDocs[0];
       return {
-        text: `### 📜 ${topDoc.title}\n*Categoria: ${topDoc.category} | D&D 2024*\n\n${topDoc.content.slice(0, 1200)}...\n\n*(Consulte com a chave do Gemini ativa para sínteses dialógicas completas e criação de ganchos personalizados).*`,
+        text: `### ${topDoc.title}\n*Categoria: ${topDoc.category} | D&D 2024*\n\n${topDoc.content.slice(0, 1200)}...\n\n*(Consulte com a chave do Gemini ativa para sínteses dialógicas completas e criação de ganchos personalizados).*`,
         sources: retrievedDocs.map(d => ({ title: d.title, category: d.category, path: d.path }))
       };
     }

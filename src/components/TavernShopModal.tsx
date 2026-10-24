@@ -64,7 +64,7 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
         lastDailyRewardDate: nowIso
       });
 
-      showNotification(`🎉 Você abriu o Baú da Lareira e recebeu +${DAILY_REWARD_GOLD} Peças de Ouro!`);
+      showNotification(`Você abriu o Baú da Lareira e recebeu +${DAILY_REWARD_GOLD} Peças de Ouro!`);
     } catch {
       showNotification('Erro ao coletar recompensa diária. Tente novamente.', 'error');
     } finally {
@@ -93,7 +93,7 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
       });
 
       setPreviewTitle(item.name);
-      showNotification(`⚔️ Parabéns! Título "${item.name}" adquirido e equipado com sucesso!`);
+      showNotification(`Parabéns! Título "${item.name}" adquirido e equipado com sucesso!`);
     } catch {
       showNotification('Falha ao processar a compra do título.', 'error');
     } finally {
@@ -139,7 +139,7 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
       });
 
       setPreviewFrameId(item.id);
-      showNotification(`🛡️ Moldura "${item.name}" adquirida e equipada com sucesso!`);
+      showNotification(`Moldura "${item.name}" adquirida e equipada com sucesso!`);
     } catch {
       showNotification('Falha ao processar a compra da moldura.', 'error');
     } finally {
@@ -305,7 +305,7 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
                 boxShadow: '0 2px 8px rgba(0, 0, 0, 0.45)'
               }}
             >
-              <span style={{ fontSize: '18px' }}>🪙</span>
+              <Coins size={18} style={{ color: '#fbbf24' }} />
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <span
                   style={{
@@ -432,11 +432,10 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div
                   style={{
-                    fontSize: '28px',
                     filter: dailyAvailable ? 'drop-shadow(0 0 8px #f59e0b)' : 'grayscale(0.8)'
                   }}
                 >
-                  🎁
+                  <Gift size={28} color="#f59e0b" />
                 </div>
                 <div>
                   <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 800, color: '#fef3c7' }}>
@@ -494,7 +493,7 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
                     fontFamily: 'var(--font-body)'
                   }}
                 >
-                  ⏳ Disponível em {dailyCountdown || 'breve'}
+                  Disponível em {dailyCountdown || 'breve'}
                 </div>
               )}
             </div>
@@ -600,7 +599,7 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
                               marginBottom: '6px'
                             }}
                           >
-                            <span style={{ fontSize: '20px' }}>{title.icon || '📜'}</span>
+                            <Shield size={18} color="#f59e0b" />
                             <span
                               style={{
                                 fontSize: '9px',
@@ -649,7 +648,7 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
                           }}
                         >
                           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <span style={{ fontSize: '13px' }}>🪙</span>
+                            <Coins size={13} style={{ color: '#fbbf24' }} />
                             <span style={{ fontSize: '12px', fontWeight: 800, color: '#fbbf24' }}>
                               {title.price === 0 ? 'Grátis' : `${title.price} PO`}
                             </span>
@@ -840,7 +839,7 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
                           }}
                         >
                           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <span style={{ fontSize: '13px' }}>🪙</span>
+                            <Coins size={13} style={{ color: '#fbbf24' }} />
                             <span style={{ fontSize: '12px', fontWeight: 800, color: '#fbbf24' }}>
                               {frame.price === 0 ? 'Grátis' : `${frame.price} PO`}
                             </span>
@@ -995,7 +994,7 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
                   boxShadow: '0 0 12px rgba(245, 158, 11, 0.2)'
                 }}
               >
-                <span>📜</span>
+                <Shield size={13} color="#f59e0b" />
                 <span>{activePreviewTitle}</span>
               </div>
 
@@ -1070,7 +1069,7 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
                   lineHeight: 1.4
                 }}
               >
-                💡 Títulos e molduras equipados são exibidos para todos os seus companheiros de mesa e no Recanto dos Bardos!
+                Títulos e molduras equipados são exibidos para todos os seus companheiros de mesa e no Recanto dos Bardos!
               </p>
             </div>
           </div>

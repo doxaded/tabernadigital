@@ -22,7 +22,8 @@ import {
   Layers,
   HelpCircle,
   Copy,
-  Check
+  Check,
+  Dices
 } from 'lucide-react';
 import { marked } from 'marked';
 import { Campaign, CharacterSheet, CompendiumDoc, LoreEntry, MasterChatMessage, UserProfile } from '../types';
@@ -55,7 +56,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
     {
       id: 'welcome-master',
       sender: 'oracle',
-      text: `### 📜 Mesa de Pergaminhos Aberta, Mestre ${campaign.masterName}!\n\nEste é o seu escudo sagrado e oráculo particular de regras para a campanha **"${campaign.name}"**.\n\nVocê possui acesso irrestrito ao acervo oficial do **D&D 2024 (SRD 5.2)** com **339 monstros**, **326 magias**, **12 classes**, regras de combate e ao contexto narrativo e fichas dos heróis da sua sala.\n\n*Utilize a barra de dados no topo para rolagens rápidas ou a bandeja 3D física. Qualquer ideia de lore ou encontro gerada pode ser gravada diretamente nos pergaminhos da sua sala pelo botão "Salvar na Campanha".*`,
+      text: `### Mesa de Pergaminhos Aberta, Mestre ${campaign.masterName}!\n\nEste é o seu escudo sagrado e oráculo particular de regras para a campanha **"${campaign.name}"**.\n\nVocê possui acesso irrestrito ao acervo oficial do **D&D 2024 (SRD 5.2)** com **339 monstros**, **326 magias**, **12 classes**, regras de combate e ao contexto narrativo e fichas dos heróis da sua sala.\n\n*Utilize a barra de dados no topo para rolagens rápidas ou a bandeja 3D física. Qualquer ideia de lore ou encontro gerada pode ser gravada diretamente nos pergaminhos da sua sala pelo botão "Salvar na Campanha".*`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ]);
@@ -182,7 +183,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
       const diceMsg: MasterChatMessage = {
         id: `dice-${Date.now()}`,
         sender: 'oracle',
-        text: `🎲 **Rolagem na Mesa:** \`${rollRes.expression}\`\n\n- **Dados:** [${rollRes.rolls.join(', ')}]\n- **Modificador:** ${rollRes.modifier >= 0 ? '+' : ''}${rollRes.modifier}\n\n### 🏆 Total: **${rollRes.total}**${rollRes.hasNat20 ? ' — 🌟 **ACERTO CRÍTICO!**' : ''}${rollRes.hasNat1 ? ' — 💀 **FALHA CRÍTICA!**' : ''}`,
+        text: `**Rolagem na Mesa:** \`${rollRes.expression}\`\n\n- **Dados:** [${rollRes.rolls.join(', ')}]\n- **Modificador:** ${rollRes.modifier >= 0 ? '+' : ''}${rollRes.modifier}\n\n### Total: **${rollRes.total}**${rollRes.hasNat20 ? ' — **ACERTO CRÍTICO!**' : ''}${rollRes.hasNat1 ? ' — **FALHA CRÍTICA!**' : ''}`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         diceResult: rollRes
       };
@@ -241,7 +242,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
     const diceMsg: MasterChatMessage = {
       id: `dice-${Date.now()}`,
       sender: 'oracle',
-      text: `🎲 **Rolagem Rápida:** \`1d${sides}\` ➔ **${rollRes.total}** ${rollRes.hasNat20 ? '🌟 (Nat 20!)' : ''}${rollRes.hasNat1 ? '💀 (Nat 1!)' : ''}`,
+      text: `**Rolagem Rápida:** \`1d${sides}\` ➔ **${rollRes.total}** ${rollRes.hasNat20 ? '(Nat 20!)' : ''}${rollRes.hasNat1 ? '(Nat 1!)' : ''}`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       diceResult: rollRes
     };
@@ -303,7 +304,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
       author: `Mestre ${campaign.masterName} (Oráculo)`,
       tags: ['Mesa de Pergaminhos', 'Ideia do Mestre', 'D&D 2024']
     });
-    setSavedSuccessToast(`📜 "${cleanTitle}" gravado com sucesso no Lore da Campanha!`);
+    setSavedSuccessToast(`"${cleanTitle}" gravado com sucesso no Lore da Campanha!`);
     setTimeout(() => setSavedSuccessToast(''), 4500);
   };
 
@@ -357,7 +358,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
             borderRadius: '12px',
             fontWeight: 700
           }}>
-            📚 {compendium ? compendium.totalDocs : 785} Docs D&D 2024 (339 🐉 | 326 🔮)
+            {compendium ? compendium.totalDocs : 785} Documentos D&D 2024 (339 Monstros • 326 Magias)
           </span>
 
           <button
@@ -375,7 +376,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
               fontWeight: 800
             }}
           >
-            🎲 Bandeja de Dados 3D
+            Bandeja de Dados 3D
           </button>
         </div>
       </div>
@@ -452,8 +453,8 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
             color: 'var(--text-strong, #f5ecdc)'
           }}>
             <span>Última Rolagem: <strong>{diceRollResult.expression}</strong> = <strong style={{ fontSize: '14px', color: 'var(--amber-glow, #e0a96d)' }}>{diceRollResult.total}</strong></span>
-            {diceRollResult.hasNat20 && <span style={{ color: '#047857', fontWeight: 900 }}>🌟 Nat 20!</span>}
-            {diceRollResult.hasNat1 && <span style={{ color: '#f87171', fontWeight: 900 }}>💀 Nat 1!</span>}
+            {diceRollResult.hasNat20 && <span style={{ color: '#047857', fontWeight: 900 }}>Nat 20!</span>}
+            {diceRollResult.hasNat1 && <span style={{ color: '#f87171', fontWeight: 900 }}>Nat 1!</span>}
           </div>
         )}
       </div>
@@ -480,7 +481,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                 transition: 'all 0.2s'
               }}
             >
-              📖 Contexto da Sala
+              Contexto da Sala
             </button>
             <button
               type="button"
@@ -498,7 +499,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                 transition: 'all 0.2s'
               }}
             >
-              🐉 Acervo D&D 2024
+              Acervo D&D 2024
             </button>
           </div>
 
@@ -531,7 +532,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     className="btn-tavern btn-secondary"
                     style={{ fontSize: '11px', textAlign: 'left', padding: '6px 10px', color: 'var(--text-strong, #f5ecdc)' }}
                   >
-                    ⚔️ Gerar Encontro Adaptado à Mesa
+                    Gerar Encontro Adaptado à Mesa
                   </button>
                   <button
                     type="button"
@@ -539,7 +540,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     className="btn-tavern btn-secondary"
                     style={{ fontSize: '11px', textAlign: 'left', padding: '6px 10px', color: 'var(--text-strong, #f5ecdc)' }}
                   >
-                    🎭 Criar NPC com Motivo Oculto
+                    Criar NPC com Motivo Oculto
                   </button>
                   <button
                     type="button"
@@ -547,7 +548,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     className="btn-tavern btn-secondary"
                     style={{ fontSize: '11px', textAlign: 'left', padding: '6px 10px', color: 'var(--text-strong, #f5ecdc)' }}
                   >
-                    🍺 3 Rumores para a Taverna
+                    3 Rumores para a Taverna
                   </button>
                   <button
                     type="button"
@@ -555,7 +556,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     className="btn-tavern btn-secondary"
                     style={{ fontSize: '11px', textAlign: 'left', padding: '6px 10px', color: 'var(--text-strong, #f5ecdc)' }}
                   >
-                    🗝️ Propor Enigma ou Armadilha
+                    Propor Enigma ou Armadilha
                   </button>
                 </div>
               </div>
@@ -623,7 +624,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     className="btn-tavern btn-secondary"
                     style={{ fontSize: '11px', textAlign: 'left', padding: '7px 10px', color: 'var(--text-strong, #f5ecdc)', borderColor: 'var(--amber-torch, #d97706)' }}
                   >
-                    🐉 <strong>Bestiário: 339 Monstros</strong>
+                    <strong>Bestiário: 339 Monstros</strong>
                   </button>
                   <button
                     type="button"
@@ -631,7 +632,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     className="btn-tavern btn-secondary"
                     style={{ fontSize: '11px', textAlign: 'left', padding: '7px 10px', color: 'var(--text-strong, #f5ecdc)', borderColor: '#9333ea' }}
                   >
-                    🔮 <strong>Grimório: 326 Magias</strong>
+                    <strong>Grimório: 326 Magias</strong>
                   </button>
                   <button
                     type="button"
@@ -639,7 +640,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     className="btn-tavern btn-secondary"
                     style={{ fontSize: '11px', textAlign: 'left', padding: '7px 10px', color: 'var(--text-strong, #f5ecdc)' }}
                   >
-                    ⚔️ <strong>12 Classes & Subclasses</strong>
+                    <strong>12 Classes & Subclasses</strong>
                   </button>
                   <button
                     type="button"
@@ -647,7 +648,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     className="btn-tavern btn-secondary"
                     style={{ fontSize: '11px', textAlign: 'left', padding: '7px 10px', color: 'var(--text-strong, #f5ecdc)' }}
                   >
-                    🧰 <strong>Ferramentas & Kits</strong>
+                    <strong>Ferramentas & Kits</strong>
                   </button>
                   <button
                     type="button"
@@ -655,7 +656,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     className="btn-tavern btn-secondary"
                     style={{ fontSize: '11px', textAlign: 'left', padding: '7px 10px', color: 'var(--text-strong, #f5ecdc)' }}
                   >
-                    🗡️ <strong>Armas & Equipamentos</strong>
+                    <strong>Armas & Equipamentos</strong>
                   </button>
                   <button
                     type="button"
@@ -663,7 +664,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     className="btn-tavern btn-secondary"
                     style={{ fontSize: '11px', textAlign: 'left', padding: '7px 10px', color: 'var(--text-strong, #f5ecdc)' }}
                   >
-                    ⚡ <strong>Tipos de Dano & Condições</strong>
+                    <strong>Tipos de Dano & Condições</strong>
                   </button>
                 </div>
               </div>
@@ -679,7 +680,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     className="btn-tavern btn-secondary"
                     style={{ fontSize: '11px', textAlign: 'left', padding: '6px 10px', color: 'var(--text-soft)' }}
                   >
-                    🛡️ Condição: Caído (Prone)
+                    Condição: Caído (Prone)
                   </button>
                   <button
                     type="button"
@@ -687,7 +688,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     className="btn-tavern btn-secondary"
                     style={{ fontSize: '11px', textAlign: 'left', padding: '6px 10px', color: 'var(--text-soft)' }}
                   >
-                    💀 0 PV e Testes de Morte
+                    0 PV e Testes de Morte
                   </button>
                   <button
                     type="button"
@@ -695,7 +696,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     className="btn-tavern btn-secondary"
                     style={{ fontSize: '11px', textAlign: 'left', padding: '6px 10px', color: 'var(--text-soft)' }}
                   >
-                    ⛺ Regras de Descanso
+                    Regras de Descanso
                   </button>
                   <button
                     type="button"
@@ -703,7 +704,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     className="btn-tavern btn-secondary"
                     style={{ fontSize: '11px', textAlign: 'left', padding: '6px 10px', color: 'var(--text-soft)' }}
                   >
-                    🔥 Magia: Bola de Fogo
+                    Magia: Bola de Fogo
                   </button>
                 </div>
               </div>
@@ -753,7 +754,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
               }}
               style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '11px', cursor: 'pointer' }}
             >
-              🗑️ Limpar Conversa
+              Limpar Conversa
             </button>
           </div>
 
@@ -801,7 +802,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     gap: '6px',
                     flexWrap: 'wrap'
                   }}>
-                    <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700 }}>🔍 Fontes D&D 2024:</span>
+                    <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700 }}>Fontes D&D 2024:</span>
                     {msg.sources.map((src, sIdx) => (
                       <button
                         key={sIdx}
@@ -822,7 +823,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                           cursor: 'pointer'
                         }}
                       >
-                        📄 {src.title}
+                        {src.title}
                       </button>
                     ))}
                   </div>
@@ -927,7 +928,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
             {/* Header */}
             <div className="dice-modal-header">
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '24px' }}>🎲</span>
+                <Dices size={24} style={{ color: "#f59e0b" }} />
                 <div>
                   <h3 style={{ fontSize: '18px', fontWeight: 900, margin: 0, color: 'var(--text-strong, #f5ecdc)', fontFamily: 'var(--font-cinzel)' }}>
                     Bandeja de Rolagem Física 3D
@@ -951,12 +952,12 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
               <canvas id="masterDiceCanvas" />
               {diceRollResult?.hasNat20 && (
                 <div className="dice-crit-banner crit-success">
-                  🌟 ACERTO CRÍTICO! (Nat 20)
+                  ACERTO CRÍTICO! (Nat 20)
                 </div>
               )}
               {diceRollResult?.hasNat1 && (
                 <div className="dice-crit-banner crit-fail">
-                  💀 FALHA CRÍTICA! (Nat 1)
+                  FALHA CRÍTICA! (Nat 1)
                 </div>
               )}
             </div>
@@ -1016,7 +1017,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                   onClick={handleTrigger3dPhysics}
                   className="btn-roll-physics"
                 >
-                  ⚡ Rolar Dados Físicos
+                  Rolar Dados Físicos
                 </button>
               </div>
 
@@ -1035,7 +1036,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                   <button
                     type="button"
                     onClick={() => {
-                      const msgText = `🎲 **Resultado da Bandeja 3D:** \`${diceRollResult.expression}\` ➔ Total: **${diceRollResult.total}** [${diceRollResult.rolls.join(', ')}] ${diceRollResult.hasNat20 ? '🌟 (Nat 20!)' : ''}${diceRollResult.hasNat1 ? '💀 (Nat 1!)' : ''}`;
+                      const msgText = `**Resultado da Bandeja 3D:** \`${diceRollResult.expression}\` ➔ Total: **${diceRollResult.total}** [${diceRollResult.rolls.join(', ')}] ${diceRollResult.hasNat20 ? '(Nat 20!)' : ''}${diceRollResult.hasNat1 ? '(Nat 1!)' : ''}`;
                       setMessages(prev => [
                         ...prev,
                         {
@@ -1050,7 +1051,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                     }}
                     className="btn-insert-chat"
                   >
-                    💬 Inserir Resultado na Conversa
+                    Inserir Resultado na Conversa
                   </button>
                 </div>
               )}
@@ -1187,7 +1188,7 @@ export const MasterScreenView: React.FC<MasterScreenViewProps> = ({
                 className="btn-tavern btn-primary"
                 style={{ fontSize: '12px' }}
               >
-                🔮 Consultar Oráculo Sobre Isto
+                Consultar Oráculo Sobre Isto
               </button>
               <button
                 type="button"
@@ -1374,7 +1375,7 @@ const InteractiveTableWidget: React.FC<InteractiveTableWidgetProps> = ({
             <ArrowLeft size={14} />
             <span>Voltar à lista</span>
           </button>
-          <span className="dt-detail-badge">📜 Detalhamento do Item Oficial</span>
+          <span className="dt-detail-badge">Detalhamento do Item Oficial</span>
         </div>
 
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap' }}>
@@ -1421,7 +1422,7 @@ const InteractiveTableWidget: React.FC<InteractiveTableWidgetProps> = ({
             className="btn-tavern btn-primary"
             style={{ fontSize: '11px', padding: '6px 14px' }}
           >
-            🔮 Consultar Oráculo Sobre Este Item
+            Consultar Oráculo Sobre Este Item
           </button>
           <button
             type="button"
@@ -1463,10 +1464,10 @@ const InteractiveTableWidget: React.FC<InteractiveTableWidgetProps> = ({
 
         <div className="dt-meta-row">
           <span className="dt-count-badge">
-            📊 Mostrando <strong>{sortedRows.length}</strong> de {rows.length} itens
+            Mostrando <strong>{sortedRows.length}</strong> de {rows.length} itens
           </span>
           <span className="dt-hint-badge">
-            💡 Clique em qualquer linha para abrir a ficha completa do item
+            Clique em qualquer linha para abrir a ficha completa do item
           </span>
         </div>
       </div>
@@ -1535,7 +1536,7 @@ const InteractiveTableWidget: React.FC<InteractiveTableWidgetProps> = ({
                       type="button"
                       className="dt-btn-view-item"
                     >
-                      👁️ Abrir
+                      Abrir
                     </button>
                   </td>
                 </tr>

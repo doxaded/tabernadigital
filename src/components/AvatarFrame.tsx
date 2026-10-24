@@ -41,97 +41,8 @@ export const AvatarFrame: React.FC<AvatarFrameProps> = ({
   const effectiveTitle = customTitle || user?.title;
   const { box, font, badgeFont } = SIZE_MAP[size] || SIZE_MAP.md;
 
-  // Renderizador de efeitos cosméticos adicionais para cada moldura
-  const renderFrameEffects = () => {
-    switch (effectiveFrameId) {
-      case 'frame-fire':
-        return (
-          <span
-            style={{
-              position: 'absolute',
-              top: '-4px',
-              right: '-4px',
-              fontSize: `${Math.max(10, box * 0.28)}px`,
-              pointerEvents: 'none'
-            }}
-          >
-            🔥
-          </span>
-        );
-      case 'frame-ice':
-        return (
-          <span
-            style={{
-              position: 'absolute',
-              top: '-4px',
-              left: '-4px',
-              fontSize: `${Math.max(10, box * 0.26)}px`,
-              pointerEvents: 'none'
-            }}
-          >
-            ❄️
-          </span>
-        );
-      case 'frame-dragon':
-        return (
-          <span
-            style={{
-              position: 'absolute',
-              bottom: '-4px',
-              right: '-4px',
-              fontSize: `${Math.max(10, box * 0.28)}px`,
-              pointerEvents: 'none'
-            }}
-          >
-            🐉
-          </span>
-        );
-      case 'frame-nature':
-        return (
-          <span
-            style={{
-              position: 'absolute',
-              bottom: '-3px',
-              left: '-3px',
-              fontSize: `${Math.max(10, box * 0.26)}px`,
-              pointerEvents: 'none'
-            }}
-          >
-            🌿
-          </span>
-        );
-      case 'frame-celestial':
-        return (
-          <span
-            style={{
-              position: 'absolute',
-              top: '-5px',
-              right: '-3px',
-              fontSize: `${Math.max(10, box * 0.28)}px`,
-              pointerEvents: 'none'
-            }}
-          >
-            ✨
-          </span>
-        );
-      case 'frame-gold':
-        return (
-          <span
-            style={{
-              position: 'absolute',
-              bottom: '-3px',
-              right: '-3px',
-              fontSize: `${Math.max(9, box * 0.24)}px`,
-              pointerEvents: 'none'
-            }}
-          >
-            🪙
-          </span>
-        );
-      default:
-        return null;
-    }
-  };
+  // Efeitos cosméticos sutis tratados via CSS (sem emojis)
+  const renderFrameEffects = () => null;
 
   return (
     <div
@@ -178,7 +89,7 @@ export const AvatarFrame: React.FC<AvatarFrameProps> = ({
             color: '#fef3c7',
             fontWeight: 800,
             fontSize: `${font}px`,
-            fontFamily: 'var(--font-cinzel), Georgia, serif',
+            fontFamily: 'var(--font-body), sans-serif',
             textShadow: '0 2px 4px rgba(0,0,0,0.8)'
           }}
         >
@@ -222,7 +133,7 @@ export const AvatarFrame: React.FC<AvatarFrameProps> = ({
             maxWidth: '120px',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
-            fontFamily: 'var(--font-cinzel), Georgia, serif',
+            fontFamily: 'var(--font-body), sans-serif',
             textShadow: '0 1px 2px rgba(0,0,0,0.9)'
           }}
           title={effectiveTitle}

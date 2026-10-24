@@ -73,13 +73,13 @@
   --status-approved: #10b981;
   --status-rejected: #ef4444;
 
-  /* Tipografia */
-  --font-cinzel: 'Cinzel', 'Alegreya', Georgia, serif;
-  --font-medieval: 'MedievalSharp', cursive;
-  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-lore: 'Alegreya', Georgia, serif;
-  --font-gothic: 'UnifrakturMaguntia', 'UnifrakturCook', 'Old English Text MT', serif;
-  --font-display: 'Cormorant Garamond', 'Alegreya', Georgia, serif;
+  /* Tipografia Limpa e Universal (Inter) */
+  --font-cinzel: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-medieval: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-lore: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-gothic: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 
   /* Efeitos e Sombras */
   --shadow-torch: 0 4px 14px rgba(0, 0, 0, 0.5);
@@ -103,7 +103,6 @@ html, body {
   width: 100%;
   min-height: 100vh;
   background-color: #0e0906;
-  background-image: radial-gradient(ellipse at 50% 15%, rgba(217, 119, 6, 0.12) 0%, rgba(14, 9, 6, 0.98) 75%);
   color: var(--text-strong);
   font-family: var(--font-body);
   font-size: 15px;
@@ -996,7 +995,7 @@ h1, h2, h3, h4, .font-cinzel {
   width: min(100%, 1240px);
   margin: 0 auto;
   /* Mesma fonte do título "TABERNA DIGITAL" (Cinzel extra-negrito, caixa alta) */
-  font-family: 'Cinzel Hero', var(--font-cinzel);
+  font-family: var(--font-body);
   font-weight: 800;
   font-size: clamp(40px, 8.8vw, 136px);
   line-height: 0.8;
@@ -1134,7 +1133,7 @@ h1, h2, h3, h4, .font-cinzel {
 
 .salao-split__title {
   margin: 0;
-  font-family: 'Cinzel Hero', var(--font-cinzel);
+  font-family: var(--font-body);
   font-weight: 800;
   font-size: clamp(30px, 4vw, 58px);
   line-height: 0.95;
@@ -1514,7 +1513,7 @@ h1, h2, h3, h4, .font-cinzel {
 
 .bardo__who { display: flex; flex-direction: column; gap: 2px; }
 .bardo__name {
-  font-family: 'Cinzel Hero', var(--font-cinzel);
+  font-family: var(--font-body);
   font-weight: 800;
   font-size: 20px;
   letter-spacing: 0.02em;
@@ -1792,7 +1791,7 @@ h1, h2, h3, h4, .font-cinzel {
 }
 .bardo-wall__title {
   margin: 0;
-  font-family: 'Cinzel Hero', var(--font-cinzel);
+  font-family: var(--font-body);
   font-weight: 800;
   font-size: clamp(28px, 3.6vw, 48px);
   line-height: 1;
@@ -1997,7 +1996,7 @@ h1, h2, h3, h4, .font-cinzel {
 .bardo-modal__text { display: flex; flex-direction: column; gap: 10px; padding-top: 6px; }
 .bardo-modal__title {
   margin: 0 0 8px;
-  font-family: 'Cinzel Hero', var(--font-cinzel);
+  font-family: var(--font-body);
   font-weight: 800;
   font-size: 22px;
   text-transform: uppercase;
@@ -2367,7 +2366,7 @@ h1, h2, h3, h4, .font-cinzel {
 }
 
 .portal-chat-header__title {
-  font-family: 'Cinzel Hero', var(--font-cinzel);
+  font-family: var(--font-body);
   font-size: 18px;
   font-weight: 800;
   color: #F5F0E6;
@@ -2723,7 +2722,7 @@ h1, h2, h3, h4, .font-cinzel {
   border: none;
 }
 .portal-no-channel h3 {
-  font-family: 'Cinzel Hero', var(--font-cinzel);
+  font-family: var(--font-body);
   font-size: 20px;
   margin: 16px 0 8px;
   color: #F5F0E6;
@@ -3786,7 +3785,7 @@ h1, h2, h3, h4, .font-cinzel {
   align-items: center;
   width: 100%;
   margin: 0 auto;
-  font-family: 'Cinzel Hero', var(--font-cinzel), serif;
+  font-family: var(--font-body);
   font-weight: 800;
   font-size: clamp(48px, 9.2vw, 136px);
   line-height: 0.86;

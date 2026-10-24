@@ -127,7 +127,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <span
               style={{
-                fontFamily: 'var(--font-cinzel), Georgia, serif',
+                fontFamily: 'var(--font-body)',
                 fontSize: '14px',
                 fontWeight: 800,
                 letterSpacing: '0.08em',
@@ -158,7 +158,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 fontSize: '11px',
                 fontWeight: 800,
                 cursor: 'pointer',
-                fontFamily: 'var(--font-cinzel), Georgia, serif',
+                fontFamily: 'var(--font-body)',
                 transition: 'all 0.2s ease'
               }}
               onMouseEnter={(e) => {
@@ -193,7 +193,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               fontSize: '11px',
               fontWeight: 700,
               cursor: 'pointer',
-              fontFamily: 'var(--font-cinzel), Georgia, serif',
+              fontFamily: 'var(--font-body)',
               transition: 'all 0.2s ease'
             }}
             onMouseEnter={(e) => {

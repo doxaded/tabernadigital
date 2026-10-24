@@ -11,80 +11,70 @@ export const SHOP_TITLES: ShopTitleItem[] = [
     name: 'O Novato da Estalagem',
     price: 0,
     description: 'Todo grande herói começou sentado em um banquinho de taverna ouvindo boatos.',
-    rarity: 'comum',
-    icon: '🍺'
+    rarity: 'comum'
   },
   {
     id: 'bardo',
     name: 'Bardo Cantador de Histórias',
     price: 80,
     description: 'Conhece todas as baladas, piadas e fofocas dos quatro reinos de cor e salteado.',
-    rarity: 'comum',
-    icon: '🪕'
+    rarity: 'comum'
   },
   {
     id: 'cervejeiro',
     name: 'Guardião do Barril de Carvalho',
     price: 120,
     description: 'O melhor amigo de todo taverneiro e o terror dos barris de cerveja preta.',
-    rarity: 'comum',
-    icon: '🍻'
+    rarity: 'comum'
   },
   {
     id: 'lareira',
     name: 'Lorde da Lareira Aconchegante',
     price: 160,
     description: 'Sempre encontra o assento mais aquecido e confortável ao lado do fogo.',
-    rarity: 'raro',
-    icon: '🔥'
+    rarity: 'raro'
   },
   {
     id: 'apostador',
     name: 'Apostador Audaz dos Dados',
     price: 220,
     description: 'Dobrou a aposta nos dados de marfim e viveu com os bolsos cheios para contar.',
-    rarity: 'raro',
-    icon: '🎲'
+    rarity: 'raro'
   },
   {
     id: 'goblins',
     name: 'Flagelo dos Goblins',
     price: 280,
     description: 'Nem as cavernas mais escuras nem as colinas são refúgio contra sua lâmina afiada.',
-    rarity: 'raro',
-    icon: '🗡️'
+    rarity: 'raro'
   },
   {
     id: 'arquivista',
     name: 'Arquivista Arcano dos Grimórios',
     price: 350,
     description: 'Lê pergaminhos antigos à luz de velas e decifra runas milenares proibidas.',
-    rarity: 'epico',
-    icon: '📜'
+    rarity: 'epico'
   },
   {
     id: 'mestre-dados',
     name: 'Mestre dos Vinte Lados',
     price: 450,
     description: 'Abençoado pelos deuses da sorte; o lendário 20 natural o acompanha nas batalhas.',
-    rarity: 'epico',
-    icon: '✨'
+    rarity: 'epico'
   },
   {
     id: 'dragao',
     name: 'Campeão do Dragão Ancião',
     price: 600,
     description: 'Sobreviveu ao sopro de chamas e ostenta a escama carmesim no peito.',
-    rarity: 'lendario',
-    icon: '🐉'
+    rarity: 'lendario'
   },
   {
     id: 'patrono',
     name: 'Patrono Lendário da Taverna',
     price: 800,
     description: 'Sua caneca pessoal de ouro maciço repousa com honras eternas atrás do balcão.',
-    rarity: 'lendario',
-    icon: '👑'
+    rarity: 'lendario'
   }
 ];
 
@@ -98,7 +88,7 @@ export const SHOP_FRAMES: ShopFrameItem[] = [
     borderColor: '#71717a',
     glowColor: 'rgba(113, 113, 122, 0.2)',
     boxShadow: '0 0 0 2px #3f3f46, 0 3px 8px rgba(0,0,0,0.6)',
-    badge: '⚙️ Comum',
+    badge: 'Comum',
     cssStyle: 'border: 2px solid #71717a; box-shadow: 0 3px 8px rgba(0,0,0,0.6);'
   },
   {
@@ -110,7 +100,7 @@ export const SHOP_FRAMES: ShopFrameItem[] = [
     borderColor: '#854d0e',
     glowColor: 'rgba(161, 98, 7, 0.2)',
     boxShadow: '0 0 0 2px #78350f, 0 3px 8px rgba(0,0,0,0.6)',
-    badge: '🪵 Carvalho',
+    badge: 'Carvalho',
     cssStyle: 'border: 2px solid #b45309; box-shadow: 0 3px 8px rgba(0,0,0,0.6);'
   },
   {
@@ -122,7 +112,7 @@ export const SHOP_FRAMES: ShopFrameItem[] = [
     borderColor: '#b45309',
     glowColor: 'rgba(217, 119, 6, 0.2)',
     boxShadow: '0 0 0 2px #78350f, 0 3px 8px rgba(0,0,0,0.6)',
-    badge: '🛡️ Bronze',
+    badge: 'Bronze',
     cssStyle: 'border: 2px solid #d97706; box-shadow: 0 3px 8px rgba(0,0,0,0.6);'
   },
   {
@@ -134,7 +124,7 @@ export const SHOP_FRAMES: ShopFrameItem[] = [
     borderColor: '#fbbf24',
     glowColor: 'rgba(245, 158, 11, 0.3)',
     boxShadow: '0 0 0 2px #d97706, 0 3px 10px rgba(0,0,0,0.7)',
-    badge: '🪙 Ouro Nobre',
+    badge: 'Ouro Nobre',
     cssStyle: 'border: 2px solid #f59e0b; box-shadow: 0 3px 10px rgba(0,0,0,0.7);'
   },
   {
@@ -146,7 +136,7 @@ export const SHOP_FRAMES: ShopFrameItem[] = [
     borderColor: '#10b981',
     glowColor: 'rgba(16, 185, 129, 0.3)',
     boxShadow: '0 0 0 2px #047857, 0 3px 8px rgba(0,0,0,0.6)',
-    badge: '🌿 Élfico',
+    badge: 'Élfico',
     cssStyle: 'border: 2px solid #10b981; box-shadow: 0 3px 8px rgba(0,0,0,0.6);'
   },
   {
@@ -158,7 +148,7 @@ export const SHOP_FRAMES: ShopFrameItem[] = [
     borderColor: '#f97316',
     glowColor: 'rgba(239, 68, 68, 0.3)',
     boxShadow: '0 0 0 2px #c2410c, 0 3px 10px rgba(0,0,0,0.7)',
-    badge: '🔥 Fogo Vivo',
+    badge: 'Fogo Vivo',
     cssStyle: 'border: 2px solid #f97316; box-shadow: 0 3px 10px rgba(0,0,0,0.7);'
   },
   {
@@ -170,7 +160,7 @@ export const SHOP_FRAMES: ShopFrameItem[] = [
     borderColor: '#38bdf8',
     glowColor: 'rgba(56, 189, 248, 0.3)',
     boxShadow: '0 0 0 2px #0284c7, 0 3px 10px rgba(0,0,0,0.7)',
-    badge: '❄️ Glacial',
+    badge: 'Glacial',
     cssStyle: 'border: 2px solid #38bdf8; box-shadow: 0 3px 10px rgba(0,0,0,0.7);'
   },
   {
@@ -182,7 +172,7 @@ export const SHOP_FRAMES: ShopFrameItem[] = [
     borderColor: '#e11d48',
     glowColor: 'rgba(225, 29, 72, 0.35)',
     boxShadow: '0 0 0 2px #881337, 0 3px 10px rgba(0,0,0,0.75)',
-    badge: '🐉 Dracônico',
+    badge: 'Dracônico',
     cssStyle: 'border: 2px solid #e11d48; box-shadow: 0 3px 10px rgba(0,0,0,0.75);'
   },
   {
@@ -194,7 +184,7 @@ export const SHOP_FRAMES: ShopFrameItem[] = [
     borderColor: '#a855f7',
     glowColor: 'rgba(168, 85, 247, 0.35)',
     boxShadow: '0 0 0 2px #6b21a8, 0 3px 12px rgba(0,0,0,0.8)',
-    badge: '🌌 Cósmico',
+    badge: 'Cósmico',
     cssStyle: 'border: 2px solid #c084fc; box-shadow: 0 3px 12px rgba(0,0,0,0.8);'
   }
 ];

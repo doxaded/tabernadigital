@@ -77,10 +77,10 @@ export const TavernInteractiveDesk: React.FC<TavernInteractiveDeskProps> = ({ co
     tavernAudio.playToastSound();
     setIsToastActive(true);
     const toasts = [
-      '🍻 "Tim-tim! Vida longa aos bravos da taverna!"',
-      '🍻 "Pela glória da guilda e pelos tesouros da masmorra!"',
-      '🍻 "Aos companheiros caídos e às vitórias que virão!"',
-      '🍻 "Que o hidromel nunca acabe e as tochas nunca apaguem!"'
+      '"Tim-tim! Vida longa aos bravos da taverna!"',
+      '"Pela glória da guilda e pelos tesouros da masmorra!"',
+      '"Aos companheiros caídos e às vitórias que virão!"',
+      '"Que o hidromel nunca acabe e as tochas nunca apaguem!"'
     ];
     setToastMessage(toasts[Math.floor(Math.random() * toasts.length)]);
     setTimeout(() => {
@@ -94,9 +94,9 @@ export const TavernInteractiveDesk: React.FC<TavernInteractiveDeskProps> = ({ co
     tavernAudio.playBellChime();
     setIsRinging(true);
     const bells = [
-      '🔔 "O taberneiro ergue o olhar: Pois não, aventureiro?"',
-      '🔔 "O sino de latão ecoa suave pelo salão de carvalho."',
-      '🔔 "Rodada de hidromel na conta da casa!"'
+      '"O taberneiro ergue o olhar: Pois não, aventureiro?"',
+      '"O sino de latão ecoa suave pelo salão de carvalho."',
+      '"Rodada de hidromel na conta da casa!"'
     ];
     setBellMessage(bells[Math.floor(Math.random() * bells.length)]);
     setTimeout(() => {
@@ -160,7 +160,7 @@ export const TavernInteractiveDesk: React.FC<TavernInteractiveDeskProps> = ({ co
             transition: 'transform 0.2s ease'
           }}
         />
-        <span style={{ fontFamily: 'var(--font-cinzel), Georgia, serif' }}>
+        <span style={{ fontFamily: 'var(--font-body)' }}>
           {torchLevel === 2 ? 'Fogo Alto' : torchLevel === 1 ? 'Chama Suave' : 'Apagada'}
         </span>
       </button>
@@ -219,10 +219,15 @@ export const TavernInteractiveDesk: React.FC<TavernInteractiveDeskProps> = ({ co
           fontWeight: 700
         }}
       >
-        <span style={{ fontSize: '13px', transform: isToastActive ? 'rotate(-15deg) scale(1.2)' : 'none', transition: 'transform 0.2s ease' }}>
-          🍺
-        </span>
-        <span style={{ fontFamily: 'var(--font-cinzel), Georgia, serif' }}>Brindar</span>
+        <Sparkles
+          size={13}
+          style={{
+            color: '#f59e0b',
+            transform: isToastActive ? 'scale(1.25)' : 'none',
+            transition: 'transform 0.2s ease'
+          }}
+        />
+        <span style={{ fontFamily: 'var(--font-body)' }}>Brindar</span>
       </button>
 
       {/* 4. Sino de Balcão (Latão) */}
@@ -252,7 +257,7 @@ export const TavernInteractiveDesk: React.FC<TavernInteractiveDeskProps> = ({ co
             transition: 'transform 0.15s ease'
           }}
         />
-        <span style={{ fontFamily: 'var(--font-cinzel), Georgia, serif' }}>Sino</span>
+        <span style={{ fontFamily: 'var(--font-body)' }}>Sino</span>
       </button>
 
       {/* Tooltip / Notificação Flutuante de Interação (Presságio do d20, Brinde ou Sino) */}
@@ -281,7 +286,7 @@ export const TavernInteractiveDesk: React.FC<TavernInteractiveDeskProps> = ({ co
           }}
         >
           <Sparkles size={14} style={{ color: '#f59e0b', flexShrink: 0 }} />
-          <span>{toastMessage || bellMessage || (d20Omen ? `🎲 ${d20Omen}` : '')}</span>
+          <span>{toastMessage || bellMessage || (d20Omen ? d20Omen : '')}</span>
         </div>
       )}
     </div>
