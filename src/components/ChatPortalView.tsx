@@ -33,6 +33,7 @@ import {
 import { Campaign, ChatChannel, ChatMessage, ChatScope, CustomChatRoom, UserContact, UserProfile } from '../types';
 import { chatService } from '../services/chatService';
 import { storageService, ADMIN_EMAIL, normalizeUserTag } from '../services/storage';
+import { AvatarFrame } from './AvatarFrame';
 
 interface ChatPortalViewProps {
   currentUser: UserProfile | null;
@@ -1280,18 +1281,15 @@ export const ChatPortalView: React.FC<ChatPortalViewProps> = ({
                         >
                           <div
                             onClick={() => senderUser && onOpenProfile(senderUser)}
-                            className="portal-msg__avatar"
-                            style={{
-                              borderColor: msg.senderBadgeColor || '#d97706',
-                              cursor: senderUser ? 'pointer' : 'default'
-                            }}
+                            style={{ cursor: senderUser ? 'pointer' : 'default', flexShrink: 0 }}
                             title={senderUser ? `Ver perfil de ${msg.senderName} (#${senderUser.userTag || senderUser.tag})` : msg.senderName}
                           >
-                            {msg.senderAvatarUrl || senderUser?.photoURL ? (
-                              <img src={msg.senderAvatarUrl || senderUser?.photoURL} alt={msg.senderName} />
-                            ) : (
-                              <span>{msg.senderName.charAt(0).toUpperCase()}</span>
-                            )}
+                            <AvatarFrame
+                              user={senderUser}
+                              avatarUrl={msg.senderAvatarUrl || senderUser?.photoURL}
+                              displayName={msg.senderName}
+                              size="sm"
+                            />
                           </div>
 
                           <div className="portal-msg__body">
@@ -1310,12 +1308,12 @@ export const ChatPortalView: React.FC<ChatPortalViewProps> = ({
                                 </span>
                               )}
 
-                              {msg.senderTitle && (
+                              {(msg.senderTitle || senderUser?.title) && (
                                 <span
                                   className="portal-msg__title-tag"
                                   style={{ color: msg.senderBadgeColor || '#d97706' }}
                                 >
-                                  "{msg.senderTitle}"
+                                  "{msg.senderTitle || senderUser?.title}"
                                 </span>
                               )}
 

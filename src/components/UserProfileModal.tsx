@@ -16,10 +16,13 @@ import {
   LogOut,
   ArrowLeft,
   ChevronRight,
-  Copy
+  Copy,
+  Coins
 } from 'lucide-react';
 import { UserProfile } from '../types';
 import { ADMIN_EMAIL } from '../services/storage';
+import { AvatarFrame } from './AvatarFrame';
+import { getEffectiveGold } from '../services/tavernShopCatalog';
 
 interface UserProfileModalProps {
   isOpen: boolean;
@@ -29,6 +32,7 @@ interface UserProfileModalProps {
   onSaveProfile: (updates: Partial<UserProfile>) => Promise<void> | void;
   onStartDirectChat?: (user: UserProfile) => void;
   onOpenChangePassword?: () => void;
+  onOpenShop?: () => void;
   onLogout?: () => void;
   onOpenAdmin?: () => void;
 }
@@ -127,6 +131,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   onSaveProfile,
   onStartDirectChat,
   onOpenChangePassword,
+  onOpenShop,
   onLogout,
   onOpenAdmin
 }) => {
@@ -392,58 +397,12 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               marginBottom: '22px'
             }}
           >
-            {/* Moldura do Avatar / Retrato com Glow da Tocha */}
-            <div style={{ position: 'relative', width: '92px', height: '92px', marginBottom: '14px' }}>
-              <div
-                style={{
-                  width: '92px',
-                  height: '92px',
-                  borderRadius: '50%',
-                  backgroundColor: '#14110E',
-                  border: `3px solid ${activeColor}`,
-                  boxShadow: `0 0 20px ${activeColor}40, 0 8px 24px rgba(0, 0, 0, 0.8)`,
-                  overflow: 'hidden',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxSizing: 'border-box'
-                }}
-              >
-                <div
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    backgroundColor: activeColor,
-                    color: '#ffffff',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '36px',
-                    fontWeight: 800,
-                    fontFamily: "'Cinzel Hero', Georgia, serif",
-                    textShadow: '0 2px 8px rgba(0,0,0,0.6)',
-                    position: 'relative'
-                  }}
-                >
-                  {(isEditing ? (displayName || 'A') : targetUser.displayName).charAt(0).toUpperCase()}
-                  {(isEditing ? photoURL : targetUser.photoURL) && (
-                    <img
-                      src={isEditing ? photoURL : targetUser.photoURL}
-                      alt={targetUser.displayName}
-                      style={{
-                        position: 'absolute',
-                        inset: 0,
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover'
-                      }}
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                      }}
-                    />
-                  )}
-                </div>
-              </div>
+            {/* Moldura do Avatar / Retrato com AvatarFrame */}
+            <div style={{ position: 'relative', marginBottom: '14px' }}>
+              <AvatarFrame
+                user={isEditing ? { ...targetUser, photoURL: photoURL || targetUser.photoURL, displayName: displayName || targetUser.displayName } : targetUser}
+                size="xl"
+              />
 
               {/* Botão de Câmera sobre o Avatar (permite anexar fotos ou arquivos direto) */}
               {isSelf && (
@@ -626,6 +585,28 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                 </button>
               </div>
             )}
+
+            {/* Pílula de Peças de Ouro (PO) */}
+            <div style={{ marginTop: '10px', display: 'inline-flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+              <div
+                style={{
+                  backgroundColor: 'rgba(217, 119, 6, 0.18)',
+                  border: '1.5px solid #d97706',
+                  padding: '5px 14px',
+                  borderRadius: '20px',
+                  fontSize: '12px',
+                  fontWeight: 800,
+                  color: '#fbbf24',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: '0 0 12px rgba(245, 158, 11, 0.25)'
+                }}
+              >
+                <span style={{ fontSize: '15px' }}>🪙</span>
+                <span>{getEffectiveGold(targetUser).toLocaleString('pt-BR')} Peças de Ouro</span>
+              </div>
+            </div>
           </div>
 
           {!isEditing ? (
@@ -648,6 +629,39 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   >
                     Opções da Conta
                   </span>
+
+                  {/* Bazar da Taverna (Loja Virtual de Títulos & Molduras) */}
+                  <button
+                    type="button"
+                    id="option-tavern-shop"
+                    onClick={() => {
+                      onClose();
+                      onOpenShop?.();
+                    }}
+                    style={{
+                      ...optionItemStyle,
+                      border: '1.5px solid rgba(245, 158, 11, 0.45)',
+                      background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.22) 0%, rgba(120, 53, 15, 0.35) 100%)',
+                      boxShadow: '0 0 14px rgba(245, 158, 11, 0.15)'
+                    }}
+                    onMouseEnter={(e) => optionHover(e, true)}
+                    onMouseLeave={(e) => optionHover(e, false)}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ ...optionIconContainerStyle, backgroundColor: 'rgba(245, 158, 11, 0.25)' }}>
+                        <Coins size={16} style={{ color: '#fbbf24' }} />
+                      </div>
+                      <div style={{ textAlign: 'left' }}>
+                        <div style={{ fontSize: '13px', fontWeight: 800, color: '#fef3c7', fontFamily: "'Cinzel Hero', Georgia, serif" }}>
+                          Bazar da Taverna
+                        </div>
+                        <div style={{ fontSize: '11px', color: '#d4b896' }}>
+                          Comprar e equipar Títulos e Molduras Místicas
+                        </div>
+                      </div>
+                    </div>
+                    <ChevronRight size={16} style={{ color: '#fbbf24' }} />
+                  </button>
 
                   {/* Personalizar Perfil */}
                   <button

@@ -16,11 +16,14 @@ import {
   Flame,
   Volume2,
   VolumeX,
-  Music
+  Music,
+  Coins
 } from 'lucide-react';
 import { UserProfile } from '../types';
 import { ADMIN_EMAIL } from '../services/storage';
 import { tavernAudio } from '../services/tavernAudio';
+import { AvatarFrame } from './AvatarFrame';
+import { getEffectiveGold } from '../services/tavernShopCatalog';
 
 interface NavbarProps {
   currentUser: UserProfile | null;
@@ -30,6 +33,7 @@ interface NavbarProps {
   onOpenAuth: () => void;
   onOpenChangePassword: () => void;
   onOpenMyProfile?: () => void;
+  onOpenShop?: () => void;
   onLogout: () => void;
   pendingCount: number;
   bannerMode?: boolean;
@@ -83,6 +87,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAuth,
   onOpenChangePassword,
   onOpenMyProfile,
+  onOpenShop,
   onLogout,
   pendingCount,
 }) => {
@@ -436,6 +441,98 @@ export const Navbar: React.FC<NavbarProps> = ({
           );
         })}
 
+        {/* Botão de Destaque: Bazar da Taverna (Loja Virtual de Títulos & Molduras) */}
+        {currentUser && (
+          <button
+            id="tavern-shop-btn"
+            onClick={onOpenShop}
+            title={`Bazar da Taverna - ${getEffectiveGold(currentUser)} Peças de Ouro (PO)`}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              width: '100%',
+              height: '46px',
+              minHeight: '46px',
+              padding: '0 10px',
+              borderRadius: '8px',
+              border: '1.5px solid rgba(245, 158, 11, 0.35)',
+              cursor: 'pointer',
+              background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.15) 0%, rgba(69, 26, 3, 0.25) 100%)',
+              color: '#fbbf24',
+              transition: 'all 0.2s ease',
+              textAlign: 'left',
+              position: 'relative',
+              boxSizing: 'border-box',
+              margin: '4px 0'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.25)';
+              e.currentTarget.style.borderColor = '#fbbf24';
+              e.currentTarget.style.transform = 'translateX(2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(217, 119, 6, 0.15)';
+              e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.35)';
+              e.currentTarget.style.transform = 'translateX(0)';
+            }}
+          >
+            <div
+              style={{
+                width: '24px',
+                height: '24px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                color: '#fbbf24',
+                filter: 'drop-shadow(0 0 6px rgba(245, 158, 11, 0.6))'
+              }}
+            >
+              <Coins size={20} strokeWidth={2.2} />
+            </div>
+
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+                opacity: isHovered ? 1 : 0,
+                transform: isHovered ? 'translateX(0)' : 'translateX(-6px)',
+                transition: 'opacity 0.22s ease, transform 0.22s ease'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span
+                  style={{
+                    fontSize: '12.5px',
+                    fontWeight: 800,
+                    lineHeight: 1.2,
+                    letterSpacing: '0.02em',
+                    fontFamily: 'var(--font-cinzel), Georgia, serif',
+                    color: '#fef3c7'
+                  }}
+                >
+                  Bazar da Taverna
+                </span>
+              </div>
+              <span
+                style={{
+                  fontSize: '10.5px',
+                  fontWeight: 700,
+                  color: '#fbbf24',
+                  lineHeight: 1.2,
+                  marginTop: '2px',
+                  fontFamily: 'var(--font-body)'
+                }}
+              >
+                🪙 {getEffectiveGold(currentUser).toLocaleString('pt-BR')} PO
+              </span>
+            </div>
+          </button>
+        )}
+
         {/* Divisor de Madeira Rústica */}
         <div
           style={{
@@ -585,37 +682,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 e.currentTarget.style.backgroundColor = 'transparent';
               }}
             >
-              {/* Moldura do Avatar em Couro & Latão */}
-              <div
-                style={{
-                  width: '36px',
-                  height: '36px',
-                  minWidth: '36px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #d97706, #451a03)',
-                  color: '#fef3c7',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '14px',
-                  fontWeight: 800,
-                  overflow: 'hidden',
-                  border: '1.5px solid #f59e0b',
-                  boxShadow: '0 0 8px rgba(245, 158, 11, 0.35)'
-                }}
-              >
-                {(currentUser.photoURL || currentUser.avatarUrl) ? (
-                  <img
-                    src={currentUser.photoURL || currentUser.avatarUrl}
-                    alt={currentUser.displayName || 'Avatar'}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                ) : (
-                  (currentUser.displayName || currentUser.email || 'A').charAt(0).toUpperCase()
-                )}
-              </div>
+              {/* Moldura Mística do Avatar com AvatarFrame */}
+              <AvatarFrame user={currentUser} size="sm" />
 
-              {/* Nome e Tag no modo expandido */}
+              {/* Nome, Título, Tag e Ouro no modo expandido */}
               <div
                 style={{
                   display: 'flex',
@@ -640,27 +710,71 @@ export const Navbar: React.FC<NavbarProps> = ({
                   {currentUser.displayName || currentUser.email.split('@')[0]}
                 </span>
 
-                {/* Tag de 7 Caracteres Única em Pergaminho com Selo */}
-                {currentUser.userTag && (
+                {/* Título Honorífico Equipado */}
+                {currentUser.title && (
+                  <span
+                    style={{
+                      fontSize: '10px',
+                      color: '#fbbf24',
+                      fontStyle: 'italic',
+                      lineHeight: 1.1,
+                      marginTop: '1px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      maxWidth: '170px'
+                    }}
+                    title={currentUser.title}
+                  >
+                    "{currentUser.title}"
+                  </span>
+                )}
+
+                {/* Tag de 7 Caracteres Única e Pílula de Ouro */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px' }}>
+                  {currentUser.userTag && (
+                    <div
+                      onClick={handleCopyTag}
+                      title="Clique para copiar sua tag de aventureiro"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '3px',
+                        fontSize: '9.5px',
+                        fontFamily: 'monospace',
+                        fontWeight: 800,
+                        color: copiedTag ? '#22c55e' : '#f59e0b',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <span>#{currentUser.userTag}</span>
+                      {copiedTag ? <Check size={10} /> : <Copy size={9} />}
+                    </div>
+                  )}
+
                   <div
-                    onClick={handleCopyTag}
-                    title="Clique para copiar sua tag de aventureiro"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onOpenShop?.();
+                    }}
+                    title="Bolsa de Peças de Ouro (Clique para abrir o Bazar)"
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '4px',
-                      fontSize: '10px',
-                      fontFamily: 'monospace',
+                      gap: '2px',
+                      fontSize: '9.5px',
                       fontWeight: 800,
-                      color: copiedTag ? '#22c55e' : '#f59e0b',
-                      marginTop: '2px',
+                      color: '#fcd34d',
+                      backgroundColor: 'rgba(217, 119, 6, 0.25)',
+                      border: '1px solid rgba(245, 158, 11, 0.4)',
+                      padding: '1px 5px',
+                      borderRadius: '8px',
                       cursor: 'pointer'
                     }}
                   >
-                    <span>#{currentUser.userTag}</span>
-                    {copiedTag ? <Check size={11} /> : <Copy size={10} />}
+                    <span>🪙</span>
+                    <span>{getEffectiveGold(currentUser).toLocaleString('pt-BR')} PO</span>
                   </div>
-                )}
+                </div>
               </div>
             </div>
 

@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowUpRight, Volume2, VolumeX, Flame } from 'lucide-react';
+import { ArrowUpRight, Volume2, VolumeX, Flame, Coins } from 'lucide-react';
 import { Campaign, UserProfile } from '../types';
 import { tavernAudio } from '../services/tavernAudio';
+import { getEffectiveGold } from '../services/tavernShopCatalog';
 
 interface TavernHubViewProps {
   currentUser: UserProfile | null;
   campaigns: Campaign[];
   sketchesCount?: number;
   onNavigate: (tab: 'campaigns' | 'sketch' | 'urd' | 'chat') => void;
+  onOpenShop?: () => void;
 }
 
 interface HubModuleConfig {
@@ -60,7 +62,9 @@ const HUB_MODULES: HubModuleConfig[] = [
 ];
 
 export const TavernHubView: React.FC<TavernHubViewProps> = ({
+  currentUser,
   onNavigate,
+  onOpenShop
 }) => {
   const [hoveredModule, setHoveredModule] = useState<string | null>(null);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
@@ -106,42 +110,82 @@ export const TavernHubView: React.FC<TavernHubViewProps> = ({
           </span>
         </div>
 
-        {/* Botão de Música da Taverna */}
-        <button
-          type="button"
-          onClick={() => tavernAudio.toggle()}
-          title={isPlayingAudio ? 'Silenciar Alaúde & Lareira' : 'Ouvir Música da Taverna (Alaúde & Lareira)'}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '6px 14px',
-            borderRadius: '20px',
-            border: isPlayingAudio ? '1px solid #f59e0b' : '1px solid rgba(245, 158, 11, 0.3)',
-            background: isPlayingAudio
-              ? 'linear-gradient(135deg, rgba(217, 119, 6, 0.35) 0%, rgba(120, 53, 15, 0.25) 100%)'
-              : 'rgba(0, 0, 0, 0.4)',
-            color: isPlayingAudio ? '#fef3c7' : '#cfc6b8',
-            fontSize: '11px',
-            fontWeight: 700,
-            cursor: 'pointer',
-            fontFamily: 'var(--font-cinzel), Georgia, serif',
-            boxShadow: isPlayingAudio ? '0 0 12px rgba(245, 158, 11, 0.4)' : 'none',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          {isPlayingAudio ? (
-            <>
-              <Volume2 size={14} style={{ color: '#f59e0b' }} />
-              <span>Alaúde & Lareira Ativos</span>
-            </>
-          ) : (
-            <>
-              <VolumeX size={14} />
-              <span>Ouvir Música da Taverna</span>
-            </>
+        {/* Ações da Taverna: Bazar e Música */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {/* Botão do Bazar da Taverna */}
+          {currentUser && (
+            <button
+              type="button"
+              onClick={onOpenShop}
+              title="Abrir Bazar da Taverna (Títulos de Honra & Molduras Místicas)"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 14px',
+                borderRadius: '20px',
+                border: '1.5px solid #f59e0b',
+                background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.3) 0%, rgba(120, 53, 15, 0.4) 100%)',
+                color: '#fbbf24',
+                fontSize: '11px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                fontFamily: 'var(--font-cinzel), Georgia, serif',
+                boxShadow: '0 0 14px rgba(245, 158, 11, 0.35)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.04)';
+                e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.backgroundColor = 'rgba(217, 119, 6, 0.3)';
+              }}
+            >
+              <Coins size={14} style={{ color: '#fbbf24' }} />
+              <span>{getEffectiveGold(currentUser).toLocaleString('pt-BR')} PO</span>
+              <span style={{ opacity: 0.8, fontWeight: 500 }}>• Bazar</span>
+            </button>
           )}
-        </button>
+
+          {/* Botão de Música da Taverna */}
+          <button
+            type="button"
+            onClick={() => tavernAudio.toggle()}
+            title={isPlayingAudio ? 'Silenciar Alaúde & Lareira' : 'Ouvir Música da Taverna (Alaúde & Lareira)'}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '6px 14px',
+              borderRadius: '20px',
+              border: isPlayingAudio ? '1px solid #f59e0b' : '1px solid rgba(245, 158, 11, 0.3)',
+              background: isPlayingAudio
+                ? 'linear-gradient(135deg, rgba(217, 119, 6, 0.35) 0%, rgba(120, 53, 15, 0.25) 100%)'
+                : 'rgba(0, 0, 0, 0.4)',
+              color: isPlayingAudio ? '#fef3c7' : '#cfc6b8',
+              fontSize: '11px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              fontFamily: 'var(--font-cinzel), Georgia, serif',
+              boxShadow: isPlayingAudio ? '0 0 12px rgba(245, 158, 11, 0.4)' : 'none',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            {isPlayingAudio ? (
+              <>
+                <Volume2 size={14} style={{ color: '#f59e0b' }} />
+                <span>Alaúde & Lareira Ativos</span>
+              </>
+            ) : (
+              <>
+                <VolumeX size={14} />
+                <span>Ouvir Música</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Os 4 Banners Gigantes de Salas da Taverna */}

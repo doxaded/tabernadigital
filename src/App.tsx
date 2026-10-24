@@ -11,6 +11,7 @@ import { SketchStudioView } from './components/SketchStudioView';
 import { UrdChatView } from './components/UrdChatView';
 import { ChatPortalView } from './components/ChatPortalView';
 import { UserProfileModal } from './components/UserProfileModal';
+import { TavernShopModal } from './components/TavernShopModal';
 import { MasterScreenView } from './components/MasterScreenView';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { LandingPage } from './components/LandingPage';
@@ -36,6 +37,7 @@ export function App() {
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isShopOpen, setIsShopOpen] = useState(false);
   const [profileModalUser, setProfileModalUser] = useState<UserProfile | null>(null);
 
   // Sincroniza dados com o storage
@@ -343,6 +345,7 @@ export function App() {
                 setIsProfileModalOpen(true);
               }
             }}
+            onOpenShop={() => setIsShopOpen(true)}
             onLogout={handleLogout}
             pendingCount={pendingCount}
             bannerMode={
@@ -417,6 +420,7 @@ export function App() {
                               setActiveTab(tab);
                               window.scrollTo({ top: 0, behavior: 'smooth' });
                             }}
+                            onOpenShop={() => setIsShopOpen(true)}
                           />
                         )}
 
@@ -558,10 +562,22 @@ export function App() {
           setIsProfileModalOpen(false);
           handleLogout();
         }}
+        onOpenShop={() => {
+          setIsProfileModalOpen(false);
+          setIsShopOpen(true);
+        }}
         onOpenAdmin={() => {
           setIsProfileModalOpen(false);
           setIsAdminModalOpen(true);
         }}
+      />
+
+      {/* Bazar da Taverna (Loja Virtual de Títulos de Honra & Molduras Místicas) */}
+      <TavernShopModal
+        isOpen={isShopOpen}
+        onClose={() => setIsShopOpen(false)}
+        currentUser={currentUser}
+        onSaveProfile={handleSaveProfile}
       />
     </div>
   );

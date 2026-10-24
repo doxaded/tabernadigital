@@ -21,6 +21,37 @@ export interface UserProfile {
   customBadgeColor?: string;
   bannerUrl?: string;
   diceTheme?: string;
+  // Bazar da Taverna (Loja Virtual & Economia de Peças de Ouro)
+  gold?: number; // Peças de Ouro (PO) acumuladas
+  frameId?: string; // Moldura de avatar atualmente equipada
+  unlockedTitles?: string[]; // IDs ou nomes de títulos desbloqueados
+  unlockedFrames?: string[]; // IDs de molduras desbloqueadas
+  lastDailyRewardDate?: string; // Data ISO da última recompensa diária coletada
+}
+
+export type ShopItemRarity = 'comum' | 'raro' | 'epico' | 'lendario';
+
+export interface ShopTitleItem {
+  id: string;
+  name: string;
+  price: number;
+  description: string;
+  rarity: ShopItemRarity;
+  icon?: string;
+}
+
+export interface ShopFrameItem {
+  id: string;
+  name: string;
+  price: number;
+  description: string;
+  rarity: ShopItemRarity;
+  borderColor: string;
+  glowColor: string;
+  boxShadow: string;
+  badge: string;
+  previewBg?: string;
+  cssStyle?: string;
 }
 
 export interface UserContact {
