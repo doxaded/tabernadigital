@@ -492,8 +492,8 @@ h1, h2, h3, h4, .font-cinzel {
   }
 
   .app-main-content {
-    margin-left: 64px;
-    width: calc(100% - 64px);
+    margin-left: 0;
+    width: 100%;
     min-width: 0;
     box-sizing: border-box;
   }

@@ -1,23 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import {
   Compass,
-  BookOpen,
-  Sparkles,
-  Beer,
-  MessageSquare,
   Crown,
-  User,
   KeyRound,
   LogOut,
   LogIn,
-  ChevronRight,
   Copy,
   Check,
   Flame,
   Volume2,
   VolumeX,
-  Music,
-  Coins
+  Coins,
+  X
 } from 'lucide-react';
 import { UserProfile } from '../types';
 import { ADMIN_EMAIL } from '../services/storage';
@@ -40,42 +34,27 @@ interface NavbarProps {
 }
 
 interface NavItemConfig {
-  id: 'hub' | 'campaigns' | 'sketch' | 'urd' | 'chat';
+  id: 'hub' | 'shop';
   label: string;
   subtitle: string;
   icon: React.ReactNode;
+  action: 'navigate' | 'shop';
 }
 
 const NAV_ITEMS: NavItemConfig[] = [
   {
     id: 'hub',
-    label: 'Salão da Taverna',
-    subtitle: 'Lareira & Início',
-    icon: <Compass size={20} strokeWidth={2.2} />
+    label: 'Salão Principal',
+    subtitle: 'Lareira & Banners das Salas',
+    icon: <Compass size={20} strokeWidth={2.2} />,
+    action: 'navigate'
   },
   {
-    id: 'campaigns',
-    label: 'Mesa dos Apostadores',
-    subtitle: 'Campanhas & Fichas',
-    icon: <BookOpen size={20} strokeWidth={2.2} />
-  },
-  {
-    id: 'sketch',
-    label: 'Telas do Alaúde',
-    subtitle: 'Ateliê do Bardo',
-    icon: <Sparkles size={20} strokeWidth={2.2} />
-  },
-  {
-    id: 'urd',
-    label: 'Urd, o Taberneiro',
-    subtitle: 'Balcão & Lareira',
-    icon: <Beer size={20} strokeWidth={2.2} />
-  },
-  {
-    id: 'chat',
-    label: 'Recanto dos Bardos',
-    subtitle: 'Scriptorium & Chat',
-    icon: <MessageSquare size={20} strokeWidth={2.2} />
+    id: 'shop',
+    label: 'Bazar da Taverna',
+    subtitle: 'Títulos, Molduras & PO',
+    icon: <Coins size={20} strokeWidth={2.2} />,
+    action: 'shop'
   }
 ];
 
@@ -93,8 +72,8 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const isSuperAdmin = currentUser?.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
-  // Estado que controla se a barra lateral está aberta (cursor interagindo sobre a mesma)
-  const [isHovered, setIsHovered] = useState(false);
+  // Estado que controla se a barra lateral está totalmente visível ou oculta
+  const [isOpen, setIsOpen] = useState(false);
   const [copiedTag, setCopiedTag] = useState(false);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
@@ -119,192 +98,248 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <aside
-      id="tavern-lateral-toolbar"
-      className="tavern-sidebar tavern-wood-beam"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onFocus={() => setIsHovered(true)}
-      onBlur={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-          setIsHovered(false);
-        }
-      }}
-      aria-label="Barra de ferramentas lateral da Taberna Digital"
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        bottom: 0,
-        height: '100vh',
-        width: isHovered ? '264px' : '64px',
-        background: 'linear-gradient(180deg, #1b120a 0%, #130b06 100%)',
-        borderRight: '2px solid #3c2415',
-        zIndex: 1000,
-        display: 'flex',
-        flexDirection: 'column',
-        boxSizing: 'border-box',
-        overflowX: 'hidden',
-        overflowY: 'auto',
-        transition: 'width 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-        boxShadow: isHovered
-          ? '16px 0 45px rgba(0, 0, 0, 0.85), inset -1px 0 0 rgba(245, 158, 11, 0.2)'
-          : '4px 0 16px rgba(0, 0, 0, 0.65)',
-        fontFamily: 'var(--font-cinzel), Georgia, serif',
-        userSelect: 'none'
-      }}
-    >
-      {/* Topo: Selo de Latão / Brasão da Taberna */}
+    <>
+      {/* 1. Sensor Interativo na Borda Esquerda da Tela (Aproximação do Cursor) */}
       <div
+        id="tavern-sidebar-edge-sensor"
+        onMouseEnter={() => setIsOpen(true)}
         style={{
-          height: '66px',
-          minHeight: '66px',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '20px',
+          height: '100vh',
+          zIndex: 994,
+          cursor: 'pointer',
+          pointerEvents: isOpen ? 'none' : 'auto'
+        }}
+        title="Aproxime o cursor para abrir as Ferramentas da Taverna"
+        aria-hidden="true"
+      />
+
+      {/* 2. Ícone / Logo Flutuante no Canto Superior Esquerdo da Tela */}
+      <button
+        id="tavern-topleft-seal-btn"
+        type="button"
+        onMouseEnter={() => setIsOpen(true)}
+        onClick={() => setIsOpen((prev) => !prev)}
+        title="Abrir Ferramentas da Taverna (ou aproxime o cursor do canto esquerdo)"
+        style={{
+          position: 'fixed',
+          top: '12px',
+          left: '12px',
+          zIndex: 995,
+          width: '42px',
+          height: '42px',
+          borderRadius: '12px',
+          background: 'linear-gradient(135deg, #d97706 0%, #78350f 100%)',
+          color: '#fef3c7',
           display: 'flex',
           alignItems: 'center',
-          padding: '0 12px',
-          borderBottom: '1px solid rgba(245, 158, 11, 0.15)',
-          background: 'linear-gradient(180deg, rgba(245, 158, 11, 0.08) 0%, transparent 100%)',
-          boxSizing: 'border-box',
+          justifyContent: 'center',
+          border: '1.5px solid #f59e0b',
+          boxShadow: '0 6px 20px rgba(0, 0, 0, 0.8), 0 0 16px rgba(245, 158, 11, 0.45)',
           cursor: 'pointer',
-          position: 'relative'
+          transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease',
+          opacity: isOpen ? 0 : 1,
+          pointerEvents: isOpen ? 'none' : 'auto',
+          transform: isOpen ? 'scale(0.8) translateX(-15px)' : 'scale(1) translateX(0)'
         }}
-        onClick={() => setActiveTab('hub')}
-        title="Voltar ao Salão Principal da Taberna"
       >
-        {/* Medalhão da Taberna em Ouro Envelhecido com Brasa */}
-        <div
-          style={{
-            width: '40px',
-            height: '40px',
-            minWidth: '40px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: '10px',
-            background: 'linear-gradient(135deg, #d97706 0%, #78350f 100%)',
-            color: '#fef3c7',
-            fontWeight: 900,
-            fontSize: '13px',
-            letterSpacing: '0.04em',
-            boxShadow: '0 0 14px rgba(245, 158, 11, 0.35), inset 0 1px 1px rgba(254, 243, 199, 0.5)',
-            border: '1px solid #f59e0b',
-            position: 'relative'
-          }}
-        >
-          <Flame size={18} style={{ color: '#fffbeb', filter: 'drop-shadow(0 0 4px #f59e0b)' }} />
-        </div>
+        <Flame size={20} style={{ color: '#fffbeb', filter: 'drop-shadow(0 0 5px #f59e0b)' }} />
+      </button>
 
-        {/* Nome da Taberna e subtítulo quando expandido */}
+      {/* 3. Backdrop Semitransparente ao Abrir */}
+      {isOpen && (
         <div
+          id="tavern-sidebar-backdrop"
+          onClick={() => setIsOpen(false)}
           style={{
-            marginLeft: '12px',
-            display: 'flex',
-            flexDirection: 'column',
-            opacity: isHovered ? 1 : 0,
-            transform: isHovered ? 'translateX(0)' : 'translateX(-8px)',
-            transition: 'opacity 0.25s ease, transform 0.25s ease',
-            whiteSpace: 'nowrap',
-            pointerEvents: isHovered ? 'auto' : 'none'
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.45)',
+            backdropFilter: 'blur(3px)',
+            zIndex: 998,
+            transition: 'opacity 0.25s ease'
           }}
-        >
-          <span
-            style={{
-              fontSize: '14px',
-              fontWeight: 800,
-              letterSpacing: '0.08em',
-              color: '#fef3c7',
-              textShadow: '0 0 10px rgba(245, 158, 11, 0.4)'
-            }}
-          >
-            TABERNA DIGITAL
-          </span>
-          <span
-            style={{
-              fontSize: '9px',
-              letterSpacing: '0.14em',
-              textTransform: 'uppercase',
-              fontWeight: 700,
-              color: '#d97706',
-              marginTop: '2px',
-              fontFamily: 'var(--font-body)'
-            }}
-          >
-            RPG Companion
-          </span>
-        </div>
+          aria-hidden="true"
+        />
+      )}
 
-        {/* Indicador de expansão */}
-        <div
-          style={{
-            position: 'absolute',
-            right: '8px',
-            top: '50%',
-            transform: `translateY(-50%) rotate(${isHovered ? '180deg' : '0deg'})`,
-            opacity: isHovered ? 0.8 : 0.4,
-            transition: 'transform 0.3s ease, opacity 0.2s ease',
-            color: '#f59e0b',
-            display: 'flex',
-            alignItems: 'center'
-          }}
-          title={isHovered ? 'Recolher menu' : 'Expandir menu'}
-        >
-          <ChevronRight size={15} />
-        </div>
-      </div>
-
-      {/* Botão de Música da Taverna (Lareira & Alaúde) */}
-      <div
+      {/* 4. Barra Lateral de Ferramentas (Esconde-se inteiramente até ser ativada) */}
+      <aside
+        id="tavern-lateral-toolbar"
+        className="tavern-sidebar tavern-wood-beam"
+        onMouseEnter={() => setIsOpen(true)}
+        onMouseLeave={() => setIsOpen(false)}
+        aria-label="Barra de ferramentas lateral da Taberna Digital"
         style={{
-          padding: isHovered ? '10px 12px 6px' : '10px 10px 4px',
-          boxSizing: 'border-box'
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          bottom: 0,
+          height: '100vh',
+          width: '272px',
+          background: 'linear-gradient(180deg, #1c1109 0%, #120a05 100%)',
+          borderRight: '2px solid #5a3518',
+          zIndex: 1000,
+          display: 'flex',
+          flexDirection: 'column',
+          boxSizing: 'border-box',
+          overflowX: 'hidden',
+          overflowY: 'auto',
+          transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
+          opacity: isOpen ? 1 : 0,
+          pointerEvents: isOpen ? 'auto' : 'none',
+          transition: 'transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease, box-shadow 0.28s ease',
+          boxShadow: isOpen
+            ? '20px 0 60px rgba(0, 0, 0, 0.95), 0 0 35px rgba(245, 158, 11, 0.25), inset -1px 0 0 rgba(245, 158, 11, 0.3)'
+            : 'none',
+          fontFamily: 'var(--font-cinzel), Georgia, serif',
+          userSelect: 'none'
         }}
       >
-        <button
-          type="button"
-          onClick={handleToggleAudio}
-          title={isPlayingAudio ? 'Silenciar Alaúde & Lareira' : 'Ouvir Música da Taverna (Alaúde & Lareira)'}
+        {/* Topo da Barra: Brasão da Taberna e Botão Fechar */}
+        <div
           style={{
-            width: '100%',
-            height: isHovered ? '38px' : '40px',
+            height: '66px',
+            minHeight: '66px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: isHovered ? 'flex-start' : 'center',
-            gap: '10px',
-            padding: isHovered ? '0 10px' : '0',
-            borderRadius: '8px',
-            border: isPlayingAudio ? '1px solid #f59e0b' : '1px solid rgba(245, 158, 11, 0.25)',
-            background: isPlayingAudio
-              ? 'linear-gradient(90deg, rgba(217, 119, 6, 0.3) 0%, rgba(120, 53, 15, 0.2) 100%)'
-              : 'rgba(0, 0, 0, 0.35)',
-            color: isPlayingAudio ? '#fef3c7' : '#cfc6b8',
-            cursor: 'pointer',
-            boxShadow: isPlayingAudio ? '0 0 12px rgba(245, 158, 11, 0.3)' : 'none',
-            transition: 'all 0.2s ease'
+            justifyContent: 'space-between',
+            padding: '0 14px',
+            borderBottom: '1px solid rgba(245, 158, 11, 0.15)',
+            background: 'linear-gradient(180deg, rgba(245, 158, 11, 0.1) 0%, transparent 100%)',
+            boxSizing: 'border-box'
           }}
         >
           <div
+            style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+            onClick={() => {
+              setActiveTab('hub');
+              setIsOpen(false);
+            }}
+            title="Voltar ao Salão Principal da Taberna"
+          >
+            {/* Medalhão da Taberna com Chama */}
+            <div
+              style={{
+                width: '38px',
+                height: '38px',
+                minWidth: '38px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '10px',
+                background: 'linear-gradient(135deg, #d97706 0%, #78350f 100%)',
+                color: '#fef3c7',
+                boxShadow: '0 0 14px rgba(245, 158, 11, 0.35)',
+                border: '1px solid #f59e0b'
+              }}
+            >
+              <Flame size={18} style={{ color: '#fffbeb', filter: 'drop-shadow(0 0 4px #f59e0b)' }} />
+            </div>
+
+            <div style={{ marginLeft: '12px', display: 'flex', flexDirection: 'column' }}>
+              <span
+                style={{
+                  fontSize: '13.5px',
+                  fontWeight: 800,
+                  letterSpacing: '0.08em',
+                  color: '#fef3c7',
+                  textShadow: '0 0 10px rgba(245, 158, 11, 0.4)'
+                }}
+              >
+                TABERNA DIGITAL
+              </span>
+              <span
+                style={{
+                  fontSize: '9px',
+                  letterSpacing: '0.14em',
+                  textTransform: 'uppercase',
+                  fontWeight: 700,
+                  color: '#d97706',
+                  marginTop: '1px',
+                  fontFamily: 'var(--font-body)'
+                }}
+              >
+                RPG Companion
+              </span>
+            </div>
+          </div>
+
+          {/* Botão de Fechar Barra Lateral */}
+          <button
+            type="button"
+            onClick={() => setIsOpen(false)}
+            title="Ocultar Barra Lateral"
             style={{
-              width: '24px',
-              height: '24px',
+              background: 'rgba(0, 0, 0, 0.35)',
+              border: '1px solid rgba(245, 158, 11, 0.25)',
+              color: '#d4b896',
+              cursor: 'pointer',
+              padding: '6px',
+              borderRadius: '8px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: isPlayingAudio ? '#f59e0b' : '#a89a85',
-              flexShrink: 0
+              transition: 'all 0.15s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = '#ffffff';
+              e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.3)';
+              e.currentTarget.style.borderColor = '#ef4444';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#d4b896';
+              e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.35)';
+              e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.25)';
             }}
           >
-            {isPlayingAudio ? <Volume2 size={18} /> : <VolumeX size={18} />}
-          </div>
+            <X size={16} />
+          </button>
+        </div>
 
-          {isHovered && (
+        {/* Botão de Música da Taverna (Lareira & Alaúde) */}
+        <div style={{ padding: '10px 14px 6px', boxSizing: 'border-box' }}>
+          <button
+            type="button"
+            onClick={handleToggleAudio}
+            title={isPlayingAudio ? 'Silenciar Alaúde & Lareira' : 'Ouvir Música da Taverna (Alaúde & Lareira)'}
+            style={{
+              width: '100%',
+              height: '38px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-start',
+              gap: '10px',
+              padding: '0 12px',
+              borderRadius: '8px',
+              border: isPlayingAudio ? '1px solid #f59e0b' : '1px solid rgba(245, 158, 11, 0.25)',
+              background: isPlayingAudio
+                ? 'linear-gradient(90deg, rgba(217, 119, 6, 0.3) 0%, rgba(120, 53, 15, 0.2) 100%)'
+                : 'rgba(0, 0, 0, 0.35)',
+              color: isPlayingAudio ? '#fef3c7' : '#cfc6b8',
+              cursor: 'pointer',
+              boxShadow: isPlayingAudio ? '0 0 12px rgba(245, 158, 11, 0.3)' : 'none',
+              transition: 'all 0.2s ease'
+            }}
+          >
             <div
               style={{
+                width: '24px',
+                height: '24px',
                 display: 'flex',
-                flexDirection: 'column',
-                overflow: 'hidden',
-                whiteSpace: 'nowrap'
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: isPlayingAudio ? '#f59e0b' : '#a89a85',
+                flexShrink: 0
               }}
             >
+              {isPlayingAudio ? <Volume2 size={18} /> : <VolumeX size={18} />}
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', whiteSpace: 'nowrap' }}>
               <span style={{ fontSize: '11px', fontWeight: 700, color: isPlayingAudio ? '#fef3c7' : '#d6c6b2' }}>
                 {isPlayingAudio ? 'Música da Taverna' : 'Tocar Música'}
               </span>
@@ -312,12 +347,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {isPlayingAudio ? 'Lareira & Alaúde ligados' : 'Lareira & Alaúde'}
               </span>
             </div>
-          )}
-        </button>
-      </div>
+          </button>
+        </div>
 
-      {/* Rótulo de Seção no modo expandido */}
-      {isHovered && (
+        {/* Título da Seção */}
         <div
           style={{
             padding: '12px 16px 4px',
@@ -329,63 +362,177 @@ export const Navbar: React.FC<NavbarProps> = ({
             whiteSpace: 'nowrap'
           }}
         >
-          Aposentos da Taverna
+          Ferramentas da Taverna
         </div>
-      )}
 
-      {/* Lista de Navegação Principal */}
-      <nav
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '6px',
-          padding: isHovered ? '6px 12px' : '8px 10px',
-          flex: 1
-        }}
-      >
-        {NAV_ITEMS.map((item) => {
-          const isActive = activeTab === item.id;
-          return (
+        {/* Lista de Navegação Principal: Salão Principal & Bazar da Taverna */}
+        <nav
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '6px',
+            padding: '6px 12px',
+            flex: 1
+          }}
+        >
+          {NAV_ITEMS.map((item) => {
+            const isActive = item.id === 'hub' ? activeTab === 'hub' : false;
+            const isShop = item.id === 'shop';
+
+            return (
+              <button
+                key={item.id}
+                onClick={() => {
+                  if (item.action === 'shop') {
+                    onOpenShop?.();
+                  } else {
+                    setActiveTab('hub');
+                  }
+                  setIsOpen(false);
+                }}
+                title={item.label}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  width: '100%',
+                  height: '48px',
+                  minHeight: '48px',
+                  padding: '0 12px',
+                  borderRadius: '8px',
+                  border: isActive
+                    ? '1px solid rgba(245, 158, 11, 0.4)'
+                    : isShop
+                    ? '1.5px solid rgba(245, 158, 11, 0.35)'
+                    : '1px solid transparent',
+                  borderLeft: isActive
+                    ? '3px solid #f59e0b'
+                    : isShop
+                    ? '3px solid #fbbf24'
+                    : '1px solid transparent',
+                  cursor: 'pointer',
+                  background: isActive
+                    ? 'linear-gradient(90deg, rgba(217, 119, 6, 0.28) 0%, rgba(120, 53, 15, 0.12) 100%)'
+                    : isShop
+                    ? 'linear-gradient(90deg, rgba(217, 119, 6, 0.2) 0%, rgba(69, 26, 3, 0.25) 100%)'
+                    : 'transparent',
+                  color: isActive || isShop ? '#fef3c7' : '#cfc6b8',
+                  boxShadow: isActive ? '0 0 16px rgba(245, 158, 11, 0.25)' : 'none',
+                  transition: 'all 0.15s ease',
+                  textAlign: 'left',
+                  position: 'relative',
+                  boxSizing: 'border-box'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.2)';
+                  e.currentTarget.style.color = '#fffbeb';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = isActive
+                    ? 'linear-gradient(90deg, rgba(217, 119, 6, 0.28) 0%, rgba(120, 53, 15, 0.12) 100%)'
+                    : isShop
+                    ? 'linear-gradient(90deg, rgba(217, 119, 6, 0.2) 0%, rgba(69, 26, 3, 0.25) 100%)'
+                    : 'transparent';
+                  e.currentTarget.style.color = isActive || isShop ? '#fef3c7' : '#cfc6b8';
+                }}
+              >
+                <div
+                  style={{
+                    width: '24px',
+                    height: '24px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    color: isShop ? '#fbbf24' : isActive ? '#f59e0b' : 'inherit',
+                    filter: isShop || isActive ? 'drop-shadow(0 0 6px #f59e0b)' : 'none'
+                  }}
+                >
+                  {item.icon}
+                </div>
+
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: '13px',
+                      fontWeight: isActive || isShop ? 800 : 600,
+                      lineHeight: 1.2,
+                      letterSpacing: '0.02em',
+                      fontFamily: 'var(--font-cinzel), Georgia, serif',
+                      color: isShop ? '#fbbf24' : '#fef3c7'
+                    }}
+                  >
+                    {item.label}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: '10.5px',
+                      fontWeight: 500,
+                      color: isShop ? '#fcd34d' : isActive ? '#fcd34d' : '#8c7a6b',
+                      lineHeight: 1.2,
+                      marginTop: '2px',
+                      fontFamily: 'var(--font-body)'
+                    }}
+                  >
+                    {isShop && currentUser
+                      ? `🪙 ${getEffectiveGold(currentUser).toLocaleString('pt-BR')} PO • Títulos & Molduras`
+                      : item.subtitle}
+                  </span>
+                </div>
+              </button>
+            );
+          })}
+
+          {/* Divisor de Madeira Rústica */}
+          <div
+            style={{
+              height: '1px',
+              backgroundColor: 'rgba(245, 158, 11, 0.15)',
+              margin: '8px 4px'
+            }}
+          />
+
+          {/* Botão de Área Administrativa (SuperAdmin) */}
+          {isSuperAdmin && (
             <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              title={item.label}
+              id="admin-exclusive-btn"
+              onClick={() => {
+                onOpenAdmin();
+                setIsOpen(false);
+              }}
+              title="Área Administrativa do Mestre Guardião"
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px',
                 width: '100%',
-                height: '46px',
-                minHeight: '46px',
+                height: '44px',
+                minHeight: '44px',
                 padding: '0 10px',
                 borderRadius: '8px',
-                border: isActive ? '1px solid rgba(245, 158, 11, 0.4)' : '1px solid transparent',
-                borderLeft: isActive ? '3px solid #f59e0b' : '1px solid transparent',
+                border: '1px solid rgba(245, 158, 11, 0.2)',
                 cursor: 'pointer',
-                background: isActive
-                  ? 'linear-gradient(90deg, rgba(217, 119, 6, 0.28) 0%, rgba(120, 53, 15, 0.12) 100%)'
-                  : 'transparent',
-                color: isActive ? '#fef3c7' : '#cfc6b8',
-                boxShadow: isActive ? '0 0 16px rgba(245, 158, 11, 0.25), inset 0 1px 0 rgba(254, 243, 199, 0.15)' : 'none',
-                transition: 'all 0.15s ease',
+                background: 'rgba(217, 119, 6, 0.08)',
+                color: '#fcd34d',
+                transition: 'background-color 0.15s ease',
                 textAlign: 'left',
                 position: 'relative',
                 boxSizing: 'border-box'
               }}
               onMouseEnter={(e) => {
-                if (!isActive) {
-                  e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.1)';
-                  e.currentTarget.style.color = '#fffbeb';
-                }
+                e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.2)';
               }}
               onMouseLeave={(e) => {
-                if (!isActive) {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = '#cfc6b8';
-                }
+                e.currentTarget.style.backgroundColor = 'rgba(217, 119, 6, 0.08)';
               }}
             >
-              {/* Ícone fixo de 20px com brilho âmbar se ativo */}
               <div
                 style={{
                   width: '24px',
@@ -394,402 +541,193 @@ export const Navbar: React.FC<NavbarProps> = ({
                   alignItems: 'center',
                   justifyContent: 'center',
                   flexShrink: 0,
-                  color: isActive ? '#f59e0b' : 'inherit',
-                  filter: isActive ? 'drop-shadow(0 0 6px #f59e0b)' : 'none'
+                  position: 'relative',
+                  color: '#f59e0b'
                 }}
               >
-                {item.icon}
+                <Crown size={20} strokeWidth={2.2} />
               </div>
 
-              {/* Rótulo e Subtítulo expandidos */}
               <div
                 style={{
                   display: 'flex',
-                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flex: 1,
                   overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                  opacity: isHovered ? 1 : 0,
-                  transform: isHovered ? 'translateX(0)' : 'translateX(-6px)',
-                  transition: 'opacity 0.22s ease, transform 0.22s ease'
+                  whiteSpace: 'nowrap'
                 }}
               >
-                <span
-                  style={{
-                    fontSize: '12.5px',
-                    fontWeight: isActive ? 800 : 600,
-                    lineHeight: 1.2,
-                    letterSpacing: '0.02em',
-                    fontFamily: 'var(--font-cinzel), Georgia, serif'
-                  }}
-                >
-                  {item.label}
+                <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#fcd34d' }}>
+                  Administração
                 </span>
-                <span
-                  style={{
-                    fontSize: '10px',
-                    fontWeight: 500,
-                    color: isActive ? '#fcd34d' : '#8c7a6b',
-                    lineHeight: 1.2,
-                    marginTop: '2px',
-                    fontFamily: 'var(--font-body)'
-                  }}
-                >
-                  {item.subtitle}
-                </span>
-              </div>
-            </button>
-          );
-        })}
-
-        {/* Botão de Destaque: Bazar da Taverna (Loja Virtual de Títulos & Molduras) */}
-        {currentUser && (
-          <button
-            id="tavern-shop-btn"
-            onClick={onOpenShop}
-            title={`Bazar da Taverna - ${getEffectiveGold(currentUser)} Peças de Ouro (PO)`}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              width: '100%',
-              height: '46px',
-              minHeight: '46px',
-              padding: '0 10px',
-              borderRadius: '8px',
-              border: '1.5px solid rgba(245, 158, 11, 0.35)',
-              cursor: 'pointer',
-              background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.15) 0%, rgba(69, 26, 3, 0.25) 100%)',
-              color: '#fbbf24',
-              transition: 'all 0.2s ease',
-              textAlign: 'left',
-              position: 'relative',
-              boxSizing: 'border-box',
-              margin: '4px 0'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.25)';
-              e.currentTarget.style.borderColor = '#fbbf24';
-              e.currentTarget.style.transform = 'translateX(2px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(217, 119, 6, 0.15)';
-              e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.35)';
-              e.currentTarget.style.transform = 'translateX(0)';
-            }}
-          >
-            <div
-              style={{
-                width: '24px',
-                height: '24px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                color: '#fbbf24',
-                filter: 'drop-shadow(0 0 6px rgba(245, 158, 11, 0.6))'
-              }}
-            >
-              <Coins size={20} strokeWidth={2.2} />
-            </div>
-
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                overflow: 'hidden',
-                whiteSpace: 'nowrap',
-                opacity: isHovered ? 1 : 0,
-                transform: isHovered ? 'translateX(0)' : 'translateX(-6px)',
-                transition: 'opacity 0.22s ease, transform 0.22s ease'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span
-                  style={{
-                    fontSize: '12.5px',
-                    fontWeight: 800,
-                    lineHeight: 1.2,
-                    letterSpacing: '0.02em',
-                    fontFamily: 'var(--font-cinzel), Georgia, serif',
-                    color: '#fef3c7'
-                  }}
-                >
-                  Bazar da Taverna
-                </span>
-              </div>
-              <span
-                style={{
-                  fontSize: '10.5px',
-                  fontWeight: 700,
-                  color: '#fbbf24',
-                  lineHeight: 1.2,
-                  marginTop: '2px',
-                  fontFamily: 'var(--font-body)'
-                }}
-              >
-                🪙 {getEffectiveGold(currentUser).toLocaleString('pt-BR')} PO
-              </span>
-            </div>
-          </button>
-        )}
-
-        {/* Divisor de Madeira Rústica */}
-        <div
-          style={{
-            height: '1px',
-            backgroundColor: 'rgba(245, 158, 11, 0.15)',
-            margin: '8px 4px'
-          }}
-        />
-
-        {/* Botão de Área Administrativa (SuperAdmin) */}
-        {isSuperAdmin && (
-          <button
-            id="admin-exclusive-btn"
-            onClick={onOpenAdmin}
-            title="Área Administrativa do Mestre Guardião"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              width: '100%',
-              height: '44px',
-              minHeight: '44px',
-              padding: '0 10px',
-              borderRadius: '8px',
-              border: '1px solid rgba(245, 158, 11, 0.2)',
-              cursor: 'pointer',
-              background: 'rgba(217, 119, 6, 0.08)',
-              color: '#fcd34d',
-              transition: 'background-color 0.15s ease',
-              textAlign: 'left',
-              position: 'relative',
-              boxSizing: 'border-box'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.2)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(217, 119, 6, 0.08)';
-            }}
-          >
-            <div
-              style={{
-                width: '24px',
-                height: '24px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                position: 'relative',
-                color: '#f59e0b'
-              }}
-            >
-              <Crown size={20} strokeWidth={2.2} />
-              {!isHovered && pendingCount > 0 && (
-                <span
-                  style={{
-                    position: 'absolute',
-                    top: '-4px',
-                    right: '-6px',
-                    backgroundColor: '#ef4444',
-                    color: '#ffffff',
-                    fontSize: '9px',
-                    fontWeight: 800,
-                    width: '15px',
-                    height: '15px',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: '0 0 6px #ef4444'
-                  }}
-                >
-                  {pendingCount}
-                </span>
-              )}
-            </div>
-
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                flex: 1,
-                overflow: 'hidden',
-                whiteSpace: 'nowrap',
-                opacity: isHovered ? 1 : 0,
-                transform: isHovered ? 'translateX(0)' : 'translateX(-6px)',
-                transition: 'opacity 0.22s ease, transform 0.22s ease'
-              }}
-            >
-              <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#fcd34d' }}>
-                Administração
-              </span>
-              {pendingCount > 0 && (
-                <span
-                  style={{
-                    backgroundColor: '#ef4444',
-                    color: '#ffffff',
-                    fontSize: '10px',
-                    fontWeight: 800,
-                    padding: '2px 7px',
-                    borderRadius: '12px'
-                  }}
-                >
-                  {pendingCount}
-                </span>
-              )}
-            </div>
-          </button>
-        )}
-      </nav>
-
-      {/* Rodapé: Cartão de Couro do Aventureiro / Perfil & Logout */}
-      <div
-        style={{
-          borderTop: '1px solid rgba(245, 158, 11, 0.15)',
-          padding: isHovered ? '12px' : '10px',
-          background: 'rgba(0, 0, 0, 0.25)',
-          boxSizing: 'border-box',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '8px'
-        }}
-      >
-        {currentUser ? (
-          <>
-            {/* Bloco Perfil / Identificação do Aventureiro */}
-            <div
-              onClick={() => onOpenMyProfile?.()}
-              title={`${currentUser.displayName || currentUser.email} (Abrir Perfil)`}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '6px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'background-color 0.15s ease',
-                overflow: 'hidden',
-                border: '1px solid rgba(245, 158, 11, 0.15)',
-                background: 'linear-gradient(180deg, rgba(40, 25, 15, 0.6) 0%, rgba(20, 12, 7, 0.8) 100%)'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.15)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }}
-            >
-              {/* Moldura Mística do Avatar com AvatarFrame */}
-              <AvatarFrame user={currentUser} size="sm" />
-
-              {/* Nome, Título, Tag e Ouro no modo expandido */}
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap',
-                  opacity: isHovered ? 1 : 0,
-                  transform: isHovered ? 'translateX(0)' : 'translateX(-6px)',
-                  transition: 'opacity 0.22s ease, transform 0.22s ease'
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: '12.5px',
-                    fontWeight: 700,
-                    color: '#fef3c7',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    maxWidth: '170px'
-                  }}
-                >
-                  {currentUser.displayName || currentUser.email.split('@')[0]}
-                </span>
-
-                {/* Título Honorífico Equipado */}
-                {currentUser.title && (
+                {pendingCount > 0 && (
                   <span
                     style={{
+                      backgroundColor: '#ef4444',
+                      color: '#ffffff',
                       fontSize: '10px',
-                      color: '#fbbf24',
-                      fontStyle: 'italic',
-                      lineHeight: 1.1,
-                      marginTop: '1px',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      maxWidth: '170px'
+                      fontWeight: 800,
+                      padding: '2px 7px',
+                      borderRadius: '12px'
                     }}
-                    title={currentUser.title}
                   >
-                    "{currentUser.title}"
+                    {pendingCount}
                   </span>
                 )}
+              </div>
+            </button>
+          )}
+        </nav>
 
-                {/* Tag de 7 Caracteres Única e Pílula de Ouro */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px' }}>
-                  {currentUser.userTag && (
+        {/* Rodapé: Cartão de Couro do Aventureiro / Perfil & Logout */}
+        <div
+          style={{
+            borderTop: '1px solid rgba(245, 158, 11, 0.15)',
+            padding: '12px',
+            background: 'rgba(0, 0, 0, 0.35)',
+            boxSizing: 'border-box',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px'
+          }}
+        >
+          {currentUser ? (
+            <>
+              {/* Bloco Perfil / Identificação do Aventureiro */}
+              <div
+                onClick={() => {
+                  onOpenMyProfile?.();
+                  setIsOpen(false);
+                }}
+                title={`${currentUser.displayName || currentUser.email} (Abrir Perfil)`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '8px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.15s ease',
+                  overflow: 'hidden',
+                  border: '1px solid rgba(245, 158, 11, 0.2)',
+                  background: 'linear-gradient(180deg, rgba(40, 25, 15, 0.6) 0%, rgba(20, 12, 7, 0.8) 100%)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                {/* Moldura Mística do Avatar com AvatarFrame */}
+                <AvatarFrame user={currentUser} size="sm" />
+
+                {/* Nome, Título, Tag e Ouro */}
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: '12.5px',
+                      fontWeight: 700,
+                      color: '#fef3c7',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      maxWidth: '175px'
+                    }}
+                  >
+                    {currentUser.displayName || currentUser.email.split('@')[0]}
+                  </span>
+
+                  {/* Título Honorífico Equipado */}
+                  {currentUser.title && (
+                    <span
+                      style={{
+                        fontSize: '10px',
+                        color: '#fbbf24',
+                        fontStyle: 'italic',
+                        lineHeight: 1.1,
+                        marginTop: '1px',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        maxWidth: '175px'
+                      }}
+                      title={currentUser.title}
+                    >
+                      "{currentUser.title}"
+                    </span>
+                  )}
+
+                  {/* Tag de 7 Caracteres Única e Pílula de Ouro */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px' }}>
+                    {currentUser.userTag && (
+                      <div
+                        onClick={handleCopyTag}
+                        title="Clique para copiar sua tag de aventureiro"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '3px',
+                          fontSize: '9.5px',
+                          fontFamily: 'monospace',
+                          fontWeight: 800,
+                          color: copiedTag ? '#22c55e' : '#f59e0b',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <span>#{currentUser.userTag}</span>
+                        {copiedTag ? <Check size={10} /> : <Copy size={9} />}
+                      </div>
+                    )}
+
                     <div
-                      onClick={handleCopyTag}
-                      title="Clique para copiar sua tag de aventureiro"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onOpenShop?.();
+                        setIsOpen(false);
+                      }}
+                      title="Bolsa de Peças de Ouro (Clique para abrir o Bazar)"
                       style={{
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: '3px',
+                        gap: '2px',
                         fontSize: '9.5px',
-                        fontFamily: 'monospace',
                         fontWeight: 800,
-                        color: copiedTag ? '#22c55e' : '#f59e0b',
+                        color: '#fcd34d',
+                        backgroundColor: 'rgba(217, 119, 6, 0.25)',
+                        border: '1px solid rgba(245, 158, 11, 0.4)',
+                        padding: '1px 5px',
+                        borderRadius: '8px',
                         cursor: 'pointer'
                       }}
                     >
-                      <span>#{currentUser.userTag}</span>
-                      {copiedTag ? <Check size={10} /> : <Copy size={9} />}
+                      <span>🪙</span>
+                      <span>{getEffectiveGold(currentUser).toLocaleString('pt-BR')} PO</span>
                     </div>
-                  )}
-
-                  <div
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onOpenShop?.();
-                    }}
-                    title="Bolsa de Peças de Ouro (Clique para abrir o Bazar)"
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '2px',
-                      fontSize: '9.5px',
-                      fontWeight: 800,
-                      color: '#fcd34d',
-                      backgroundColor: 'rgba(217, 119, 6, 0.25)',
-                      border: '1px solid rgba(245, 158, 11, 0.4)',
-                      padding: '1px 5px',
-                      borderRadius: '8px',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    <span>🪙</span>
-                    <span>{getEffectiveGold(currentUser).toLocaleString('pt-BR')} PO</span>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Ações Rápidas quando Expandido: Alterar Senha e Sair */}
-            {isHovered && (
+              {/* Ações do Rodapé: Alterar Senha e Sair */}
               <div
                 style={{
                   display: 'flex',
                   gap: '6px',
-                  paddingTop: '4px'
+                  paddingTop: '2px'
                 }}
               >
                 <button
                   type="button"
-                  onClick={onOpenChangePassword}
+                  onClick={() => {
+                    onOpenChangePassword();
+                    setIsOpen(false);
+                  }}
                   title="Alterar Senha do Aventureiro"
                   style={{
                     flex: 1,
@@ -800,21 +738,20 @@ export const Navbar: React.FC<NavbarProps> = ({
                     padding: '7px 8px',
                     borderRadius: '6px',
                     border: '1px solid rgba(245, 158, 11, 0.25)',
-                    background: 'rgba(255, 255, 255, 0.04)',
-                    color: '#cfc6b8',
+                    background: 'rgba(0, 0, 0, 0.4)',
+                    color: '#d4b896',
                     fontSize: '11px',
                     fontWeight: 600,
                     cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                    fontFamily: 'var(--font-body)'
+                    transition: 'all 0.15s ease'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = '#f59e0b';
+                    e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.15)';
                     e.currentTarget.style.color = '#fef3c7';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.25)';
-                    e.currentTarget.style.color = '#cfc6b8';
+                    e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
+                    e.currentTarget.style.color = '#d4b896';
                   }}
                 >
                   <KeyRound size={13} />
@@ -823,71 +760,71 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                 <button
                   type="button"
-                  onClick={onLogout}
-                  title="Sair da Taverna"
+                  onClick={() => {
+                    onLogout();
+                    setIsOpen(false);
+                  }}
+                  title="Abandonar a Taverna (Logout)"
                   style={{
+                    flex: 1,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    padding: '7px 10px',
+                    gap: '6px',
+                    padding: '7px 8px',
                     borderRadius: '6px',
-                    border: '1px solid rgba(239, 68, 68, 0.4)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
                     background: 'rgba(239, 68, 68, 0.1)',
-                    color: '#ef4444',
+                    color: '#f87171',
                     fontSize: '11px',
                     fontWeight: 600,
                     cursor: 'pointer',
                     transition: 'all 0.15s ease'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#ef4444';
+                    e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.25)';
                     e.currentTarget.style.color = '#ffffff';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
-                    e.currentTarget.style.color = '#ef4444';
+                    e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+                    e.currentTarget.style.color = '#f87171';
                   }}
                 >
                   <LogOut size={13} />
+                  <span>Sair</span>
                 </button>
               </div>
-            )}
-          </>
-        ) : (
-          /* Usuário não logado: Botão Entrar na Taverna */
-          <button
-            onClick={onOpenAuth}
-            title="Entrar na Taverna Digital"
-            style={{
-              width: '100%',
-              height: '42px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: isHovered ? 'flex-start' : 'center',
-              gap: '10px',
-              padding: isHovered ? '0 14px' : '0',
-              borderRadius: '8px',
-              border: '1px solid #f59e0b',
-              background: 'linear-gradient(135deg, #d97706 0%, #78350f 100%)',
-              color: '#fef3c7',
-              fontWeight: 700,
-              fontSize: '12px',
-              cursor: 'pointer',
-              boxShadow: '0 0 14px rgba(245, 158, 11, 0.4)',
-              transition: 'all 0.15s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.filter = 'brightness(1.15)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.filter = 'none';
-            }}
-          >
-            <LogIn size={18} />
-            {isHovered && <span>Entrar na Taverna</span>}
-          </button>
-        )}
-      </div>
-    </aside>
+            </>
+          ) : (
+            <button
+              onClick={() => {
+                onOpenAuth();
+                setIsOpen(false);
+              }}
+              title="Entrar na Taverna"
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                padding: '10px',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, #d97706 0%, #78350f 100%)',
+                color: '#fffbeb',
+                border: '1px solid #f59e0b',
+                fontSize: '12px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 0 12px rgba(245, 158, 11, 0.4)'
+              }}
+            >
+              <LogIn size={15} />
+              <span>Entrar na Taverna</span>
+            </button>
+          )}
+        </div>
+      </aside>
+    </>
   );
 };
