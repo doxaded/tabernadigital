@@ -96,10 +96,10 @@ export const SHOP_FRAMES: ShopFrameItem[] = [
     description: 'Moldura sóbria de ferro batido na bigorna da estalagem com rebites firmes.',
     rarity: 'comum',
     borderColor: '#71717a',
-    glowColor: 'rgba(113, 113, 122, 0.4)',
-    boxShadow: '0 0 0 2px #3f3f46, 0 4px 10px rgba(0,0,0,0.5)',
+    glowColor: 'rgba(113, 113, 122, 0.2)',
+    boxShadow: '0 0 0 2px #3f3f46, 0 3px 8px rgba(0,0,0,0.6)',
     badge: '⚙️ Comum',
-    cssStyle: 'border: 3px solid #71717a; box-shadow: 0 0 10px rgba(0,0,0,0.6);'
+    cssStyle: 'border: 2px solid #71717a; box-shadow: 0 3px 8px rgba(0,0,0,0.6);'
   },
   {
     id: 'frame-wood',
@@ -108,10 +108,10 @@ export const SHOP_FRAMES: ShopFrameItem[] = [
     description: 'Madeira nobre de carvalho secular, lixada e finalizada com cera aromática.',
     rarity: 'comum',
     borderColor: '#854d0e',
-    glowColor: 'rgba(161, 98, 7, 0.4)',
-    boxShadow: '0 0 0 3px #78350f, 0 0 14px rgba(180, 83, 9, 0.35)',
+    glowColor: 'rgba(161, 98, 7, 0.2)',
+    boxShadow: '0 0 0 2px #78350f, 0 3px 8px rgba(0,0,0,0.6)',
     badge: '🪵 Carvalho',
-    cssStyle: 'border: 3px solid #b45309; outline: 2px solid #451a03; box-shadow: 0 0 12px rgba(180,83,9,0.4);'
+    cssStyle: 'border: 2px solid #b45309; box-shadow: 0 3px 8px rgba(0,0,0,0.6);'
   },
   {
     id: 'frame-bronze',
@@ -120,10 +120,10 @@ export const SHOP_FRAMES: ShopFrameItem[] = [
     description: 'Metal forjado em eras passadas, com um brilho cobreado fosco e resistente.',
     rarity: 'comum',
     borderColor: '#b45309',
-    glowColor: 'rgba(217, 119, 6, 0.4)',
-    boxShadow: '0 0 0 3px #78350f, inset 0 0 6px rgba(0,0,0,0.6), 0 0 12px rgba(217, 119, 6, 0.3)',
+    glowColor: 'rgba(217, 119, 6, 0.2)',
+    boxShadow: '0 0 0 2px #78350f, 0 3px 8px rgba(0,0,0,0.6)',
     badge: '🛡️ Bronze',
-    cssStyle: 'border: 3px solid #d97706; box-shadow: inset 0 0 8px #78350f, 0 0 14px rgba(217,119,6,0.4);'
+    cssStyle: 'border: 2px solid #d97706; box-shadow: 0 3px 8px rgba(0,0,0,0.6);'
   },
   {
     id: 'frame-gold',
@@ -132,10 +132,10 @@ export const SHOP_FRAMES: ShopFrameItem[] = [
     description: 'Guarnição folheada a ouro reluzente com filigranas detalhadas de alta realeza.',
     rarity: 'raro',
     borderColor: '#fbbf24',
-    glowColor: 'rgba(245, 158, 11, 0.6)',
-    boxShadow: '0 0 0 3px #d97706, 0 0 18px rgba(245, 158, 11, 0.65), inset 0 0 8px rgba(251, 191, 36, 0.4)',
+    glowColor: 'rgba(245, 158, 11, 0.3)',
+    boxShadow: '0 0 0 2px #d97706, 0 3px 10px rgba(0,0,0,0.7)',
     badge: '🪙 Ouro Nobre',
-    cssStyle: 'border: 3px solid #f59e0b; outline: 1px solid #fbbf24; box-shadow: 0 0 20px rgba(245,158,11,0.6);'
+    cssStyle: 'border: 2px solid #f59e0b; box-shadow: 0 3px 10px rgba(0,0,0,0.7);'
   },
   {
     id: 'frame-nature',
@@ -144,10 +144,10 @@ export const SHOP_FRAMES: ShopFrameItem[] = [
     description: 'Ramos vivos encantados que sussurram histórias silvanas e emitem pólen luminoso.',
     rarity: 'raro',
     borderColor: '#10b981',
-    glowColor: 'rgba(16, 185, 129, 0.6)',
-    boxShadow: '0 0 0 3px #047857, 0 0 18px rgba(16, 185, 129, 0.55), inset 0 0 8px rgba(52, 211, 153, 0.3)',
+    glowColor: 'rgba(16, 185, 129, 0.3)',
+    boxShadow: '0 0 0 2px #047857, 0 3px 8px rgba(0,0,0,0.6)',
     badge: '🌿 Élfico',
-    cssStyle: 'border: 3px solid #10b981; outline: 2px solid #064e3b; box-shadow: 0 0 18px rgba(16,185,129,0.55);'
+    cssStyle: 'border: 2px solid #10b981; box-shadow: 0 3px 8px rgba(0,0,0,0.6);'
   },
   {
     id: 'frame-fire',
@@ -156,10 +156,10 @@ export const SHOP_FRAMES: ShopFrameItem[] = [
     description: 'Ember pulsante e fagulhas incandescentes que nunca se extinguem ao redor do rosto.',
     rarity: 'epico',
     borderColor: '#f97316',
-    glowColor: 'rgba(239, 68, 68, 0.75)',
-    boxShadow: '0 0 0 3px #c2410c, 0 0 24px rgba(249, 115, 22, 0.7), inset 0 0 10px rgba(239, 68, 68, 0.4)',
+    glowColor: 'rgba(239, 68, 68, 0.3)',
+    boxShadow: '0 0 0 2px #c2410c, 0 3px 10px rgba(0,0,0,0.7)',
     badge: '🔥 Fogo Vivo',
-    cssStyle: 'border: 3px solid #f97316; outline: 2px solid #ef4444; box-shadow: 0 0 24px rgba(239,68,68,0.7);'
+    cssStyle: 'border: 2px solid #f97316; box-shadow: 0 3px 10px rgba(0,0,0,0.7);'
   },
   {
     id: 'frame-ice',
@@ -168,10 +168,10 @@ export const SHOP_FRAMES: ShopFrameItem[] = [
     description: 'Cristais pontiagudos de gelo eterno envoltos em uma fina geada mística celeste.',
     rarity: 'epico',
     borderColor: '#38bdf8',
-    glowColor: 'rgba(56, 189, 248, 0.7)',
-    boxShadow: '0 0 0 3px #0284c7, 0 0 22px rgba(56, 189, 248, 0.65), inset 0 0 8px rgba(186, 230, 253, 0.5)',
+    glowColor: 'rgba(56, 189, 248, 0.3)',
+    boxShadow: '0 0 0 2px #0284c7, 0 3px 10px rgba(0,0,0,0.7)',
     badge: '❄️ Glacial',
-    cssStyle: 'border: 3px solid #38bdf8; outline: 2px solid #0369a1; box-shadow: 0 0 22px rgba(56,189,248,0.65);'
+    cssStyle: 'border: 2px solid #38bdf8; box-shadow: 0 3px 10px rgba(0,0,0,0.7);'
   },
   {
     id: 'frame-dragon',
@@ -180,10 +180,10 @@ export const SHOP_FRAMES: ShopFrameItem[] = [
     description: 'Forjada a partir de escamas impenetráveis banhadas no calor das profundezas vulcânicas.',
     rarity: 'lendario',
     borderColor: '#e11d48',
-    glowColor: 'rgba(225, 29, 72, 0.85)',
-    boxShadow: '0 0 0 3px #881337, 0 0 28px rgba(225, 29, 72, 0.8), inset 0 0 12px rgba(244, 63, 94, 0.5)',
+    glowColor: 'rgba(225, 29, 72, 0.35)',
+    boxShadow: '0 0 0 2px #881337, 0 3px 10px rgba(0,0,0,0.75)',
     badge: '🐉 Dracônico',
-    cssStyle: 'border: 3.5px solid #e11d48; outline: 2px solid #4c0519; box-shadow: 0 0 28px rgba(225,29,72,0.85);'
+    cssStyle: 'border: 2px solid #e11d48; box-shadow: 0 3px 10px rgba(0,0,0,0.75);'
   },
   {
     id: 'frame-celestial',
@@ -192,10 +192,10 @@ export const SHOP_FRAMES: ShopFrameItem[] = [
     description: 'O brilho estelar infinito das constelações bordado por runas cósmicas violeta e ouro.',
     rarity: 'lendario',
     borderColor: '#a855f7',
-    glowColor: 'rgba(168, 85, 247, 0.85)',
-    boxShadow: '0 0 0 3px #6b21a8, 0 0 30px rgba(168, 85, 247, 0.85), 0 0 12px rgba(234, 179, 8, 0.6)',
+    glowColor: 'rgba(168, 85, 247, 0.35)',
+    boxShadow: '0 0 0 2px #6b21a8, 0 3px 12px rgba(0,0,0,0.8)',
     badge: '🌌 Cósmico',
-    cssStyle: 'border: 3.5px solid #c084fc; outline: 2px solid #eab308; box-shadow: 0 0 32px rgba(192,132,252,0.85);'
+    cssStyle: 'border: 2px solid #c084fc; box-shadow: 0 3px 12px rgba(0,0,0,0.8);'
   }
 ];
 

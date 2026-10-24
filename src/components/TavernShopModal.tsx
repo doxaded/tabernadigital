@@ -298,11 +298,11 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                padding: '8px 16px',
-                borderRadius: '30px',
-                background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.3) 0%, rgba(120, 53, 15, 0.4) 100%)',
-                border: '1.5px solid #f59e0b',
-                boxShadow: '0 0 18px rgba(245, 158, 11, 0.3), inset 0 1px 1px rgba(254, 243, 199, 0.4)'
+                padding: '8px 18px',
+                borderRadius: '9999px',
+                background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.25) 0%, rgba(120, 53, 15, 0.3) 100%)',
+                border: '1px solid rgba(245, 158, 11, 0.35)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.45)'
               }}
             >
               <span style={{ fontSize: '18px' }}>🪙</span>
@@ -462,15 +462,15 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
                   onClick={handleClaimDailyReward}
                   disabled={isProcessing}
                   style={{
-                    padding: '8px 18px',
-                    borderRadius: '8px',
+                    padding: '8px 20px',
+                    borderRadius: '9999px',
                     background: 'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)',
                     color: '#1a0e05',
                     fontWeight: 900,
                     fontSize: '12px',
                     letterSpacing: '0.04em',
                     border: '1px solid #fcd34d',
-                    boxShadow: '0 0 12px rgba(245, 158, 11, 0.5)',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.45)',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
@@ -485,7 +485,7 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
                 <div
                   style={{
                     padding: '6px 14px',
-                    borderRadius: '6px',
+                    borderRadius: '9999px',
                     backgroundColor: 'rgba(0, 0, 0, 0.4)',
                     border: '1px solid rgba(245, 158, 11, 0.15)',
                     color: '#a8a29e',
@@ -523,11 +523,11 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
                       display: 'flex',
                       alignItems: 'center',
                       gap: '6px',
-                      padding: '8px 14px',
-                      borderRadius: '8px',
+                      padding: '8px 16px',
+                      borderRadius: '9999px',
                       backgroundColor: isActive ? 'rgba(245, 158, 11, 0.2)' : 'transparent',
                       color: isActive ? '#fef3c7' : '#a8a29e',
-                      border: isActive ? '1px solid #f59e0b' : '1px solid transparent',
+                      border: isActive ? '1px solid rgba(245, 158, 11, 0.45)' : '1px solid transparent',
                       fontWeight: isActive ? 700 : 500,
                       fontSize: '12px',
                       cursor: 'pointer',
@@ -573,7 +573,7 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
                         onClick={() => setPreviewTitle(title.name)}
                         style={{
                           padding: '14px',
-                          borderRadius: '10px',
+                          borderRadius: '14px',
                           background: 'linear-gradient(180deg, rgba(40, 24, 14, 0.7) 0%, rgba(20, 12, 7, 0.9) 100%)',
                           border:
                             activePreviewTitle === title.name
@@ -581,7 +581,7 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
                               : '1px solid rgba(245, 158, 11, 0.15)',
                           boxShadow:
                             activePreviewTitle === title.name
-                              ? '0 0 16px rgba(245, 158, 11, 0.25)'
+                              ? '0 4px 14px rgba(0, 0, 0, 0.5)'
                               : 'none',
                           display: 'flex',
                           flexDirection: 'column',
@@ -605,8 +605,8 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
                               style={{
                                 fontSize: '9px',
                                 textTransform: 'uppercase',
-                                padding: '2px 6px',
-                                borderRadius: '6px',
+                                padding: '2px 8px',
+                                borderRadius: '9999px',
                                 fontWeight: 800,
                                 ...rarityStyle
                               }}
@@ -659,9 +659,9 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
                             <button
                               disabled
                               style={{
-                                padding: '4px 10px',
-                                borderRadius: '6px',
-                                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                                padding: '5px 12px',
+                                borderRadius: '9999px',
+                                backgroundColor: 'rgba(16, 185, 129, 0.18)',
                                 border: '1px solid #10b981',
                                 color: '#10b981',
                                 fontSize: '11px',
@@ -683,10 +683,10 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
                               }}
                               disabled={isProcessing}
                               style={{
-                                padding: '5px 12px',
-                                borderRadius: '6px',
-                                backgroundColor: 'rgba(245, 158, 11, 0.2)',
-                                border: '1px solid #f59e0b',
+                                padding: '6px 14px',
+                                borderRadius: '9999px',
+                                backgroundColor: 'rgba(245, 158, 11, 0.18)',
+                                border: '1px solid rgba(245, 158, 11, 0.45)',
                                 color: '#fef3c7',
                                 fontSize: '11px',
                                 fontWeight: 700,
@@ -704,12 +704,12 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
                               }}
                               disabled={!canAfford || isProcessing}
                               style={{
-                                padding: '5px 12px',
-                                borderRadius: '6px',
+                                padding: '6px 14px',
+                                borderRadius: '9999px',
                                 background: canAfford
                                   ? 'linear-gradient(135deg, #d97706 0%, #b45309 100%)'
                                   : 'rgba(60, 40, 30, 0.5)',
-                                border: canAfford ? '1px solid #fbbf24' : '1px solid #573b2a',
+                                border: canAfford ? '1px solid rgba(251, 191, 36, 0.4)' : '1px solid #573b2a',
                                 color: canAfford ? '#1f130b' : '#78685b',
                                 fontSize: '11px',
                                 fontWeight: 800,
@@ -760,7 +760,7 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
                         onClick={() => setPreviewFrameId(frame.id)}
                         style={{
                           padding: '14px',
-                          borderRadius: '10px',
+                          borderRadius: '14px',
                           background: 'linear-gradient(180deg, rgba(40, 24, 14, 0.7) 0%, rgba(20, 12, 7, 0.9) 100%)',
                           border:
                             activePreviewFrameId === frame.id
@@ -768,7 +768,7 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
                               : '1px solid rgba(245, 158, 11, 0.15)',
                           boxShadow:
                             activePreviewFrameId === frame.id
-                              ? '0 0 16px rgba(245, 158, 11, 0.25)'
+                              ? '0 4px 14px rgba(0, 0, 0, 0.5)'
                               : 'none',
                           display: 'flex',
                           flexDirection: 'column',
@@ -796,8 +796,8 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
                               style={{
                                 fontSize: '9px',
                                 textTransform: 'uppercase',
-                                padding: '2px 6px',
-                                borderRadius: '6px',
+                                padding: '2px 8px',
+                                borderRadius: '9999px',
                                 fontWeight: 800,
                                 ...rarityStyle
                               }}
@@ -850,9 +850,9 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
                             <button
                               disabled
                               style={{
-                                padding: '4px 10px',
-                                borderRadius: '6px',
-                                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                                padding: '5px 12px',
+                                borderRadius: '9999px',
+                                backgroundColor: 'rgba(16, 185, 129, 0.18)',
                                 border: '1px solid #10b981',
                                 color: '#10b981',
                                 fontSize: '11px',
@@ -874,10 +874,10 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
                               }}
                               disabled={isProcessing}
                               style={{
-                                padding: '5px 12px',
-                                borderRadius: '6px',
-                                backgroundColor: 'rgba(245, 158, 11, 0.2)',
-                                border: '1px solid #f59e0b',
+                                padding: '6px 14px',
+                                borderRadius: '9999px',
+                                backgroundColor: 'rgba(245, 158, 11, 0.18)',
+                                border: '1px solid rgba(245, 158, 11, 0.45)',
                                 color: '#fef3c7',
                                 fontSize: '11px',
                                 fontWeight: 700,
@@ -895,12 +895,12 @@ export const TavernShopModal: React.FC<TavernShopModalProps> = ({
                               }}
                               disabled={!canAfford || isProcessing}
                               style={{
-                                padding: '5px 12px',
-                                borderRadius: '6px',
+                                padding: '6px 14px',
+                                borderRadius: '9999px',
                                 background: canAfford
                                   ? 'linear-gradient(135deg, #d97706 0%, #b45309 100%)'
                                   : 'rgba(60, 40, 30, 0.5)',
-                                border: canAfford ? '1px solid #fbbf24' : '1px solid #573b2a',
+                                border: canAfford ? '1px solid rgba(251, 191, 36, 0.4)' : '1px solid #573b2a',
                                 color: canAfford ? '#1f130b' : '#78685b',
                                 fontSize: '11px',
                                 fontWeight: 800,

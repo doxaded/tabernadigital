@@ -51,7 +51,7 @@
   --surface-glass-top: rgba(22, 18, 14, 0.95);
   --surface-glass-bottom: rgba(10, 8, 6, 0.98);
   --line-soft: rgba(245, 236, 220, 0.12);
-  --line-glow: rgba(245, 158, 11, 0.45);
+  --line-glow: rgba(245, 158, 11, 0.18);
   --text-strong: #f5ecdc;
   --text-soft: #cfc6b8;
   --text-muted: #a89a85;
@@ -82,13 +82,13 @@
   --font-display: 'Cormorant Garamond', 'Alegreya', Georgia, serif;
 
   /* Efeitos e Sombras */
-  --shadow-torch: 0 0 25px rgba(245, 158, 11, 0.22);
+  --shadow-torch: 0 4px 14px rgba(0, 0, 0, 0.5);
   --shadow-card: 0 10px 30px -5px rgba(0, 0, 0, 0.7), 0 8px 16px -6px rgba(0, 0, 0, 0.5);
   --shadow-surface: 0 18px 40px -18px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(245, 236, 220, 0.08);
   
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
   --radius-full: 9999px;
 }
 
@@ -122,36 +122,35 @@ html, body {
 }
 ::-webkit-scrollbar-thumb {
   background: #382114;
-  border-radius: 4px;
-  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 9999px;
+  border: 1px solid rgba(245, 158, 11, 0.2);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #d97706;
-  box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+  background: #78350f;
 }
 
-/* Animação Crepitante de Tocha */
+/* Animação Suave de Iluminação Acolhedora (sem neon estridente simulando fogo) */
 @keyframes torchFlicker {
   0%, 100% {
-    opacity: 0.95;
-    filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.6));
+    opacity: 0.96;
+    filter: none;
   }
   25% {
-    opacity: 0.85;
-    filter: drop-shadow(0 0 5px rgba(217, 119, 6, 0.5));
+    opacity: 0.88;
+    filter: none;
   }
   50% {
     opacity: 1;
-    filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.8));
+    filter: none;
   }
   75% {
-    opacity: 0.9;
-    filter: drop-shadow(0 0 7px rgba(217, 119, 6, 0.55));
+    opacity: 0.92;
+    filter: none;
   }
 }
 
 .torch-flicker {
-  animation: torchFlicker 2.8s infinite ease-in-out;
+  animation: torchFlicker 3s infinite ease-in-out;
 }
 
 /* Títulos & Tipografia Medieval */
@@ -223,7 +222,7 @@ h1, h2, h3, h4, .font-cinzel {
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-full);
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid transparent;
@@ -234,13 +233,13 @@ h1, h2, h3, h4, .font-cinzel {
 .btn-primary {
   background: linear-gradient(180deg, var(--amber-torch) 0%, var(--amber-deep) 100%);
   color: #15100b;
-  border-color: #fbbf24;
-  box-shadow: 0 4px 12px rgba(180, 83, 9, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 .btn-primary:hover:not(:disabled) {
   background: linear-gradient(180deg, #f59e0b 0%, var(--amber-torch) 100%);
-  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.3);
   transform: translateY(-1px);
 }
 
@@ -3760,7 +3759,7 @@ h1, h2, h3, h4, .font-cinzel {
 .hub-banner--light .hub-banner__title-btn:hover .hub-banner__title {
   color: #000000;
   letter-spacing: 0.035em;
-  text-shadow: 0 0 35px rgba(133, 77, 14, 0.22);
+  text-shadow: none;
 }
 
 /* Linhas do título centralizadas e unidas (PALAVRA 1 na linha A, conector + PALAVRA 2 na linha B) */
@@ -3808,8 +3807,8 @@ h1, h2, h3, h4, .font-cinzel {
   background: #F4EDDD;
   color: #000000;
   border-color: #F4EDDD;
-  transform: rotate(45deg) scale(1.1);
-  box-shadow: 0 0 25px rgba(244, 237, 221, 0.45);
+  transform: rotate(45deg) scale(1.08);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
 }
 
 .hub-banner--light .hub-banner__arrow-wrap {
@@ -3822,8 +3821,8 @@ h1, h2, h3, h4, .font-cinzel {
   background: #15100b;
   color: #F4EDDD;
   border-color: #15100b;
-  transform: rotate(45deg) scale(1.1);
-  box-shadow: 0 0 25px rgba(21, 16, 11, 0.35);
+  transform: rotate(45deg) scale(1.08);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
 }
 
 .hub-banner__arrow {

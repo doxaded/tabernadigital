@@ -122,25 +122,25 @@ export const TavernHubView: React.FC<TavernHubViewProps> = ({
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
-                padding: '6px 14px',
-                borderRadius: '20px',
-                border: '1.5px solid #f59e0b',
-                background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.3) 0%, rgba(120, 53, 15, 0.4) 100%)',
+                padding: '7px 16px',
+                borderRadius: '9999px',
+                border: '1px solid rgba(245, 158, 11, 0.3)',
+                background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.25) 0%, rgba(120, 53, 15, 0.3) 100%)',
                 color: '#fbbf24',
                 fontSize: '11px',
                 fontWeight: 800,
                 cursor: 'pointer',
                 fontFamily: 'var(--font-cinzel), Georgia, serif',
-                boxShadow: '0 0 14px rgba(245, 158, 11, 0.35)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.45)',
                 transition: 'all 0.2s ease'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.04)';
-                e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.4)';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.35)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.backgroundColor = 'rgba(217, 119, 6, 0.3)';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.backgroundColor = 'rgba(217, 119, 6, 0.25)';
               }}
             >
               <Coins size={14} style={{ color: '#fbbf24' }} />
@@ -158,18 +158,18 @@ export const TavernHubView: React.FC<TavernHubViewProps> = ({
               display: 'inline-flex',
               alignItems: 'center',
               gap: '8px',
-              padding: '6px 14px',
-              borderRadius: '20px',
-              border: isPlayingAudio ? '1px solid #f59e0b' : '1px solid rgba(245, 158, 11, 0.3)',
+              padding: '7px 16px',
+              borderRadius: '9999px',
+              border: isPlayingAudio ? '1px solid rgba(245, 158, 11, 0.4)' : '1px solid rgba(255, 255, 255, 0.1)',
               background: isPlayingAudio
-                ? 'linear-gradient(135deg, rgba(217, 119, 6, 0.35) 0%, rgba(120, 53, 15, 0.25) 100%)'
+                ? 'linear-gradient(135deg, rgba(217, 119, 6, 0.28) 0%, rgba(120, 53, 15, 0.2) 100%)'
                 : 'rgba(0, 0, 0, 0.4)',
               color: isPlayingAudio ? '#fef3c7' : '#cfc6b8',
               fontSize: '11px',
               fontWeight: 700,
               cursor: 'pointer',
               fontFamily: 'var(--font-cinzel), Georgia, serif',
-              boxShadow: isPlayingAudio ? '0 0 12px rgba(245, 158, 11, 0.4)' : 'none',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
               transition: 'all 0.2s ease'
             }}
           >
@@ -222,20 +222,7 @@ export const TavernHubView: React.FC<TavernHubViewProps> = ({
                     </span>
                   </span>
                 </h2>
-
-                {/* Pill interativo dinâmico que ganha destaque no hover */}
-                <div className="hub-banner__pill-tray">
-                  <span className="hub-banner__pill">
-                    <span>{mod.actionText}</span>
-                    <ArrowUpRight size={15} />
-                  </span>
-                </div>
               </button>
-
-              {/* Legenda inferior explicativa do serviço posicionada de forma absoluta para não alterar a posição do título */}
-              <div className="hub-banner__service-desc">
-                <p>{mod.description}</p>
-              </div>
             </div>
           </section>
         );

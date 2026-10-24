@@ -69,7 +69,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
               textTransform: 'uppercase',
               color: '#fef3c7',
               fontFamily: 'var(--font-cinzel), Georgia, serif',
-              textShadow: '0 4px 16px rgba(0, 0, 0, 0.9), 0 0 35px rgba(245, 158, 11, 0.4)'
+              textShadow: '0 4px 14px rgba(0, 0, 0, 0.85)'
             }}
           >
             TABERNA
@@ -83,7 +83,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
               textTransform: 'uppercase',
               color: '#d97706',
               fontFamily: 'var(--font-cinzel), Georgia, serif',
-              textShadow: '0 4px 16px rgba(0, 0, 0, 0.9), 0 0 35px rgba(217, 119, 6, 0.45)'
+              textShadow: '0 4px 14px rgba(0, 0, 0, 0.85)'
             }}
           >
             DIGITAL
@@ -95,8 +95,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
               style={{
                 background: 'linear-gradient(135deg, #d97706 0%, #92400e 100%)',
                 color: '#ffffff',
-                border: '1.5px solid #f59e0b',
-                borderRadius: '40px',
+                border: '1px solid rgba(245, 158, 11, 0.35)',
+                borderRadius: '9999px',
                 padding: '16px 42px',
                 fontSize: '14px',
                 fontWeight: 700,
@@ -106,17 +106,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px',
-                boxShadow: '0 0 24px rgba(245, 158, 11, 0.45), 0 8px 20px rgba(0, 0, 0, 0.8)',
+                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.65)',
                 transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s',
                 fontFamily: 'var(--font-cinzel), Georgia, serif'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
-                e.currentTarget.style.boxShadow = '0 0 32px rgba(245, 158, 11, 0.65), 0 12px 28px rgba(0, 0, 0, 0.9)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 6px 22px rgba(0, 0, 0, 0.85)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 0 24px rgba(245, 158, 11, 0.45), 0 8px 20px rgba(0, 0, 0, 0.8)';
+                e.currentTarget.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.65)';
               }}
             >
               <span>Entrar na Taverna</span>

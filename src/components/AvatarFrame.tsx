@@ -52,9 +52,7 @@ export const AvatarFrame: React.FC<AvatarFrameProps> = ({
               top: '-4px',
               right: '-4px',
               fontSize: `${Math.max(10, box * 0.28)}px`,
-              filter: 'drop-shadow(0 0 6px #ef4444)',
-              pointerEvents: 'none',
-              animation: 'emberFlicker 2s infinite alternate ease-in-out'
+              pointerEvents: 'none'
             }}
           >
             🔥
@@ -68,7 +66,6 @@ export const AvatarFrame: React.FC<AvatarFrameProps> = ({
               top: '-4px',
               left: '-4px',
               fontSize: `${Math.max(10, box * 0.26)}px`,
-              filter: 'drop-shadow(0 0 6px #38bdf8)',
               pointerEvents: 'none'
             }}
           >
@@ -83,7 +80,6 @@ export const AvatarFrame: React.FC<AvatarFrameProps> = ({
               bottom: '-4px',
               right: '-4px',
               fontSize: `${Math.max(10, box * 0.28)}px`,
-              filter: 'drop-shadow(0 0 6px #f43f5e)',
               pointerEvents: 'none'
             }}
           >
@@ -98,7 +94,6 @@ export const AvatarFrame: React.FC<AvatarFrameProps> = ({
               bottom: '-3px',
               left: '-3px',
               fontSize: `${Math.max(10, box * 0.26)}px`,
-              filter: 'drop-shadow(0 0 6px #10b981)',
               pointerEvents: 'none'
             }}
           >
@@ -113,7 +108,6 @@ export const AvatarFrame: React.FC<AvatarFrameProps> = ({
               top: '-5px',
               right: '-3px',
               fontSize: `${Math.max(10, box * 0.28)}px`,
-              filter: 'drop-shadow(0 0 8px #c084fc)',
               pointerEvents: 'none'
             }}
           >
@@ -128,7 +122,6 @@ export const AvatarFrame: React.FC<AvatarFrameProps> = ({
               bottom: '-3px',
               right: '-3px',
               fontSize: `${Math.max(9, box * 0.24)}px`,
-              filter: 'drop-shadow(0 0 6px #f59e0b)',
               pointerEvents: 'none'
             }}
           >

@@ -131,14 +131,14 @@ export const Navbar: React.FC<NavbarProps> = ({
           zIndex: 995,
           width: '42px',
           height: '42px',
-          borderRadius: '12px',
+          borderRadius: '50%',
           background: 'linear-gradient(135deg, #d97706 0%, #78350f 100%)',
           color: '#fef3c7',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          border: '1.5px solid #f59e0b',
-          boxShadow: '0 6px 20px rgba(0, 0, 0, 0.8), 0 0 16px rgba(245, 158, 11, 0.45)',
+          border: '1px solid rgba(245, 158, 11, 0.4)',
+          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.75)',
           cursor: 'pointer',
           transition: 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease',
           opacity: isOpen ? 0 : 1,
@@ -146,7 +146,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           transform: isOpen ? 'scale(0.8) translateX(-15px)' : 'scale(1) translateX(0)'
         }}
       >
-        <Flame size={20} style={{ color: '#fffbeb', filter: 'drop-shadow(0 0 5px #f59e0b)' }} />
+        <Flame size={20} style={{ color: '#fffbeb' }} />
       </button>
 
       {/* 3. Backdrop Semitransparente ao Abrir */}
@@ -181,7 +181,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           height: '100vh',
           width: '272px',
           background: 'linear-gradient(180deg, #1c1109 0%, #120a05 100%)',
-          borderRight: '2px solid #5a3518',
+          borderRight: '1px solid #4a2810',
           zIndex: 1000,
           display: 'flex',
           flexDirection: 'column',
@@ -193,7 +193,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           pointerEvents: isOpen ? 'auto' : 'none',
           transition: 'transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease, box-shadow 0.28s ease',
           boxShadow: isOpen
-            ? '20px 0 60px rgba(0, 0, 0, 0.95), 0 0 35px rgba(245, 158, 11, 0.25), inset -1px 0 0 rgba(245, 158, 11, 0.3)'
+            ? '16px 0 40px rgba(0, 0, 0, 0.85)'
             : 'none',
           fontFamily: 'var(--font-cinzel), Georgia, serif',
           userSelect: 'none'
@@ -208,8 +208,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '0 14px',
-            borderBottom: '1px solid rgba(245, 158, 11, 0.15)',
-            background: 'linear-gradient(180deg, rgba(245, 158, 11, 0.1) 0%, transparent 100%)',
+            borderBottom: '1px solid rgba(245, 158, 11, 0.12)',
+            background: 'linear-gradient(180deg, rgba(245, 158, 11, 0.08) 0%, transparent 100%)',
             boxSizing: 'border-box'
           }}
         >
@@ -230,14 +230,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                borderRadius: '10px',
+                borderRadius: '50%',
                 background: 'linear-gradient(135deg, #d97706 0%, #78350f 100%)',
                 color: '#fef3c7',
-                boxShadow: '0 0 14px rgba(245, 158, 11, 0.35)',
-                border: '1px solid #f59e0b'
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.5)',
+                border: '1px solid rgba(245, 158, 11, 0.35)'
               }}
             >
-              <Flame size={18} style={{ color: '#fffbeb', filter: 'drop-shadow(0 0 4px #f59e0b)' }} />
+              <Flame size={18} style={{ color: '#fffbeb' }} />
             </div>
 
             <div style={{ marginLeft: '12px', display: 'flex', flexDirection: 'column' }}>
@@ -247,7 +247,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   fontWeight: 800,
                   letterSpacing: '0.08em',
                   color: '#fef3c7',
-                  textShadow: '0 0 10px rgba(245, 158, 11, 0.4)'
+                  textShadow: '0 1px 4px rgba(0, 0, 0, 0.8)'
                 }}
               >
                 TABERNA DIGITAL
@@ -275,11 +275,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             title="Ocultar Barra Lateral"
             style={{
               background: 'rgba(0, 0, 0, 0.35)',
-              border: '1px solid rgba(245, 158, 11, 0.25)',
+              border: '1px solid rgba(245, 158, 11, 0.2)',
               color: '#d4b896',
               cursor: 'pointer',
               padding: '6px',
-              borderRadius: '8px',
+              borderRadius: '50%',
+              width: '32px',
+              height: '32px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -287,13 +289,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.color = '#ffffff';
-              e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.3)';
-              e.currentTarget.style.borderColor = '#ef4444';
+              e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.25)';
+              e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.color = '#d4b896';
               e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.35)';
-              e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.25)';
+              e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.2)';
             }}
           >
             <X size={16} />
@@ -313,15 +315,15 @@ export const Navbar: React.FC<NavbarProps> = ({
               alignItems: 'center',
               justifyContent: 'flex-start',
               gap: '10px',
-              padding: '0 12px',
-              borderRadius: '8px',
-              border: isPlayingAudio ? '1px solid #f59e0b' : '1px solid rgba(245, 158, 11, 0.25)',
+              padding: '0 14px',
+              borderRadius: '9999px',
+              border: isPlayingAudio ? '1px solid rgba(245, 158, 11, 0.35)' : '1px solid rgba(255, 255, 255, 0.1)',
               background: isPlayingAudio
-                ? 'linear-gradient(90deg, rgba(217, 119, 6, 0.3) 0%, rgba(120, 53, 15, 0.2) 100%)'
+                ? 'linear-gradient(90deg, rgba(217, 119, 6, 0.25) 0%, rgba(120, 53, 15, 0.15) 100%)'
                 : 'rgba(0, 0, 0, 0.35)',
               color: isPlayingAudio ? '#fef3c7' : '#cfc6b8',
               cursor: 'pointer',
-              boxShadow: isPlayingAudio ? '0 0 12px rgba(245, 158, 11, 0.3)' : 'none',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
               transition: 'all 0.2s ease'
             }}
           >
@@ -343,7 +345,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span style={{ fontSize: '11px', fontWeight: 700, color: isPlayingAudio ? '#fef3c7' : '#d6c6b2' }}>
                 {isPlayingAudio ? 'Música da Taverna' : 'Tocar Música'}
               </span>
-              <span style={{ fontSize: '9px', color: '#f59e0b', fontFamily: 'var(--font-body)' }}>
+              <span style={{ fontSize: '9px', color: '#d97706', fontFamily: 'var(--font-body)' }}>
                 {isPlayingAudio ? 'Lareira & Alaúde ligados' : 'Lareira & Alaúde'}
               </span>
             </div>
@@ -398,40 +400,35 @@ export const Navbar: React.FC<NavbarProps> = ({
                   width: '100%',
                   height: '48px',
                   minHeight: '48px',
-                  padding: '0 12px',
-                  borderRadius: '8px',
+                  padding: '0 14px',
+                  borderRadius: '12px',
                   border: isActive
-                    ? '1px solid rgba(245, 158, 11, 0.4)'
+                    ? '1px solid rgba(245, 158, 11, 0.35)'
                     : isShop
-                    ? '1.5px solid rgba(245, 158, 11, 0.35)'
-                    : '1px solid transparent',
-                  borderLeft: isActive
-                    ? '3px solid #f59e0b'
-                    : isShop
-                    ? '3px solid #fbbf24'
+                    ? '1px solid rgba(245, 158, 11, 0.25)'
                     : '1px solid transparent',
                   cursor: 'pointer',
                   background: isActive
-                    ? 'linear-gradient(90deg, rgba(217, 119, 6, 0.28) 0%, rgba(120, 53, 15, 0.12) 100%)'
+                    ? 'linear-gradient(90deg, rgba(217, 119, 6, 0.22) 0%, rgba(120, 53, 15, 0.08) 100%)'
                     : isShop
-                    ? 'linear-gradient(90deg, rgba(217, 119, 6, 0.2) 0%, rgba(69, 26, 3, 0.25) 100%)'
+                    ? 'linear-gradient(90deg, rgba(217, 119, 6, 0.16) 0%, rgba(69, 26, 3, 0.18) 100%)'
                     : 'transparent',
                   color: isActive || isShop ? '#fef3c7' : '#cfc6b8',
-                  boxShadow: isActive ? '0 0 16px rgba(245, 158, 11, 0.25)' : 'none',
+                  boxShadow: 'none',
                   transition: 'all 0.15s ease',
                   textAlign: 'left',
                   position: 'relative',
                   boxSizing: 'border-box'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.2)';
+                  e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.15)';
                   e.currentTarget.style.color = '#fffbeb';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.backgroundColor = isActive
-                    ? 'linear-gradient(90deg, rgba(217, 119, 6, 0.28) 0%, rgba(120, 53, 15, 0.12) 100%)'
+                    ? 'linear-gradient(90deg, rgba(217, 119, 6, 0.22) 0%, rgba(120, 53, 15, 0.08) 100%)'
                     : isShop
-                    ? 'linear-gradient(90deg, rgba(217, 119, 6, 0.2) 0%, rgba(69, 26, 3, 0.25) 100%)'
+                    ? 'linear-gradient(90deg, rgba(217, 119, 6, 0.16) 0%, rgba(69, 26, 3, 0.18) 100%)'
                     : 'transparent';
                   e.currentTarget.style.color = isActive || isShop ? '#fef3c7' : '#cfc6b8';
                 }}
@@ -444,8 +441,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     alignItems: 'center',
                     justifyContent: 'center',
                     flexShrink: 0,
-                    color: isShop ? '#fbbf24' : isActive ? '#f59e0b' : 'inherit',
-                    filter: isShop || isActive ? 'drop-shadow(0 0 6px #f59e0b)' : 'none'
+                    color: isShop ? '#fbbf24' : isActive ? '#f59e0b' : 'inherit'
                   }}
                 >
                   {item.icon}
@@ -494,7 +490,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div
             style={{
               height: '1px',
-              backgroundColor: 'rgba(245, 158, 11, 0.15)',
+              backgroundColor: 'rgba(245, 158, 11, 0.12)',
               margin: '8px 4px'
             }}
           />
@@ -515,9 +511,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                 width: '100%',
                 height: '44px',
                 minHeight: '44px',
-                padding: '0 10px',
-                borderRadius: '8px',
-                border: '1px solid rgba(245, 158, 11, 0.2)',
+                padding: '0 12px',
+                borderRadius: '12px',
+                border: '1px solid rgba(245, 158, 11, 0.18)',
                 cursor: 'pointer',
                 background: 'rgba(217, 119, 6, 0.08)',
                 color: '#fcd34d',
@@ -527,7 +523,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 boxSizing: 'border-box'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.2)';
+                e.currentTarget.style.backgroundColor = 'rgba(245, 158, 11, 0.18)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'rgba(217, 119, 6, 0.08)';
@@ -605,12 +601,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                   display: 'flex',
                   alignItems: 'center',
                   gap: '10px',
-                  padding: '8px',
-                  borderRadius: '8px',
+                  padding: '8px 10px',
+                  borderRadius: '12px',
                   cursor: 'pointer',
                   transition: 'background-color 0.15s ease',
                   overflow: 'hidden',
-                  border: '1px solid rgba(245, 158, 11, 0.2)',
+                  border: '1px solid rgba(245, 158, 11, 0.18)',
                   background: 'linear-gradient(180deg, rgba(40, 25, 15, 0.6) 0%, rgba(20, 12, 7, 0.8) 100%)'
                 }}
                 onMouseEnter={(e) => {
@@ -696,14 +692,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                       style={{
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: '2px',
+                        gap: '3px',
                         fontSize: '9.5px',
                         fontWeight: 800,
                         color: '#fcd34d',
-                        backgroundColor: 'rgba(217, 119, 6, 0.25)',
-                        border: '1px solid rgba(245, 158, 11, 0.4)',
-                        padding: '1px 5px',
-                        borderRadius: '8px',
+                        backgroundColor: 'rgba(217, 119, 6, 0.22)',
+                        border: '1px solid rgba(245, 158, 11, 0.35)',
+                        padding: '1px 7px',
+                        borderRadius: '9999px',
                         cursor: 'pointer'
                       }}
                     >
@@ -735,9 +731,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '6px',
-                    padding: '7px 8px',
-                    borderRadius: '6px',
-                    border: '1px solid rgba(245, 158, 11, 0.25)',
+                    padding: '8px 10px',
+                    borderRadius: '9999px',
+                    border: '1px solid rgba(245, 158, 11, 0.22)',
                     background: 'rgba(0, 0, 0, 0.4)',
                     color: '#d4b896',
                     fontSize: '11px',
@@ -771,9 +767,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '6px',
-                    padding: '7px 8px',
-                    borderRadius: '6px',
-                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    padding: '8px 10px',
+                    borderRadius: '9999px',
+                    border: '1px solid rgba(239, 68, 68, 0.25)',
                     background: 'rgba(239, 68, 68, 0.1)',
                     color: '#f87171',
                     fontSize: '11px',
@@ -808,15 +804,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '8px',
-                padding: '10px',
-                borderRadius: '8px',
+                padding: '10px 16px',
+                borderRadius: '9999px',
                 background: 'linear-gradient(135deg, #d97706 0%, #78350f 100%)',
                 color: '#fffbeb',
-                border: '1px solid #f59e0b',
+                border: '1px solid rgba(245, 158, 11, 0.4)',
                 fontSize: '12px',
                 fontWeight: 700,
                 cursor: 'pointer',
-                boxShadow: '0 0 12px rgba(245, 158, 11, 0.4)'
+                boxShadow: '0 4px 14px rgba(0, 0, 0, 0.65)'
               }}
             >
               <LogIn size={15} />
