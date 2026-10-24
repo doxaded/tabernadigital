@@ -3629,16 +3629,20 @@ h1, h2, h3, h4, .font-cinzel {
   pointer-events: none;
 }
 
-/* Banner Claro: pergaminho iluminado, estaticamente borrado e opaco com paleta creme encorpada */
+/* Banner Claro: pergaminho iluminado, imagem NÍTIDA SEM BORRADO com filtro FOSCO aveludado */
 .hub-banner--light .hub-banner__bg-img {
-  opacity: 0.55;
-  filter: blur(6px) saturate(1.05) brightness(0.96);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.70;
+  filter: contrast(0.86) brightness(0.92) saturate(0.82) sepia(0.06);
 }
 
 .hub-banner--light .hub-banner__bg-overlay {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 50%, rgba(236, 224, 202, 0.20) 0%, rgba(222, 205, 176, 0.48) 65%, rgba(206, 186, 153, 0.78) 100%);
+  background: radial-gradient(ellipse at 50% 50%, rgba(236, 224, 202, 0.18) 0%, rgba(222, 205, 176, 0.40) 65%, rgba(206, 186, 153, 0.68) 100%);
   pointer-events: none;
 }
 
@@ -3957,16 +3961,16 @@ h1, h2, h3, h4, .font-cinzel {
 .hub-banner__service-desc p {
   margin: 0;
   font-family: var(--font-body);
-  font-size: clamp(16px, 1.35vw, 20px);
-  line-height: 1.45;
-  letter-spacing: 0.012em;
-  font-weight: 400;
+  font-size: clamp(19px, 1.65vw, 24px);
+  line-height: 1.5;
+  letter-spacing: 0.015em;
+  font-weight: 500;
   white-space: nowrap;
   text-align: center;
   transition: color 0.3s ease;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1400px) {
   .hub-banner__service-desc p {
     white-space: normal;
     max-width: 85ch;

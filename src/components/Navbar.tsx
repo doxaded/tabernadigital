@@ -1,25 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Compass,
   Crown,
-  KeyRound,
-  LogOut,
   LogIn,
   Volume2,
   VolumeX,
   Coins,
-  Menu,
-  Shield,
-  Palette,
-  Flame,
-  MessageSquare
+  Menu
 } from 'lucide-react';
 import { UserProfile } from '../types';
 import { ADMIN_EMAIL } from '../services/storage';
 import { tavernAudio } from '../services/tavernAudio';
 import { AvatarFrame } from './AvatarFrame';
 import { getEffectiveGold } from '../services/tavernShopCatalog';
-
 interface NavbarProps {
   currentUser: UserProfile | null;
   activeTab: 'hub' | 'campaigns' | 'sketch' | 'urd' | 'chat';
@@ -33,40 +25,6 @@ interface NavbarProps {
   pendingCount: number;
   bannerMode?: boolean;
 }
-
-interface TabItemConfig {
-  id: 'hub' | 'campaigns' | 'sketch' | 'urd' | 'chat';
-  title: string;
-  icon: React.ReactNode;
-}
-
-const TAB_ITEMS: TabItemConfig[] = [
-  {
-    id: 'hub',
-    title: 'Salão Principal',
-    icon: <Compass size={20} strokeWidth={2.2} />
-  },
-  {
-    id: 'campaigns',
-    title: 'Mesa dos Apostadores (Mesas & Fichas)',
-    icon: <Shield size={20} strokeWidth={2.2} />
-  },
-  {
-    id: 'sketch',
-    title: 'Recanto dos Bardos (Telas & Pintura)',
-    icon: <Palette size={20} strokeWidth={2.2} />
-  },
-  {
-    id: 'urd',
-    title: 'Urd, o Taberneiro (Oráculo da Lareira)',
-    icon: <Flame size={20} strokeWidth={2.2} />
-  },
-  {
-    id: 'chat',
-    title: 'Mesa dos Apostadores (Chat ao Vivo)',
-    icon: <MessageSquare size={20} strokeWidth={2.2} />
-  }
-];
 
 export const Navbar: React.FC<NavbarProps> = ({
   currentUser,
@@ -262,21 +220,21 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </header>
 
-      {/* 2. Barra Lateral de Ferramentas: Fina, apenas símbolos/ícones das abas, mesma cor da barra superior e fixa em toda a lateral esquerda */}
+      {/* 2. Barra Lateral de Ferramentas: Surge estritamente inferior à barra superior, ícones menores, ferramentas e perfil no extremo inferior */}
       <aside
         id="tavern-lateral-toolbar"
         className="tavern-sidebar"
         aria-label="Barra de ferramentas lateral da Taberna Digital"
         style={{
           position: 'fixed',
-          top: 0,
+          top: '54px',
           left: 0,
           bottom: 0,
-          height: '100vh',
-          width: '56px',
+          height: 'calc(100vh - 54px)',
+          width: '46px',
           backgroundColor: '#181008',
           borderRight: '1px solid rgba(245, 158, 11, 0.12)',
-          zIndex: 1000,
+          zIndex: 980,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -288,106 +246,20 @@ export const Navbar: React.FC<NavbarProps> = ({
           pointerEvents: isOpen ? 'auto' : 'none',
           transition: 'transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.18s ease',
           boxShadow: isOpen ? '4px 0 20px rgba(0, 0, 0, 0.6)' : 'none',
-          userSelect: 'none'
+          userSelect: 'none',
+          padding: '12px 0 14px'
         }}
       >
-        {/* Topo da Barra Lateral: Botão Toggle no mesmo alinhamento de 54px da Barra Superior */}
-        <div
-          style={{
-            height: '54px',
-            minHeight: '54px',
-            width: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxSizing: 'border-box'
-          }}
-        >
-          <button
-            type="button"
-            onClick={() => setIsOpen(false)}
-            title="Recolher Barra Lateral"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '36px',
-              height: '36px',
-              borderRadius: '10px',
-              backgroundColor: 'rgba(217, 119, 6, 0.22)',
-              border: 'none',
-              color: '#fbbf24',
-              cursor: 'pointer',
-              padding: 0,
-              transition: 'all 0.15s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(217, 119, 6, 0.32)';
-              e.currentTarget.style.color = '#fffbeb';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(217, 119, 6, 0.22)';
-              e.currentTarget.style.color = '#fbbf24';
-            }}
-          >
-            <Menu size={20} />
-          </button>
-        </div>
-
-        {/* Lista de Ícones/Símbolos das Abas da Taverna (Sem Nenhum Texto) */}
+        {/* Ferramentas Superiores da Barra Lateral */}
         <div
           style={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '6px',
-            width: '100%',
-            padding: '4px 0'
+            gap: '8px',
+            width: '100%'
           }}
         >
-          {TAB_ITEMS.map((item) => {
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => {
-                  setActiveTab(item.id);
-                }}
-                title={item.title}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '10px',
-                  border: isActive ? '1px solid rgba(245, 158, 11, 0.45)' : '1px solid transparent',
-                  backgroundColor: isActive ? 'rgba(217, 119, 6, 0.22)' : 'transparent',
-                  color: isActive ? '#f59e0b' : '#c9b097',
-                  cursor: 'pointer',
-                  transition: 'all 0.18s ease',
-                  padding: 0,
-                  boxShadow: isActive ? '0 0 12px rgba(245, 158, 11, 0.22)' : 'none'
-                }}
-                onMouseEnter={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
-                    e.currentTarget.style.color = '#fffbeb';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                    e.currentTarget.style.color = '#c9b097';
-                  }
-                }}
-              >
-                {item.icon}
-              </button>
-            );
-          })}
-
           {/* Símbolo do Bazar da Taverna */}
           <button
             type="button"
@@ -403,9 +275,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: '40px',
-              height: '40px',
-              borderRadius: '10px',
+              width: '32px',
+              height: '32px',
+              borderRadius: '8px',
               border: '1px solid transparent',
               backgroundColor: 'transparent',
               color: '#fbbf24',
@@ -422,7 +294,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               e.currentTarget.style.borderColor = 'transparent';
             }}
           >
-            <Coins size={20} strokeWidth={2.2} />
+            <Coins size={15} strokeWidth={2.2} />
           </button>
 
           {/* Símbolo de Administração (SuperAdmin) */}
@@ -438,9 +310,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: '40px',
-                height: '40px',
-                borderRadius: '10px',
+                width: '32px',
+                height: '32px',
+                borderRadius: '8px',
                 border: '1px solid rgba(245, 158, 11, 0.2)',
                 backgroundColor: 'rgba(217, 119, 6, 0.12)',
                 color: '#f59e0b',
@@ -458,15 +330,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                 e.currentTarget.style.color = '#f59e0b';
               }}
             >
-              <Crown size={20} strokeWidth={2.2} />
+              <Crown size={15} strokeWidth={2.2} />
               {pendingCount > 0 && (
                 <span
                   style={{
                     position: 'absolute',
-                    top: '4px',
-                    right: '4px',
-                    width: '8px',
-                    height: '8px',
+                    top: '2px',
+                    right: '2px',
+                    width: '6px',
+                    height: '6px',
                     borderRadius: '50%',
                     backgroundColor: '#ef4444'
                   }}
@@ -474,32 +346,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </button>
           )}
-        </div>
 
-        {/* Separador Sutil */}
-        <div
-          style={{
-            width: '30px',
-            height: '1px',
-            backgroundColor: 'rgba(245, 158, 11, 0.14)',
-            margin: '6px 0'
-          }}
-        />
-
-        {/* Espaçador Flexível */}
-        <div style={{ flex: 1 }} />
-
-        {/* Ações Inferiores (Apenas Símbolos/Ícones) */}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '6px',
-            width: '100%',
-            padding: '6px 0 12px'
-          }}
-        >
           {/* Botão de Áudio (Alaúde & Lareira) */}
           <button
             type="button"
@@ -509,9 +356,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: '40px',
-              height: '40px',
-              borderRadius: '10px',
+              width: '32px',
+              height: '32px',
+              borderRadius: '8px',
               border: isPlayingAudio ? '1px solid rgba(245, 158, 11, 0.4)' : '1px solid transparent',
               backgroundColor: isPlayingAudio ? 'rgba(217, 119, 6, 0.22)' : 'transparent',
               color: isPlayingAudio ? '#f59e0b' : '#c9b097',
@@ -528,109 +375,53 @@ export const Navbar: React.FC<NavbarProps> = ({
               e.currentTarget.style.color = isPlayingAudio ? '#f59e0b' : '#c9b097';
             }}
           >
-            {isPlayingAudio ? <Volume2 size={19} /> : <VolumeX size={19} />}
+            {isPlayingAudio ? <Volume2 size={15} /> : <VolumeX size={15} />}
           </button>
+        </div>
 
+        {/* Espaçador Flexível para jogar o perfil no extremo inferior */}
+        <div style={{ flex: 1 }} />
+
+        {/* Ícone de Perfil no Extremo Inferior da Barra Lateral */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            width: '100%',
+            paddingTop: '6px'
+          }}
+        >
           {currentUser ? (
-            <>
-              {/* Avatar do Aventureiro (Abrir Perfil) */}
-              <button
-                type="button"
-                onClick={() => {
-                  onOpenMyProfile?.();
-                }}
-                title={`${currentUser.displayName || currentUser.email} (Abrir Perfil)`}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '10px',
-                  border: '1px solid transparent',
-                  backgroundColor: 'transparent',
-                  cursor: 'pointer',
-                  transition: 'all 0.18s ease',
-                  padding: 0
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                }}
-              >
-                <AvatarFrame user={currentUser} size="xs" />
-              </button>
-
-              {/* Alterar Senha */}
-              <button
-                type="button"
-                onClick={() => {
-                  onOpenChangePassword();
-                }}
-                title="Alterar Senha"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '10px',
-                  border: '1px solid transparent',
-                  backgroundColor: 'transparent',
-                  color: '#c9b097',
-                  cursor: 'pointer',
-                  transition: 'all 0.18s ease',
-                  padding: 0
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
-                  e.currentTarget.style.color = '#fffbeb';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = '#c9b097';
-                }}
-              >
-                <KeyRound size={17} />
-              </button>
-
-              {/* Sair da Taverna (Logout) */}
-              <button
-                type="button"
-                onClick={() => {
-                  onLogout();
-                }}
-                title="Abandonar a Taverna (Logout)"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '10px',
-                  border: '1px solid rgba(239, 68, 68, 0.25)',
-                  backgroundColor: 'rgba(239, 68, 68, 0.08)',
-                  color: '#f87171',
-                  cursor: 'pointer',
-                  transition: 'all 0.18s ease',
-                  padding: 0
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.25)';
-                  e.currentTarget.style.color = '#ffffff';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.08)';
-                  e.currentTarget.style.color = '#f87171';
-                }}
-              >
-                <LogOut size={17} />
-              </button>
-            </>
+            <button
+              type="button"
+              onClick={() => {
+                onOpenMyProfile?.();
+              }}
+              title={`${currentUser.displayName || currentUser.email} (Abrir Perfil)`}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '32px',
+                height: '32px',
+                borderRadius: '8px',
+                border: '1px solid transparent',
+                backgroundColor: 'transparent',
+                cursor: 'pointer',
+                transition: 'all 0.18s ease',
+                padding: 0
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              <AvatarFrame user={currentUser} size="xs" />
+            </button>
           ) : (
-            /* Entrar na Taverna (Login) */
             <button
               type="button"
               onClick={() => {
@@ -641,9 +432,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: '40px',
-                height: '40px',
-                borderRadius: '10px',
+                width: '32px',
+                height: '32px',
+                borderRadius: '8px',
                 border: '1px solid rgba(245, 158, 11, 0.4)',
                 backgroundColor: 'rgba(217, 119, 6, 0.22)',
                 color: '#fbbf24',
@@ -660,7 +451,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 e.currentTarget.style.color = '#fbbf24';
               }}
             >
-              <LogIn size={18} />
+              <LogIn size={15} />
             </button>
           )}
         </div>

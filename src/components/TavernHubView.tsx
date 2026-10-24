@@ -42,8 +42,8 @@ const HUB_MODULES: HubModuleConfig[] = [
     badge: 'ATELIÊ DO BARDO & PINTURA',
     description: 'Ilustre itens lendários, mapas arcanos, criaturas e heróis com o traço aveludado e a imaginação do bardo Orlan Pena-Fina.',
     actionText: 'Abrir Telas do Alaúde',
-    bgImage: '/assets/bardo_portrait.jpg',
-    bgPosition: 'center 25%',
+    bgImage: '/assets/banner_telas_alaude.jpg',
+    bgPosition: 'center 20%',
   },
   {
     id: 'urd',
