@@ -19,6 +19,7 @@ interface HubModuleConfig {
   description: string;
   actionText: string;
   bgImage?: string;
+  bgPosition?: string;
 }
 
 const HUB_MODULES: HubModuleConfig[] = [
@@ -30,7 +31,8 @@ const HUB_MODULES: HubModuleConfig[] = [
     badge: 'MESA DE CARVALHO & FICHAS',
     description: 'Junte-se a uma mesa compartilhada pela chave do mestre ou crie e conduza sua própria saga com fichas, lore e regras.',
     actionText: 'Acessar Mesa dos Apostadores',
-    bgImage: '/assets/banner_mesa_alchemist.png', // Ilustração do Alquimista e Orbe fornecida pelo usuário
+    bgImage: '/assets/banner_mesa_apostadores.jpg', // Ilustração 1: Dragão sobrevoando a costa
+    bgPosition: 'center 40%',
   },
   {
     id: 'sketch',
@@ -41,6 +43,7 @@ const HUB_MODULES: HubModuleConfig[] = [
     description: 'Ilustre itens lendários, mapas arcanos, criaturas e heróis com o traço aveludado e a imaginação do bardo Orlan Pena-Fina.',
     actionText: 'Abrir Telas do Alaúde',
     bgImage: '/assets/bardo_portrait.jpg',
+    bgPosition: 'center 25%',
   },
   {
     id: 'urd',
@@ -50,7 +53,8 @@ const HUB_MODULES: HubModuleConfig[] = [
     badge: 'LAREIRA DE PEDRA & ORÁCULO',
     description: 'Consulte a sabedoria ancestral de Urd, desvende profecias, ouça os boatos sussurrados na lareira e crie crônicas vivas.',
     actionText: 'Consultar o Taberneiro',
-    bgImage: '/assets/urd_portrait.jpg',
+    bgImage: '/assets/banner_urd_taberneiro.jpg', // Ilustração 3: Urd taberneiro com caneca de cerveja
+    bgPosition: 'center 25%',
   },
   {
     id: 'chat',
@@ -60,7 +64,8 @@ const HUB_MODULES: HubModuleConfig[] = [
     badge: 'SCRIPTORIUM & CHAT AO VIVO',
     description: 'Comunique-se em tempo real com taverneiros e companheiros de aventura, planeje suas sessões e troque mensagens diretas.',
     actionText: 'Entrar no Recanto dos Bardos',
-    bgImage: '/assets/tavern_bg.jpg',
+    bgImage: '/assets/banner_recanto_bardos.jpg', // Ilustração 2: Mural de avisos e pergaminhos da taverna
+    bgPosition: 'center 35%',
   },
 ];
 
@@ -90,6 +95,7 @@ export const TavernHubView: React.FC<TavernHubViewProps> = ({
                   src={mod.bgImage}
                   alt=""
                   className="hub-banner__bg-img"
+                  style={mod.bgPosition ? { objectPosition: mod.bgPosition } : undefined}
                   loading={isFirst ? 'eager' : 'lazy'}
                 />
                 <div className="hub-banner__bg-overlay" />
