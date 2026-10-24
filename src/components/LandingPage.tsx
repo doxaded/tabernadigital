@@ -32,7 +32,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
         overflow: 'hidden'
       }}
     >
-      {/* Arte de Fundo Borrada e Opaca no Padrão da Taberna */}
+      {/* Arte de Fundo em Pergaminho Envelhecido */}
       <div
         aria-hidden="true"
         style={{
@@ -47,7 +47,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
         }}
       >
         <img
-          src="/assets/landing_tavern_bg.jpg"
+          src="/assets/landing_parchment_bg.png"
           alt=""
           style={{
             position: 'absolute',
@@ -56,9 +56,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
             top: '-14px',
             left: '-14px',
             objectFit: 'cover',
-            objectPosition: 'center 45%',
-            filter: 'blur(6px) saturate(1.05) brightness(0.68)',
-            opacity: 0.55,
+            objectPosition: 'center',
+            filter: 'blur(5px) saturate(1.1) brightness(0.72)',
+            opacity: 0.65,
             pointerEvents: 'none',
             userSelect: 'none'
           }}
@@ -68,7 +68,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'radial-gradient(ellipse at 50% 45%, rgba(18, 11, 6, 0.30) 0%, rgba(14, 9, 6, 0.70) 65%, rgba(14, 9, 6, 0.96) 100%)',
+            background: 'radial-gradient(ellipse at 50% 50%, rgba(18, 11, 6, 0.22) 0%, rgba(14, 9, 6, 0.62) 65%, rgba(14, 9, 6, 0.94) 100%)',
             pointerEvents: 'none'
           }}
         />
@@ -188,11 +188,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter }) => {
           style={{
             position: 'absolute',
             inset: '-10%',
-            backgroundImage: 'url("/assets/landing_tavern_bg.jpg")',
+            backgroundImage: 'url("/assets/landing_parchment_bg.png")',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            opacity: 0.30,
-            filter: 'blur(5px) sepia(35%) contrast(105%) brightness(0.70)',
+            opacity: 0.32,
+            filter: 'blur(5px) saturate(1.1) brightness(0.70)',
             zIndex: 1
           }}
         />
