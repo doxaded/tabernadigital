@@ -5,6 +5,7 @@ import { aiService } from '../services/aiService';
 import { tavernAudio } from '../services/tavernAudio';
 
 interface EditorialTelasViewProps {
+  onBack?: () => void;
   sketches: SketchAsset[];
   campaigns?: { id: string; name: string }[];
   activeCampaignId?: string | null;
@@ -22,6 +23,7 @@ const TECHNIQUES: { value: Technique; label: string; suffix: string }[] = [
 ];
 
 export const EditorialTelasView: React.FC<EditorialTelasViewProps> = ({
+  onBack,
   sketches,
   campaigns,
   activeCampaignId,
@@ -32,6 +34,8 @@ export const EditorialTelasView: React.FC<EditorialTelasViewProps> = ({
   const [selectedTechnique, setSelectedTechnique] = useState<Technique>('nanquim');
   const [isGenerating, setIsGenerating] = useState(false);
   const [_selectedSketch, setSelectedSketch] = useState<SketchAsset | null>(() => sketches[0] || null);
+
+  const activeCampaignName = campaigns?.find(c => c.id === activeCampaignId)?.name || 'Salão Geral';
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,225 +75,244 @@ export const EditorialTelasView: React.FC<EditorialTelasViewProps> = ({
     }
   };
 
+  const currentTechObj = TECHNIQUES.find(t => t.value === selectedTechnique) || TECHNIQUES[0];
+
   return (
-    <div
-      style={{
-        width: '100%',
-        maxWidth: '820px',
-        margin: '0 auto',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        textAlign: 'center',
-        padding: '20px 24px',
-        boxSizing: 'border-box',
-        animation: 'fadeIn 0.6s ease',
-      }}
-    >
-      <div style={{ letterSpacing: '0.25em', fontSize: '11px', textTransform: 'uppercase', opacity: 0.6, marginBottom: '12px' }}>
-        Sala II • Ateliê de Gravuras
+    <main className="editorial-room-container">
+      {/* 2. Cabeçalho Interno da Sala em Linha Única */}
+      <div className="editorial-header-bar">
+        <button
+          onClick={() => {
+            if (onBack) onBack();
+            else window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          style={{
+            background: 'none',
+            border: 'none',
+            padding: '6px 0',
+            cursor: 'pointer',
+            color: 'inherit',
+            fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
+            fontSize: '14px',
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            opacity: 0.8,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'opacity 0.2s ease',
+          }}
+          className="hover:opacity-100"
+        >
+          ← Voltar à Galeria
+        </button>
+
+        <div className="editorial-segmented-control">
+          {TECHNIQUES.map((tech) => {
+            const isActive = selectedTechnique === tech.value;
+            return (
+              <button
+                key={tech.value}
+                onClick={() => setSelectedTechnique(tech.value)}
+                className={`editorial-segmented-item ${isActive ? 'is-active' : ''}`}
+              >
+                {tech.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      <h1
-        style={{
-          fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
-          fontSize: 'clamp(34px, 5.5vw, 50px)',
-          fontWeight: 500,
-          margin: '0 0 12px 0',
-          letterSpacing: '0.02em',
-        }}
-      >
-        Telas do Alaúde
-      </h1>
+      {/* 3. Layout Assimétrico Estilo Kerbache HR / Claude (8 colunas / 4 colunas) */}
+      <div className="editorial-grid-12">
+        {/* Coluna Principal (Esquerda - 8 colunas) */}
+        <div>
+          <div style={{ letterSpacing: '0.25em', fontSize: '11px', textTransform: 'uppercase', opacity: 0.6, marginBottom: '12px' }}>
+            SALA II • ATELIÊ DE GRAVURAS
+          </div>
 
-      <p
-        style={{
-          fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
-          fontStyle: 'italic',
-          fontSize: '17px',
-          lineHeight: '1.7',
-          maxWidth: '620px',
-          margin: '0 0 36px 0',
-          opacity: 0.85,
-        }}
-      >
-        Gravuras e estudos visuais das sagas narradas ao redor do fogo, traçados à pena pelo bardo da estalagem.
-      </p>
-
-      {/* Galeria Central Compacta (Estilo Editorial Museum) */}
-      {sketches.length > 0 ? (
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            alignItems: 'flex-start',
-            gap: '32px',
-            width: '100%',
-            marginBottom: '40px',
-          }}
-        >
-          {sketches.map((sk) => (
-            <div
-              key={sk.id}
-              onClick={() => setSelectedSketch(sk)}
-              style={{
-                width: '210px',
-                textAlign: 'center',
-                cursor: 'pointer',
-                transition: 'transform 0.3s ease',
-              }}
-              className="hover:scale-105"
-            >
-              <div
-                style={{
-                  width: '100%',
-                  height: '240px',
-                  overflow: 'hidden',
-                  backgroundColor: 'rgba(0, 0, 0, 0.12)',
-                  boxShadow: '0 12px 28px rgba(0, 0, 0, 0.2)',
-                  marginBottom: '12px',
-                }}
-              >
-                <img
-                  src={sk.imageUrl}
-                  alt={sk.prompt}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    filter: 'sepia(20%) contrast(105%)',
-                  }}
-                />
-              </div>
-
-              <div
-                style={{
-                  fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
-                  fontSize: '16px',
-                  fontWeight: 600,
-                  marginBottom: '2px',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {sk.prompt}
-              </div>
-
-              <div style={{ fontStyle: 'italic', fontSize: '12px', opacity: 0.75, marginBottom: '6px' }}>
-                {sk.description || 'Pena & Nanquim'}
-              </div>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDeleteSketch(sk.id);
-                }}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  padding: 0,
-                  fontSize: '11px',
-                  textDecoration: 'underline',
-                  color: 'inherit',
-                  opacity: 0.6,
-                  cursor: 'pointer',
-                }}
-                title="Apagar gravura do mural"
-              >
-                Remover
-              </button>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div style={{ margin: '36px 0', fontStyle: 'italic', fontSize: '17px', opacity: 0.75 }}>
-          Nenhuma gravura orna os muros deste ateliê ainda. Instrua o bardo para que ele trace a primeira obra.
-        </div>
-      )}
-
-      {/* Formulário Minimalista de Criação do Bardo */}
-      <form
-        onSubmit={handleGenerate}
-        style={{
-          width: '100%',
-          maxWidth: '560px',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '16px',
-          borderTop: '1px solid rgba(31, 18, 11, 0.2)',
-          paddingTop: '28px',
-        }}
-      >
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '16px', fontSize: '13px' }}>
-          {TECHNIQUES.map((tech) => (
-            <button
-              type="button"
-              key={tech.value}
-              onClick={() => setSelectedTechnique(tech.value)}
-              style={{
-                background: 'none',
-                border: 'none',
-                padding: '2px 4px',
-                cursor: 'pointer',
-                color: 'inherit',
-                fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
-                textDecoration: selectedTechnique === tech.value ? 'underline' : 'none',
-                textUnderlineOffset: '4px',
-                fontWeight: selectedTechnique === tech.value ? 700 : 400,
-                opacity: selectedTechnique === tech.value ? 1 : 0.6,
-              }}
-            >
-              {tech.label}
-            </button>
-          ))}
-        </div>
-
-        <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <input
-            type="text"
-            value={promptText}
-            onChange={(e) => setPromptText(e.target.value)}
-            placeholder="Instrua o bardo: um dragão de rubi sobre montanhas..."
-            disabled={isGenerating}
+          <h1
             style={{
-              flex: 1,
-              background: 'transparent',
-              border: 'none',
-              borderBottom: '1px solid rgba(31, 18, 11, 0.35)',
-              padding: '8px 4px',
-              fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
-              fontSize: '16px',
-              color: 'inherit',
-              outline: 'none',
-            }}
-          />
-
-          <button
-            type="submit"
-            disabled={isGenerating || !promptText.trim()}
-            style={{
-              background: 'none',
-              border: 'none',
-              padding: '8px 12px',
               fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
-              fontSize: '14px',
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              fontWeight: 600,
-              textDecoration: 'underline',
-              textUnderlineOffset: '6px',
-              cursor: isGenerating ? 'wait' : 'pointer',
+              fontSize: 'clamp(32px, 4.5vw, 44px)',
+              fontWeight: 400,
+              letterSpacing: '-0.02em',
+              lineHeight: 1.15,
+              margin: '0 0 16px 0',
               color: 'inherit',
-              opacity: isGenerating || !promptText.trim() ? 0.4 : 1,
             }}
           >
-            {isGenerating ? 'Traçando...' : 'Ilustrar'}
-          </button>
+            Telas do Alaúde
+          </h1>
+
+          <p
+            style={{
+              fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+              fontStyle: 'italic',
+              fontSize: '17px',
+              lineHeight: '1.7',
+              maxWidth: '580px',
+              margin: '0 0 28px 0',
+              opacity: 0.8,
+            }}
+          >
+            Gravuras e estudos visuais das sagas narradas ao redor do fogo, traçados à pena pelo bardo da estalagem com inteligência oracular.
+          </p>
+
+          {/* Formulário de Criação Alinhado à Esquerda */}
+          <form onSubmit={handleGenerate} style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '620px' }}>
+            <div style={{ position: 'relative' }}>
+              <input
+                type="text"
+                value={promptText}
+                onChange={(e) => setPromptText(e.target.value)}
+                placeholder="Instrua o bardo: um dragão de rubi sobre montanhas nevadas..."
+                disabled={isGenerating}
+                style={{
+                  width: '100%',
+                  background: 'rgba(0, 0, 0, 0.04)',
+                  border: '1px solid rgba(currentColor, 0.18)',
+                  borderRadius: '10px',
+                  padding: '14px 18px',
+                  fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+                  fontSize: '16px',
+                  color: 'inherit',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <button
+                type="submit"
+                disabled={isGenerating || !promptText.trim()}
+                className="editorial-btn-primary"
+                style={{ opacity: isGenerating || !promptText.trim() ? 0.5 : 1 }}
+              >
+                {isGenerating ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />}
+                {isGenerating ? 'Iluminando Pergaminho...' : 'Traçar Gravura'}
+              </button>
+
+              <span style={{ fontSize: '13px', fontStyle: 'italic', opacity: 0.65 }}>
+                Técnica ativa: <strong>{currentTechObj.label}</strong>
+              </span>
+            </div>
+          </form>
         </div>
-      </form>
-    </div>
+
+        {/* Coluna Lateral (Direita - 4 colunas): Card Editorial Claude */}
+        <aside className="editorial-claude-card">
+          <div style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.6, marginBottom: '14px', fontWeight: 600 }}>
+            Guia do Ateliê
+          </div>
+
+          <div className="editorial-meta-row">
+            <span className="editorial-meta-label">Técnica</span>
+            <span className="editorial-meta-value">{currentTechObj.label}</span>
+          </div>
+
+          <div className="editorial-meta-row">
+            <span className="editorial-meta-label">Proporção</span>
+            <span className="editorial-meta-value" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>1:1 Quadrada</span>
+          </div>
+
+          <div className="editorial-meta-row">
+            <span className="editorial-meta-label">Qualidade</span>
+            <span className="editorial-meta-value" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>1K Studio</span>
+          </div>
+
+          <div className="editorial-meta-row">
+            <span className="editorial-meta-label">Mural</span>
+            <span className="editorial-meta-value">{activeCampaignName}</span>
+          </div>
+
+          <p style={{ fontSize: '13px', fontStyle: 'italic', opacity: 0.75, lineHeight: '1.6', marginTop: '16px', marginBottom: 0 }}>
+            Descreva criaturas, paisagens medievais ou artefatos arcanos. As obras geradas são gravadas no mural permanente da taverna.
+          </p>
+        </aside>
+      </div>
+
+      {/* 4. Seção Inferior: Grade de Gravuras Criadas */}
+      <div className="editorial-bottom-divider">
+        <div style={{ fontSize: '13px', letterSpacing: '0.18em', textTransform: 'uppercase', opacity: 0.7, fontWeight: 600, marginBottom: '20px' }}>
+          Mural de Gravuras da Estalagem ({sketches.length})
+        </div>
+
+        {sketches.length > 0 ? (
+          <div className="editorial-cards-grid-2" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))' }}>
+            {sketches.map((sk) => (
+              <div
+                key={sk.id}
+                onClick={() => setSelectedSketch(sk)}
+                className="editorial-claude-card"
+                style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}
+              >
+                <div
+                  style={{
+                    width: '100%',
+                    height: '220px',
+                    borderRadius: '8px',
+                    overflow: 'hidden',
+                    backgroundColor: 'rgba(0, 0, 0, 0.15)',
+                  }}
+                >
+                  <img
+                    src={sk.imageUrl}
+                    alt={sk.prompt}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      filter: 'sepia(18%) contrast(104%)',
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <div style={{ fontFamily: "'Cormorant Garamond', 'Cinzel', serif", fontSize: '17px', fontWeight: 600, marginBottom: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {sk.prompt}
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+                    <span className="editorial-pill-tag">
+                      {sk.description || 'Pena & Nanquim'}
+                    </span>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <a
+                        href={sk.imageUrl}
+                        download={`gravura-${sk.id}.png`}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        style={{ color: 'inherit', opacity: 0.75, display: 'inline-flex' }}
+                        title="Baixar Gravura"
+                      >
+                        <Download size={14} />
+                      </a>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteSketch(sk.id);
+                        }}
+                        style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', opacity: 0.6, cursor: 'pointer', display: 'inline-flex' }}
+                        title="Remover"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="editorial-claude-card" style={{ padding: '36px', textAlign: 'left' }}>
+            <p style={{ fontStyle: 'italic', fontSize: '16px', opacity: 0.75, margin: 0 }}>
+              Nenhuma gravura orna os muros deste ateliê ainda. Instrua o bardo para que ele trace a primeira obra.
+            </p>
+          </div>
+        )}
+      </div>
+    </main>
   );
 };

@@ -599,126 +599,119 @@ export function App() {
              - Ferramentas limpas, sem botões brancos sólidos ou caixas pesadas
              - Deixando pelo menos 60% de espaço negativo ao redor
              ======================================================== */
-          <div className="awwwards-functional-stage">
-            {/* Barra de Retorno à Galeria */}
-            <div className="awwwards-functional-back-bar">
-              <button
-                onClick={() => {
+          <div className="awwwards-functional-stage" style={{ padding: 0 }}>
+            {/* SALA I — MESA DOS APOSTADORES */}
+            {activeRoom === 'I' && (
+              <CampaignsView
+                hideHeader={true}
+                onBack={() => {
                   tavernAudio.playBellChime();
                   setViewMode('gallery');
                 }}
-                className="awwwards-back-btn"
-              >
-                ← Voltar à Galeria
-              </button>
-
-              <span className="awwwards-functional-room-label">
-                {currentTheme.name}
-              </span>
-            </div>
-
-            {/* SALA I — MESA DOS APOSTADORES */}
-            {activeRoom === 'I' && (
-              <div style={{ width: '100%', maxWidth: '1100px', display: 'flex', justifyContent: 'center' }}>
-                <CampaignsView
-                  hideHeader={true}
-                  campaigns={visibleCampaigns}
-                  currentUser={currentUser || { uid: 'guest', email: 'viajante@taberna.rpg', displayName: 'Viajante Convidado', role: 'user', status: 'APPROVED', gold: 50, createdAt: new Date().toISOString() }}
-                  selectedCampaignId={selectedCampaignId}
-                  onSelectCampaign={setSelectedCampaignId}
-                  onJoinByKey={handleJoinByKey}
-                  onRegenerateKey={handleRegenerateKey}
-                  onRemovePlayer={handleRemovePlayer}
-                  onCreateCampaign={handleCreateCampaign}
-                  onUpdateCampaign={handleUpdateCampaign}
-                  onDeleteCampaign={handleDeleteCampaign}
-                  onAddSheet={handleAddSheet}
-                  onUpdateSheet={handleUpdateSheet}
-                  onDeleteSheet={handleDeleteSheet}
-                  onAddLore={handleAddLore}
-                  onDeleteLore={handleDeleteLore}
-                  onUpdateLore={handleUpdateLore}
-                  onAddRule={handleAddRule}
-                  onDeleteRule={handleDeleteRule}
-                  onUpdateRule={handleUpdateRule}
-                  onOpenMasterScreen={(campId) => setMasterScreenCampaignId(campId)}
-                  onOpenShop={() => {
-                    setActiveRoom('V');
-                    setViewMode('functional');
-                  }}
-                  onOpenMyProfile={() => {
-                    if (currentUser) {
-                      setProfileModalUser(currentUser);
-                      setIsProfileModalOpen(true);
-                    } else {
-                      setIsAuthModalOpen(true);
-                    }
-                  }}
-                  onOpenAdmin={() => setIsAdminModalOpen(true)}
-                  onOpenAuth={() => setIsAuthModalOpen(true)}
-                />
-              </div>
+                campaigns={visibleCampaigns}
+                currentUser={currentUser || { uid: 'guest', email: 'viajante@taberna.rpg', displayName: 'Viajante Convidado', role: 'user', status: 'APPROVED', gold: 50, createdAt: new Date().toISOString() }}
+                selectedCampaignId={selectedCampaignId}
+                onSelectCampaign={setSelectedCampaignId}
+                onJoinByKey={handleJoinByKey}
+                onRegenerateKey={handleRegenerateKey}
+                onRemovePlayer={handleRemovePlayer}
+                onCreateCampaign={handleCreateCampaign}
+                onUpdateCampaign={handleUpdateCampaign}
+                onDeleteCampaign={handleDeleteCampaign}
+                onAddSheet={handleAddSheet}
+                onUpdateSheet={handleUpdateSheet}
+                onDeleteSheet={handleDeleteSheet}
+                onAddLore={handleAddLore}
+                onDeleteLore={handleDeleteLore}
+                onUpdateLore={handleUpdateLore}
+                onAddRule={handleAddRule}
+                onDeleteRule={handleDeleteRule}
+                onUpdateRule={handleUpdateRule}
+                onOpenMasterScreen={(campId) => setMasterScreenCampaignId(campId)}
+                onOpenShop={() => {
+                  setActiveRoom('V');
+                  setViewMode('functional');
+                }}
+                onOpenMyProfile={() => {
+                  if (currentUser) {
+                    setProfileModalUser(currentUser);
+                    setIsProfileModalOpen(true);
+                  } else {
+                    setIsAuthModalOpen(true);
+                  }
+                }}
+                onOpenAdmin={() => setIsAdminModalOpen(true)}
+                onOpenAuth={() => setIsAuthModalOpen(true)}
+              />
             )}
 
             {/* SALA II — TELAS DO ALAÚDE */}
             {activeRoom === 'II' && (
-              <div style={{ width: '100%', maxWidth: '1100px', display: 'flex', justifyContent: 'center' }}>
-                <EditorialTelasView
-                  sketches={sketches}
-                  campaigns={visibleCampaigns}
-                  activeCampaignId={selectedCampaignId}
-                  onSaveSketch={handleSaveSketch}
-                  onDeleteSketch={handleDeleteSketch}
-                />
-              </div>
+              <EditorialTelasView
+                onBack={() => {
+                  tavernAudio.playBellChime();
+                  setViewMode('gallery');
+                }}
+                sketches={sketches}
+                campaigns={visibleCampaigns}
+                activeCampaignId={selectedCampaignId}
+                onSaveSketch={handleSaveSketch}
+                onDeleteSketch={handleDeleteSketch}
+              />
             )}
 
             {/* SALA III — TABERNEIRO */}
             {activeRoom === 'III' && (
-              <div style={{ width: '100%', maxWidth: '960px', display: 'flex', justifyContent: 'center' }}>
-                <EditorialTaberneiroView
-                  messages={urdMessages}
-                  campaigns={visibleCampaigns}
-                  activeCampaignId={selectedCampaignId}
-                  onSendMessage={handleSendUrdMessage}
-                  onAddToLore={(campaignId, title, content) => {
-                    handleAddLore(campaignId, {
-                      title,
-                      content,
-                      category: 'rumores',
-                      author: 'Urd, o Taberneiro',
-                      tags: ['Oráculo Urd', 'Boato de Taberna'],
-                    });
-                  }}
-                  onClearChat={handleClearUrdChat}
-                />
-              </div>
+              <EditorialTaberneiroView
+                onBack={() => {
+                  tavernAudio.playBellChime();
+                  setViewMode('gallery');
+                }}
+                messages={urdMessages}
+                campaigns={visibleCampaigns}
+                activeCampaignId={selectedCampaignId}
+                onSendMessage={handleSendUrdMessage}
+                onAddToLore={(campaignId, title, content) => {
+                  handleAddLore(campaignId, {
+                    title,
+                    content,
+                    category: 'rumores',
+                    author: 'Urd, o Taberneiro',
+                    tags: ['Oráculo Urd', 'Boato de Taberna'],
+                  });
+                }}
+                onClearChat={handleClearUrdChat}
+              />
             )}
 
             {/* SALA IV — RECANTO DOS BARDOS */}
             {activeRoom === 'IV' && (
-              <div style={{ width: '100%', maxWidth: '1040px', display: 'flex', justifyContent: 'center' }}>
-                <EditorialBardosView
-                  currentUser={currentUser}
-                  campaigns={visibleCampaigns}
-                  allUsers={users}
-                  onOpenProfile={(u) => {
-                    setProfileModalUser(u);
-                    setIsProfileModalOpen(true);
-                  }}
-                />
-              </div>
+              <EditorialBardosView
+                onBack={() => {
+                  tavernAudio.playBellChime();
+                  setViewMode('gallery');
+                }}
+                currentUser={currentUser}
+                campaigns={visibleCampaigns}
+                allUsers={users}
+                onOpenProfile={(u) => {
+                  setProfileModalUser(u);
+                  setIsProfileModalOpen(true);
+                }}
+              />
             )}
 
             {/* SALA V — BAZAR DA TAVERNA */}
             {activeRoom === 'V' && (
-              <div style={{ width: '100%', maxWidth: '1040px', display: 'flex', justifyContent: 'center' }}>
-                <EditorialBazarView
-                  currentUser={currentUser}
-                  onSaveProfile={handleSaveProfile}
-                  onOpenAuth={() => setIsAuthModalOpen(true)}
-                />
-              </div>
+              <EditorialBazarView
+                onBack={() => {
+                  tavernAudio.playBellChime();
+                  setViewMode('gallery');
+                }}
+                currentUser={currentUser}
+                onSaveProfile={handleSaveProfile}
+                onOpenAuth={() => setIsAuthModalOpen(true)}
+              />
             )}
           </div>
         )}

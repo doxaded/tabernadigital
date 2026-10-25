@@ -7259,6 +7259,248 @@ h1, h2, h3, h4, .font-cinzel {
   opacity: 0.7;
 }
 
+/* ==========================================================================
+   ANTHROPIC (CLAUDE) & KERBACHE HR — EDITORIAL DESIGN SYSTEM (SALAS I A V)
+   ========================================================================== */
+
+/* 1. Container Principal Estruturado (Alinhado à Esquerda, max-w-5xl) */
+.editorial-room-container {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 110px clamp(20px, 4vw, 48px) 80px;
+  text-align: left;
+  box-sizing: border-box;
+  animation: fadeIn 0.4s ease;
+}
+
+/* 2. Cabeçalho Interno da Sala em Linha Única */
+.editorial-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  width: 100%;
+  border-bottom: 1px solid rgba(currentColor, 0.15);
+  padding-bottom: 16px;
+  margin-bottom: 36px;
+  box-sizing: border-box;
+}
+
+/* 3. Segmented Control / Pílula Seletora de Abas */
+.editorial-segmented-control {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 4px;
+  border-radius: 9999px;
+  gap: 4px;
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid rgba(currentColor, 0.08);
+}
+
+.editorial-segmented-control.dark-theme {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.editorial-segmented-item {
+  border: none;
+  background: transparent;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.55;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.editorial-segmented-item:hover {
+  opacity: 0.85;
+}
+
+.editorial-segmented-item.is-active {
+  background: rgba(currentColor, 0.12);
+  opacity: 1;
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+/* 4. Grid Assimétrico Estilo Kerbache HR / Claude (8 colunas / 4 colunas) */
+.editorial-grid-12 {
+  display: grid;
+  grid-template-columns: 8fr 4fr;
+  gap: 40px;
+  align-items: start;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+@media (max-width: 860px) {
+  .editorial-grid-12 {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+/* 5. Card Editorial Claude com Superfície Suave */
+.editorial-claude-card {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(currentColor, 0.12);
+  border-radius: 14px;
+  padding: 24px;
+  box-sizing: border-box;
+  text-align: left;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.editorial-claude-card.dark-theme {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Linha de Metadados Técnica */
+.editorial-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(currentColor, 0.08);
+  font-size: 14px;
+}
+
+.editorial-meta-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.editorial-meta-label {
+  opacity: 0.65;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.editorial-meta-value {
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 6. Botões Padronizados da Barra de Ações */
+.editorial-btn-primary {
+  background: currentColor;
+  color: var(--room-bg, #DEC29B);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.editorial-btn-primary:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+.editorial-btn-secondary {
+  background: transparent;
+  color: inherit;
+  border: 1px solid rgba(currentColor, 0.22);
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.editorial-btn-secondary:hover {
+  background: rgba(currentColor, 0.06);
+  border-color: rgba(currentColor, 0.4);
+  transform: translateY(-1px);
+}
+
+/* 7. Grid de Cartões de Campanhas / Conteúdo Inferior */
+.editorial-bottom-divider {
+  border-top: 1px solid rgba(currentColor, 0.15);
+  padding-top: 32px;
+  margin-top: 48px;
+  width: 100%;
+}
+
+.editorial-cards-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.editorial-campaign-card {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(currentColor, 0.12);
+  border-radius: 12px;
+  padding: 18px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.editorial-campaign-card.dark-theme {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.editorial-campaign-card:hover {
+  background: rgba(currentColor, 0.06);
+  border-color: rgba(currentColor, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.editorial-pill-tag {
+  display: inline-block;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background: rgba(currentColor, 0.08);
+  border: 1px solid rgba(currentColor, 0.15);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+
 
 
 

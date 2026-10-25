@@ -16,6 +16,7 @@ import { AvatarFrame } from './AvatarFrame';
 import { tavernAudio } from '../services/tavernAudio';
 
 interface EditorialBazarViewProps {
+  onBack?: () => void;
   currentUser: UserProfile | null;
   onSaveProfile: (updates: Partial<UserProfile>) => Promise<void>;
   onOpenAuth?: () => void;
@@ -24,6 +25,7 @@ interface EditorialBazarViewProps {
 type TabFilter = 'all' | 'titles' | 'frames';
 
 export const EditorialBazarView: React.FC<EditorialBazarViewProps> = ({
+  onBack,
   currentUser,
   onSaveProfile,
   onOpenAuth,
@@ -158,228 +160,307 @@ export const EditorialBazarView: React.FC<EditorialBazarViewProps> = ({
   const canClaimDaily = currentUser ? isDailyRewardAvailable(currentUser) : false;
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-6 py-10 flex flex-col items-center">
-      {/* Saldo de Ouro & Recompensa Diária */}
-      <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-6 pb-8 border-b border-current/20 mb-8">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full border border-current/30 flex items-center justify-center">
-            <Coins size={22} className="opacity-90" />
-          </div>
-          <div>
-            <div className="text-xs uppercase tracking-widest opacity-60">Tesouro do Viajante</div>
-            <div className="text-3xl font-bold tracking-wider">
-              {currentGold.toLocaleString('pt-BR')} <span className="text-sm font-normal opacity-70">PEÇAS DE OURO</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Baú Diário */}
+    <main className="editorial-room-container">
+      {/* 2. Cabeçalho Interno da Sala em Linha Única */}
+      <div className="editorial-header-bar">
         <button
-          onClick={handleClaimDaily}
-          disabled={!canClaimDaily || isProcessing}
-          className={`flex items-center gap-3 px-5 py-2.5 border border-current/25 transition-all duration-300 text-xs uppercase tracking-widest cursor-pointer ${
-            canClaimDaily
-              ? 'hover:border-current hover:bg-current/10 opacity-100'
-              : 'opacity-40 cursor-not-allowed'
-          }`}
-          style={{ background: 'none' }}
+          onClick={() => {
+            if (onBack) onBack();
+            else window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          style={{
+            background: 'none',
+            border: 'none',
+            padding: '6px 0',
+            cursor: 'pointer',
+            color: 'inherit',
+            fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
+            fontSize: '14px',
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            opacity: 0.8,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'opacity 0.2s ease',
+          }}
+          className="hover:opacity-100"
         >
-          <Gift size={16} />
-          <span>
-            {canClaimDaily
-              ? `Reclamar Ouro da Lareira (+${DAILY_REWARD_GOLD} PO)`
-              : 'Baú Diário já Coletado Hoje'}
-          </span>
+          ← Voltar à Galeria
         </button>
+
+        {/* Sub-abas do Bazar em Segmented Control */}
+        <div className="editorial-segmented-control dark-theme">
+          {[
+            { id: 'all', label: 'Todo o Bazar' },
+            { id: 'titles', label: 'Títulos de Honra' },
+            { id: 'frames', label: 'Molduras Místicas' },
+          ].map((t) => {
+            const isActive = filter === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => setFilter(t.id as TabFilter)}
+                className={`editorial-segmented-item ${isActive ? 'is-active' : ''}`}
+              >
+                {t.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Notificação Sutil */}
+      {/* Feedback Banner */}
       {feedback && (
         <div
-          className={`w-full py-2.5 px-4 mb-6 text-center text-xs uppercase tracking-widest border transition-all ${
-            feedback.ok ? 'border-current/40 bg-current/5' : 'border-red-500/40 text-red-400 bg-red-950/20'
-          }`}
+          style={{
+            padding: '12px 18px',
+            borderRadius: '10px',
+            marginBottom: '24px',
+            fontSize: '13px',
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            backgroundColor: feedback.ok ? 'rgba(34, 197, 94, 0.12)' : 'rgba(239, 68, 68, 0.12)',
+            border: `1px solid ${feedback.ok ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
+          }}
         >
           {feedback.text}
         </div>
       )}
 
-      {/* Sub-navegação em Texto Puro (Awwwards style) */}
-      <div className="flex items-center justify-center gap-10 mb-10 text-sm uppercase tracking-widest">
-        {[
-          { id: 'all', label: 'Todo o Bazar' },
-          { id: 'titles', label: 'Títulos de Honra' },
-          { id: 'frames', label: 'Molduras Místicas' },
-        ].map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setFilter(t.id as TabFilter)}
-            className={`transition-opacity duration-300 cursor-pointer pb-1 border-b ${
-              filter === t.id ? 'opacity-100 font-semibold border-current' : 'opacity-40 hover:opacity-75 border-transparent'
-            }`}
-            style={{ background: 'none' }}
+      {/* 3. Layout Assimétrico Estilo Kerbache HR / Claude (8 colunas / 4 colunas) */}
+      <div className="editorial-grid-12">
+        {/* Coluna Principal (Esquerda - 8 colunas) */}
+        <div>
+          <div style={{ letterSpacing: '0.25em', fontSize: '11px', textTransform: 'uppercase', opacity: 0.6, marginBottom: '12px' }}>
+            SALA V • MERCADO MEDIEVAL
+          </div>
+
+          <h1
+            style={{
+              fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
+              fontSize: 'clamp(32px, 4.5vw, 44px)',
+              fontWeight: 400,
+              letterSpacing: '-0.02em',
+              lineHeight: 1.15,
+              margin: '0 0 16px 0',
+              color: 'inherit',
+            }}
           >
-            {t.label}
-          </button>
-        ))}
+            Bazar de Relíquias
+          </h1>
+
+          <p
+            style={{
+              fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+              fontStyle: 'italic',
+              fontSize: '17px',
+              lineHeight: '1.7',
+              maxWidth: '580px',
+              margin: '0 0 32px 0',
+              opacity: 0.8,
+            }}
+          >
+            Artefatos lendários, títulos nobiliárquicos e molduras místicas forjadas para distinguir seu herói nos anais da estalagem.
+          </p>
+
+          {/* SEÇÃO 1: TÍTULOS DE HONRA */}
+          {(filter === 'all' || filter === 'titles') && (
+            <div style={{ marginBottom: '40px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', paddingBottom: '8px' }}>
+                <h3 style={{ fontFamily: "'Cormorant Garamond', 'Cinzel', serif", fontSize: '20px', fontWeight: 600, margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Crown size={17} /> Títulos de Nobreza & Glória
+                </h3>
+                <span style={{ fontSize: '12px', fontStyle: 'italic', opacity: 0.6 }}>Reconhecimento nos anais</span>
+              </div>
+
+              <div className="editorial-cards-grid-2" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
+                {SHOP_TITLES.map((title) => {
+                  const isUnlocked = isItemUnlocked(currentUser, 'title', title.name);
+                  const isEquipped = isItemEquipped(currentUser, 'title', title.name);
+
+                  return (
+                    <div
+                      key={title.id}
+                      onMouseEnter={() => setPreviewTitle(title.name)}
+                      onMouseLeave={() => setPreviewTitle(null)}
+                      className="editorial-claude-card dark-theme"
+                      style={{ padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '16px' }}
+                    >
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                          <span className="editorial-pill-tag" style={{ fontSize: '10px', padding: '2px 8px' }}>{title.rarity}</span>
+                          <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: '13px', opacity: 0.85 }}>{title.price} PO</span>
+                        </div>
+                        <div style={{ fontFamily: "'Cormorant Garamond', 'Playfair Display', serif", fontSize: '20px', fontWeight: 600, fontStyle: 'italic', marginBottom: '6px' }}>
+                          "{title.name}"
+                        </div>
+                        <p style={{ fontSize: '13px', opacity: 0.7, margin: 0, lineHeight: '1.6' }}>
+                          {title.description}
+                        </p>
+                      </div>
+
+                      <div>
+                        {isEquipped ? (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', opacity: 0.9 }}>
+                            <Check size={14} /> Consagrado
+                          </span>
+                        ) : isUnlocked ? (
+                          <button
+                            onClick={() => handleEquipTitle(title.name)}
+                            className="editorial-btn-secondary"
+                            style={{ padding: '6px 14px', fontSize: '12px' }}
+                          >
+                            Empunhar Título
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleBuyTitle(title)}
+                            className="editorial-btn-primary"
+                            style={{ padding: '6px 14px', fontSize: '12px' }}
+                          >
+                            Adquirir ({title.price} PO)
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* SEÇÃO 2: MOLDURAS MÍSTICAS */}
+          {(filter === 'all' || filter === 'frames') && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', paddingBottom: '8px' }}>
+                <h3 style={{ fontFamily: "'Cormorant Garamond', 'Cinzel', serif", fontSize: '20px', fontWeight: 600, margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Shield size={17} /> Molduras Místicas & Forjadas
+                </h3>
+                <span style={{ fontSize: '12px', fontStyle: 'italic', opacity: 0.6 }}>Aros arcanos para seu retrato</span>
+              </div>
+
+              <div className="editorial-cards-grid-2" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
+                {SHOP_FRAMES.map((frame) => {
+                  const isUnlocked = isItemUnlocked(currentUser, 'frame', frame.id);
+                  const isEquipped = isItemEquipped(currentUser, 'frame', frame.id);
+
+                  return (
+                    <div
+                      key={frame.id}
+                      onMouseEnter={() => setPreviewFrameId(frame.id)}
+                      onMouseLeave={() => setPreviewFrameId(null)}
+                      className="editorial-claude-card dark-theme"
+                      style={{ padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', justifyContent: 'space-between', gap: '16px' }}
+                    >
+                      <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span className="editorial-pill-tag" style={{ fontSize: '10px', padding: '2px 8px' }}>{frame.rarity}</span>
+                        <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: '13px', opacity: 0.85 }}>{frame.price} PO</span>
+                      </div>
+
+                      <div style={{ margin: '8px 0' }}>
+                        <AvatarFrame
+                          user={currentUser}
+                          frameId={frame.id}
+                          size="lg"
+                        />
+                      </div>
+
+                      <div>
+                        <div style={{ fontFamily: "'Cormorant Garamond', 'Cinzel', serif", fontSize: '18px', fontWeight: 600, marginBottom: '4px' }}>
+                          {frame.name}
+                        </div>
+                        <p style={{ fontSize: '12px', opacity: 0.7, margin: 0, lineHeight: '1.5' }}>
+                          {frame.description}
+                        </p>
+                      </div>
+
+                      <div>
+                        {isEquipped ? (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', opacity: 0.9 }}>
+                            <Check size={14} /> Engastada
+                          </span>
+                        ) : isUnlocked ? (
+                          <button
+                            onClick={() => handleEquipFrame(frame.id)}
+                            className="editorial-btn-secondary"
+                            style={{ padding: '6px 14px', fontSize: '12px' }}
+                          >
+                            Engastar no Retrato
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleBuyFrame(frame)}
+                            className="editorial-btn-primary"
+                            style={{ padding: '6px 14px', fontSize: '12px' }}
+                          >
+                            Adquirir ({frame.price} PO)
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Coluna Lateral (Direita - 4 colunas): Card Editorial Claude */}
+        <aside className="editorial-claude-card dark-theme">
+          <div style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.6, marginBottom: '14px', fontWeight: 600 }}>
+            Tesouro do Viajante
+          </div>
+
+          <div className="editorial-meta-row">
+            <span className="editorial-meta-label">Saldo em Ouro</span>
+            <span className="editorial-meta-value" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '16px', color: '#D4A373' }}>
+              <Coins size={16} /> {currentGold.toLocaleString('pt-BR')} PO
+            </span>
+          </div>
+
+          <div className="editorial-meta-row">
+            <span className="editorial-meta-label">Título Ativo</span>
+            <span className="editorial-meta-value" style={{ fontStyle: 'italic', fontSize: '13px' }}>
+              "{previewTitle || equippedTitle}"
+            </span>
+          </div>
+
+          <div style={{ marginTop: '20px', marginBottom: '14px', textAlign: 'center' }}>
+            <div style={{ display: 'inline-block', marginBottom: '8px' }}>
+              <AvatarFrame
+                user={currentUser}
+                frameId={previewFrameId || equippedFrameId}
+                size="lg"
+              />
+            </div>
+            <div style={{ fontSize: '13px', fontWeight: 600, letterSpacing: '0.04em' }}>
+              {currentUser?.displayName || currentUser?.email?.split('@')[0] || 'Aventureiro'}
+            </div>
+            <div style={{ fontSize: '11px', fontStyle: 'italic', opacity: 0.65 }}>
+              Visualização de Retrato
+            </div>
+          </div>
+
+          <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '18px', marginTop: '16px' }}>
+            <div style={{ fontSize: '11px', letterSpacing: '0.15em', textTransform: 'uppercase', opacity: 0.6, marginBottom: '10px' }}>
+              Lareira da Estalagem
+            </div>
+
+            <button
+              onClick={handleClaimDaily}
+              disabled={!canClaimDaily || isProcessing}
+              className={canClaimDaily ? 'editorial-btn-primary' : 'editorial-btn-secondary'}
+              style={{ width: '100%', justifyContent: 'center', opacity: canClaimDaily ? 1 : 0.4 }}
+            >
+              <Gift size={14} />
+              {canClaimDaily
+                ? `Baú da Lareira (+${DAILY_REWARD_GOLD} PO)`
+                : 'Coletado Hoje'}
+            </button>
+          </div>
+        </aside>
       </div>
-
-      {/* Preview de Avatar e Título Atual */}
-      <div className="w-full max-w-md p-6 border border-current/20 flex items-center justify-center gap-6 mb-10">
-        <AvatarFrame
-          user={currentUser}
-          frameId={previewFrameId || equippedFrameId}
-          size="lg"
-        />
-        <div className="flex flex-col">
-          <span className="text-xs uppercase tracking-widest opacity-60">Título Consagrado</span>
-          <span className="text-xl font-bold tracking-wide italic">
-            "{previewTitle || equippedTitle}"
-          </span>
-          <span className="text-xs opacity-50 tracking-wider">
-            {currentUser?.displayName || currentUser?.email || 'Viajante Desconhecido'}
-          </span>
-        </div>
-      </div>
-
-      {/* SEÇÃO 1: TÍTULOS DE HONRA */}
-      {(filter === 'all' || filter === 'titles') && (
-        <div className="w-full mb-12">
-          <div className="flex items-center justify-between pb-3 border-b border-current/20 mb-6">
-            <h3 className="text-lg font-semibold uppercase tracking-widest flex items-center gap-2">
-              <Crown size={16} /> Títulos de Nobreza & Glória
-            </h3>
-            <span className="text-xs opacity-50 tracking-wider">Reconhecimento entre os bardos</span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {SHOP_TITLES.map((title) => {
-              const isUnlocked = isItemUnlocked(currentUser, 'title', title.name);
-              const isEquipped = isItemEquipped(currentUser, 'title', title.name);
-
-              return (
-                <div
-                  key={title.id}
-                  onMouseEnter={() => setPreviewTitle(title.name)}
-                  onMouseLeave={() => setPreviewTitle(null)}
-                  className="p-5 border border-current/15 hover:border-current/40 transition-all flex flex-col justify-between"
-                  style={{ background: 'transparent' }}
-                >
-                  <div className="mb-4">
-                    <div className="flex items-center justify-between text-xs opacity-60 uppercase tracking-widest mb-1.5">
-                      <span>{title.rarity}</span>
-                      <span className="font-mono">{title.price} PO</span>
-                    </div>
-                    <div className="text-lg font-bold tracking-wide italic">
-                      "{title.name}"
-                    </div>
-                    <p className="text-xs opacity-70 mt-1 line-clamp-2 leading-relaxed">
-                      {title.description}
-                    </p>
-                  </div>
-
-                  <div>
-                    {isEquipped ? (
-                      <span className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest opacity-90 font-semibold">
-                        <Check size={13} /> Empunhado
-                      </span>
-                    ) : isUnlocked ? (
-                      <button
-                        onClick={() => handleEquipTitle(title.name)}
-                        className="text-xs uppercase tracking-widest underline underline-offset-4 hover:opacity-70 cursor-pointer"
-                        style={{ background: 'none', border: 'none', color: 'inherit', padding: 0 }}
-                      >
-                        Equipar Título
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => handleBuyTitle(title)}
-                        className="text-xs uppercase tracking-widest font-semibold border border-current/30 px-3 py-1.5 hover:border-current hover:bg-current/10 transition-colors cursor-pointer"
-                        style={{ background: 'none', color: 'inherit' }}
-                      >
-                        Comprar ({title.price} PO)
-                      </button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* SEÇÃO 2: MOLDURAS MÍSTICAS */}
-      {(filter === 'all' || filter === 'frames') && (
-        <div className="w-full mb-12">
-          <div className="flex items-center justify-between pb-3 border-b border-current/20 mb-6">
-            <h3 className="text-lg font-semibold uppercase tracking-widest flex items-center gap-2">
-              <Shield size={16} /> Molduras Místicas & Forjadas
-            </h3>
-            <span className="text-xs opacity-50 tracking-wider">Aros arcanos para seu retrato</span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {SHOP_FRAMES.map((frame) => {
-              const isUnlocked = isItemUnlocked(currentUser, 'frame', frame.id);
-              const isEquipped = isItemEquipped(currentUser, 'frame', frame.id);
-
-              return (
-                <div
-                  key={frame.id}
-                  onMouseEnter={() => setPreviewFrameId(frame.id)}
-                  onMouseLeave={() => setPreviewFrameId(null)}
-                  className="p-5 border border-current/15 hover:border-current/40 transition-all flex flex-col items-center text-center justify-between"
-                  style={{ background: 'transparent' }}
-                >
-                  <div className="my-3">
-                    <AvatarFrame
-                      user={currentUser}
-                      frameId={frame.id}
-                      size="lg"
-                    />
-                  </div>
-
-                  <div className="mb-4">
-                    <div className="text-xs opacity-60 uppercase tracking-widest mb-1 font-mono">
-                      {frame.price} PO • {frame.rarity}
-                    </div>
-                    <div className="text-base font-bold tracking-wide">
-                      {frame.name}
-                    </div>
-                    <p className="text-xs opacity-70 mt-1 line-clamp-2 leading-relaxed">
-                      {frame.description}
-                    </p>
-                  </div>
-
-                  <div>
-                    {isEquipped ? (
-                      <span className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest opacity-90 font-semibold">
-                        <Check size={13} /> Engastada
-                      </span>
-                    ) : isUnlocked ? (
-                      <button
-                        onClick={() => handleEquipFrame(frame.id)}
-                        className="text-xs uppercase tracking-widest underline underline-offset-4 hover:opacity-70 cursor-pointer"
-                        style={{ background: 'none', border: 'none', color: 'inherit', padding: 0 }}
-                      >
-                        Engastar Moldura
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => handleBuyFrame(frame)}
-                        className="text-xs uppercase tracking-widest font-semibold border border-current/30 px-3 py-1.5 hover:border-current hover:bg-current/10 transition-colors cursor-pointer"
-                        style={{ background: 'none', color: 'inherit' }}
-                      >
-                        Comprar ({frame.price} PO)
-                      </button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-    </div>
+    </main>
   );
 };
