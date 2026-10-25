@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { doc, updateDoc } from 'firebase/firestore';
 import { updateProfile } from 'firebase/auth';
 import { AuthModal } from './components/AuthModal';
+import { LandingPage } from './components/LandingPage';
 import { PendingApprovalScreen } from './components/PendingApprovalScreen';
 import { AdminPanelModal } from './components/AdminPanelModal';
 import { ChangePasswordModal } from './components/ChangePasswordModal';
@@ -96,6 +97,7 @@ export function App() {
   const [urdMessages, setUrdMessages] = useState(() => storageService.getUrdMessages());
 
   // Navegação em Dois Níveis: 'gallery' (Display Principal) e 'functional' (Interior da Sala)
+  const [hasEntered, setHasEntered] = useState(false);
   const [viewMode, setViewMode] = useState<'gallery' | 'functional'>('gallery');
   const [activeRoom, setActiveRoom] = useState<RoomId>('I');
   const [hoveredRoom, setHoveredRoom] = useState<RoomId | null>(null);
@@ -196,6 +198,7 @@ export function App() {
     storageService.setCurrentUser(null);
     setCurrentUser(null);
     setIsAuthModalOpen(false);
+    setHasEntered(false);
   };
 
   const handleApproveUser = async (uid: string) => {
@@ -394,9 +397,50 @@ export function App() {
 
   // Sincroniza fundo e texto do body para cobertura total sem cortes pretos
   useEffect(() => {
-    document.body.style.backgroundColor = currentTheme.bgColor;
-    document.body.style.color = currentTheme.textColor;
-  }, [currentTheme.bgColor, currentTheme.textColor]);
+    if (hasEntered) {
+      document.body.style.backgroundColor = currentTheme.bgColor;
+      document.body.style.color = currentTheme.textColor;
+    } else {
+      document.body.style.backgroundColor = '#0e0906';
+      document.body.style.color = '#fef3c7';
+    }
+  }, [hasEntered, currentTheme.bgColor, currentTheme.textColor]);
+
+  // Se o usuário ainda não entrou na taverna, exibe a Tela de Início (Abertura / Login)
+  if (!hasEntered) {
+    return (
+      <>
+        <LandingPage
+          onEnter={() => {
+            tavernAudio.playBellChime();
+            setHasEntered(true);
+          }}
+          onOpenAuth={() => setIsAuthModalOpen(true)}
+          currentUser={currentUser}
+          onLogout={handleLogout}
+          isAudioPlaying={isAudioPlaying}
+          onToggleAudio={async () => {
+            const state = await tavernAudio.toggle();
+            setIsAudioPlaying(state);
+          }}
+        />
+
+        {/* Auth Modal para logar ou cadastrar diretamente na tela de abertura */}
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+          currentUser={currentUser}
+          onLogout={handleLogout}
+          onLoginSuccess={(user) => {
+            setCurrentUser(user);
+            setIsAuthModalOpen(false);
+            setHasEntered(true);
+            reloadData();
+          }}
+        />
+      </>
+    );
+  }
 
   return (
     <div
@@ -810,6 +854,17 @@ export function App() {
                   Entrar / Criar Personagem
                 </button>
               )}
+
+              <button
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setHasEntered(false);
+                }}
+                className="awwwards-menu-action-btn"
+                style={{ opacity: 0.65 }}
+              >
+                ← Tela de Início (Abertura)
+              </button>
             </div>
 
             <button
