@@ -1,25 +1,68 @@
 import React, { useState, useEffect } from 'react';
 import { doc, updateDoc } from 'firebase/firestore';
 import { updateProfile } from 'firebase/auth';
-import { Navbar } from './components/Navbar';
 import { AuthModal } from './components/AuthModal';
 import { PendingApprovalScreen } from './components/PendingApprovalScreen';
 import { AdminPanelModal } from './components/AdminPanelModal';
 import { ChangePasswordModal } from './components/ChangePasswordModal';
 import { CampaignsView } from './components/CampaignsView';
-import { SketchStudioView } from './components/SketchStudioView';
-import { UrdChatView } from './components/UrdChatView';
-import { ChatPortalView } from './components/ChatPortalView';
+import { EditorialTelasView } from './components/EditorialTelasView';
+import { EditorialTaberneiroView } from './components/EditorialTaberneiroView';
+import { EditorialBardosView } from './components/EditorialBardosView';
 import { UserProfileModal } from './components/UserProfileModal';
 import { TavernShopModal } from './components/TavernShopModal';
 import { MasterScreenView } from './components/MasterScreenView';
-import { MobileBottomNav } from './components/MobileBottomNav';
-import { LandingPage } from './components/LandingPage';
-import { TavernHubView } from './components/TavernHubView';
 import { storageService, ADMIN_EMAIL } from './services/storage';
 import { firebaseAuthService, db, auth, isLiveFirebaseConfigured } from './services/firebase';
 import { cloudCampaigns } from './services/cloudCampaigns';
+import { tavernAudio } from './services/tavernAudio';
 import { Campaign, CharacterSheet, LoreEntry, RuleDocument, SketchAsset, UserProfile } from './types';
+
+export type RoomId = 'I' | 'II' | 'III' | 'IV';
+
+export interface RoomConfig {
+  id: RoomId;
+  name: string;
+  subtitle: string;
+  bgColor: string;
+  textColor: string;
+  borderColor: string;
+}
+
+export const ROOMS: Record<RoomId, RoomConfig> = {
+  I: {
+    id: 'I',
+    name: 'Mesa dos Apostadores',
+    subtitle: 'I. Mesa dos Apostadores',
+    bgColor: '#DEC29B', // Pergaminho / Bege Lareira
+    textColor: '#2A1B12', // Marrom Café Escuro
+    borderColor: 'rgba(42, 27, 18, 0.15)',
+  },
+  II: {
+    id: 'II',
+    name: 'Telas do Alaúde',
+    subtitle: 'II. Telas do Alaúde',
+    bgColor: '#C49A6C', // Camurça / Madeira Clara
+    textColor: '#1F120B', // Ébano Quente
+    borderColor: 'rgba(31, 18, 11, 0.15)',
+  },
+  III: {
+    id: 'III',
+    name: 'Taberneiro',
+    subtitle: 'III. Taberneiro',
+    bgColor: '#8C4A27', // Brasa de Lareira / Terracota Amadeirado
+    textColor: '#F5E6D3', // Creme Pergaminho
+    borderColor: 'rgba(245, 230, 211, 0.18)',
+  },
+  IV: {
+    id: 'IV',
+    name: 'Recanto dos Bardos',
+    subtitle: 'IV. Recanto dos Bardos',
+    bgColor: '#3B2216', // Mogno Envelhecido / Madeira Escura
+    textColor: '#E6CCB2', // Bege Suave
+    borderColor: 'rgba(230, 204, 178, 0.18)',
+  },
+};
 
 export function App() {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => {
@@ -37,17 +80,30 @@ export function App() {
   const [sketches, setSketches] = useState<SketchAsset[]>(() => storageService.getSketches());
   const [urdMessages, setUrdMessages] = useState(() => storageService.getUrdMessages());
 
-  const [hasEntered, setHasEntered] = useState(true);
-  const [activeTab, setActiveTab] = useState<'hub' | 'campaigns' | 'sketch' | 'urd' | 'chat'>('campaigns');
+  // Navegação das Salas em Algarismos Romanos (I a IV)
+  const [activeRoom, setActiveRoom] = useState<RoomId>('I');
+  const [hoveredRoom, setHoveredRoom] = useState<RoomId | null>(null);
+
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(() => campaigns[0]?.id || null);
   const [masterScreenCampaignId, setMasterScreenCampaignId] = useState<string | null>(null);
 
+  // Modais
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isShopOpen, setIsShopOpen] = useState(false);
   const [profileModalUser, setProfileModalUser] = useState<UserProfile | null>(null);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(tavernAudio.isPlaying());
+
+  // Sincroniza estado de áudio da taberna
+  useEffect(() => {
+    const unsub = tavernAudio.subscribe((playing) => {
+      setIsAudioPlaying(playing);
+    });
+    return () => unsub();
+  }, []);
 
   // Sincroniza dados com o storage
   const reloadData = async () => {
@@ -61,10 +117,9 @@ export function App() {
   };
 
   useEffect(() => {
-    // Sincronização inicial
     reloadData();
 
-    // Auto-migração/Auto-login silencioso do Firebase Auth caso o usuário tenha um cookie local antigo
+    // Auto-login silencioso se houver credenciais salvas
     const localUser = storageService.getCurrentUser();
     if (localUser) {
       const unsubscribe = firebaseAuthService.subscribeAuthState(async (fbUser) => {
@@ -72,22 +127,20 @@ export function App() {
           const passwords = storageService.getPasswords();
           const localPass = passwords[localUser.email.toLowerCase()];
           if (localPass) {
-            console.log('Auto-recuperando sessão do Firebase Auth a partir do cache local...');
             try {
               await firebaseAuthService.loginWithEmail(localUser.email, localPass);
-              reloadData(); // Recarrega os dados agora que temos o Token do Firebase
+              reloadData();
             } catch (err) {
               console.warn('Falha na auto-recuperação da sessão:', err);
             }
           }
         }
-        unsubscribe(); // Só queremos rodar essa checagem 1 vez no boot
+        unsubscribe();
       });
     }
   }, []);
 
-  // Sincroniza as salas com a nuvem (Firestore): baixa ao entrar, ao voltar para a aba e a cada 30s,
-  // para o mestre ver jogadores novos e o jogador ver as salas em que entrou.
+  // Sincroniza campanhas com a nuvem (Firestore)
   useEffect(() => {
     if (!currentUser || currentUser.status !== 'APPROVED') {
       cloudCampaigns.setUser(null);
@@ -113,7 +166,7 @@ export function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser?.uid, currentUser?.status]);
 
-  // Cada usuário só enxerga as salas que mestra ou em que entrou com a chave (admin enxerga todas)
+  // Filtra campanhas visíveis
   const visibleCampaigns = currentUser
     ? campaigns.filter(c =>
         currentUser.role === 'admin' ||
@@ -122,36 +175,23 @@ export function App() {
       )
     : [];
 
-  // Handlers de Autenticação
-  const handleLogin = (email: string, displayName?: string) => {
-    const res = storageService.loginUser(email);
-    setCurrentUser(res);
-    reloadData();
-  };
-
   const handleLogout = async () => {
     await firebaseAuthService.logout();
     storageService.setCurrentUser(null);
     setCurrentUser(null);
     setIsAuthModalOpen(false);
-    setHasEntered(false);
   };
 
-  // Handlers Administrativos (Exclusivos para henrique.v.berbert@gmail.com)
   const handleApproveUser = async (uid: string) => {
     if (!currentUser) return;
     const ok = await firebaseAuthService.approveUser(uid, currentUser.email);
-    if (ok) {
-      reloadData();
-    }
+    if (ok) reloadData();
   };
 
   const handleRejectUser = async (uid: string) => {
     if (!currentUser) return;
     const ok = await firebaseAuthService.rejectUser(uid, currentUser.email);
-    if (ok) {
-      reloadData();
-    }
+    if (ok) reloadData();
   };
 
   // Handlers de Campanhas
@@ -185,7 +225,6 @@ export function App() {
     setSelectedCampaignId(remaining[0]?.id || null);
   };
 
-  // Chave de sala: entrar, trocar a chave e remover/sair de jogadores
   const handleJoinByKey = async (rawKey: string) => {
     if (!currentUser) return { success: false, error: 'Usuário não autenticado.' };
     const res = await cloudCampaigns.joinByKey(currentUser, rawKey);
@@ -291,7 +330,7 @@ export function App() {
     reloadData();
   };
 
-  // Handlers de Personalização de Perfil de Aventureiro
+  // Handlers de Perfil
   const handleSaveProfile = async (updates: Partial<UserProfile>) => {
     if (!currentUser) return;
     const updated = storageService.updateUserProfile(currentUser.uid, updates);
@@ -319,211 +358,443 @@ export function App() {
 
   const handleStartDirectChat = (_targetUser: UserProfile) => {
     setIsProfileModalOpen(false);
-    setActiveTab('chat');
+    setActiveRoom('IV'); // Recanto dos Bardos
   };
 
-  const pendingCount = users.filter(u => u.status === 'PENDING').length;
-  const isSuperAdmin = currentUser?.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+  const currentTheme = ROOMS[activeRoom];
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Top Navbar - Oculto na visualização editorial para manter o visual limpo */}
-      {activeTab !== 'campaigns' && (
-            <Navbar
-              currentUser={currentUser}
-              activeTab={activeTab}
-              setActiveTab={(tab) => {
-                setMasterScreenCampaignId(null);
-                setActiveTab(tab);
-              }}
-              onOpenAdmin={() => setIsAdminModalOpen(true)}
-              onOpenAuth={() => setIsAuthModalOpen(true)}
-              onOpenChangePassword={() => setIsChangePasswordOpen(true)}
-              onOpenMyProfile={() => {
-                if (currentUser) {
-                  setProfileModalUser(currentUser);
-                  setIsProfileModalOpen(true);
-                }
-              }}
-              onOpenShop={() => setIsShopOpen(true)}
-              onLogout={handleLogout}
-              pendingCount={pendingCount}
-              bannerMode={
-                (activeTab === 'sketch' || activeTab === 'urd' || activeTab === 'chat') &&
-                !masterScreenCampaignId &&
-                currentUser?.status === 'APPROVED'
-              }
-            />
-          )}
+    <div
+      className="min-h-screen w-full transition-colors duration-700 ease-in-out relative flex flex-col"
+      style={{
+        backgroundColor: currentTheme.bgColor,
+        color: currentTheme.textColor,
+        fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+      }}
+    >
+      {/* ========================================================
+          1. CABEÇALHO SUPERIOR MINIMALISTA (TOP NAVIGATION)
+          fixed top-0 left-0 w-full px-10 py-7 flex justify-between items-center z-50
+          Totalmente limpo, sem linhas divisórias e com fundo transparente.
+          ======================================================== */}
+      <nav
+        className="fixed top-0 left-0 w-full px-10 py-7 flex justify-between items-center z-50 pointer-events-auto"
+        style={{
+          backgroundColor: 'transparent',
+          color: currentTheme.textColor,
+          transition: 'color 700ms ease-in-out',
+        }}
+      >
+        {/* Canto Superior Esquerdo: Texto MENU */}
+        <button
+          onClick={() => {
+            tavernAudio.playBellChime();
+            setIsMenuOpen(true);
+          }}
+          className="hover:opacity-60 transition-opacity duration-300 cursor-pointer"
+          style={{
+            fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+            fontSize: '22px',
+            fontWeight: 600,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            background: 'none',
+            border: 'none',
+            color: 'inherit',
+            padding: 0,
+            margin: 0,
+          }}
+          title="Abrir Menu Principal"
+        >
+          MENU
+        </button>
 
-          {/* Main Content Area */}
-          <main
-            className="content-with-bottom-nav app-main-content"
+        {/* Centro (Navegação das Salas em Algarismos Romanos): I   II   III   IV */}
+        <div className="flex flex-col items-center justify-center">
+          <div className="flex items-center gap-12">
+            {(['I', 'II', 'III', 'IV'] as RoomId[]).map((roman) => {
+              const isActive = activeRoom === roman;
+              return (
+                <button
+                  key={roman}
+                  onClick={() => {
+                    setActiveRoom(roman);
+                    setMasterScreenCampaignId(null);
+                    tavernAudio.playBellChime();
+                  }}
+                  onMouseEnter={() => setHoveredRoom(roman)}
+                  onMouseLeave={() => setHoveredRoom(null)}
+                  className={`transition-all duration-300 cursor-pointer ${
+                    isActive ? 'opacity-100 font-bold scale-110' : 'opacity-30 hover:opacity-70'
+                  }`}
+                  style={{
+                    fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+                    fontSize: '24px',
+                    letterSpacing: '0.08em',
+                    background: 'none',
+                    border: 'none',
+                    color: 'inherit',
+                    padding: '2px 6px',
+                  }}
+                  title={ROOMS[roman].name}
+                >
+                  {roman}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Nome da sala sutil e elegante */}
+          <div
+            className="text-center transition-all duration-300 pointer-events-none mt-0.5"
             style={{
-              flex: 1,
-              paddingBottom: 0,
-              backgroundColor: 'transparent'
+              fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+              fontStyle: 'italic',
+              fontSize: '12px',
+              letterSpacing: '0.12em',
+              opacity: 0.75,
+              height: '16px',
+              whiteSpace: 'nowrap',
             }}
           >
-            {currentUser ? (
-              <>
-                {/* Caso 2: Usuário com status PENDENTE (Requisito Mandatório: Aprovação por Área Administrativa) */}
-                {currentUser.status === 'PENDING' && (
-                  <PendingApprovalScreen
-                    user={currentUser}
-                    onRefresh={reloadData}
-                    onLogout={handleLogout}
-                  />
-                )}
+            {hoveredRoom ? ROOMS[hoveredRoom].subtitle : ROOMS[activeRoom].subtitle}
+          </div>
+        </div>
 
-                {/* Caso 3: Usuário APROVADO (Acesso completo aos módulos) */}
-                {currentUser.status === 'APPROVED' && (
-                  <>
-                    {masterScreenCampaignId ? (
-                      (() => {
-                        const targetCampaign = visibleCampaigns.find(c => c.id === masterScreenCampaignId) || visibleCampaigns[0];
-                        const isMasterOfCampaign = targetCampaign && (targetCampaign.masterId === currentUser.uid || currentUser.role === 'admin');
-                        if (!isMasterOfCampaign) {
-                          return (
-                            <div style={{ maxWidth: '640px', margin: '60px auto', padding: '0 20px', textAlign: 'center' }}>
-                              <div className="surface-card" style={{ padding: '36px 20px', border: '2px solid var(--amber-torch)' }}>
-                                <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '8px' }}>
-                                  Acesso Restrito ao Mestre da Sala
-                                </h3>
-                                <p className="font-lore" style={{ fontSize: '15px', color: 'var(--text-strong)', marginBottom: '16px' }}>
-                                  Apenas o criador da sala possui acesso aos pergaminhos secretos desta mesa.
-                                </p>
-                                <button onClick={() => setMasterScreenCampaignId(null)} className="btn-tavern btn-primary">
-                                  Voltar às Campanhas
-                                </button>
-                              </div>
-                            </div>
-                          );
-                        }
-                        return (
-                          <MasterScreenView
-                            campaign={targetCampaign}
-                            currentUser={currentUser}
-                            onBackToCampaign={() => setMasterScreenCampaignId(null)}
-                            onAddLore={handleAddLore}
-                          />
-                        );
-                      })()
-                    ) : (
-                      <>
-                        {activeTab === 'hub' && (
-                          <TavernHubView
-                            currentUser={currentUser}
-                            campaigns={visibleCampaigns}
-                            sketchesCount={sketches.length}
-                            onNavigate={(tab) => {
-                              setMasterScreenCampaignId(null);
-                              setActiveTab(tab);
-                              window.scrollTo({ top: 0, behavior: 'smooth' });
-                            }}
-                            onOpenShop={() => setIsShopOpen(true)}
-                          />
-                        )}
-
-                        {activeTab === 'campaigns' && (
-                          <CampaignsView
-                            onBack={() => setActiveTab('hub')}
-                            campaigns={visibleCampaigns}
-                            currentUser={currentUser}
-                            selectedCampaignId={selectedCampaignId}
-                            onSelectCampaign={setSelectedCampaignId}
-                            onJoinByKey={handleJoinByKey}
-                            onRegenerateKey={handleRegenerateKey}
-                            onRemovePlayer={handleRemovePlayer}
-                            onCreateCampaign={handleCreateCampaign}
-                            onUpdateCampaign={handleUpdateCampaign}
-                            onDeleteCampaign={handleDeleteCampaign}
-                            onAddSheet={handleAddSheet}
-                            onUpdateSheet={handleUpdateSheet}
-                            onDeleteSheet={handleDeleteSheet}
-                            onAddLore={handleAddLore}
-                            onDeleteLore={handleDeleteLore}
-                            onUpdateLore={handleUpdateLore}
-                            onAddRule={handleAddRule}
-                            onDeleteRule={handleDeleteRule}
-                            onUpdateRule={handleUpdateRule}
-                            onOpenMasterScreen={(campId) => setMasterScreenCampaignId(campId)}
-                            onOpenShop={() => setIsShopOpen(true)}
-                            onOpenMyProfile={() => {
-                              if (currentUser) {
-                                setProfileModalUser(currentUser);
-                                setIsProfileModalOpen(true);
-                              }
-                            }}
-                            onOpenAdmin={() => setIsAdminModalOpen(true)}
-                            onOpenAuth={() => setIsAuthModalOpen(true)}
-                          />
-                        )}
-
-                        {activeTab === 'sketch' && (
-                          <SketchStudioView
-                            onBack={() => setActiveTab('hub')}
-                            sketches={sketches}
-                            campaigns={visibleCampaigns}
-                            activeCampaignId={selectedCampaignId}
-                            onSaveSketch={handleSaveSketch}
-                            onDeleteSketch={handleDeleteSketch}
-                          />
-                        )}
-
-                        {activeTab === 'urd' && (
-                          <UrdChatView
-                            onBack={() => setActiveTab('hub')}
-                            messages={urdMessages}
-                            campaigns={visibleCampaigns}
-                            activeCampaignId={selectedCampaignId}
-                            onSendMessage={handleSendUrdMessage}
-                            onAddToLore={(campaignId, title, content) => {
-                              handleAddLore(campaignId, {
-                                title,
-                                content,
-                                category: 'rumores',
-                                author: 'Urd, o Taberneiro',
-                                tags: ['Oráculo Urd', 'Boato de Taberna']
-                              });
-                            }}
-                            onClearChat={handleClearUrdChat}
-                          />
-                        )}
-
-                        {activeTab === 'chat' && (
-                          <ChatPortalView
-                            onBack={() => setActiveTab('hub')}
-                            currentUser={currentUser}
-                            campaigns={visibleCampaigns}
-                            allUsers={users}
-                            onOpenProfile={(user) => {
-                              setProfileModalUser(user);
-                              setIsProfileModalOpen(true);
-                            }}
-                          />
-                        )}
-                      </>
-                    )}
-                  </>
-                )}
-              </>
-            ) : null}
-          </main>
-
-      {/* Mobile Bottom Navigation (Cinto do Aventureiro) - Oculto na visualização editorial */}
-      {currentUser && activeTab !== 'campaigns' && (
-        <MobileBottomNav
-          activeTab={activeTab}
-          setActiveTab={(tab) => {
-            setMasterScreenCampaignId(null);
-            setActiveTab(tab);
+        {/* Canto Superior Direito: Texto JOGADOR */}
+        <button
+          onClick={() => {
+            tavernAudio.playBellChime();
+            if (currentUser) {
+              setProfileModalUser(currentUser);
+              setIsProfileModalOpen(true);
+            } else {
+              setIsAuthModalOpen(true);
+            }
           }}
-          currentUser={currentUser}
-          onOpenAdmin={() => setIsAdminModalOpen(true)}
-          onOpenAuth={() => setIsAuthModalOpen(true)}
-          pendingCount={pendingCount}
-        />
+          className="hover:opacity-60 transition-opacity duration-300 cursor-pointer"
+          style={{
+            fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+            fontSize: '22px',
+            fontWeight: 600,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            background: 'none',
+            border: 'none',
+            color: 'inherit',
+            padding: 0,
+            margin: 0,
+          }}
+          title={currentUser ? `Perfil de ${currentUser.displayName || currentUser.email}` : 'Entrar na Taberna'}
+        >
+          JOGADOR
+        </button>
+      </nav>
+
+      {/* ========================================================
+          3. LAYOUT CENTRALIZADO & CONTEÚDO EDITORIAL DAS SALAS (I a IV)
+          flex flex-col items-center justify-center min-h-screen
+          Deixando pelo menos 60% de espaço negativo ao redor
+          ======================================================== */}
+      <main
+        className="flex-1 flex flex-col items-center justify-center min-h-screen w-full relative"
+        style={{
+          boxSizing: 'border-box',
+        }}
+      >
+        {/* Caso especial: Usuário pendente */}
+        {currentUser && currentUser.status === 'PENDING' ? (
+          <div className="max-w-md mx-auto text-center px-6">
+            <PendingApprovalScreen
+              user={currentUser}
+              onRefresh={reloadData}
+              onLogout={handleLogout}
+            />
+          </div>
+        ) : masterScreenCampaignId ? (
+          /* Tela do Mestre para a mesa selecionada */
+          (() => {
+            const targetCampaign = visibleCampaigns.find(c => c.id === masterScreenCampaignId) || visibleCampaigns[0];
+            const isMasterOfCampaign = targetCampaign && (targetCampaign.masterId === currentUser?.uid || currentUser?.role === 'admin');
+            if (!isMasterOfCampaign) {
+              return (
+                <div style={{ maxWidth: '640px', margin: '60px auto', padding: '0 20px', textAlign: 'center' }}>
+                  <h3 style={{ fontSize: '24px', fontWeight: 600, marginBottom: '12px' }}>
+                    Acesso Restrito ao Mestre da Sala
+                  </h3>
+                  <p style={{ fontSize: '16px', opacity: 0.8, marginBottom: '24px' }}>
+                    Apenas o criador da sala possui acesso aos pergaminhos secretos desta mesa.
+                  </p>
+                  <button
+                    onClick={() => setMasterScreenCampaignId(null)}
+                    style={{
+                      background: 'none',
+                      border: `1px solid ${currentTheme.textColor}`,
+                      padding: '8px 20px',
+                      color: 'inherit',
+                      fontFamily: 'inherit',
+                      letterSpacing: '0.15em',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Voltar à Mesa
+                  </button>
+                </div>
+              );
+            }
+            return (
+              <div className="w-full pt-24 pb-12">
+                <MasterScreenView
+                  campaign={targetCampaign}
+                  currentUser={currentUser || { uid: 'guest', email: 'visitante@taberna.rpg', displayName: 'Viajante', role: 'user', status: 'APPROVED', gold: 50, createdAt: new Date().toISOString() }}
+                  onBackToCampaign={() => setMasterScreenCampaignId(null)}
+                  onAddLore={handleAddLore}
+                />
+              </div>
+            );
+          })()
+        ) : (
+          <>
+            {/* SALA I — MESA DOS APOSTADORES */}
+            {activeRoom === 'I' && (
+              <div className="w-full flex justify-center">
+                <CampaignsView
+                  hideHeader={true}
+                  campaigns={visibleCampaigns}
+                  currentUser={currentUser || { uid: 'guest', email: 'viajante@taberna.rpg', displayName: 'Viajante Convidado', role: 'user', status: 'APPROVED', gold: 50, createdAt: new Date().toISOString() }}
+                  selectedCampaignId={selectedCampaignId}
+                  onSelectCampaign={setSelectedCampaignId}
+                  onJoinByKey={handleJoinByKey}
+                  onRegenerateKey={handleRegenerateKey}
+                  onRemovePlayer={handleRemovePlayer}
+                  onCreateCampaign={handleCreateCampaign}
+                  onUpdateCampaign={handleUpdateCampaign}
+                  onDeleteCampaign={handleDeleteCampaign}
+                  onAddSheet={handleAddSheet}
+                  onUpdateSheet={handleUpdateSheet}
+                  onDeleteSheet={handleDeleteSheet}
+                  onAddLore={handleAddLore}
+                  onDeleteLore={handleDeleteLore}
+                  onUpdateLore={handleUpdateLore}
+                  onAddRule={handleAddRule}
+                  onDeleteRule={handleDeleteRule}
+                  onUpdateRule={handleUpdateRule}
+                  onOpenMasterScreen={(campId) => setMasterScreenCampaignId(campId)}
+                  onOpenShop={() => setIsShopOpen(true)}
+                  onOpenMyProfile={() => {
+                    if (currentUser) {
+                      setProfileModalUser(currentUser);
+                      setIsProfileModalOpen(true);
+                    } else {
+                      setIsAuthModalOpen(true);
+                    }
+                  }}
+                  onOpenAdmin={() => setIsAdminModalOpen(true)}
+                  onOpenAuth={() => setIsAuthModalOpen(true)}
+                />
+              </div>
+            )}
+
+            {/* SALA II — TELAS DO ALAÚDE */}
+            {activeRoom === 'II' && (
+              <div className="w-full flex justify-center">
+                <EditorialTelasView
+                  sketches={sketches}
+                  campaigns={visibleCampaigns}
+                  activeCampaignId={selectedCampaignId}
+                  onSaveSketch={handleSaveSketch}
+                  onDeleteSketch={handleDeleteSketch}
+                />
+              </div>
+            )}
+
+            {/* SALA III — TABERNEIRO */}
+            {activeRoom === 'III' && (
+              <div className="w-full flex justify-center">
+                <EditorialTaberneiroView
+                  messages={urdMessages}
+                  campaigns={visibleCampaigns}
+                  activeCampaignId={selectedCampaignId}
+                  onSendMessage={handleSendUrdMessage}
+                  onAddToLore={(campaignId, title, content) => {
+                    handleAddLore(campaignId, {
+                      title,
+                      content,
+                      category: 'rumores',
+                      author: 'Urd, o Taberneiro',
+                      tags: ['Oráculo Urd', 'Boato de Taberna'],
+                    });
+                  }}
+                  onClearChat={handleClearUrdChat}
+                />
+              </div>
+            )}
+
+            {/* SALA IV — RECANTO DOS BARDOS */}
+            {activeRoom === 'IV' && (
+              <div className="w-full flex justify-center">
+                <EditorialBardosView
+                  currentUser={currentUser}
+                  campaigns={visibleCampaigns}
+                  allUsers={users}
+                  onOpenProfile={(u) => {
+                    setProfileModalUser(u);
+                    setIsProfileModalOpen(true);
+                  }}
+                />
+              </div>
+            )}
+          </>
+        )}
+      </main>
+
+      {/* ========================================================
+          MENU MODAL EDITORIAL MINIMALISTA
+          ======================================================== */}
+      {isMenuOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-6 animate-fade-in"
+          style={{
+            backgroundColor: 'rgba(20, 12, 8, 0.85)',
+            backdropFilter: 'blur(10px)',
+            color: '#F5E6D3',
+          }}
+          onClick={() => setIsMenuOpen(false)}
+        >
+          <div
+            className="w-full max-w-md text-center py-10 px-8 relative"
+            style={{
+              fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Título do Menu */}
+            <h2
+              className="text-2xl font-semibold tracking-widest uppercase mb-1"
+              style={{ letterSpacing: '0.25em' }}
+            >
+              TABERNA DIGITAL
+            </h2>
+            <p className="italic text-sm opacity-60 mb-8" style={{ letterSpacing: '0.08em' }}>
+              Salões & Crônicas Medievais
+            </p>
+
+            {/* Links das 4 Salas */}
+            <div className="flex flex-col gap-5 mb-8">
+              {(['I', 'II', 'III', 'IV'] as RoomId[]).map((roman) => {
+                const room = ROOMS[roman];
+                const isActive = activeRoom === roman;
+                return (
+                  <button
+                    key={roman}
+                    onClick={() => {
+                      setActiveRoom(roman);
+                      setMasterScreenCampaignId(null);
+                      tavernAudio.playBellChime();
+                      setIsMenuOpen(false);
+                    }}
+                    className="group flex items-center justify-between py-2 border-b transition-all duration-300 cursor-pointer"
+                    style={{
+                      borderColor: isActive ? '#DEC29B' : 'rgba(245, 230, 211, 0.12)',
+                      background: 'none',
+                      color: isActive ? '#DEC29B' : '#F5E6D3',
+                    }}
+                  >
+                    <span className="text-xl font-bold tracking-wider">{roman}</span>
+                    <span className="text-base tracking-widest uppercase group-hover:translate-x-1 transition-transform duration-300">
+                      {room.name}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Ações Secundárias */}
+            <div className="flex flex-col gap-3 pt-4 border-t border-amber-900/30 text-sm tracking-wider uppercase">
+              <button
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  setIsShopOpen(true);
+                }}
+                className="py-2 hover:opacity-75 transition-opacity cursor-pointer"
+                style={{ background: 'none', border: 'none', color: '#DEC29B' }}
+              >
+                Bazar de Itens ({currentUser?.gold || 0} PO)
+              </button>
+
+              <button
+                onClick={async () => {
+                  const state = await tavernAudio.toggle();
+                  setIsAudioPlaying(state);
+                }}
+                className="py-2 hover:opacity-75 transition-opacity cursor-pointer"
+                style={{ background: 'none', border: 'none', color: 'inherit' }}
+              >
+                Música do Alaúde & Lareira: {isAudioPlaying ? 'Tocando' : 'Silenciada'}
+              </button>
+
+              {currentUser?.role === 'admin' && (
+                <button
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    setIsAdminModalOpen(true);
+                  }}
+                  className="py-2 hover:opacity-75 transition-opacity cursor-pointer text-amber-400"
+                  style={{ background: 'none', border: 'none' }}
+                >
+                  Painel de Administração
+                </button>
+              )}
+
+              {currentUser ? (
+                <>
+                  <button
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      setIsChangePasswordOpen(true);
+                    }}
+                    className="py-2 hover:opacity-75 transition-opacity cursor-pointer opacity-70"
+                    style={{ background: 'none', border: 'none', color: 'inherit' }}
+                  >
+                    Trocar Senha
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      handleLogout();
+                    }}
+                    className="py-2 hover:opacity-75 transition-opacity cursor-pointer opacity-70"
+                    style={{ background: 'none', border: 'none', color: 'inherit' }}
+                  >
+                    Encerrar Sessão
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    setIsAuthModalOpen(true);
+                  }}
+                  className="py-2 hover:opacity-75 transition-opacity cursor-pointer text-amber-300"
+                  style={{ background: 'none', border: 'none' }}
+                >
+                  Entrar na Taberna
+                </button>
+              )}
+            </div>
+
+            {/* Fechar */}
+            <div className="mt-8">
+              <button
+                onClick={() => setIsMenuOpen(false)}
+                className="text-xs uppercase tracking-widest opacity-50 hover:opacity-100 transition-opacity cursor-pointer"
+                style={{ background: 'none', border: 'none', color: 'inherit' }}
+              >
+                ✕ Fechar Menu
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Auth Modal */}
@@ -532,7 +803,6 @@ export function App() {
         onClose={() => setIsAuthModalOpen(false)}
         onLoginSuccess={(user) => {
           setCurrentUser(user);
-          setHasEntered(true);
           reloadData();
         }}
         currentUser={currentUser}
@@ -558,7 +828,7 @@ export function App() {
         currentUser={currentUser}
       />
 
-      {/* User Profile Modal (Aba Lateral Direita de Perfil & Opções do Aventureiro) */}
+      {/* User Profile Modal */}
       <UserProfileModal
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}

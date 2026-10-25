@@ -40,6 +40,7 @@ interface CampaignsViewProps {
   onOpenMyProfile?: () => void;
   onOpenAdmin?: () => void;
   onOpenAuth?: () => void;
+  hideHeader?: boolean;
 }
 
 export const CampaignsView: React.FC<CampaignsViewProps> = ({
@@ -68,6 +69,7 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
   onOpenMyProfile,
   onOpenAdmin,
   onOpenAuth,
+  hideHeader = false,
 }) => {
 
   // ==========================================
@@ -754,148 +756,106 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
       }}
     >
       {/* 1. CABEÇALHO MINIMALISTA COM ALGARISMOS ROMANOS (TOP NAVIGATION) */}
-      <header
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 50,
-          padding: '24px 40px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          backgroundColor: 'transparent',
-          color: currentTheme.textColor,
-          transition: 'color 700ms ease-in-out',
-          border: 'none',
-        }}
-      >
-        {/* Esquerda: Nome 'TABERNA DIGITAL' em fonte serifada clássica, caixa alta e tracking-widest */}
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-          <button
-            onClick={() => {
-              setActiveChapter('I');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            style={{
-              background: 'none',
-              border: 'none',
-              padding: 0,
-              margin: 0,
-              fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
-              fontSize: '18px',
-              fontWeight: 600,
-              letterSpacing: '0.28em',
-              textTransform: 'uppercase',
-              color: 'inherit',
-              cursor: 'pointer',
-              transition: 'opacity 0.2s ease',
-            }}
-            title="Capítulo I • Salão Principal"
-            className="hover:opacity-70"
-          >
-            TABERNA DIGITAL
-          </button>
-        </div>
-
-        {/* Centro (Navegação por Capítulos): I   II   III   IV   V */}
-        <div style={{ flex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-          <nav style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-            {(['I', 'II', 'III', 'IV', 'V'] as ChapterId[]).map((roman) => {
-              const isActive = activeChapter === roman;
-              return (
-                <button
-                  key={roman}
-                  onClick={() => {
-                    setActiveChapter(roman);
-                    tavernAudio.playBellChime();
-                  }}
-                  title={CHAPTERS[roman].title}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    padding: '4px 8px',
-                    cursor: 'pointer',
-                    fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
-                    fontSize: '22px',
-                    fontWeight: isActive ? 700 : 400,
-                    opacity: isActive ? 1 : 0.35,
-                    color: 'inherit',
-                    transition: 'opacity 0.3s ease, transform 0.3s ease',
-                    transform: isActive ? 'scale(1.12)' : 'scale(1)',
-                    letterSpacing: '0.08em',
-                  }}
-                  className="hover:opacity-70"
-                >
-                  {roman}
-                </button>
-              );
-            })}
-          </nav>
-          {/* Subtítulo suave abaixo indicando o capítulo ativo */}
-          <div
-            style={{
-              fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
-              fontStyle: 'italic',
-              fontSize: '13px',
-              letterSpacing: '0.06em',
-              opacity: 0.75,
-              transition: 'opacity 0.4s ease',
-              textAlign: 'center',
-            }}
-          >
-            {CHAPTERS[activeChapter].title}
+      {!hideHeader && (
+        <header
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 50,
+            padding: '24px 40px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            backgroundColor: 'transparent',
+            color: currentTheme.textColor,
+            transition: 'color 700ms ease-in-out',
+            border: 'none',
+          }}
+        >
+          {/* Esquerda: Nome 'TABERNA DIGITAL' em fonte serifada clássica, caixa alta e tracking-widest */}
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+            <button
+              onClick={() => {
+                setActiveChapter('I');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                margin: 0,
+                fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
+                fontSize: '18px',
+                fontWeight: 600,
+                letterSpacing: '0.28em',
+                textTransform: 'uppercase',
+                color: 'inherit',
+                cursor: 'pointer',
+                transition: 'opacity 0.2s ease',
+              }}
+              title="Capítulo I • Salão Principal"
+              className="hover:opacity-70"
+            >
+              TABERNA DIGITAL
+            </button>
           </div>
-        </div>
 
-        {/* Direita: Botão textual limpo 'MESA ATIVA', 'BAZAR (0 PO)' e 'PERFIL' */}
-        <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '20px' }}>
-          <button
-            onClick={() => setActiveChapter('I')}
-            style={{
-              background: 'none',
-              border: 'none',
-              padding: 0,
-              fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
-              fontSize: '13px',
-              fontWeight: 600,
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase',
-              color: 'inherit',
-              cursor: 'pointer',
-              opacity: 0.85,
-              transition: 'opacity 0.2s ease',
-            }}
-            title="Selecionar ou Inspecionar Mesa"
-            className="hover:opacity-100"
-          >
-            {activeCampaign ? activeCampaign.name : 'MESA ATIVA'}
-          </button>
-          <button
-            onClick={() => onOpenShop?.()}
-            style={{
-              background: 'none',
-              border: 'none',
-              padding: 0,
-              fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
-              fontSize: '13px',
-              fontWeight: 600,
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase',
-              color: 'inherit',
-              cursor: 'pointer',
-              opacity: 0.85,
-              transition: 'opacity 0.2s ease',
-            }}
-            title="Abrir Bazar de Itens"
-            className="hover:opacity-100"
-          >
-            BAZAR ({currentUser.gold || 0} PO)
-          </button>
-          {onOpenMyProfile && (
+          {/* Centro (Navegação por Capítulos): I   II   III   IV   V */}
+          <div style={{ flex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+            <nav style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+              {(['I', 'II', 'III', 'IV', 'V'] as ChapterId[]).map((roman) => {
+                const isActive = activeChapter === roman;
+                return (
+                  <button
+                    key={roman}
+                    onClick={() => {
+                      setActiveChapter(roman);
+                      tavernAudio.playBellChime();
+                    }}
+                    title={CHAPTERS[roman].title}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      padding: '4px 8px',
+                      cursor: 'pointer',
+                      fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
+                      fontSize: '22px',
+                      fontWeight: isActive ? 700 : 400,
+                      opacity: isActive ? 1 : 0.35,
+                      color: 'inherit',
+                      transition: 'opacity 0.3s ease, transform 0.3s ease',
+                      transform: isActive ? 'scale(1.12)' : 'scale(1)',
+                      letterSpacing: '0.08em',
+                    }}
+                    className="hover:opacity-70"
+                  >
+                    {roman}
+                  </button>
+                );
+              })}
+            </nav>
+            {/* Subtítulo suave abaixo indicando o capítulo ativo */}
+            <div
+              style={{
+                fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+                fontStyle: 'italic',
+                fontSize: '13px',
+                letterSpacing: '0.06em',
+                opacity: 0.75,
+                transition: 'opacity 0.4s ease',
+                textAlign: 'center',
+              }}
+            >
+              {CHAPTERS[activeChapter].title}
+            </div>
+          </div>
+
+          {/* Direita: Botão textual limpo 'MESA ATIVA', 'BAZAR (0 PO)' e 'PERFIL' */}
+          <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '20px' }}>
             <button
-              onClick={() => onOpenMyProfile()}
+              onClick={() => setActiveChapter('I')}
               style={{
                 background: 'none',
                 border: 'none',
@@ -910,15 +870,13 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                 opacity: 0.85,
                 transition: 'opacity 0.2s ease',
               }}
-              title="Ver Perfil de Aventureiro"
+              title="Selecionar ou Inspecionar Mesa"
               className="hover:opacity-100"
             >
-              PERFIL
+              {activeCampaign ? activeCampaign.name : 'MESA ATIVA'}
             </button>
-          )}
-          {currentUser.role === 'admin' && onOpenAdmin && (
             <button
-              onClick={() => onOpenAdmin()}
+              onClick={() => onOpenShop?.()}
               style={{
                 background: 'none',
                 border: 'none',
@@ -933,14 +891,60 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                 opacity: 0.85,
                 transition: 'opacity 0.2s ease',
               }}
-              title="Painel de Administração"
+              title="Abrir Bazar de Itens"
               className="hover:opacity-100"
             >
-              ADMIN
+              BAZAR ({currentUser.gold || 0} PO)
             </button>
-          )}
-        </div>
-      </header>
+            {onOpenMyProfile && (
+              <button
+                onClick={() => onOpenMyProfile()}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  letterSpacing: '0.15em',
+                  textTransform: 'uppercase',
+                  color: 'inherit',
+                  cursor: 'pointer',
+                  opacity: 0.85,
+                  transition: 'opacity 0.2s ease',
+                }}
+                title="Ver Perfil de Aventureiro"
+                className="hover:opacity-100"
+              >
+                PERFIL
+              </button>
+            )}
+            {currentUser.role === 'admin' && onOpenAdmin && (
+              <button
+                onClick={() => onOpenAdmin()}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  letterSpacing: '0.15em',
+                  textTransform: 'uppercase',
+                  color: 'inherit',
+                  cursor: 'pointer',
+                  opacity: 0.85,
+                  transition: 'opacity 0.2s ease',
+                }}
+                title="Painel de Administração"
+                className="hover:opacity-100"
+              >
+                ADMIN
+              </button>
+            )}
+          </div>
+        </header>
+      )}
 
       {/* 3. LAYOUT CENTRALIZADO E ESPAÇO NEGATIVO (700px a 900px de largura, sem poluição) */}
       <main
@@ -958,6 +962,56 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
           textAlign: 'center',
         }}
       >
+        {/* Sub-navegação interna minimalista quando o cabeçalho global está ativo */}
+        {hideHeader && (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '24px',
+              marginBottom: '36px',
+              flexWrap: 'wrap',
+            }}
+          >
+            {([
+              { id: 'I', label: 'Mesa Ativa' },
+              { id: 'II', label: 'Fichas' },
+              { id: 'III', label: 'Grimório' },
+              { id: 'IV', label: 'Manuais' },
+              { id: 'V', label: 'Dados' },
+            ] as { id: ChapterId; label: string }[]).map((tab) => {
+              const isActive = activeChapter === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    setActiveChapter(tab.id);
+                    tavernAudio.playBellChime();
+                  }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: '4px 8px',
+                    cursor: 'pointer',
+                    fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+                    fontSize: '14px',
+                    fontWeight: isActive ? 700 : 400,
+                    letterSpacing: '0.15em',
+                    textTransform: 'uppercase',
+                    color: 'inherit',
+                    opacity: isActive ? 1 : 0.4,
+                    borderBottom: isActive ? `1px solid ${currentTheme.textColor}` : '1px solid transparent',
+                    transition: 'opacity 0.2s ease, border-color 0.2s ease',
+                  }}
+                  className="hover:opacity-80"
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
         {/* ========================================================
             GUIA I: MESAS DISPONÍVEIS (SALÃO PRINCIPAL)
             ======================================================== */}
