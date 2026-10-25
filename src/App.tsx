@@ -22,14 +22,23 @@ import { cloudCampaigns } from './services/cloudCampaigns';
 import { Campaign, CharacterSheet, LoreEntry, RuleDocument, SketchAsset, UserProfile } from './types';
 
 export function App() {
-  const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => storageService.getCurrentUser());
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => {
+    const existing = storageService.getCurrentUser();
+    if (existing) return existing;
+    const all = storageService.getUsers();
+    const fallback = all[0] || null;
+    if (fallback) {
+      storageService.setCurrentUser(fallback);
+    }
+    return fallback;
+  });
   const [users, setUsers] = useState<UserProfile[]>(() => storageService.getUsers());
   const [campaigns, setCampaigns] = useState<Campaign[]>(() => storageService.getCampaigns());
   const [sketches, setSketches] = useState<SketchAsset[]>(() => storageService.getSketches());
   const [urdMessages, setUrdMessages] = useState(() => storageService.getUrdMessages());
 
-  const [hasEntered, setHasEntered] = useState(false);
-  const [activeTab, setActiveTab] = useState<'hub' | 'campaigns' | 'sketch' | 'urd' | 'chat'>('hub');
+  const [hasEntered, setHasEntered] = useState(true);
+  const [activeTab, setActiveTab] = useState<'hub' | 'campaigns' | 'sketch' | 'urd' | 'chat'>('campaigns');
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(() => campaigns[0]?.id || null);
   const [masterScreenCampaignId, setMasterScreenCampaignId] = useState<string | null>(null);
 
@@ -317,43 +326,35 @@ export function App() {
   const isSuperAdmin = currentUser?.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#0e0906', color: '#f5ecdc' }}>
-      {!hasEntered ? (
-        <LandingPage onEnter={() => {
-          if (currentUser) {
-            setHasEntered(true);
-          } else {
-            setIsAuthModalOpen(true);
-          }
-        }} />
-      ) : (
-        <>
-          {/* Top Navbar */}
-          <Navbar
-            currentUser={currentUser}
-            activeTab={activeTab}
-            setActiveTab={(tab) => {
-              setMasterScreenCampaignId(null);
-              setActiveTab(tab);
-            }}
-            onOpenAdmin={() => setIsAdminModalOpen(true)}
-            onOpenAuth={() => setIsAuthModalOpen(true)}
-            onOpenChangePassword={() => setIsChangePasswordOpen(true)}
-            onOpenMyProfile={() => {
-              if (currentUser) {
-                setProfileModalUser(currentUser);
-                setIsProfileModalOpen(true);
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      {/* Top Navbar - Oculto na visualização editorial para manter o visual limpo */}
+      {activeTab !== 'campaigns' && (
+            <Navbar
+              currentUser={currentUser}
+              activeTab={activeTab}
+              setActiveTab={(tab) => {
+                setMasterScreenCampaignId(null);
+                setActiveTab(tab);
+              }}
+              onOpenAdmin={() => setIsAdminModalOpen(true)}
+              onOpenAuth={() => setIsAuthModalOpen(true)}
+              onOpenChangePassword={() => setIsChangePasswordOpen(true)}
+              onOpenMyProfile={() => {
+                if (currentUser) {
+                  setProfileModalUser(currentUser);
+                  setIsProfileModalOpen(true);
+                }
+              }}
+              onOpenShop={() => setIsShopOpen(true)}
+              onLogout={handleLogout}
+              pendingCount={pendingCount}
+              bannerMode={
+                (activeTab === 'sketch' || activeTab === 'urd' || activeTab === 'chat') &&
+                !masterScreenCampaignId &&
+                currentUser?.status === 'APPROVED'
               }
-            }}
-            onOpenShop={() => setIsShopOpen(true)}
-            onLogout={handleLogout}
-            pendingCount={pendingCount}
-            bannerMode={
-              (activeTab === 'campaigns' || activeTab === 'sketch' || activeTab === 'urd' || activeTab === 'chat') &&
-              !masterScreenCampaignId &&
-              currentUser?.status === 'APPROVED'
-            }
-          />
+            />
+          )}
 
           {/* Main Content Area */}
           <main
@@ -447,6 +448,15 @@ export function App() {
                             onDeleteRule={handleDeleteRule}
                             onUpdateRule={handleUpdateRule}
                             onOpenMasterScreen={(campId) => setMasterScreenCampaignId(campId)}
+                            onOpenShop={() => setIsShopOpen(true)}
+                            onOpenMyProfile={() => {
+                              if (currentUser) {
+                                setProfileModalUser(currentUser);
+                                setIsProfileModalOpen(true);
+                              }
+                            }}
+                            onOpenAdmin={() => setIsAdminModalOpen(true)}
+                            onOpenAuth={() => setIsAuthModalOpen(true)}
                           />
                         )}
 
@@ -500,11 +510,9 @@ export function App() {
               </>
             ) : null}
           </main>
-        </>
-      )}
 
-      {/* Mobile Bottom Navigation (Cinto do Aventureiro) */}
-      {currentUser && (
+      {/* Mobile Bottom Navigation (Cinto do Aventureiro) - Oculto na visualização editorial */}
+      {currentUser && activeTab !== 'campaigns' && (
         <MobileBottomNav
           activeTab={activeTab}
           setActiveTab={(tab) => {
