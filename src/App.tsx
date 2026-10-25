@@ -406,39 +406,15 @@ export function App() {
     }
   }, [hasEntered, currentTheme.bgColor, currentTheme.textColor]);
 
-  // Se o usuário ainda não entrou na taverna, exibe a Tela de Início (Abertura / Login)
+  // Se o usuário ainda não entrou na taverna, exibe a Tela de Início (Abertura com Título em Tela Cheia)
   if (!hasEntered) {
     return (
-      <>
-        <LandingPage
-          onEnter={() => {
-            tavernAudio.playBellChime();
-            setHasEntered(true);
-          }}
-          onOpenAuth={() => setIsAuthModalOpen(true)}
-          currentUser={currentUser}
-          onLogout={handleLogout}
-          isAudioPlaying={isAudioPlaying}
-          onToggleAudio={async () => {
-            const state = await tavernAudio.toggle();
-            setIsAudioPlaying(state);
-          }}
-        />
-
-        {/* Auth Modal para logar ou cadastrar diretamente na tela de abertura */}
-        <AuthModal
-          isOpen={isAuthModalOpen}
-          onClose={() => setIsAuthModalOpen(false)}
-          currentUser={currentUser}
-          onLogout={handleLogout}
-          onLoginSuccess={(user) => {
-            setCurrentUser(user);
-            setIsAuthModalOpen(false);
-            setHasEntered(true);
-            reloadData();
-          }}
-        />
-      </>
+      <LandingPage
+        onEnter={() => {
+          tavernAudio.playBellChime();
+          setHasEntered(true);
+        }}
+      />
     );
   }
 
