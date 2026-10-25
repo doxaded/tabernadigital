@@ -392,55 +392,40 @@ export function App() {
 
   const currentTheme = ROOMS[activeRoom];
 
+  // Sincroniza fundo e texto do body para cobertura total sem cortes pretos
+  useEffect(() => {
+    document.body.style.backgroundColor = currentTheme.bgColor;
+    document.body.style.color = currentTheme.textColor;
+  }, [currentTheme.bgColor, currentTheme.textColor]);
+
   return (
     <div
-      className="min-h-screen w-full transition-colors duration-700 ease-in-out relative flex flex-col"
+      className="awwwards-app-root"
       style={{
         backgroundColor: currentTheme.bgColor,
         color: currentTheme.textColor,
-        fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
       }}
     >
       {/* ========================================================
           1. CABEÇALHO SUPERIOR MINIMALISTA (TOP NAVIGATION)
-          fixed top-0 left-0 w-full px-10 py-7 flex justify-between items-center z-50
           Totalmente limpo, sem linhas divisórias e com fundo transparente.
           ======================================================== */}
-      <nav
-        className="fixed top-0 left-0 w-full px-6 sm:px-10 py-6 sm:py-7 flex justify-between items-center z-50 pointer-events-auto"
-        style={{
-          backgroundColor: 'transparent',
-          color: currentTheme.textColor,
-          transition: 'color 700ms ease-in-out',
-        }}
-      >
+      <nav className="awwwards-top-nav">
         {/* Canto Superior Esquerdo: Texto MENU */}
         <button
           onClick={() => {
             tavernAudio.playBellChime();
             setIsMenuOpen(true);
           }}
-          className="hover:opacity-60 transition-opacity duration-300 cursor-pointer"
-          style={{
-            fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
-            fontSize: '22px',
-            fontWeight: 600,
-            letterSpacing: '0.22em',
-            textTransform: 'uppercase',
-            background: 'none',
-            border: 'none',
-            color: 'inherit',
-            padding: 0,
-            margin: 0,
-          }}
+          className="awwwards-nav-menu-btn"
           title="Abrir Menu Principal"
         >
           MENU
         </button>
 
         {/* Centro (Navegação das Salas em Algarismos Romanos): I   II   III   IV   V */}
-        <div className="flex flex-col items-center justify-center">
-          <div className="flex items-center gap-6 sm:gap-12">
+        <div className="awwwards-nav-center">
+          <div className="awwwards-nav-numerals">
             {(['I', 'II', 'III', 'IV', 'V'] as RoomId[]).map((roman) => {
               const isActive = activeRoom === roman;
               return (
@@ -449,18 +434,7 @@ export function App() {
                   onClick={() => handleSelectRoom(roman)}
                   onMouseEnter={() => setHoveredRoom(roman)}
                   onMouseLeave={() => setHoveredRoom(null)}
-                  className={`transition-all duration-300 cursor-pointer ${
-                    isActive ? 'opacity-100 font-bold scale-110' : 'opacity-30 hover:opacity-70'
-                  }`}
-                  style={{
-                    fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
-                    fontSize: '24px',
-                    letterSpacing: '0.08em',
-                    background: 'none',
-                    border: 'none',
-                    color: 'inherit',
-                    padding: '2px 4px',
-                  }}
+                  className={`awwwards-nav-numeral-btn ${isActive ? 'is-active' : 'is-inactive'}`}
                   title={ROOMS[roman].name}
                 >
                   {roman}
@@ -470,18 +444,7 @@ export function App() {
           </div>
 
           {/* Nome da sala sutil e elegante */}
-          <div
-            className="text-center transition-all duration-300 pointer-events-none mt-1"
-            style={{
-              fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
-              fontStyle: 'italic',
-              fontSize: '13px',
-              letterSpacing: '0.14em',
-              opacity: 0.8,
-              height: '16px',
-              whiteSpace: 'nowrap',
-            }}
-          >
+          <div className="awwwards-nav-subtitle">
             {hoveredRoom ? ROOMS[hoveredRoom].subtitle : ROOMS[activeRoom].subtitle}
           </div>
         </div>
@@ -497,19 +460,7 @@ export function App() {
               setIsAuthModalOpen(true);
             }
           }}
-          className="hover:opacity-60 transition-opacity duration-300 cursor-pointer"
-          style={{
-            fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
-            fontSize: '22px',
-            fontWeight: 600,
-            letterSpacing: '0.22em',
-            textTransform: 'uppercase',
-            background: 'none',
-            border: 'none',
-            color: 'inherit',
-            padding: 0,
-            margin: 0,
-          }}
+          className="awwwards-nav-player-btn"
           title={currentUser ? `Perfil de ${currentUser.displayName || currentUser.email}` : 'Entrar na Taberna'}
         >
           JOGADOR
@@ -522,14 +473,20 @@ export function App() {
           NÍVEL 2: MODO FUNCIONAL (INTERIOR DA SALA)
           ======================================================== */}
       <main
-        className="flex-1 flex flex-col items-center justify-center min-h-screen w-full relative"
         style={{
+          flex: 1,
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
           boxSizing: 'border-box',
         }}
       >
         {/* Caso especial: Usuário pendente */}
         {currentUser && currentUser.status === 'PENDING' ? (
-          <div className="max-w-md mx-auto text-center px-6">
+          <div style={{ maxWidth: '480px', margin: '120px auto 40px', textAlign: 'center', padding: '0 24px' }}>
             <PendingApprovalScreen
               user={currentUser}
               onRefresh={reloadData}
@@ -543,7 +500,7 @@ export function App() {
             const isMasterOfCampaign = targetCampaign && (targetCampaign.masterId === currentUser?.uid || currentUser?.role === 'admin');
             if (!isMasterOfCampaign) {
               return (
-                <div style={{ maxWidth: '640px', margin: '60px auto', padding: '0 20px', textAlign: 'center' }}>
+                <div style={{ maxWidth: '640px', margin: '120px auto 60px', padding: '0 20px', textAlign: 'center' }}>
                   <h3 style={{ fontSize: '24px', fontWeight: 600, marginBottom: '12px' }}>
                     Acesso Restrito ao Mestre da Sala
                   </h3>
@@ -568,7 +525,7 @@ export function App() {
               );
             }
             return (
-              <div className="w-full pt-24 pb-12">
+              <div style={{ width: '100%', paddingTop: '100px', paddingBottom: '48px' }}>
                 <MasterScreenView
                   campaign={targetCampaign}
                   currentUser={currentUser || { uid: 'guest', email: 'visitante@taberna.rpg', displayName: 'Viajante', role: 'user', status: 'APPROVED', gold: 50, createdAt: new Date().toISOString() }}
@@ -582,20 +539,12 @@ export function App() {
           /* ========================================================
              NÍVEL 1 — DISPLAY PRINCIPAL (MODO CAPA / GALERIA MINIMALISTA)
              - Título da Sala em tipografia serifada elegante e discreta acima da imagem
-             - Imagem Central (Quadro/Pintura renascentista/dark fantasy) perfeitamente centralizada
-             - Ocupando o centro e deixando ~70% de espaço negativo ao redor
+             - Imagem Central perfeitamente centralizada com ~70% de espaço negativo
              - Micro-legenda no hover: 'Clique para adentrar'
              ======================================================== */
-          <div className="flex-1 flex flex-col items-center justify-center min-h-screen w-full relative px-6 select-none animate-fade-in">
+          <div className="awwwards-gallery-stage">
             {/* Título da Sala discreto e elegante acima da imagem */}
-            <h1
-              className="text-lg sm:text-xl md:text-2xl font-normal tracking-widest uppercase mb-6 sm:mb-8 text-center"
-              style={{
-                fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
-                letterSpacing: '0.24em',
-                opacity: 0.88,
-              }}
-            >
+            <h1 className="awwwards-gallery-title">
               {currentTheme.subtitle}
             </h1>
 
@@ -605,36 +554,19 @@ export function App() {
                 tavernAudio.playToastSound();
                 setViewMode('functional');
               }}
-              className="group relative cursor-pointer flex flex-col items-center"
+              className="awwwards-gallery-frame-wrap"
               title={`Clique para adentrar em ${currentTheme.name}`}
             >
-              <div
-                className="relative overflow-hidden transition-all duration-700 ease-out"
-                style={{
-                  width: 'clamp(260px, 30vw, 360px)',
-                  height: 'clamp(280px, 36vw, 400px)',
-                  boxShadow: '0 16px 48px rgba(0, 0, 0, 0.22)',
-                }}
-              >
+              <div className="awwwards-gallery-frame">
                 <img
                   src={currentTheme.imageUrl}
                   alt={currentTheme.name}
-                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                  style={{
-                    filter: 'contrast(1.02) saturate(1.02)',
-                  }}
+                  className="awwwards-gallery-img"
                 />
               </div>
 
               {/* Micro-legenda sutil abaixo da imagem no hover */}
-              <div
-                className="mt-6 text-xs sm:text-sm tracking-widest uppercase opacity-0 group-hover:opacity-75 transition-opacity duration-300 text-center pointer-events-none"
-                style={{
-                  fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
-                  letterSpacing: '0.25em',
-                  fontStyle: 'italic',
-                }}
-              >
+              <div className="awwwards-gallery-microcaption">
                 Clique para adentrar
               </div>
             </div>
@@ -647,38 +579,27 @@ export function App() {
              - Ferramentas limpas, sem botões brancos sólidos ou caixas pesadas
              - Deixando pelo menos 60% de espaço negativo ao redor
              ======================================================== */
-          <div className="w-full flex-1 flex flex-col items-center animate-fade-in pb-16">
+          <div className="awwwards-functional-stage">
             {/* Barra de Retorno à Galeria */}
-            <div className="w-full max-w-4xl mx-auto px-6 pt-24 pb-4 flex items-center justify-between">
+            <div className="awwwards-functional-back-bar">
               <button
                 onClick={() => {
                   tavernAudio.playBellChime();
                   setViewMode('gallery');
                 }}
-                className="inline-flex items-center gap-2 text-xs sm:text-sm tracking-widest uppercase hover:opacity-60 transition-opacity cursor-pointer"
-                style={{
-                  fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
-                  letterSpacing: '0.2em',
-                  background: 'none',
-                  border: 'none',
-                  color: 'inherit',
-                  padding: 0,
-                }}
+                className="awwwards-back-btn"
               >
-                <span>← Voltar à Galeria</span>
+                ← Voltar à Galeria
               </button>
 
-              <span
-                className="text-xs tracking-widest uppercase opacity-50 italic"
-                style={{ fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif" }}
-              >
+              <span className="awwwards-functional-room-label">
                 {currentTheme.name}
               </span>
             </div>
 
             {/* SALA I — MESA DOS APOSTADORES */}
             {activeRoom === 'I' && (
-              <div className="w-full flex justify-center">
+              <div style={{ width: '100%', maxWidth: '1100px', display: 'flex', justifyContent: 'center' }}>
                 <CampaignsView
                   hideHeader={true}
                   campaigns={visibleCampaigns}
@@ -721,7 +642,7 @@ export function App() {
 
             {/* SALA II — TELAS DO ALAÚDE */}
             {activeRoom === 'II' && (
-              <div className="w-full flex justify-center">
+              <div style={{ width: '100%', maxWidth: '1100px', display: 'flex', justifyContent: 'center' }}>
                 <EditorialTelasView
                   sketches={sketches}
                   campaigns={visibleCampaigns}
@@ -734,7 +655,7 @@ export function App() {
 
             {/* SALA III — TABERNEIRO */}
             {activeRoom === 'III' && (
-              <div className="w-full flex justify-center">
+              <div style={{ width: '100%', maxWidth: '960px', display: 'flex', justifyContent: 'center' }}>
                 <EditorialTaberneiroView
                   messages={urdMessages}
                   campaigns={visibleCampaigns}
@@ -756,7 +677,7 @@ export function App() {
 
             {/* SALA IV — RECANTO DOS BARDOS */}
             {activeRoom === 'IV' && (
-              <div className="w-full flex justify-center">
+              <div style={{ width: '100%', maxWidth: '1040px', display: 'flex', justifyContent: 'center' }}>
                 <EditorialBardosView
                   currentUser={currentUser}
                   campaigns={visibleCampaigns}
@@ -771,7 +692,7 @@ export function App() {
 
             {/* SALA V — BAZAR DA TAVERNA */}
             {activeRoom === 'V' && (
-              <div className="w-full flex justify-center">
+              <div style={{ width: '100%', maxWidth: '1040px', display: 'flex', justifyContent: 'center' }}>
                 <EditorialBazarView
                   currentUser={currentUser}
                   onSaveProfile={handleSaveProfile}
@@ -788,34 +709,23 @@ export function App() {
           ======================================================== */}
       {isMenuOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-6 animate-fade-in"
-          style={{
-            backgroundColor: 'rgba(20, 12, 8, 0.88)',
-            backdropFilter: 'blur(10px)',
-            color: '#F5E6D3',
-          }}
+          className="awwwards-menu-backdrop"
           onClick={() => setIsMenuOpen(false)}
         >
           <div
-            className="w-full max-w-md text-center py-10 px-8 relative"
-            style={{
-              fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
-            }}
+            className="awwwards-menu-modal"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Título do Menu */}
-            <h2
-              className="text-2xl font-semibold tracking-widest uppercase mb-1"
-              style={{ letterSpacing: '0.25em' }}
-            >
+            <h2 className="awwwards-menu-title">
               TABERNA DIGITAL
             </h2>
-            <p className="italic text-sm opacity-60 mb-8" style={{ letterSpacing: '0.08em' }}>
+            <p className="awwwards-menu-sub">
               Salões & Crônicas Medievais
             </p>
 
             {/* Links das 5 Salas */}
-            <div className="flex flex-col gap-5 mb-8">
+            <div className="awwwards-menu-list">
               {(['I', 'II', 'III', 'IV', 'V'] as RoomId[]).map((roman) => {
                 const room = ROOMS[roman];
                 const isActive = activeRoom === roman;
@@ -829,15 +739,10 @@ export function App() {
                       tavernAudio.playBellChime();
                       setIsMenuOpen(false);
                     }}
-                    className="group flex items-center justify-between py-2 border-b transition-all duration-300 cursor-pointer"
-                    style={{
-                      borderColor: isActive ? '#DEC29B' : 'rgba(245, 230, 211, 0.12)',
-                      background: 'none',
-                      color: isActive ? '#DEC29B' : '#F5E6D3',
-                    }}
+                    className={`awwwards-menu-item-btn ${isActive ? 'is-active' : ''}`}
                   >
-                    <span className="text-xl font-bold tracking-wider">{roman}</span>
-                    <span className="text-base tracking-widest uppercase group-hover:translate-x-1 transition-transform duration-300">
+                    <span style={{ fontSize: '20px', fontWeight: 700, letterSpacing: '0.1em' }}>{roman}</span>
+                    <span style={{ fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
                       {room.name}
                     </span>
                   </button>
@@ -846,14 +751,13 @@ export function App() {
             </div>
 
             {/* Ações Secundárias */}
-            <div className="flex flex-col gap-3 pt-4 border-t border-amber-900/30 text-sm tracking-wider uppercase">
+            <div className="awwwards-menu-actions">
               <button
                 onClick={async () => {
                   const state = await tavernAudio.toggle();
                   setIsAudioPlaying(state);
                 }}
-                className="py-2 hover:opacity-75 transition-opacity cursor-pointer"
-                style={{ background: 'none', border: 'none', color: 'inherit' }}
+                className="awwwards-menu-action-btn"
               >
                 Música do Alaúde & Lareira: {isAudioPlaying ? 'Tocando' : 'Silenciada'}
               </button>
@@ -864,8 +768,8 @@ export function App() {
                     setIsMenuOpen(false);
                     setIsAdminModalOpen(true);
                   }}
-                  className="py-2 hover:opacity-75 transition-opacity cursor-pointer text-amber-400"
-                  style={{ background: 'none', border: 'none' }}
+                  className="awwwards-menu-action-btn"
+                  style={{ color: '#D4A359' }}
                 >
                   Painel de Administração
                 </button>
@@ -878,8 +782,7 @@ export function App() {
                       setIsMenuOpen(false);
                       setIsChangePasswordOpen(true);
                     }}
-                    className="py-2 hover:opacity-75 transition-opacity cursor-pointer"
-                    style={{ background: 'none', border: 'none', color: 'inherit' }}
+                    className="awwwards-menu-action-btn"
                   >
                     Trocar Senha
                   </button>
@@ -889,8 +792,8 @@ export function App() {
                       setIsMenuOpen(false);
                       handleLogout();
                     }}
-                    className="py-2 hover:opacity-75 transition-opacity cursor-pointer text-red-300/80"
-                    style={{ background: 'none', border: 'none' }}
+                    className="awwwards-menu-action-btn"
+                    style={{ color: '#E07A5F' }}
                   >
                     Abandonar a Taverna (Sair)
                   </button>
@@ -901,8 +804,8 @@ export function App() {
                     setIsMenuOpen(false);
                     setIsAuthModalOpen(true);
                   }}
-                  className="py-2 hover:opacity-75 transition-opacity cursor-pointer text-amber-200"
-                  style={{ background: 'none', border: 'none' }}
+                  className="awwwards-menu-action-btn"
+                  style={{ color: '#D4A359' }}
                 >
                   Entrar / Criar Personagem
                 </button>
@@ -911,8 +814,17 @@ export function App() {
 
             <button
               onClick={() => setIsMenuOpen(false)}
-              className="mt-6 text-xs uppercase tracking-widest opacity-40 hover:opacity-80 transition-opacity cursor-pointer"
-              style={{ background: 'none', border: 'none', color: 'inherit' }}
+              style={{
+                marginTop: '28px',
+                fontSize: '12px',
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                opacity: 0.45,
+                background: 'transparent',
+                border: 'none',
+                color: 'inherit',
+                cursor: 'pointer',
+              }}
             >
               [ Fechar Menu ]
             </button>

@@ -102,13 +102,25 @@
 html, body {
   width: 100%;
   min-height: 100vh;
-  background-color: #0e0906;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  background-color: #DEC29B;
   color: var(--text-strong);
-  font-family: var(--font-body);
-  font-size: 15px;
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-size: 16px;
   line-height: 1.5;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 700ms ease-in-out, color 700ms ease-in-out;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Scrollbar Medieval Personalizada em Madeira e Brasa */
@@ -6871,6 +6883,380 @@ h1, h2, h3, h4, .font-cinzel {
   border-color: rgba(245, 158, 11, 0.4);
   transform: translateY(-2px);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+/* ==========================================================================
+   AWWWARDS MINIMALIST EDITORIAL GALLERY ARCHITECTURE (TABERNA DIGITAL)
+   ========================================================================== */
+
+/* 1. App Shell Container (garante preenchimento total e transição de cor suave) */
+.awwwards-app-root {
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: background-color 700ms ease-in-out, color 700ms ease-in-out;
+  box-sizing: border-box;
+}
+
+/* 2. Cabeçalho Superior Minimalista (Top Navigation) */
+.awwwards-top-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 90px;
+  padding: 0 clamp(20px, 4vw, 56px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  z-index: 999;
+  box-sizing: border-box;
+  pointer-events: auto;
+  user-select: none;
+}
+
+/* Canto Superior Esquerdo: MENU */
+.awwwards-nav-menu-btn {
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-size: clamp(20px, 1.8vw, 24px);
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 8px 0;
+  margin: 0;
+  line-height: 1;
+  transition: opacity 300ms ease;
+}
+
+.awwwards-nav-menu-btn:hover {
+  opacity: 0.6;
+}
+
+/* Centro: Navegação das Salas em Algarismos Romanos */
+.awwwards-nav-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: auto;
+}
+
+.awwwards-nav-numerals {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(20px, 3.5vw, 52px); /* Espaçamento amplo gap-12 */
+}
+
+.awwwards-nav-numeral-btn {
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-size: clamp(22px, 2vw, 26px);
+  letter-spacing: 0.08em;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 4px 6px;
+  line-height: 1;
+  transition: opacity 300ms ease, transform 300ms ease;
+  user-select: none;
+}
+
+.awwwards-nav-numeral-btn.is-active {
+  opacity: 1 !important;
+  font-weight: 700;
+  transform: scale(1.15);
+}
+
+.awwwards-nav-numeral-btn.is-inactive {
+  opacity: 0.3;
+}
+
+.awwwards-nav-numeral-btn.is-inactive:hover {
+  opacity: 0.75;
+}
+
+/* Subtítulo Sutil e Elegante da Sala */
+.awwwards-nav-subtitle {
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  text-align: center;
+  opacity: 0.75;
+  margin-top: 6px;
+  height: 18px;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+}
+
+/* Canto Superior Direito: JOGADOR */
+.awwwards-nav-player-btn {
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-size: clamp(20px, 1.8vw, 24px);
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 8px 0;
+  margin: 0;
+  line-height: 1;
+  transition: opacity 300ms ease;
+}
+
+.awwwards-nav-player-btn:hover {
+  opacity: 0.6;
+}
+
+/* 3. Nível 1 — Display Principal (Modo Capa / Galeria Minimalista) */
+.awwwards-gallery-stage {
+  flex: 1;
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 100px 24px 40px;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+/* Título Discreto da Sala Acima da Imagem */
+.awwwards-gallery-title {
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-size: clamp(17px, 1.6vw, 24px);
+  font-weight: 400;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: clamp(20px, 3vh, 32px);
+  opacity: 0.88;
+}
+
+/* Imagem Central (Quadro / Pintura com 70% de espaço negativo ao redor) */
+.awwwards-gallery-frame-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.awwwards-gallery-frame {
+  width: clamp(260px, 28vw, 360px);
+  height: clamp(290px, 34vw, 420px);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 700ms ease;
+}
+
+.awwwards-gallery-frame-wrap:hover .awwwards-gallery-frame {
+  transform: scale(1.035);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
+}
+
+.awwwards-gallery-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.awwwards-gallery-frame-wrap:hover .awwwards-gallery-img {
+  transform: scale(1.06);
+}
+
+/* Micro-legenda sutil abaixo da imagem no hover */
+.awwwards-gallery-microcaption {
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(12px, 1.1vw, 15px);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  text-align: center;
+  margin-top: 20px;
+  height: 22px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 350ms ease, transform 350ms ease;
+  pointer-events: none;
+}
+
+.awwwards-gallery-frame-wrap:hover .awwwards-gallery-microcaption {
+  opacity: 0.75;
+  transform: translateY(0);
+}
+
+/* 4. Nível 2 — Modo Funcional (Interior da Sala) */
+.awwwards-functional-stage {
+  flex: 1;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 110px clamp(16px, 4vw, 48px) 60px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.awwwards-functional-back-bar {
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(currentColor, 0.15);
+}
+
+.awwwards-back-btn {
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-size: clamp(13px, 1.2vw, 15px);
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 6px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: opacity 300ms ease;
+}
+
+.awwwards-back-btn:hover {
+  opacity: 0.6;
+}
+
+.awwwards-functional-room-label {
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+/* 5. Menu Modal Editorial Minimalista */
+.awwwards-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background-color: rgba(20, 12, 8, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #F5E6D3;
+  animation: fadeIn 0.3s ease;
+  box-sizing: border-box;
+}
+
+.awwwards-menu-modal {
+  width: 100%;
+  max-width: 440px;
+  text-align: center;
+  padding: 40px 32px;
+  box-sizing: border-box;
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+}
+
+.awwwards-menu-title {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.awwwards-menu-sub {
+  font-style: italic;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  opacity: 0.6;
+  margin-bottom: 32px;
+}
+
+.awwwards-menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-bottom: 32px;
+}
+
+.awwwards-menu-item-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(245, 230, 211, 0.12);
+  background: transparent;
+  color: #F5E6D3;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.awwwards-menu-item-btn.is-active {
+  color: #DEC29B;
+  border-bottom-color: #DEC29B;
+}
+
+.awwwards-menu-item-btn:hover {
+  opacity: 0.8;
+  padding-left: 4px;
+}
+
+.awwwards-menu-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(245, 230, 211, 0.15);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.awwwards-menu-action-btn {
+  padding: 6px 0;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  transition: opacity 0.25s ease;
+}
+
+.awwwards-menu-action-btn:hover {
+  opacity: 0.7;
 }
 
 
