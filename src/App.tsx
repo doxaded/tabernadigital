@@ -9,6 +9,7 @@ import { CampaignsView } from './components/CampaignsView';
 import { EditorialTelasView } from './components/EditorialTelasView';
 import { EditorialTaberneiroView } from './components/EditorialTaberneiroView';
 import { EditorialBardosView } from './components/EditorialBardosView';
+import { EditorialBazarView } from './components/EditorialBazarView';
 import { UserProfileModal } from './components/UserProfileModal';
 import { TavernShopModal } from './components/TavernShopModal';
 import { MasterScreenView } from './components/MasterScreenView';
@@ -18,7 +19,7 @@ import { cloudCampaigns } from './services/cloudCampaigns';
 import { tavernAudio } from './services/tavernAudio';
 import { Campaign, CharacterSheet, LoreEntry, RuleDocument, SketchAsset, UserProfile } from './types';
 
-export type RoomId = 'I' | 'II' | 'III' | 'IV';
+export type RoomId = 'I' | 'II' | 'III' | 'IV' | 'V';
 
 export interface RoomConfig {
   id: RoomId;
@@ -27,6 +28,7 @@ export interface RoomConfig {
   bgColor: string;
   textColor: string;
   borderColor: string;
+  imageUrl: string;
 }
 
 export const ROOMS: Record<RoomId, RoomConfig> = {
@@ -37,6 +39,7 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
     bgColor: '#DEC29B', // Pergaminho / Bege Lareira
     textColor: '#2A1B12', // Marrom Café Escuro
     borderColor: 'rgba(42, 27, 18, 0.15)',
+    imageUrl: '/assets/banner_mesa_alchemist.png', // Ilustração do alquimista & orbe enviada pelo usuário
   },
   II: {
     id: 'II',
@@ -45,6 +48,7 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
     bgColor: '#C49A6C', // Camurça / Madeira Clara
     textColor: '#1F120B', // Ébano Quente
     borderColor: 'rgba(31, 18, 11, 0.15)',
+    imageUrl: '/assets/banner_telas_alaude.jpg', // Pintura renascentista do bardo com alaúde
   },
   III: {
     id: 'III',
@@ -53,6 +57,7 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
     bgColor: '#8C4A27', // Brasa de Lareira / Terracota Amadeirado
     textColor: '#F5E6D3', // Creme Pergaminho
     borderColor: 'rgba(245, 230, 211, 0.18)',
+    imageUrl: '/assets/banner_urd_taberneiro.jpg', // Pintura de Urd brindando com a caneca
   },
   IV: {
     id: 'IV',
@@ -61,6 +66,16 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
     bgColor: '#3B2216', // Mogno Envelhecido / Madeira Escura
     textColor: '#E6CCB2', // Bege Suave
     borderColor: 'rgba(230, 204, 178, 0.18)',
+    imageUrl: '/assets/tavern_bg.jpg', // Pintura do salão da taverna à luz de tochas
+  },
+  V: {
+    id: 'V',
+    name: 'Bazar da Taverna',
+    subtitle: 'V. Bazar da Taverna',
+    bgColor: '#1C120C', // Ébano / Carvão com Ouro Velho
+    textColor: '#D4A359', // Ouro Velho
+    borderColor: 'rgba(212, 163, 89, 0.18)',
+    imageUrl: '/assets/banner_bazar_treasury.jpg', // Pintura a óleo renascentista da tesouraria
   },
 };
 
@@ -80,7 +95,8 @@ export function App() {
   const [sketches, setSketches] = useState<SketchAsset[]>(() => storageService.getSketches());
   const [urdMessages, setUrdMessages] = useState(() => storageService.getUrdMessages());
 
-  // Navegação das Salas em Algarismos Romanos (I a IV)
+  // Navegação em Dois Níveis: 'gallery' (Display Principal) e 'functional' (Interior da Sala)
+  const [viewMode, setViewMode] = useState<'gallery' | 'functional'>('gallery');
   const [activeRoom, setActiveRoom] = useState<RoomId>('I');
   const [hoveredRoom, setHoveredRoom] = useState<RoomId | null>(null);
 
@@ -93,7 +109,7 @@ export function App() {
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [isShopOpen, setIsShopOpen] = useState(false);
+  const [isLegacyShopOpen, setIsLegacyShopOpen] = useState(false);
   const [profileModalUser, setProfileModalUser] = useState<UserProfile | null>(null);
   const [isAudioPlaying, setIsAudioPlaying] = useState(tavernAudio.isPlaying());
 
@@ -359,6 +375,19 @@ export function App() {
   const handleStartDirectChat = (_targetUser: UserProfile) => {
     setIsProfileModalOpen(false);
     setActiveRoom('IV'); // Recanto dos Bardos
+    setViewMode('functional');
+  };
+
+  const handleSelectRoom = (roman: RoomId) => {
+    tavernAudio.playBellChime();
+    if (activeRoom === roman) {
+      // Se clicar no numeral da sala já ativa: se estiver no modo funcional, volta para a galeria!
+      setViewMode(prev => (prev === 'functional' ? 'gallery' : 'functional'));
+    } else {
+      setActiveRoom(roman);
+      setViewMode('gallery');
+    }
+    setMasterScreenCampaignId(null);
   };
 
   const currentTheme = ROOMS[activeRoom];
@@ -369,7 +398,7 @@ export function App() {
       style={{
         backgroundColor: currentTheme.bgColor,
         color: currentTheme.textColor,
-        fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+        fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
       }}
     >
       {/* ========================================================
@@ -378,7 +407,7 @@ export function App() {
           Totalmente limpo, sem linhas divisórias e com fundo transparente.
           ======================================================== */}
       <nav
-        className="fixed top-0 left-0 w-full px-10 py-7 flex justify-between items-center z-50 pointer-events-auto"
+        className="fixed top-0 left-0 w-full px-6 sm:px-10 py-6 sm:py-7 flex justify-between items-center z-50 pointer-events-auto"
         style={{
           backgroundColor: 'transparent',
           color: currentTheme.textColor,
@@ -393,7 +422,7 @@ export function App() {
           }}
           className="hover:opacity-60 transition-opacity duration-300 cursor-pointer"
           style={{
-            fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+            fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
             fontSize: '22px',
             fontWeight: 600,
             letterSpacing: '0.22em',
@@ -409,32 +438,28 @@ export function App() {
           MENU
         </button>
 
-        {/* Centro (Navegação das Salas em Algarismos Romanos): I   II   III   IV */}
+        {/* Centro (Navegação das Salas em Algarismos Romanos): I   II   III   IV   V */}
         <div className="flex flex-col items-center justify-center">
-          <div className="flex items-center gap-12">
-            {(['I', 'II', 'III', 'IV'] as RoomId[]).map((roman) => {
+          <div className="flex items-center gap-6 sm:gap-12">
+            {(['I', 'II', 'III', 'IV', 'V'] as RoomId[]).map((roman) => {
               const isActive = activeRoom === roman;
               return (
                 <button
                   key={roman}
-                  onClick={() => {
-                    setActiveRoom(roman);
-                    setMasterScreenCampaignId(null);
-                    tavernAudio.playBellChime();
-                  }}
+                  onClick={() => handleSelectRoom(roman)}
                   onMouseEnter={() => setHoveredRoom(roman)}
                   onMouseLeave={() => setHoveredRoom(null)}
                   className={`transition-all duration-300 cursor-pointer ${
                     isActive ? 'opacity-100 font-bold scale-110' : 'opacity-30 hover:opacity-70'
                   }`}
                   style={{
-                    fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+                    fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
                     fontSize: '24px',
                     letterSpacing: '0.08em',
                     background: 'none',
                     border: 'none',
                     color: 'inherit',
-                    padding: '2px 6px',
+                    padding: '2px 4px',
                   }}
                   title={ROOMS[roman].name}
                 >
@@ -446,13 +471,13 @@ export function App() {
 
           {/* Nome da sala sutil e elegante */}
           <div
-            className="text-center transition-all duration-300 pointer-events-none mt-0.5"
+            className="text-center transition-all duration-300 pointer-events-none mt-1"
             style={{
-              fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+              fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
               fontStyle: 'italic',
-              fontSize: '12px',
-              letterSpacing: '0.12em',
-              opacity: 0.75,
+              fontSize: '13px',
+              letterSpacing: '0.14em',
+              opacity: 0.8,
               height: '16px',
               whiteSpace: 'nowrap',
             }}
@@ -474,7 +499,7 @@ export function App() {
           }}
           className="hover:opacity-60 transition-opacity duration-300 cursor-pointer"
           style={{
-            fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+            fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
             fontSize: '22px',
             fontWeight: 600,
             letterSpacing: '0.22em',
@@ -492,9 +517,9 @@ export function App() {
       </nav>
 
       {/* ========================================================
-          3. LAYOUT CENTRALIZADO & CONTEÚDO EDITORIAL DAS SALAS (I a IV)
-          flex flex-col items-center justify-center min-h-screen
-          Deixando pelo menos 60% de espaço negativo ao redor
+          DOIS NÍVEIS DE NAVEGAÇÃO:
+          NÍVEL 1: MODO GALERIA (DISPLAY PRINCIPAL)
+          NÍVEL 2: MODO FUNCIONAL (INTERIOR DA SALA)
           ======================================================== */}
       <main
         className="flex-1 flex flex-col items-center justify-center min-h-screen w-full relative"
@@ -553,8 +578,104 @@ export function App() {
               </div>
             );
           })()
+        ) : viewMode === 'gallery' ? (
+          /* ========================================================
+             NÍVEL 1 — DISPLAY PRINCIPAL (MODO CAPA / GALERIA MINIMALISTA)
+             - Título da Sala em tipografia serifada elegante e discreta acima da imagem
+             - Imagem Central (Quadro/Pintura renascentista/dark fantasy) perfeitamente centralizada
+             - Ocupando o centro e deixando ~70% de espaço negativo ao redor
+             - Micro-legenda no hover: 'Clique para adentrar'
+             ======================================================== */
+          <div className="flex-1 flex flex-col items-center justify-center min-h-screen w-full relative px-6 select-none animate-fade-in">
+            {/* Título da Sala discreto e elegante acima da imagem */}
+            <h1
+              className="text-lg sm:text-xl md:text-2xl font-normal tracking-widest uppercase mb-6 sm:mb-8 text-center"
+              style={{
+                fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
+                letterSpacing: '0.24em',
+                opacity: 0.88,
+              }}
+            >
+              {currentTheme.subtitle}
+            </h1>
+
+            {/* Imagem Central (Quadro/Pintura renascentista) */}
+            <div
+              onClick={() => {
+                tavernAudio.playToastSound();
+                setViewMode('functional');
+              }}
+              className="group relative cursor-pointer flex flex-col items-center"
+              title={`Clique para adentrar em ${currentTheme.name}`}
+            >
+              <div
+                className="relative overflow-hidden transition-all duration-700 ease-out"
+                style={{
+                  width: 'clamp(260px, 30vw, 360px)',
+                  height: 'clamp(280px, 36vw, 400px)',
+                  boxShadow: '0 16px 48px rgba(0, 0, 0, 0.22)',
+                }}
+              >
+                <img
+                  src={currentTheme.imageUrl}
+                  alt={currentTheme.name}
+                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  style={{
+                    filter: 'contrast(1.02) saturate(1.02)',
+                  }}
+                />
+              </div>
+
+              {/* Micro-legenda sutil abaixo da imagem no hover */}
+              <div
+                className="mt-6 text-xs sm:text-sm tracking-widest uppercase opacity-0 group-hover:opacity-75 transition-opacity duration-300 text-center pointer-events-none"
+                style={{
+                  fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
+                  letterSpacing: '0.25em',
+                  fontStyle: 'italic',
+                }}
+              >
+                Clique para adentrar
+              </div>
+            </div>
+          </div>
         ) : (
-          <>
+          /* ========================================================
+             NÍVEL 2 — MODO FUNCIONAL (INTERIOR DA SALA)
+             - Mantém a mesma cor de fundo e texto da sala
+             - Botão textual discreto ← VOLTAR À GALERIA
+             - Ferramentas limpas, sem botões brancos sólidos ou caixas pesadas
+             - Deixando pelo menos 60% de espaço negativo ao redor
+             ======================================================== */
+          <div className="w-full flex-1 flex flex-col items-center animate-fade-in pb-16">
+            {/* Barra de Retorno à Galeria */}
+            <div className="w-full max-w-4xl mx-auto px-6 pt-24 pb-4 flex items-center justify-between">
+              <button
+                onClick={() => {
+                  tavernAudio.playBellChime();
+                  setViewMode('gallery');
+                }}
+                className="inline-flex items-center gap-2 text-xs sm:text-sm tracking-widest uppercase hover:opacity-60 transition-opacity cursor-pointer"
+                style={{
+                  fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
+                  letterSpacing: '0.2em',
+                  background: 'none',
+                  border: 'none',
+                  color: 'inherit',
+                  padding: 0,
+                }}
+              >
+                <span>← Voltar à Galeria</span>
+              </button>
+
+              <span
+                className="text-xs tracking-widest uppercase opacity-50 italic"
+                style={{ fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif" }}
+              >
+                {currentTheme.name}
+              </span>
+            </div>
+
             {/* SALA I — MESA DOS APOSTADORES */}
             {activeRoom === 'I' && (
               <div className="w-full flex justify-center">
@@ -580,7 +701,10 @@ export function App() {
                   onDeleteRule={handleDeleteRule}
                   onUpdateRule={handleUpdateRule}
                   onOpenMasterScreen={(campId) => setMasterScreenCampaignId(campId)}
-                  onOpenShop={() => setIsShopOpen(true)}
+                  onOpenShop={() => {
+                    setActiveRoom('V');
+                    setViewMode('functional');
+                  }}
                   onOpenMyProfile={() => {
                     if (currentUser) {
                       setProfileModalUser(currentUser);
@@ -644,7 +768,18 @@ export function App() {
                 />
               </div>
             )}
-          </>
+
+            {/* SALA V — BAZAR DA TAVERNA */}
+            {activeRoom === 'V' && (
+              <div className="w-full flex justify-center">
+                <EditorialBazarView
+                  currentUser={currentUser}
+                  onSaveProfile={handleSaveProfile}
+                  onOpenAuth={() => setIsAuthModalOpen(true)}
+                />
+              </div>
+            )}
+          </div>
         )}
       </main>
 
@@ -655,7 +790,7 @@ export function App() {
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-6 animate-fade-in"
           style={{
-            backgroundColor: 'rgba(20, 12, 8, 0.85)',
+            backgroundColor: 'rgba(20, 12, 8, 0.88)',
             backdropFilter: 'blur(10px)',
             color: '#F5E6D3',
           }}
@@ -664,7 +799,7 @@ export function App() {
           <div
             className="w-full max-w-md text-center py-10 px-8 relative"
             style={{
-              fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+              fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -679,9 +814,9 @@ export function App() {
               Salões & Crônicas Medievais
             </p>
 
-            {/* Links das 4 Salas */}
+            {/* Links das 5 Salas */}
             <div className="flex flex-col gap-5 mb-8">
-              {(['I', 'II', 'III', 'IV'] as RoomId[]).map((roman) => {
+              {(['I', 'II', 'III', 'IV', 'V'] as RoomId[]).map((roman) => {
                 const room = ROOMS[roman];
                 const isActive = activeRoom === roman;
                 return (
@@ -689,6 +824,7 @@ export function App() {
                     key={roman}
                     onClick={() => {
                       setActiveRoom(roman);
+                      setViewMode('gallery');
                       setMasterScreenCampaignId(null);
                       tavernAudio.playBellChime();
                       setIsMenuOpen(false);
@@ -711,17 +847,6 @@ export function App() {
 
             {/* Ações Secundárias */}
             <div className="flex flex-col gap-3 pt-4 border-t border-amber-900/30 text-sm tracking-wider uppercase">
-              <button
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  setIsShopOpen(true);
-                }}
-                className="py-2 hover:opacity-75 transition-opacity cursor-pointer"
-                style={{ background: 'none', border: 'none', color: '#DEC29B' }}
-              >
-                Bazar de Itens ({currentUser?.gold || 0} PO)
-              </button>
-
               <button
                 onClick={async () => {
                   const state = await tavernAudio.toggle();
@@ -753,20 +878,21 @@ export function App() {
                       setIsMenuOpen(false);
                       setIsChangePasswordOpen(true);
                     }}
-                    className="py-2 hover:opacity-75 transition-opacity cursor-pointer opacity-70"
+                    className="py-2 hover:opacity-75 transition-opacity cursor-pointer"
                     style={{ background: 'none', border: 'none', color: 'inherit' }}
                   >
                     Trocar Senha
                   </button>
+
                   <button
                     onClick={() => {
                       setIsMenuOpen(false);
                       handleLogout();
                     }}
-                    className="py-2 hover:opacity-75 transition-opacity cursor-pointer opacity-70"
-                    style={{ background: 'none', border: 'none', color: 'inherit' }}
+                    className="py-2 hover:opacity-75 transition-opacity cursor-pointer text-red-300/80"
+                    style={{ background: 'none', border: 'none' }}
                   >
-                    Encerrar Sessão
+                    Abandonar a Taverna (Sair)
                   </button>
                 </>
               ) : (
@@ -775,41 +901,40 @@ export function App() {
                     setIsMenuOpen(false);
                     setIsAuthModalOpen(true);
                   }}
-                  className="py-2 hover:opacity-75 transition-opacity cursor-pointer text-amber-300"
+                  className="py-2 hover:opacity-75 transition-opacity cursor-pointer text-amber-200"
                   style={{ background: 'none', border: 'none' }}
                 >
-                  Entrar na Taberna
+                  Entrar / Criar Personagem
                 </button>
               )}
             </div>
 
-            {/* Fechar */}
-            <div className="mt-8">
-              <button
-                onClick={() => setIsMenuOpen(false)}
-                className="text-xs uppercase tracking-widest opacity-50 hover:opacity-100 transition-opacity cursor-pointer"
-                style={{ background: 'none', border: 'none', color: 'inherit' }}
-              >
-                ✕ Fechar Menu
-              </button>
-            </div>
+            <button
+              onClick={() => setIsMenuOpen(false)}
+              className="mt-6 text-xs uppercase tracking-widest opacity-40 hover:opacity-80 transition-opacity cursor-pointer"
+              style={{ background: 'none', border: 'none', color: 'inherit' }}
+            >
+              [ Fechar Menu ]
+            </button>
           </div>
         </div>
       )}
 
-      {/* Auth Modal */}
+      {/* ========================================================
+          MODAIS GLOBAIS
+          ======================================================== */}
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-        onLoginSuccess={(user) => {
-          setCurrentUser(user);
-          reloadData();
-        }}
         currentUser={currentUser}
         onLogout={handleLogout}
+        onLoginSuccess={(user) => {
+          setCurrentUser(user);
+          setIsAuthModalOpen(false);
+          reloadData();
+        }}
       />
 
-      {/* Exclusive Admin Modal (Acesso restrito a henrique.v.berbert@gmail.com) */}
       <AdminPanelModal
         isOpen={isAdminModalOpen}
         onClose={() => setIsAdminModalOpen(false)}
@@ -818,17 +943,14 @@ export function App() {
         campaigns={campaigns}
         onApproveUser={handleApproveUser}
         onRejectUser={handleRejectUser}
-        onOpenChangePassword={() => setIsChangePasswordOpen(true)}
       />
 
-      {/* Change Password Modal */}
       <ChangePasswordModal
         isOpen={isChangePasswordOpen}
         onClose={() => setIsChangePasswordOpen(false)}
         currentUser={currentUser}
       />
 
-      {/* User Profile Modal */}
       <UserProfileModal
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
@@ -836,33 +958,24 @@ export function App() {
         currentUser={currentUser}
         onSaveProfile={handleSaveProfile}
         onStartDirectChat={handleStartDirectChat}
-        onOpenChangePassword={() => {
-          setIsProfileModalOpen(false);
-          setIsChangePasswordOpen(true);
-        }}
-        onLogout={() => {
-          setIsProfileModalOpen(false);
-          handleLogout();
-        }}
+        onOpenChangePassword={() => setIsChangePasswordOpen(true)}
         onOpenShop={() => {
-          setIsProfileModalOpen(false);
-          setIsShopOpen(true);
+          setActiveRoom('V');
+          setViewMode('functional');
         }}
-        onOpenAdmin={() => {
-          setIsProfileModalOpen(false);
-          setIsAdminModalOpen(true);
-        }}
+        onLogout={handleLogout}
+        onOpenAdmin={() => setIsAdminModalOpen(true)}
       />
 
-      {/* Bazar da Taverna (Loja Virtual de Títulos de Honra & Molduras Místicas) */}
-      <TavernShopModal
-        isOpen={isShopOpen}
-        onClose={() => setIsShopOpen(false)}
-        currentUser={currentUser}
-        onSaveProfile={handleSaveProfile}
-      />
+      {isLegacyShopOpen && (
+        <TavernShopModal
+          isOpen={isLegacyShopOpen}
+          onClose={() => setIsLegacyShopOpen(false)}
+          currentUser={currentUser}
+          onSaveProfile={handleSaveProfile}
+        />
+      )}
     </div>
   );
 }
-
 export default App;
