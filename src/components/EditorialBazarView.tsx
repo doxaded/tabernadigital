@@ -231,42 +231,45 @@ export const EditorialBazarView: React.FC<EditorialBazarViewProps> = ({
       {/* 3. Layout Assimétrico Estilo Kerbache HR / Claude (8 colunas / 4 colunas) */}
       <div className="editorial-grid-12">
         {/* Coluna Principal (Esquerda - 8 colunas) */}
-        <div>
-          <div style={{ letterSpacing: '0.25em', fontSize: '11px', textTransform: 'uppercase', opacity: 0.6, marginBottom: '12px' }}>
-            SALA V • MERCADO MEDIEVAL
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+          {/* Cabeçalho Editorial em Bloco Fosco */}
+          <div className="editorial-frosted-card room-matte-V">
+            <div style={{ letterSpacing: '0.25em', fontSize: '11px', textTransform: 'uppercase', opacity: 0.6, marginBottom: '12px' }}>
+              SALA V • MERCADO MEDIEVAL
+            </div>
+
+            <h1
+              style={{
+                fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
+                fontSize: 'clamp(32px, 4.5vw, 44px)',
+                fontWeight: 400,
+                letterSpacing: '-0.02em',
+                lineHeight: 1.15,
+                margin: '0 0 16px 0',
+                color: 'inherit',
+              }}
+            >
+              Bazar de Relíquias
+            </h1>
+
+            <p
+              style={{
+                fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+                fontStyle: 'italic',
+                fontSize: '17px',
+                lineHeight: '1.7',
+                maxWidth: '580px',
+                margin: 0,
+                opacity: 0.85,
+              }}
+            >
+              Artefatos lendários, títulos nobiliárquicos e molduras místicas forjadas para distinguir seu herói nos anais da estalagem.
+            </p>
           </div>
-
-          <h1
-            style={{
-              fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
-              fontSize: 'clamp(32px, 4.5vw, 44px)',
-              fontWeight: 400,
-              letterSpacing: '-0.02em',
-              lineHeight: 1.15,
-              margin: '0 0 16px 0',
-              color: 'inherit',
-            }}
-          >
-            Bazar de Relíquias
-          </h1>
-
-          <p
-            style={{
-              fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
-              fontStyle: 'italic',
-              fontSize: '17px',
-              lineHeight: '1.7',
-              maxWidth: '580px',
-              margin: '0 0 32px 0',
-              opacity: 0.8,
-            }}
-          >
-            Artefatos lendários, títulos nobiliárquicos e molduras místicas forjadas para distinguir seu herói nos anais da estalagem.
-          </p>
 
           {/* SEÇÃO 1: TÍTULOS DE HONRA */}
           {(filter === 'all' || filter === 'titles') && (
-            <div style={{ marginBottom: '40px' }}>
+            <div className="editorial-frosted-panel room-matte-V">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', paddingBottom: '8px' }}>
                 <h3 style={{ fontFamily: "'Cormorant Garamond', 'Cinzel', serif", fontSize: '20px', fontWeight: 600, margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Crown size={17} /> Títulos de Nobreza & Glória
@@ -332,7 +335,7 @@ export const EditorialBazarView: React.FC<EditorialBazarViewProps> = ({
 
           {/* SEÇÃO 2: MOLDURAS MÍSTICAS */}
           {(filter === 'all' || filter === 'frames') && (
-            <div>
+            <div className="editorial-frosted-panel room-matte-V">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', paddingBottom: '8px' }}>
                 <h3 style={{ fontFamily: "'Cormorant Garamond', 'Cinzel', serif", fontSize: '20px', fontWeight: 600, margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Shield size={17} /> Molduras Místicas & Forjadas
@@ -406,8 +409,8 @@ export const EditorialBazarView: React.FC<EditorialBazarViewProps> = ({
           )}
         </div>
 
-        {/* Coluna Lateral (Direita - 4 colunas): Card Editorial Claude */}
-        <aside className="editorial-claude-card dark-theme">
+        {/* Coluna Lateral (Direita - 4 colunas): Card Editorial Claude Fosco */}
+        <aside className="editorial-frosted-card room-matte-V">
           <div style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.6, marginBottom: '14px', fontWeight: 600 }}>
             Tesouro do Viajante
           </div>

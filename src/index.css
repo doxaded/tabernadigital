@@ -7353,20 +7353,68 @@ h1, h2, h3, h4, .font-cinzel {
   }
 }
 
-/* 5. Card Editorial Claude com Superfície Suave */
+/* 5. Card Editorial Claude com Superfície Fosca */
 .editorial-claude-card {
-  background: rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(currentColor, 0.12);
-  border-radius: 14px;
-  padding: 24px;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(212, 163, 89, 0.15);
+  border-radius: 16px;
+  padding: 28px;
   box-sizing: border-box;
   text-align: left;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  color: #EAE0D5;
 }
 
 .editorial-claude-card.dark-theme {
   background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(212, 163, 89, 0.15);
+}
+
+/* Blocos Foscos Padronizados para as Salas (Regra Geral: Nada solto diretamente no fundo) */
+.editorial-frosted-card {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(212, 163, 89, 0.14);
+  border-radius: 16px;
+  padding: 32px;
+  box-sizing: border-box;
+  text-align: left;
+  color: #EAE0D5;
+  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.25);
+}
+
+.editorial-frosted-panel {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(212, 163, 89, 0.12);
+  border-radius: 16px;
+  padding: 28px;
+  box-sizing: border-box;
+  text-align: left;
+  color: #EAE0D5;
+  margin-top: 36px;
+  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.2);
+}
+
+/* Variações Ricas de Marrom Escuro para os Blocos Foscos */
+.room-matte-I {
+  background-color: #2E1F16 !important;
+}
+.room-matte-II {
+  background-color: #362218 !important;
+}
+.room-matte-III {
+  background-color: #3E2316 !important;
+}
+.room-matte-IV {
+  background-color: #2B1C14 !important;
+}
+.room-matte-V {
+  background-color: #221610 !important;
 }
 
 /* Linha de Metadados Técnica */
@@ -7375,7 +7423,7 @@ h1, h2, h3, h4, .font-cinzel {
   justify-content: space-between;
   align-items: center;
   padding: 11px 0;
-  border-bottom: 1px solid rgba(currentColor, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   font-size: 14px;
 }
 
@@ -7400,38 +7448,40 @@ h1, h2, h3, h4, .font-cinzel {
 
 /* 6. Botões Padronizados da Barra de Ações */
 .editorial-btn-primary {
-  background: currentColor;
-  color: var(--room-bg, #DEC29B);
-  border: 1px solid transparent;
+  background: #D4A359;
+  color: #1a0f0a;
+  border: 1px solid rgba(212, 163, 89, 0.5);
   border-radius: 8px;
   padding: 10px 20px;
   font-family: inherit;
   font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
 }
 
 .editorial-btn-primary:hover {
-  opacity: 0.85;
+  background: #e2b46c;
+  opacity: 0.95;
   transform: translateY(-1px);
 }
 
 .editorial-btn-secondary {
-  background: transparent;
-  color: inherit;
-  border: 1px solid rgba(currentColor, 0.22);
+  background: rgba(255, 255, 255, 0.04);
+  color: #EAE0D5;
+  border: 1px solid rgba(212, 163, 89, 0.24);
   border-radius: 8px;
   padding: 10px 18px;
   font-family: inherit;
   font-size: 13px;
   font-weight: 500;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
   display: inline-flex;
@@ -7441,14 +7491,14 @@ h1, h2, h3, h4, .font-cinzel {
 }
 
 .editorial-btn-secondary:hover {
-  background: rgba(currentColor, 0.06);
-  border-color: rgba(currentColor, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(212, 163, 89, 0.45);
   transform: translateY(-1px);
 }
 
 /* 7. Grid de Cartões de Campanhas / Conteúdo Inferior */
 .editorial-bottom-divider {
-  border-top: 1px solid rgba(currentColor, 0.15);
+  border-top: 1px solid rgba(212, 163, 89, 0.15);
   padding-top: 32px;
   margin-top: 48px;
   width: 100%;
@@ -7463,8 +7513,8 @@ h1, h2, h3, h4, .font-cinzel {
 }
 
 .editorial-campaign-card {
-  background: rgba(0, 0, 0, 0.03);
-  border: 1px solid rgba(currentColor, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(212, 163, 89, 0.15);
   border-radius: 12px;
   padding: 18px 22px;
   display: flex;
@@ -7473,18 +7523,19 @@ h1, h2, h3, h4, .font-cinzel {
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: left;
+  color: #EAE0D5;
 }
 
 .editorial-campaign-card.dark-theme {
   background: rgba(255, 255, 255, 0.03);
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(212, 163, 89, 0.15);
 }
 
 .editorial-campaign-card:hover {
-  background: rgba(currentColor, 0.06);
-  border-color: rgba(currentColor, 0.3);
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(212, 163, 89, 0.35);
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 .editorial-pill-tag {
@@ -7494,8 +7545,9 @@ h1, h2, h3, h4, .font-cinzel {
   text-transform: uppercase;
   padding: 4px 10px;
   border-radius: 9999px;
-  background: rgba(currentColor, 0.08);
-  border: 1px solid rgba(currentColor, 0.15);
+  background: rgba(212, 163, 89, 0.12);
+  border: 1px solid rgba(212, 163, 89, 0.25);
+  color: #D4A359;
   font-weight: 600;
   white-space: nowrap;
 }

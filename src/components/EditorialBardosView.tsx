@@ -110,8 +110,8 @@ export const EditorialBardosView: React.FC<EditorialBardosViewProps> = ({
 
       {/* 3. Layout Assimétrico Estilo Kerbache HR / Claude (8 colunas / 4 colunas) */}
       <div className="editorial-grid-12">
-        {/* Coluna Principal (Esquerda - 8 colunas) */}
-        <div>
+        {/* Coluna Principal (Esquerda - 8 colunas) envolta em Bloco Fosco */}
+        <div className="editorial-frosted-card room-matte-IV" style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ letterSpacing: '0.25em', fontSize: '11px', textTransform: 'uppercase', opacity: 0.6, marginBottom: '12px' }}>
             SALA IV • CONFRARIA DA TAVERNA
           </div>
@@ -137,8 +137,8 @@ export const EditorialBardosView: React.FC<EditorialBardosViewProps> = ({
               fontSize: '17px',
               lineHeight: '1.7',
               maxWidth: '580px',
-              margin: '0 0 28px 0',
-              opacity: 0.8,
+              margin: '0 0 24px 0',
+              opacity: 0.85,
             }}
           >
             Onde os aventureiros partilham crônicas, trocam rumores e celebram com canecos erguidos ao redor do fogo.
@@ -155,6 +155,7 @@ export const EditorialBardosView: React.FC<EditorialBardosViewProps> = ({
               gap: '16px',
               marginBottom: '20px',
               padding: '24px',
+              backgroundColor: 'rgba(0, 0, 0, 0.25)',
             }}
           >
             {messages.length === 0 ? (
@@ -246,8 +247,8 @@ export const EditorialBardosView: React.FC<EditorialBardosViewProps> = ({
           </form>
         </div>
 
-        {/* Coluna Lateral (Direita - 4 colunas): Card Editorial Claude */}
-        <aside className="editorial-claude-card dark-theme">
+        {/* Coluna Lateral (Direita - 4 colunas): Card Editorial Claude Fosco */}
+        <aside className="editorial-frosted-card room-matte-IV">
           <div style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.6, marginBottom: '14px', fontWeight: 600 }}>
             Viajantes na Estalagem
           </div>

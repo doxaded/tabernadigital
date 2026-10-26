@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { doc, updateDoc } from 'firebase/firestore';
 import { updateProfile } from 'firebase/auth';
+import { 
+  X, Music, Shield, KeyRound, Home, LogOut, LogIn, Trash2, Crown, ChevronRight 
+} from 'lucide-react';
 import { AuthModal } from './components/AuthModal';
 import { LandingPage } from './components/LandingPage';
 import { PendingApprovalScreen } from './components/PendingApprovalScreen';
@@ -27,8 +30,10 @@ export interface RoomConfig {
   name: string;
   subtitle: string;
   bgColor: string;
+  cardColor: string;
   textColor: string;
   borderColor: string;
+  accentColor: string;
   imageUrl: string;
 }
 
@@ -37,45 +42,55 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
     id: 'I',
     name: 'Mesa dos Apostadores',
     subtitle: 'I. Mesa dos Apostadores',
-    bgColor: '#DEC29B', // Pergaminho / Bege Lareira
-    textColor: '#2A1B12', // Marrom Café Escuro
-    borderColor: 'rgba(42, 27, 18, 0.15)',
+    bgColor: '#231710', // Marrom Café Torrado
+    cardColor: '#2E1F16', // Bloco Fosco
+    textColor: '#EAE0D5', // Pergaminho Claro
+    borderColor: 'rgba(212, 163, 89, 0.15)',
+    accentColor: '#D4A359', // Âmbar / Ouro Velho
     imageUrl: '/assets/banner_mesa_alchemist.png', // Ilustração do alquimista & orbe enviada pelo usuário
   },
   II: {
     id: 'II',
     name: 'Telas do Alaúde',
     subtitle: 'II. Telas do Alaúde',
-    bgColor: '#C49A6C', // Camurça / Madeira Clara
-    textColor: '#1F120B', // Ébano Quente
-    borderColor: 'rgba(31, 18, 11, 0.15)',
+    bgColor: '#2A1A12', // Mogno Escuro
+    cardColor: '#362218', // Bloco Fosco
+    textColor: '#EAE0D5', // Pergaminho Claro
+    borderColor: 'rgba(212, 163, 89, 0.15)',
+    accentColor: '#D4A359',
     imageUrl: '/assets/banner_telas_alaude.jpg', // Pintura renascentista do bardo com alaúde
   },
   III: {
     id: 'III',
     name: 'Taberneiro',
     subtitle: 'III. Taberneiro',
-    bgColor: '#8C4A27', // Brasa de Lareira / Terracota Amadeirado
-    textColor: '#F5E6D3', // Creme Pergaminho
-    borderColor: 'rgba(245, 230, 211, 0.18)',
+    bgColor: '#311B11', // Brasa & Madeira Queimada
+    cardColor: '#3E2316', // Bloco Fosco
+    textColor: '#EAE0D5', // Pergaminho Claro
+    borderColor: 'rgba(212, 163, 89, 0.18)',
+    accentColor: '#D4A359',
     imageUrl: '/assets/banner_urd_taberneiro.jpg', // Pintura de Urd brindando com a caneca
   },
   IV: {
     id: 'IV',
     name: 'Recanto dos Bardos',
     subtitle: 'IV. Recanto dos Bardos',
-    bgColor: '#3B2216', // Mogno Envelhecido / Madeira Escura
-    textColor: '#E6CCB2', // Bege Suave
-    borderColor: 'rgba(230, 204, 178, 0.18)',
+    bgColor: '#1F140E', // Nogueira Negra
+    cardColor: '#2B1C14', // Bloco Fosco
+    textColor: '#EAE0D5', // Pergaminho Claro
+    borderColor: 'rgba(212, 163, 89, 0.18)',
+    accentColor: '#D4A359',
     imageUrl: '/assets/tavern_bg.jpg', // Pintura do salão da taverna à luz de tochas
   },
   V: {
     id: 'V',
     name: 'Bazar da Taverna',
     subtitle: 'V. Bazar da Taverna',
-    bgColor: '#1C120C', // Ébano / Carvão com Ouro Velho
-    textColor: '#D4A359', // Ouro Velho
+    bgColor: '#160E0A', // Ébano Profundo
+    cardColor: '#221610', // Bloco Fosco
+    textColor: '#EAE0D5', // Pergaminho Claro
     borderColor: 'rgba(212, 163, 89, 0.18)',
+    accentColor: '#D4A359',
     imageUrl: '/assets/banner_bazar_treasury.jpg', // Pintura a óleo renascentista da tesouraria
   },
 };
@@ -718,27 +733,111 @@ export function App() {
       </main>
 
       {/* ========================================================
-          MENU MODAL EDITORIAL MINIMALISTA
+          3. REFORMA COMPLETA DO MODAL 'MENU' (ELIMINAR POLUIÇÃO E SOBREPOSIÇÃO)
+          - Fundo denso: bg-[#140C08]/95 backdrop-blur-xl cobrindo tudo
+          - Card central: max-w-md w-full bg-white/[0.03] border border-amber-500/15 rounded-2xl p-8
+          - Lista editorial limpa (I a V) com hover suave
+          - Linha divisória sutil + opções de sistema em bloco fosco secundário
+          - Botão [ X ] Fechar no canto superior direito
           ======================================================== */}
       {isMenuOpen && (
         <div
-          className="awwwards-menu-backdrop"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+            backgroundColor: 'rgba(20, 12, 8, 0.96)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+            animation: 'fadeIn 0.25s ease',
+            boxSizing: 'border-box',
+          }}
           onClick={() => setIsMenuOpen(false)}
         >
           <div
-            className="awwwards-menu-modal"
+            style={{
+              position: 'relative',
+              width: '100%',
+              maxWidth: '440px',
+              backgroundColor: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(212, 163, 89, 0.15)',
+              borderRadius: '16px',
+              padding: '32px',
+              boxSizing: 'border-box',
+              boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.85)',
+              color: '#EAE0D5',
+            }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Título do Menu */}
-            <h2 className="awwwards-menu-title">
-              TABERNA DIGITAL
-            </h2>
-            <p className="awwwards-menu-sub">
-              Salões & Crônicas Medievais
-            </p>
+            {/* Botão [ X ] Fechar no canto superior direito do card */}
+            <button
+              onClick={() => setIsMenuOpen(false)}
+              style={{
+                position: 'absolute',
+                top: '20px',
+                right: '20px',
+                background: 'transparent',
+                border: 'none',
+                color: '#EAE0D5',
+                opacity: 0.6,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '6px',
+                borderRadius: '6px',
+                transition: 'all 0.2s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = '1';
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = '0.6';
+                e.currentTarget.style.background = 'transparent';
+              }}
+              title="Fechar Menu"
+              aria-label="Fechar Menu"
+            >
+              <X size={18} />
+            </button>
 
-            {/* Links das 5 Salas */}
-            <div className="awwwards-menu-list">
+            {/* Cabeçalho do Menu */}
+            <div style={{ marginBottom: '24px', textAlign: 'left' }}>
+              <h2
+                style={{
+                  fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
+                  fontSize: '22px',
+                  fontWeight: 600,
+                  letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
+                  margin: '0 0 4px 0',
+                  color: '#EAE0D5',
+                }}
+              >
+                TABERNA DIGITAL
+              </h2>
+              <p
+                style={{
+                  fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+                  fontStyle: 'italic',
+                  fontSize: '14px',
+                  letterSpacing: '0.06em',
+                  opacity: 0.65,
+                  margin: 0,
+                  color: '#EAE0D5',
+                }}
+              >
+                Salões & Crônicas Medievais
+              </p>
+            </div>
+
+            {/* Lista Editorial Limpa com Hover Suave (I a V) */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '16px' }}>
               {(['I', 'II', 'III', 'IV', 'V'] as RoomId[]).map((roman) => {
                 const room = ROOMS[roman];
                 const isActive = activeRoom === roman;
@@ -752,10 +851,31 @@ export function App() {
                       tavernAudio.playBellChime();
                       setIsMenuOpen(false);
                     }}
-                    className={`awwwards-menu-item-btn ${isActive ? 'is-active' : ''}`}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '12px 16px',
+                      borderRadius: '8px',
+                      background: isActive ? 'rgba(212, 163, 89, 0.12)' : 'transparent',
+                      border: isActive ? '1px solid rgba(212, 163, 89, 0.25)' : '1px solid transparent',
+                      color: isActive ? '#D4A359' : '#EAE0D5',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      textAlign: 'left',
+                      fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isActive) e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isActive) e.currentTarget.style.background = 'transparent';
+                    }}
                   >
-                    <span style={{ fontSize: '20px', fontWeight: 700, letterSpacing: '0.1em' }}>{roman}</span>
-                    <span style={{ fontSize: '15px', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
+                    <span style={{ fontSize: '18px', fontWeight: 700, letterSpacing: '0.1em', minWidth: '32px' }}>
+                      {roman}
+                    </span>
+                    <span style={{ fontSize: '14px', letterSpacing: '0.12em', textTransform: 'uppercase', flex: 1, textAlign: 'right' }}>
                       {room.name}
                     </span>
                   </button>
@@ -763,31 +883,86 @@ export function App() {
               })}
             </div>
 
-            {/* Ações Secundárias */}
-            <div className="awwwards-menu-actions">
+            {/* Linha Divisória Sutil */}
+            <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', margin: '16px 0' }} />
+
+            {/* Bloco Fosco Secundário com Ícones Discretos Alinhados à Esquerda */}
+            <div
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                border: '1px solid rgba(255, 255, 255, 0.06)',
+                borderRadius: '12px',
+                padding: '6px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '2px',
+              }}
+            >
+              {/* Música do Alaúde */}
               <button
                 onClick={async () => {
                   const state = await tavernAudio.toggle();
                   setIsAudioPlaying(state);
                 }}
-                className="awwwards-menu-action-btn"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  width: '100%',
+                  padding: '10px 12px',
+                  borderRadius: '8px',
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#EAE0D5',
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  transition: 'background 0.2s ease',
+                  textAlign: 'left',
+                  boxSizing: 'border-box',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
               >
-                Música do Alaúde & Lareira: {isAudioPlaying ? 'Tocando' : 'Silenciada'}
+                <Music size={15} style={{ opacity: 0.75, color: '#D4A359', flexShrink: 0 }} />
+                <span style={{ flex: 1 }}>Música do Alaúde: {isAudioPlaying ? 'Tocando' : 'Silenciada'}</span>
               </button>
 
+              {/* Painel de Administração */}
               {currentUser?.role === 'admin' && (
                 <button
                   onClick={() => {
                     setIsMenuOpen(false);
                     setIsAdminModalOpen(true);
                   }}
-                  className="awwwards-menu-action-btn"
-                  style={{ color: '#D4A359' }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#D4A359',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    transition: 'background 0.2s ease',
+                    textAlign: 'left',
+                    boxSizing: 'border-box',
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                 >
-                  Painel de Administração
+                  <Shield size={15} style={{ opacity: 0.9, flexShrink: 0 }} />
+                  <span style={{ flex: 1 }}>Painel de Administração</span>
                 </button>
               )}
 
+              {/* Trocar Senha */}
               {currentUser ? (
                 <>
                   <button
@@ -795,9 +970,29 @@ export function App() {
                       setIsMenuOpen(false);
                       setIsChangePasswordOpen(true);
                     }}
-                    className="awwwards-menu-action-btn"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      width: '100%',
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      background: 'transparent',
+                      border: 'none',
+                      color: '#EAE0D5',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      letterSpacing: '0.08em',
+                      textTransform: 'uppercase',
+                      transition: 'background 0.2s ease',
+                      textAlign: 'left',
+                      boxSizing: 'border-box',
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                   >
-                    Trocar Senha
+                    <KeyRound size={15} style={{ opacity: 0.75, flexShrink: 0 }} />
+                    <span style={{ flex: 1 }}>Trocar Senha</span>
                   </button>
 
                   <button
@@ -805,10 +1000,29 @@ export function App() {
                       setIsMenuOpen(false);
                       handleLogout();
                     }}
-                    className="awwwards-menu-action-btn"
-                    style={{ color: '#E07A5F' }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      width: '100%',
+                      padding: '10px 12px',
+                      borderRadius: '8px',
+                      background: 'transparent',
+                      border: 'none',
+                      color: '#f87171',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      letterSpacing: '0.08em',
+                      textTransform: 'uppercase',
+                      transition: 'background 0.2s ease',
+                      textAlign: 'left',
+                      boxSizing: 'border-box',
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.12)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                   >
-                    Abandonar a Taverna (Sair)
+                    <LogOut size={15} style={{ opacity: 0.85, flexShrink: 0 }} />
+                    <span style={{ flex: 1 }}>Abandonar a Taverna</span>
                   </button>
                 </>
               ) : (
@@ -817,41 +1031,70 @@ export function App() {
                     setIsMenuOpen(false);
                     setIsAuthModalOpen(true);
                   }}
-                  className="awwwards-menu-action-btn"
-                  style={{ color: '#D4A359' }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#D4A359',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    transition: 'background 0.2s ease',
+                    textAlign: 'left',
+                    boxSizing: 'border-box',
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                 >
-                  Entrar / Criar Personagem
+                  <LogIn size={15} style={{ opacity: 0.85, flexShrink: 0 }} />
+                  <span style={{ flex: 1 }}>Entrar / Criar Personagem</span>
                 </button>
               )}
 
+              {/* Tela de Início */}
               <button
                 onClick={() => {
                   setIsMenuOpen(false);
                   setHasEntered(false);
                 }}
-                className="awwwards-menu-action-btn"
-                style={{ opacity: 0.65 }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  width: '100%',
+                  padding: '10px 12px',
+                  borderRadius: '8px',
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#EAE0D5',
+                  opacity: 0.65,
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  transition: 'all 0.2s ease',
+                  textAlign: 'left',
+                  boxSizing: 'border-box',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.opacity = '1';
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.opacity = '0.65';
+                  e.currentTarget.style.background = 'transparent';
+                }}
               >
-                ← Tela de Início (Abertura)
+                <Home size={15} style={{ opacity: 0.7, flexShrink: 0 }} />
+                <span style={{ flex: 1 }}>Tela de Início (Abertura)</span>
               </button>
             </div>
-
-            <button
-              onClick={() => setIsMenuOpen(false)}
-              style={{
-                marginTop: '28px',
-                fontSize: '12px',
-                letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-                opacity: 0.45,
-                background: 'transparent',
-                border: 'none',
-                color: 'inherit',
-                cursor: 'pointer',
-              }}
-            >
-              [ Fechar Menu ]
-            </button>
           </div>
         </div>
       )}

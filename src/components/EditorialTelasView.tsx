@@ -124,118 +124,129 @@ export const EditorialTelasView: React.FC<EditorialTelasViewProps> = ({
       </div>
 
       {/* 3. Layout Assimétrico Estilo Kerbache HR / Claude (8 colunas / 4 colunas) */}
-      <div className="editorial-grid-12">
-        {/* Coluna Principal (Esquerda - 8 colunas) */}
-        <div>
-          <div style={{ letterSpacing: '0.25em', fontSize: '11px', textTransform: 'uppercase', opacity: 0.6, marginBottom: '12px' }}>
-            SALA II • ATELIÊ DE GRAVURAS
+      <div className="editorial-grid-12" style={{ alignItems: 'stretch' }}>
+        {/* Coluna Principal (Esquerda - 8 colunas) Envolvida em Bloco Fosco Padronizado */}
+        <div 
+          className="editorial-frosted-card room-matte-II"
+          style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}
+        >
+          <div>
+            <div style={{ letterSpacing: '0.25em', fontSize: '11px', textTransform: 'uppercase', opacity: 0.65, marginBottom: '12px', color: '#D4A359' }}>
+              SALA II • ATELIÊ DE GRAVURAS
+            </div>
+
+            <h1
+              style={{
+                fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
+                fontSize: 'clamp(32px, 4.5vw, 44px)',
+                fontWeight: 400,
+                letterSpacing: '-0.02em',
+                lineHeight: 1.15,
+                margin: '0 0 16px 0',
+                color: '#EAE0D5',
+              }}
+            >
+              Telas do Alaúde
+            </h1>
+
+            <p
+              style={{
+                fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+                fontStyle: 'italic',
+                fontSize: '17px',
+                lineHeight: '1.7',
+                maxWidth: '580px',
+                margin: '0 0 28px 0',
+                opacity: 0.85,
+                color: '#EAE0D5',
+              }}
+            >
+              Gravuras e estudos visuais das sagas narradas ao redor do fogo, traçados à pena pelo bardo da estalagem com inteligência oracular.
+            </p>
+
+            {/* Formulário de Criação Alinhado à Esquerda */}
+            <form onSubmit={handleGenerate} style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '620px' }}>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="text"
+                  value={promptText}
+                  onChange={(e) => setPromptText(e.target.value)}
+                  placeholder="Instrua o bardo: um dragão de rubi sobre montanhas nevadas..."
+                  disabled={isGenerating}
+                  style={{
+                    width: '100%',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(212, 163, 89, 0.22)',
+                    borderRadius: '10px',
+                    padding: '14px 18px',
+                    fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+                    fontSize: '16px',
+                    color: '#EAE0D5',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+                <button
+                  type="submit"
+                  disabled={isGenerating || !promptText.trim()}
+                  className="editorial-btn-primary"
+                  style={{ opacity: isGenerating || !promptText.trim() ? 0.5 : 1 }}
+                >
+                  {isGenerating ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />}
+                  {isGenerating ? 'Iluminando Pergaminho...' : 'Traçar Gravura'}
+                </button>
+
+                <span style={{ fontSize: '13px', fontStyle: 'italic', opacity: 0.75, color: '#D4A359' }}>
+                  Técnica ativa: <strong>{currentTechObj.label}</strong>
+                </span>
+              </div>
+            </form>
           </div>
-
-          <h1
-            style={{
-              fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
-              fontSize: 'clamp(32px, 4.5vw, 44px)',
-              fontWeight: 400,
-              letterSpacing: '-0.02em',
-              lineHeight: 1.15,
-              margin: '0 0 16px 0',
-              color: 'inherit',
-            }}
-          >
-            Telas do Alaúde
-          </h1>
-
-          <p
-            style={{
-              fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
-              fontStyle: 'italic',
-              fontSize: '17px',
-              lineHeight: '1.7',
-              maxWidth: '580px',
-              margin: '0 0 28px 0',
-              opacity: 0.8,
-            }}
-          >
-            Gravuras e estudos visuais das sagas narradas ao redor do fogo, traçados à pena pelo bardo da estalagem com inteligência oracular.
-          </p>
-
-          {/* Formulário de Criação Alinhado à Esquerda */}
-          <form onSubmit={handleGenerate} style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '620px' }}>
-            <div style={{ position: 'relative' }}>
-              <input
-                type="text"
-                value={promptText}
-                onChange={(e) => setPromptText(e.target.value)}
-                placeholder="Instrua o bardo: um dragão de rubi sobre montanhas nevadas..."
-                disabled={isGenerating}
-                style={{
-                  width: '100%',
-                  background: 'rgba(0, 0, 0, 0.04)',
-                  border: '1px solid rgba(currentColor, 0.18)',
-                  borderRadius: '10px',
-                  padding: '14px 18px',
-                  fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
-                  fontSize: '16px',
-                  color: 'inherit',
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                }}
-              />
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <button
-                type="submit"
-                disabled={isGenerating || !promptText.trim()}
-                className="editorial-btn-primary"
-                style={{ opacity: isGenerating || !promptText.trim() ? 0.5 : 1 }}
-              >
-                {isGenerating ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />}
-                {isGenerating ? 'Iluminando Pergaminho...' : 'Traçar Gravura'}
-              </button>
-
-              <span style={{ fontSize: '13px', fontStyle: 'italic', opacity: 0.65 }}>
-                Técnica ativa: <strong>{currentTechObj.label}</strong>
-              </span>
-            </div>
-          </form>
         </div>
 
         {/* Coluna Lateral (Direita - 4 colunas): Card Editorial Claude */}
-        <aside className="editorial-claude-card">
-          <div style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.6, marginBottom: '14px', fontWeight: 600 }}>
-            Guia do Ateliê
-          </div>
+        <aside 
+          className="editorial-claude-card room-matte-II"
+          style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxSizing: 'border-box' }}
+        >
+          <div>
+            <div style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.65, marginBottom: '14px', fontWeight: 600, color: '#D4A359' }}>
+              Guia do Ateliê
+            </div>
 
-          <div className="editorial-meta-row">
-            <span className="editorial-meta-label">Técnica</span>
-            <span className="editorial-meta-value">{currentTechObj.label}</span>
-          </div>
+            <div className="editorial-meta-row">
+              <span className="editorial-meta-label">Técnica</span>
+              <span className="editorial-meta-value">{currentTechObj.label}</span>
+            </div>
 
-          <div className="editorial-meta-row">
-            <span className="editorial-meta-label">Proporção</span>
-            <span className="editorial-meta-value" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>1:1 Quadrada</span>
-          </div>
+            <div className="editorial-meta-row">
+              <span className="editorial-meta-label">Proporção</span>
+              <span className="editorial-meta-value" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>1:1 Quadrada</span>
+            </div>
 
-          <div className="editorial-meta-row">
-            <span className="editorial-meta-label">Qualidade</span>
-            <span className="editorial-meta-value" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>1K Studio</span>
-          </div>
+            <div className="editorial-meta-row">
+              <span className="editorial-meta-label">Qualidade</span>
+              <span className="editorial-meta-value" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>1K Studio</span>
+            </div>
 
-          <div className="editorial-meta-row">
-            <span className="editorial-meta-label">Mural</span>
-            <span className="editorial-meta-value">{activeCampaignName}</span>
+            <div className="editorial-meta-row">
+              <span className="editorial-meta-label">Mural</span>
+              <span className="editorial-meta-value">{activeCampaignName}</span>
+            </div>
           </div>
 
           <p style={{ fontSize: '13px', fontStyle: 'italic', opacity: 0.75, lineHeight: '1.6', marginTop: '16px', marginBottom: 0 }}>
-            Descreva criaturas, paisagens medievais ou artefatos arcanos. As obras geradas são gravadas no mural permanente da taverna.
+            As iluminuras geradas são consagradas no arquivo visual da mesa ativa para consulta de todos os aventureiros.
           </p>
         </aside>
       </div>
 
       {/* 4. Seção Inferior: Grade de Gravuras Criadas */}
-      <div className="editorial-bottom-divider">
-        <div style={{ fontSize: '13px', letterSpacing: '0.18em', textTransform: 'uppercase', opacity: 0.7, fontWeight: 600, marginBottom: '20px' }}>
+      <div className="editorial-frosted-panel room-matte-II" style={{ marginTop: '36px' }}>
+        <div style={{ fontSize: '13px', letterSpacing: '0.18em', textTransform: 'uppercase', opacity: 0.8, fontWeight: 600, marginBottom: '20px' }}>
           Mural de Gravuras da Estalagem ({sketches.length})
         </div>
 

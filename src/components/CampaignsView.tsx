@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { 
   Crown, ArrowLeft, BookOpen, Plus, Shield, Scroll, Library, Edit3, Trash2, Heart, Zap, 
   Sparkles, FileText, ChevronRight, User, Users, Maximize2, AlertCircle, Eye, Check, X,
@@ -13,6 +13,7 @@ import { SheetStatsEditor } from './SheetStatsEditor';
 import { TavernInteractiveDesk } from './TavernInteractiveDesk';
 import { tavernAudio } from '../services/tavernAudio';
 import { AvatarFrame } from './AvatarFrame';
+import { GrimorioBestiarioView } from './GrimorioBestiarioView';
 
 interface CampaignsViewProps {
   onBack?: () => void;
@@ -87,49 +88,61 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
     title: string;
     subtitle: string;
     bgColor: string;
+    cardColor: string;
     textColor: string;
     subtextColor: string;
     accentColor: string;
+    roomClass: string;
   }> = {
     'I': {
-      title: 'Mesas Disponíveis',
+      title: 'Mesa dos Apostadores',
       subtitle: 'Salão Principal',
-      bgColor: '#DEC29B',
-      textColor: '#2A1B12',
-      subtextColor: '#5A4032',
-      accentColor: '#8C4A27',
+      bgColor: '#231710', // Marrom Café Torrado
+      cardColor: '#2E1F16', // Bloco Fosco
+      textColor: '#EAE0D5', // Pergaminho Claro
+      subtextColor: '#C9BAA9',
+      accentColor: '#D4A359', // Âmbar / Ouro Velho
+      roomClass: 'room-matte-I',
     },
     'II': {
       title: 'Fichas de Personagem',
       subtitle: 'Galeria dos Aventureiros',
-      bgColor: '#C89D7C',
-      textColor: '#1F130C',
-      subtextColor: '#4E3324',
-      accentColor: '#2A1B12',
+      bgColor: '#2A1A12', // Mogno Escuro
+      cardColor: '#362218',
+      textColor: '#EAE0D5',
+      subtextColor: '#C9BAA9',
+      accentColor: '#D4A359',
+      roomClass: 'room-matte-II',
     },
     'III': {
-      title: 'Grimório & Diário de Bordo',
-      subtitle: 'Crônicas & Anotações',
-      bgColor: '#8C4A27',
-      textColor: '#F5E6D3',
-      subtextColor: '#DEC29B',
-      accentColor: '#F5E6D3',
+      title: 'Grimório & Bestiário',
+      subtitle: 'Crônicas & Monstros',
+      bgColor: '#311B11', // Brasa & Madeira Queimada
+      cardColor: '#3E2316',
+      textColor: '#EAE0D5',
+      subtextColor: '#C9BAA9',
+      accentColor: '#D4A359',
+      roomClass: 'room-matte-III',
     },
     'IV': {
       title: 'Compêndio & Manuais PDF',
       subtitle: 'Biblioteca de Regras',
-      bgColor: '#4A2C1D',
-      textColor: '#E6CCB2',
-      subtextColor: '#C89D7C',
-      accentColor: '#DEC29B',
+      bgColor: '#1F140E', // Nogueira Negra
+      cardColor: '#2B1C14',
+      textColor: '#EAE0D5',
+      subtextColor: '#C9BAA9',
+      accentColor: '#D4A359',
+      roomClass: 'room-matte-IV',
     },
     'V': {
       title: 'Bandeja de Rolagens & Aventureiros',
       subtitle: 'Oráculo dos Dados & Confraria',
-      bgColor: '#231711',
-      textColor: '#D4A373',
-      subtextColor: '#A88059',
-      accentColor: '#DEC29B',
+      bgColor: '#160E0A', // Ébano Profundo
+      cardColor: '#221610',
+      textColor: '#EAE0D5',
+      subtextColor: '#C9BAA9',
+      accentColor: '#D4A359',
+      roomClass: 'room-matte-V',
     }
   };
 
@@ -980,12 +993,12 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
             ← Voltar à Galeria
           </button>
 
-          {/* Sub-abas no estilo Segmented Control (cápsula com bg-black/5 e item ativo suave) */}
-          <div className={`editorial-segmented-control ${['III', 'IV', 'V'].includes(activeChapter) ? 'dark-theme' : ''}`}>
+          {/* Sub-abas no estilo Segmented Control */}
+          <div className="editorial-segmented-control dark-theme">
             {([
               { id: 'I', label: 'Mesa Ativa' },
               { id: 'II', label: 'Fichas' },
-              { id: 'III', label: 'Grimório' },
+              { id: 'III', label: 'Grimório & Bestiário' },
               { id: 'IV', label: 'Manuais' },
               { id: 'V', label: 'Dados' },
             ] as { id: ChapterId; label: string }[]).map((tab) => {
@@ -1013,44 +1026,56 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
           <section style={{ width: '100%', animation: 'fadeIn 0.5s ease', textAlign: 'left' }}>
             {activeCampaign ? (
               <>
-                {/* 3. Layout Assimétrico Estilo Kerbache HR / Claude (Grid 8 colunas / 4 colunas) */}
-                <div className="editorial-grid-12">
-                  {/* Coluna Principal (Esquerda - 8 colunas) */}
-                  <div style={{ textAlign: 'left' }}>
-                    <div style={{ letterSpacing: '0.25em', fontSize: '11px', textTransform: 'uppercase', opacity: 0.6, marginBottom: '12px' }}>
-                      CAPÍTULO I • SALÃO PRINCIPAL
+                {/* 3. Layout Assimétrico Estilo Kerbache HR / Claude (Grid 8 colunas / 4 colunas) com Alturas Alinhadas */}
+                <div className="editorial-grid-12" style={{ alignItems: 'stretch' }}>
+                  {/* Coluna Principal (Esquerda - 8 colunas) Envolvida em Bloco Fosco Padronizado */}
+                  <div 
+                    className="editorial-frosted-card room-matte-I" 
+                    style={{ 
+                      height: '100%', 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      justifyContent: 'space-between',
+                      boxSizing: 'border-box',
+                    }}
+                  >
+                    <div>
+                      <div style={{ letterSpacing: '0.25em', fontSize: '11px', textTransform: 'uppercase', opacity: 0.65, marginBottom: '12px', color: '#D4A359' }}>
+                        CAPÍTULO I • SALÃO PRINCIPAL
+                      </div>
+
+                      <h1
+                        style={{
+                          fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
+                          fontSize: 'clamp(32px, 4.5vw, 44px)',
+                          fontWeight: 400,
+                          letterSpacing: '-0.02em',
+                          lineHeight: 1.15,
+                          margin: '0 0 16px 0',
+                          color: '#EAE0D5',
+                        }}
+                      >
+                        {activeCampaign.name}
+                      </h1>
+
+                      <p
+                        style={{
+                          fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+                          fontStyle: 'italic',
+                          fontSize: '17px',
+                          lineHeight: '1.7',
+                          maxWidth: '580px',
+                          margin: '0 0 32px 0',
+                          opacity: 0.85,
+                          color: '#EAE0D5',
+                        }}
+                      >
+                        {activeCampaign.description || 'Uma jornada aguarda pelos bravos aventureiros reunidos em torno da lareira desta taverna.'}
+                      </p>
                     </div>
 
-                    <h1
-                      style={{
-                        fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
-                        fontSize: 'clamp(32px, 4.5vw, 44px)',
-                        fontWeight: 400,
-                        letterSpacing: '-0.02em',
-                        lineHeight: 1.15,
-                        margin: '0 0 16px 0',
-                        color: 'inherit',
-                      }}
-                    >
-                      {activeCampaign.name}
-                    </h1>
-
-                    <p
-                      style={{
-                        fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
-                        fontStyle: 'italic',
-                        fontSize: '17px',
-                        lineHeight: '1.7',
-                        maxWidth: '580px',
-                        margin: '0 0 32px 0',
-                        opacity: 0.8,
-                      }}
-                    >
-                      {activeCampaign.description || 'Uma jornada aguarda pelos bravos aventureiros reunidos em torno da lareira desta taverna.'}
-                    </p>
-
-                    {/* Barra de Ações Limpa: Botão primário preenchido elegante + botões secundários com borda fina */}
-                    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px' }}>
+                    {/* Barra de Ações Limpa com Botão Excluir Mesa Restaurado */}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px', marginTop: '16px' }}>
                       {isMasterOfActive && onOpenMasterScreen && (
                         <button
                           onClick={() => onOpenMasterScreen(activeCampaign.id)}
@@ -1082,6 +1107,39 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                         </button>
                       )}
 
+                      {/* Botão de Excluir Mesa Ativa (Restaurado) */}
+                      {isMasterOfActive && (
+                        <button
+                          onClick={() => {
+                            if (window.confirm(`Deseja realmente apagar a mesa "${activeCampaign.name}" permanentemente? Todas as crônicas e fichas associadas serão perdidas.`)) {
+                              onDeleteCampaign(activeCampaign.id);
+                            }
+                          }}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            border: '1px solid rgba(239, 68, 68, 0.35)',
+                            backgroundColor: 'rgba(127, 29, 29, 0.25)',
+                            color: '#fca5a5',
+                            borderRadius: '8px',
+                            padding: '10px 16px',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            letterSpacing: '0.08em',
+                            textTransform: 'uppercase',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(153, 27, 27, 0.4)'}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(127, 29, 29, 0.25)'}
+                          title="Excluir esta mesa permanentemente"
+                        >
+                          <Trash2 size={14} />
+                          Excluir Mesa
+                        </button>
+                      )}
+
                       {!isMasterOfActive && (
                         <button
                           onClick={() => onRemovePlayer(activeCampaign.id, currentUser.uid)}
@@ -1094,59 +1152,74 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                     </div>
                   </div>
 
-                  {/* Coluna Lateral de Metadados (Direita - 4 colunas): Card Editorial Claude */}
-                  <aside className="editorial-claude-card">
-                    <div style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.6, marginBottom: '14px', fontWeight: 600 }}>
-                      Registro da Mesa
+                  {/* Coluna Lateral de Metadados (Direita - 4 colunas): Card Editorial Claude Alinhado */}
+                  <aside 
+                    className="editorial-claude-card room-matte-I"
+                    style={{ 
+                      height: '100%', 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      justifyContent: 'space-between',
+                      boxSizing: 'border-box',
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.65, marginBottom: '14px', fontWeight: 600, color: '#D4A359' }}>
+                        Registro da Mesa
+                      </div>
+
+                      <div className="editorial-meta-row">
+                        <span className="editorial-meta-label">Sistema</span>
+                        <span className="editorial-meta-value">{activeCampaign.system || 'Dungeons & Dragons 5e'}</span>
+                      </div>
+
+                      <div className="editorial-meta-row">
+                        <span className="editorial-meta-label">Mestre</span>
+                        <span className="editorial-meta-value">{activeCampaign.masterName || 'Cronista'}</span>
+                      </div>
+
+                      <div className="editorial-meta-row">
+                        <span className="editorial-meta-label">Aventureiros</span>
+                        <span className="editorial-meta-value" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                          {(activeCampaign.players?.length || 0)}/6
+                        </span>
+                      </div>
+
+                      <div className="editorial-meta-row">
+                        <span className="editorial-meta-label">Chave</span>
+                        <span className="editorial-meta-value" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+                          <span>{activeCampaign.joinKey || 'N/A'}</span>
+                          <button
+                            onClick={handleCopyKey}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              padding: '4px',
+                              cursor: 'pointer',
+                              color: 'inherit',
+                              opacity: 0.75,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                            }}
+                            title="Copiar Chave"
+                            className="hover:opacity-100"
+                          >
+                            {keyCopied ? <Check size={14} /> : <Copy size={14} />}
+                          </button>
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="editorial-meta-row">
-                      <span className="editorial-meta-label">Sistema</span>
-                      <span className="editorial-meta-value">{activeCampaign.system || 'Dungeons & Dragons 5e'}</span>
-                    </div>
-
-                    <div className="editorial-meta-row">
-                      <span className="editorial-meta-label">Mestre</span>
-                      <span className="editorial-meta-value">{activeCampaign.masterName || 'Cronista'}</span>
-                    </div>
-
-                    <div className="editorial-meta-row">
-                      <span className="editorial-meta-label">Aventureiros</span>
-                      <span className="editorial-meta-value" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                        {(activeCampaign.players?.length || 0)}/6
-                      </span>
-                    </div>
-
-                    <div className="editorial-meta-row">
-                      <span className="editorial-meta-label">Chave</span>
-                      <span className="editorial-meta-value" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-                        <span>{activeCampaign.joinKey || 'N/A'}</span>
-                        <button
-                          onClick={handleCopyKey}
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            padding: '4px',
-                            cursor: 'pointer',
-                            color: 'inherit',
-                            opacity: 0.75,
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                          }}
-                          title="Copiar Chave"
-                          className="hover:opacity-100"
-                        >
-                          {keyCopied ? <Check size={14} /> : <Copy size={14} />}
-                        </button>
-                      </span>
+                    <div style={{ fontSize: '12px', fontStyle: 'italic', opacity: 0.65, marginTop: '20px', lineHeight: '1.6' }}>
+                      Compartilhe a chave acima para que aventureiros entrem nesta saga.
                     </div>
                   </aside>
                 </div>
 
-                {/* 4. Seção Inferior ('Outras Mesas Disponíveis') em Grade de Cartões */}
-                <div className="editorial-bottom-divider">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '20px' }}>
-                    <div style={{ fontSize: '13px', letterSpacing: '0.18em', textTransform: 'uppercase', opacity: 0.7, fontWeight: 600 }}>
+                {/* 4. Seção Inferior ('Outras Mesas Disponíveis') em Container Fosco Unificado */}
+                <div className="editorial-frosted-panel room-matte-I">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
+                    <div style={{ fontSize: '13px', letterSpacing: '0.18em', textTransform: 'uppercase', opacity: 0.8, fontWeight: 600, color: '#D4A359' }}>
                       Outras Mesas Disponíveis
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -1169,30 +1242,74 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
 
                   {campaigns.filter(c => c.id !== activeCampaign.id).length > 0 ? (
                     <div className="editorial-cards-grid-2">
-                      {campaigns.filter(c => c.id !== activeCampaign.id).map(camp => (
-                        <div
-                          key={camp.id}
-                          onClick={() => {
-                            onSelectCampaign(camp.id);
-                            tavernAudio.playBellChime();
-                          }}
-                          className="editorial-campaign-card"
-                          role="button"
-                          tabIndex={0}
-                        >
-                          <div>
-                            <div style={{ fontFamily: "'Cormorant Garamond', 'Cinzel', serif", fontSize: '18px', fontWeight: 600, letterSpacing: '0.02em', marginBottom: '4px' }}>
-                              {camp.name}
+                      {campaigns.filter(c => c.id !== activeCampaign.id).map(camp => {
+                        const canDelete = camp.masterId === currentUser.uid || currentUser.role === 'admin';
+                        return (
+                          <div
+                            key={camp.id}
+                            onClick={() => {
+                              onSelectCampaign(camp.id);
+                              tavernAudio.playBellChime();
+                            }}
+                            className="editorial-campaign-card room-matte-I"
+                            role="button"
+                            tabIndex={0}
+                            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                          >
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontFamily: "'Cormorant Garamond', 'Cinzel', serif", fontSize: '18px', fontWeight: 600, letterSpacing: '0.02em', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {camp.name}
+                              </div>
+                              <div style={{ fontSize: '12px', opacity: 0.65, fontStyle: 'italic' }}>
+                                Mestre: {camp.masterName || 'Cronista'} • {camp.players?.length || 0}/6 aventureiros
+                              </div>
                             </div>
-                            <div style={{ fontSize: '12px', opacity: 0.65, fontStyle: 'italic' }}>
-                              Mestre: {camp.masterName || 'Cronista'} • {camp.players?.length || 0}/6 aventureiros
+                            
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '12px', flexShrink: 0 }}>
+                              <span className="editorial-pill-tag">
+                                {camp.system || 'D&D 5e'}
+                              </span>
+
+                              {/* Botão de Excluir Mesa nas Outras Mesas */}
+                              {canDelete && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (window.confirm(`Deseja realmente apagar a mesa "${camp.name}"? Esta ação não pode ser desfeita.`)) {
+                                      onDeleteCampaign(camp.id);
+                                    }
+                                  }}
+                                  style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#f87171',
+                                    opacity: 0.65,
+                                    cursor: 'pointer',
+                                    padding: '6px',
+                                    borderRadius: '6px',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    transition: 'all 0.2s ease',
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.opacity = '1';
+                                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.opacity = '0.65';
+                                    e.currentTarget.style.background = 'transparent';
+                                  }}
+                                  title="Excluir mesa"
+                                >
+                                  <Trash2 size={15} />
+                                </button>
+                              )}
                             </div>
                           </div>
-                          <span className="editorial-pill-tag">
-                            {camp.system || 'D&D 5e'}
-                          </span>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   ) : (
                     <p style={{ fontStyle: 'italic', fontSize: '15px', opacity: 0.65, margin: '8px 0' }}>
@@ -1202,18 +1319,18 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                 </div>
               </>
             ) : (
-              /* Caso não haja mesa ativa selecionada */
-              <div style={{ textAlign: 'left' }}>
-                <div style={{ letterSpacing: '0.25em', fontSize: '11px', textTransform: 'uppercase', opacity: 0.6, marginBottom: '12px' }}>
+              /* Caso não haja mesa ativa selecionada: Envolvido em Bloco Fosco */
+              <div className="editorial-frosted-card room-matte-I" style={{ textAlign: 'left', maxWidth: '780px' }}>
+                <div style={{ letterSpacing: '0.25em', fontSize: '11px', textTransform: 'uppercase', opacity: 0.65, marginBottom: '12px', color: '#D4A359' }}>
                   CAPÍTULO I • SALÃO PRINCIPAL
                 </div>
-                <h1 style={{ fontFamily: "'Cormorant Garamond', 'Cinzel', serif", fontSize: '38px', fontWeight: 400, margin: '0 0 16px 0' }}>
+                <h1 style={{ fontFamily: "'Cormorant Garamond', 'Cinzel', serif", fontSize: '38px', fontWeight: 400, margin: '0 0 16px 0', color: '#EAE0D5' }}>
                   Nenhuma Mesa Ativa
                 </h1>
-                <p style={{ fontStyle: 'italic', fontSize: '17px', opacity: 0.8, maxWidth: '560px', margin: '0 0 32px 0' }}>
+                <p style={{ fontStyle: 'italic', fontSize: '17px', opacity: 0.85, maxWidth: '560px', margin: '0 0 32px 0', color: '#EAE0D5' }}>
                   Funde uma nova saga como Mestre ou ingresse em uma mesa com a chave de convite fornecida pelo seu cronista.
                 </p>
-                <div style={{ display: 'flex', gap: '16px', marginBottom: '40px' }}>
+                <div style={{ display: 'flex', gap: '16px', marginBottom: '32px' }}>
                   <button onClick={() => setIsNewRoomModalOpen(true)} className="editorial-btn-primary">
                     <Plus size={15} />
                     Fundar Nova Mesa
@@ -1224,8 +1341,8 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                   </button>
                 </div>
                 {campaigns.length > 0 && (
-                  <div className="editorial-bottom-divider">
-                    <div style={{ fontSize: '13px', letterSpacing: '0.18em', textTransform: 'uppercase', opacity: 0.7, fontWeight: 600, marginBottom: '18px' }}>
+                  <div style={{ borderTop: '1px solid rgba(212, 163, 89, 0.15)', paddingTop: '24px' }}>
+                    <div style={{ fontSize: '13px', letterSpacing: '0.18em', textTransform: 'uppercase', opacity: 0.7, fontWeight: 600, marginBottom: '18px', color: '#D4A359' }}>
                       Mesas Existentes na Taverna
                     </div>
                     <div className="editorial-cards-grid-2">
@@ -1236,7 +1353,7 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                             onSelectCampaign(camp.id);
                             tavernAudio.playBellChime();
                           }}
-                          className="editorial-campaign-card"
+                          className="editorial-campaign-card room-matte-I"
                           role="button"
                           tabIndex={0}
                         >
@@ -1266,15 +1383,19 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
             ======================================================== */}
         {activeChapter === 'II' && (
           <section style={{ width: '100%', animation: 'fadeIn 0.5s ease', textAlign: 'left' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', marginBottom: '28px' }}>
+            {/* Header Fosco Padronizado */}
+            <div 
+              className="editorial-frosted-card room-matte-II"
+              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', marginBottom: '28px' }}
+            >
               <div>
-                <div style={{ letterSpacing: '0.25em', fontSize: '11px', textTransform: 'uppercase', opacity: 0.6, marginBottom: '8px' }}>
+                <div style={{ letterSpacing: '0.25em', fontSize: '11px', textTransform: 'uppercase', opacity: 0.65, marginBottom: '8px', color: '#D4A359' }}>
                   Capítulo II • Galeria dos Aventureiros
                 </div>
-                <h1 style={{ fontFamily: "'Cormorant Garamond', 'Cinzel', serif", fontSize: 'clamp(30px, 4vw, 40px)', fontWeight: 400, margin: '0 0 8px 0', letterSpacing: '-0.01em' }}>
+                <h1 style={{ fontFamily: "'Cormorant Garamond', 'Cinzel', serif", fontSize: 'clamp(30px, 4vw, 40px)', fontWeight: 400, margin: '0 0 8px 0', letterSpacing: '-0.01em', color: '#EAE0D5' }}>
                   Fichas de Personagem
                 </h1>
-                <p style={{ fontStyle: 'italic', fontSize: '16px', opacity: 0.8, margin: 0, maxWidth: '580px' }}>
+                <p style={{ fontStyle: 'italic', fontSize: '16px', opacity: 0.85, margin: 0, maxWidth: '580px', color: '#EAE0D5' }}>
                   Toque no retrato para contemplar e registrar os feitos do herói.
                 </p>
               </div>
@@ -1371,107 +1492,28 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
         )}
 
         {/* ========================================================
-            GUIA III: GRIMÓRIO & DIÁRIO DE BORDO
+        {/* ========================================================
+            GUIA III: GRIMÓRIO DE RPG & BESTIÁRIO (D&D 2024 & CRÔNICAS)
             ======================================================== */}
         {activeChapter === 'III' && (
           <section style={{ width: '100%', animation: 'fadeIn 0.5s ease', textAlign: 'left' }}>
-            <div className="editorial-grid-12">
-              {/* Coluna Principal (8 colunas) */}
-              <div>
-                <div style={{ letterSpacing: '0.25em', fontSize: '11px', textTransform: 'uppercase', opacity: 0.6, marginBottom: '8px' }}>
-                  Capítulo III • Crônicas & Anotações
-                </div>
-                <h1 style={{ fontFamily: "'Cormorant Garamond', 'Cinzel', serif", fontSize: 'clamp(30px, 4vw, 40px)', fontWeight: 400, margin: '0 0 8px 0', letterSpacing: '-0.01em' }}>
-                  Grimório & Diário de Bordo
-                </h1>
-                <p style={{ fontStyle: 'italic', fontSize: '16px', opacity: 0.85, margin: '0 0 24px 0', maxWidth: '580px' }}>
-                  Memórias, rumores e lendas gravadas à pena pelos viajantes desta mesa.
-                </p>
-
-                <div style={{ marginBottom: '28px' }}>
-                  <button
-                    onClick={() => {
-                      setEditingLoreId(null);
-                      setLoreTitle('');
-                      setLoreContent('');
-                      setLoreTags('Aventura, Mistério');
-                      setIsNewLoreModalOpen(true);
-                    }}
-                    className="editorial-btn-primary"
-                  >
-                    <Plus size={15} />
-                    Gravar Novo Registro
-                  </button>
-                </div>
-
-                {activeCampaign && activeCampaign.lore && activeCampaign.lore.length > 0 ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    {activeCampaign.lore.map((entry) => (
-                      <article
-                        key={entry.id}
-                        className="editorial-claude-card dark-theme"
-                      >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                          <span className="editorial-pill-tag">
-                            {entry.category || 'Crônica'}
-                          </span>
-                          <div style={{ display: 'flex', gap: '12px', fontSize: '12px' }}>
-                            <button
-                              onClick={() => handleOpenEditLore(entry)}
-                              style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', cursor: 'pointer', textDecoration: 'underline' }}
-                            >
-                              Editar
-                            </button>
-                            <button
-                              onClick={() => onDeleteLore(activeCampaign.id, entry.id)}
-                              style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', cursor: 'pointer', textDecoration: 'underline', opacity: 0.7 }}
-                            >
-                              Apagar
-                            </button>
-                          </div>
-                        </div>
-
-                        <h3 style={{ fontFamily: "'Cormorant Garamond', 'Cinzel', serif", fontSize: '22px', fontWeight: 600, margin: '0 0 10px 0', letterSpacing: '0.02em' }}>
-                          {entry.title}
-                        </h3>
-
-                        <p style={{ fontStyle: 'italic', fontSize: '15px', lineHeight: '1.7', opacity: 0.9, margin: '0 0 14px 0' }}>
-                          {entry.content}
-                        </p>
-
-                        <div style={{ fontSize: '11px', letterSpacing: '0.08em', textTransform: 'uppercase', opacity: 0.6 }}>
-                          Tags: {entry.tags?.join(', ') || 'Geral'}
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="editorial-claude-card dark-theme" style={{ padding: '32px' }}>
-                    <p style={{ fontStyle: 'italic', fontSize: '16px', opacity: 0.75, margin: 0 }}>
-                      As páginas deste diário ainda aguardam pelos primeiros relatos da expedição.
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* Coluna Lateral (4 colunas) */}
-              <aside className="editorial-claude-card dark-theme">
-                <div style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.6, marginBottom: '14px', fontWeight: 600 }}>
-                  Compêndio de Crônicas
-                </div>
-                <div className="editorial-meta-row">
-                  <span className="editorial-meta-label">Total de Relatos</span>
-                  <span className="editorial-meta-value">{activeCampaign?.lore?.length || 0}</span>
-                </div>
-                <div className="editorial-meta-row">
-                  <span className="editorial-meta-label">Mesa Ativa</span>
-                  <span className="editorial-meta-value">{activeCampaign?.name || 'Geral'}</span>
-                </div>
-                <p style={{ fontSize: '13px', fontStyle: 'italic', opacity: 0.75, lineHeight: '1.6', marginTop: '16px', marginBottom: 0 }}>
-                  Utilize o grimório para registrar ganchos de aventura, itens raros descobertos e pistas misteriosas que a confraria encontrou.
-                </p>
-              </aside>
-            </div>
+            <GrimorioBestiarioView
+              activeCampaignId={activeCampaign?.id}
+              loreEntries={activeCampaign?.lore || []}
+              onAddLore={() => {
+                setEditingLoreId(null);
+                setLoreTitle('');
+                setLoreContent('');
+                setLoreTags('Aventura, Mistério');
+                setIsNewLoreModalOpen(true);
+              }}
+              onEditLore={handleOpenEditLore}
+              onDeleteLore={(loreId) => {
+                if (activeCampaign) {
+                  onDeleteLore(activeCampaign.id, loreId);
+                }
+              }}
+            />
           </section>
         )}
 
@@ -1480,16 +1522,16 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
             ======================================================== */}
         {activeChapter === 'IV' && (
           <section style={{ width: '100%', animation: 'fadeIn 0.5s ease', textAlign: 'left' }}>
-            <div className="editorial-grid-12">
-              {/* Coluna Principal (8 colunas) */}
-              <div>
-                <div style={{ letterSpacing: '0.25em', fontSize: '11px', textTransform: 'uppercase', opacity: 0.6, marginBottom: '8px' }}>
+            <div className="editorial-grid-12" style={{ alignItems: 'start' }}>
+              {/* Coluna Principal (8 colunas) Envolvida em Bloco Fosco */}
+              <div className="editorial-frosted-card room-matte-IV">
+                <div style={{ letterSpacing: '0.25em', fontSize: '11px', textTransform: 'uppercase', opacity: 0.65, marginBottom: '8px', color: '#D4A359' }}>
                   Capítulo IV • Biblioteca de Regras
                 </div>
-                <h1 style={{ fontFamily: "'Cormorant Garamond', 'Cinzel', serif", fontSize: 'clamp(30px, 4vw, 40px)', fontWeight: 400, margin: '0 0 8px 0', letterSpacing: '-0.01em' }}>
+                <h1 style={{ fontFamily: "'Cormorant Garamond', 'Cinzel', serif", fontSize: 'clamp(30px, 4vw, 40px)', fontWeight: 400, margin: '0 0 8px 0', letterSpacing: '-0.01em', color: '#EAE0D5' }}>
                   Compêndio & Manuais PDF
                 </h1>
-                <p style={{ fontStyle: 'italic', fontSize: '16px', opacity: 0.85, margin: '0 0 24px 0', maxWidth: '580px' }}>
+                <p style={{ fontStyle: 'italic', fontSize: '16px', opacity: 0.85, margin: '0 0 24px 0', maxWidth: '580px', color: '#EAE0D5' }}>
                   Manuais de apoio, suplementos e documentos de regras catalogados para a mesa.
                 </p>
 
@@ -1515,7 +1557,8 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                     {activeCampaign.rules.map((rule) => (
                       <div
                         key={rule.id}
-                        className="editorial-claude-card dark-theme"
+                        className="editorial-campaign-card room-matte-IV"
+                        style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', alignItems: 'stretch' }}
                       >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                           <span className="editorial-pill-tag">
@@ -1530,25 +1573,25 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                             </button>
                             <button
                               onClick={() => onDeleteRule(activeCampaign.id, rule.id)}
-                              style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', cursor: 'pointer', textDecoration: 'underline', opacity: 0.7 }}
+                              style={{ background: 'none', border: 'none', padding: 0, color: '#fca5a5', cursor: 'pointer', textDecoration: 'underline', opacity: 0.8 }}
                             >
                               Remover
                             </button>
                           </div>
                         </div>
 
-                        <h3 style={{ fontFamily: "'Cormorant Garamond', 'Cinzel', serif", fontSize: '22px', fontWeight: 600, margin: '0 0 8px 0' }}>
+                        <h3 style={{ fontFamily: "'Cormorant Garamond', 'Cinzel', serif", fontSize: '22px', fontWeight: 600, margin: '0 0 8px 0', color: '#EAE0D5' }}>
                           {rule.title}
                         </h3>
 
-                        <p style={{ fontStyle: 'italic', fontSize: '15px', lineHeight: '1.6', opacity: 0.85, margin: '0 0 16px 0' }}>
+                        <p style={{ fontStyle: 'italic', fontSize: '15px', lineHeight: '1.6', opacity: 0.85, margin: '0 0 16px 0', color: '#EAE0D5' }}>
                           {rule.description || 'Manual de referência rápida de mecânicas e magias.'}
                         </p>
 
                         <button
                           onClick={() => setViewingRuleDoc(rule)}
                           className="editorial-btn-secondary"
-                          style={{ padding: '6px 14px', fontSize: '12px' }}
+                          style={{ padding: '8px 16px', fontSize: '12px', alignSelf: 'flex-start' }}
                         >
                           <BookOpen size={13} />
                           Folhear Documento
@@ -1557,8 +1600,8 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                     ))}
                   </div>
                 ) : (
-                  <div className="editorial-claude-card dark-theme" style={{ padding: '32px' }}>
-                    <p style={{ fontStyle: 'italic', fontSize: '16px', opacity: 0.75, margin: 0 }}>
+                  <div className="editorial-claude-card room-matte-IV" style={{ padding: '28px' }}>
+                    <p style={{ fontStyle: 'italic', fontSize: '16px', opacity: 0.75, margin: 0, color: '#EAE0D5' }}>
                       Nenhum compêndio ou manual foi anexado a este salão até o momento.
                     </p>
                   </div>
@@ -1566,8 +1609,8 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
               </div>
 
               {/* Coluna Lateral (4 colunas) */}
-              <aside className="editorial-claude-card dark-theme">
-                <div style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.6, marginBottom: '14px', fontWeight: 600 }}>
+              <aside className="editorial-claude-card room-matte-IV">
+                <div style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.65, marginBottom: '14px', fontWeight: 600, color: '#D4A359' }}>
                   Estante de Regras
                 </div>
                 <div className="editorial-meta-row">
@@ -1578,7 +1621,7 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                   <span className="editorial-meta-label">Formato</span>
                   <span className="editorial-meta-value">PDF & Texto</span>
                 </div>
-                <p style={{ fontSize: '13px', fontStyle: 'italic', opacity: 0.75, lineHeight: '1.6', marginTop: '16px', marginBottom: 0 }}>
+                <p style={{ fontSize: '13px', fontStyle: 'italic', opacity: 0.8, lineHeight: '1.6', marginTop: '16px', marginBottom: 0 }}>
                   Guarde fichas de referência rápida, grimórios de feitiços e suplementos para consulta instantânea durante a sessão de RPG.
                 </p>
               </aside>
@@ -1591,16 +1634,16 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
             ======================================================== */}
         {activeChapter === 'V' && (
           <section style={{ width: '100%', animation: 'fadeIn 0.5s ease', textAlign: 'left' }}>
-            <div className="editorial-grid-12">
-              {/* Coluna Principal (8 colunas) */}
-              <div>
-                <div style={{ letterSpacing: '0.25em', fontSize: '11px', textTransform: 'uppercase', opacity: 0.6, marginBottom: '8px' }}>
+            <div className="editorial-grid-12" style={{ alignItems: 'start' }}>
+              {/* Coluna Principal (8 colunas) Envolvida em Bloco Fosco */}
+              <div className="editorial-frosted-card room-matte-V">
+                <div style={{ letterSpacing: '0.25em', fontSize: '11px', textTransform: 'uppercase', opacity: 0.65, marginBottom: '8px', color: '#D4A359' }}>
                   Capítulo V • Oráculo dos Dados & Confraria
                 </div>
-                <h1 style={{ fontFamily: "'Cormorant Garamond', 'Cinzel', serif", fontSize: 'clamp(30px, 4vw, 40px)', fontWeight: 400, margin: '0 0 8px 0', letterSpacing: '-0.01em' }}>
+                <h1 style={{ fontFamily: "'Cormorant Garamond', 'Cinzel', serif", fontSize: 'clamp(30px, 4vw, 40px)', fontWeight: 400, margin: '0 0 8px 0', letterSpacing: '-0.01em', color: '#EAE0D5' }}>
                   Bandeja de Rolagens
                 </h1>
-                <p style={{ fontStyle: 'italic', fontSize: '16px', opacity: 0.85, margin: '0 0 28px 0', maxWidth: '580px' }}>
+                <p style={{ fontStyle: 'italic', fontSize: '16px', opacity: 0.85, margin: '0 0 28px 0', maxWidth: '580px', color: '#EAE0D5' }}>
                   Toque nos dados para que a sorte decida o destino da sua aventura.
                 </p>
 
@@ -1635,7 +1678,7 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                 </div>
 
                 {/* Resultado em Destaque Alinhado à Esquerda */}
-                <div className="editorial-claude-card dark-theme" style={{ minHeight: '140px', display: 'flex', flexDirection: 'column', justifyContent: 'center', marginBottom: '24px' }}>
+                <div className="editorial-claude-card room-matte-V" style={{ minHeight: '140px', display: 'flex', flexDirection: 'column', justifyContent: 'center', marginBottom: '24px' }}>
                   {quickDiceHistory.length > 0 ? (
                     <div>
                       <div
@@ -1645,74 +1688,43 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                           fontWeight: 700,
                           lineHeight: 1,
                           letterSpacing: '-0.02em',
-                          color: '#DEC29B',
+                          color: '#D4A359',
                           marginBottom: '8px',
                         }}
                       >
                         {quickDiceHistory[0].result}
                       </div>
-                      <div style={{ fontStyle: 'italic', fontSize: '14px', opacity: 0.8 }}>
+                      <div style={{ fontStyle: 'italic', fontSize: '14px', opacity: 0.8, color: '#EAE0D5' }}>
                         O {quickDiceHistory[0].die.toUpperCase()} rolou sobre a madeira às {quickDiceHistory[0].time}
                       </div>
                     </div>
                   ) : (
-                    <div style={{ fontStyle: 'italic', fontSize: '16px', opacity: 0.65 }}>
+                    <div style={{ fontStyle: 'italic', fontSize: '16px', opacity: 0.65, color: '#EAE0D5' }}>
                       Aguardando a primeira rolagem sobre a mesa...
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Coluna Lateral (4 colunas): Histórico e Aventureiros Presentes */}
-              <aside className="editorial-claude-card dark-theme">
-                <div style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.6, marginBottom: '14px', fontWeight: 600 }}>
-                  Últimas Rolagens
+              {/* Coluna Lateral (4 colunas) */}
+              <aside className="editorial-claude-card room-matte-V">
+                <div style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.65, marginBottom: '14px', fontWeight: 600, color: '#D4A359' }}>
+                  Histórico Recente
                 </div>
-                {quickDiceHistory.length > 1 ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '24px' }}>
-                    {quickDiceHistory.slice(1, 6).map((item, idx) => (
-                      <div key={idx} className="editorial-meta-row" style={{ padding: '6px 0' }}>
-                        <span className="editorial-meta-label">{item.die}</span>
-                        <span className="editorial-meta-value" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{item.result}</span>
+                {quickDiceHistory.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {quickDiceHistory.slice(0, 6).map((item, idx) => (
+                      <div key={idx} className="editorial-meta-row">
+                        <span className="editorial-meta-label">{item.die.toUpperCase()} • {item.time}</span>
+                        <span className="editorial-meta-value" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", color: idx === 0 ? '#D4A359' : '#EAE0D5' }}>
+                          {item.result}
+                        </span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p style={{ fontStyle: 'italic', fontSize: '13px', opacity: 0.6, marginBottom: '24px' }}>
-                    Nenhuma rolagem anterior registrada.
-                  </p>
-                )}
-
-                <div style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.6, marginBottom: '12px', fontWeight: 600, borderTop: '1px solid rgba(currentColor, 0.12)', paddingTop: '16px' }}>
-                  Aventureiros à Mesa
-                </div>
-                {activeCampaign && activeCampaign.players && activeCampaign.players.length > 0 ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {activeCampaign.players.map((player) => {
-                      const isMaster = player.uid === activeCampaign.masterId;
-                      return (
-                        <div key={player.uid} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
-                          <span style={{ fontWeight: 600 }}>{player.name}</span>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{ fontStyle: 'italic', fontSize: '11px', opacity: 0.7 }}>
-                              {isMaster ? 'Mestre' : 'Jogador'}
-                            </span>
-                            {isMasterOfActive && !isMaster && (
-                              <button
-                                onClick={() => onRemovePlayer(activeCampaign.id, player.uid)}
-                                style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', cursor: 'pointer', fontSize: '11px', textDecoration: 'underline', opacity: 0.6 }}
-                              >
-                                Remover
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <p style={{ fontStyle: 'italic', fontSize: '13px', opacity: 0.6, margin: 0 }}>
-                    Nenhum jogador inscrito nesta mesa.
+                  <p style={{ fontSize: '13px', fontStyle: 'italic', opacity: 0.75, margin: 0 }}>
+                    Nenhum dado lançado na sessão atual.
                   </p>
                 )}
               </aside>
