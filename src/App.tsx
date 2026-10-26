@@ -47,7 +47,7 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
     textColor: '#EAE0D5', // Pergaminho Claro
     borderColor: 'rgba(212, 163, 89, 0.15)',
     accentColor: '#D4A359', // Âmbar / Ouro Velho
-    imageUrl: '/assets/banner_mesa_alchemist.png', // Ilustração do alquimista & orbe enviada pelo usuário
+    imageUrl: '/assets/banner_mesa_apostadores_v2.jpg', // Ilustração da mesa de madeira com mapas e pergaminhos
   },
   II: {
     id: 'II',
@@ -69,7 +69,7 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
     textColor: '#EAE0D5', // Pergaminho Claro
     borderColor: 'rgba(212, 163, 89, 0.18)',
     accentColor: '#D4A359',
-    imageUrl: '/assets/banner_urd_taberneiro.jpg', // Pintura de Urd brindando com a caneca
+    imageUrl: '/assets/banner_urd_taberneiro_v2.jpg', // Ilustração do taberneiro atrás do balcão limpando caneco
   },
   IV: {
     id: 'IV',
@@ -91,7 +91,7 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
     textColor: '#EAE0D5', // Pergaminho Claro
     borderColor: 'rgba(212, 163, 89, 0.18)',
     accentColor: '#D4A359',
-    imageUrl: '/assets/banner_bazar_treasury.jpg', // Pintura a óleo renascentista da tesouraria
+    imageUrl: '/assets/banner_bazar_treasury_v2.jpg', // Ilustração do baú de tesouro medieval com joias e moedas
   },
 };
 
