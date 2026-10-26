@@ -7063,29 +7063,59 @@ h1, h2, h3, h4, .font-cinzel {
 }
 
 .awwwards-gallery-frame {
-  width: clamp(260px, 28vw, 360px);
-  height: clamp(290px, 34vw, 420px);
+  width: auto;
+  height: auto;
+  max-width: 420px;
+  max-height: 380px;
   position: relative;
-  overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
-  transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 700ms ease;
-}
-
-.awwwards-gallery-frame-wrap:hover .awwwards-gallery-frame {
-  transform: scale(1.035);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
+  overflow: visible;
+  box-shadow: none;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .awwwards-gallery-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  width: auto;
+  height: auto;
+  max-width: 420px;
+  max-height: 380px;
+  object-fit: contain;
   display: block;
-  transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  /* Animação brusca / rápida de xilogravura: duration-75 ease-linear (stop-motion rústico) */
+  transition: transform 75ms ease-linear;
+  transform-origin: center center;
 }
 
-.awwwards-gallery-frame-wrap:hover .awwwards-gallery-img {
-  transform: scale(1.06);
+/* Inclinação seca alternada no hover conforme a sala (Recorte de Jornal / Xilogravura) */
+.awwwards-gallery-frame-wrap.room-tilt-I:hover .awwwards-gallery-img,
+.awwwards-gallery-frame-wrap:hover .awwwards-gallery-img.awwwards-room-I {
+  transform: rotate(5deg);
+}
+
+.awwwards-gallery-frame-wrap.room-tilt-II:hover .awwwards-gallery-img,
+.awwwards-gallery-frame-wrap:hover .awwwards-gallery-img.awwwards-room-II {
+  transform: rotate(-5deg);
+}
+
+.awwwards-gallery-frame-wrap.room-tilt-III:hover .awwwards-gallery-img,
+.awwwards-gallery-frame-wrap:hover .awwwards-gallery-img.awwwards-room-III {
+  transform: rotate(5deg);
+}
+
+.awwwards-gallery-frame-wrap.room-tilt-IV:hover .awwwards-gallery-img,
+.awwwards-gallery-frame-wrap:hover .awwwards-gallery-img.awwwards-room-IV {
+  transform: rotate(-5deg);
+}
+
+.awwwards-gallery-frame-wrap.room-tilt-V:hover .awwwards-gallery-img,
+.awwwards-gallery-frame-wrap:hover .awwwards-gallery-img.awwwards-room-V {
+  transform: rotate(5deg);
 }
 
 /* Micro-legenda sutil abaixo da imagem no hover */

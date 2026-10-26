@@ -17,6 +17,7 @@ import { EditorialBazarView } from './components/EditorialBazarView';
 import { UserProfileModal } from './components/UserProfileModal';
 import { TavernShopModal } from './components/TavernShopModal';
 import { MasterScreenView } from './components/MasterScreenView';
+import { CleanArtworkImage } from './components/CleanArtworkImage';
 import { storageService, ADMIN_EMAIL } from './services/storage';
 import { firebaseAuthService, db, auth, isLiveFirebaseConfigured } from './services/firebase';
 import { cloudCampaigns } from './services/cloudCampaigns';
@@ -583,20 +584,20 @@ export function App() {
               {currentTheme.subtitle}
             </h1>
 
-            {/* Imagem Central (Quadro/Pintura renascentista) */}
+            {/* Imagem Central Desprendida (Ilustração Flutuante / Recorte Medieval) */}
             <div
               onClick={() => {
                 tavernAudio.playToastSound();
                 setViewMode('functional');
               }}
-              className="awwwards-gallery-frame-wrap"
+              className={`awwwards-gallery-frame-wrap room-tilt-${activeRoom}`}
               title={`Clique para adentrar em ${currentTheme.name}`}
             >
               <div className="awwwards-gallery-frame">
-                <img
+                <CleanArtworkImage
                   src={currentTheme.imageUrl}
                   alt={currentTheme.name}
-                  className="awwwards-gallery-img"
+                  room={activeRoom}
                 />
               </div>
 
