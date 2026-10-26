@@ -30,6 +30,7 @@ export interface RoomConfig {
   id: RoomId;
   name: string;
   subtitle: string;
+  description: string;
   bgColor: string;
   cardColor: string;
   textColor: string;
@@ -43,30 +44,33 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
     id: 'I',
     name: 'Mesa dos Apostadores',
     subtitle: 'I. Mesa dos Apostadores',
-    bgColor: '#231710', // Marrom Café Torrado
-    cardColor: '#2E1F16', // Bloco Fosco
+    description: 'Um salão medieval onde você pode se juntar a aventureiros ou mestrar uma campanha ao redor da mesa.',
+    bgColor: '#332014', // Café Escuro
+    cardColor: '#3D2719', // Bloco Fosco Interno
     textColor: '#EAE0D5', // Pergaminho Claro
     borderColor: 'rgba(212, 163, 89, 0.15)',
     accentColor: '#D4A359', // Âmbar / Ouro Velho
-    imageUrl: '/assets/banner_mesa_apostadores_v2.jpg', // Ilustração da mesa de madeira com mapas e pergaminhos
+    imageUrl: '/assets/banner_mesa_apostadores_v2.jpg', // Ilustração da mesa redonda com mapas e pergaminhos
   },
   II: {
     id: 'II',
     name: 'Telas do Alaúde',
     subtitle: 'II. Telas do Alaúde',
-    bgColor: '#2A1A12', // Mogno Escuro
-    cardColor: '#362218', // Bloco Fosco
+    description: 'O ateliê de crônicas e artes visuais, onde memórias, retratos e cenas da aventura ganham forma e estilo.',
+    bgColor: '#291910', // Cacau Torrado
+    cardColor: '#332015', // Bloco Fosco Interno
     textColor: '#EAE0D5', // Pergaminho Claro
     borderColor: 'rgba(212, 163, 89, 0.15)',
     accentColor: '#D4A359',
-    imageUrl: '/assets/banner_telas_alaude.jpg', // Pintura renascentista do bardo com alaúde
+    imageUrl: '/assets/banner_telas_escriba_v2.jpg', // Ilustração do monge escriba com pena e livro
   },
   III: {
     id: 'III',
     name: 'Taberneiro',
     subtitle: 'III. Taberneiro',
-    bgColor: '#311B11', // Brasa & Madeira Queimada
-    cardColor: '#3E2316', // Bloco Fosco
+    description: 'O balcão do taberneiro, onde você pode pedir informações, tirar dúvidas sobre regras, consultar o bestiário e ouvir boatos.',
+    bgColor: '#21140C', // Mogno Profundo
+    cardColor: '#2B1A10', // Bloco Fosco Interno
     textColor: '#EAE0D5', // Pergaminho Claro
     borderColor: 'rgba(212, 163, 89, 0.18)',
     accentColor: '#D4A359',
@@ -76,19 +80,21 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
     id: 'IV',
     name: 'Recanto dos Bardos',
     subtitle: 'IV. Recanto dos Bardos',
-    bgColor: '#1F140E', // Nogueira Negra
-    cardColor: '#2B1C14', // Bloco Fosco
+    description: 'O recanto das canções e histórias, onde bardos controlam a ambiência sonora, trilhas e melodias da taverna.',
+    bgColor: '#180E08', // Nogueira Negra
+    cardColor: '#22140C', // Bloco Fosco Interno
     textColor: '#EAE0D5', // Pergaminho Claro
     borderColor: 'rgba(212, 163, 89, 0.18)',
     accentColor: '#D4A359',
-    imageUrl: '/assets/tavern_bg.jpg', // Pintura do salão da taverna à luz de tochas
+    imageUrl: '/assets/banner_recanto_barris_v2.jpg', // Ilustração dos barris de madeira, pergaminho, elmo e canecas
   },
   V: {
     id: 'V',
     name: 'Bazar da Taverna',
     subtitle: 'V. Bazar da Taverna',
-    bgColor: '#160E0A', // Ébano Profundo
-    cardColor: '#221610', // Bloco Fosco
+    description: 'O mercado oculto de relíquias e tesouros, onde moedas de ouro são trocadas por artefatos raros para a sua jornada.',
+    bgColor: '#100905', // Ébano Carbonizado
+    cardColor: '#1A0F09', // Bloco Fosco Interno
     textColor: '#EAE0D5', // Pergaminho Claro
     borderColor: 'rgba(212, 163, 89, 0.18)',
     accentColor: '#D4A359',
@@ -478,11 +484,6 @@ export function App() {
               );
             })}
           </div>
-
-          {/* Nome da sala sutil e elegante */}
-          <div className="awwwards-nav-subtitle">
-            {hoveredRoom ? ROOMS[hoveredRoom].subtitle : ROOMS[activeRoom].subtitle}
-          </div>
         </div>
 
         {/* Canto Superior Direito: Texto JOGADOR */}
@@ -574,16 +575,11 @@ export function App() {
         ) : viewMode === 'gallery' ? (
           /* ========================================================
              NÍVEL 1 — DISPLAY PRINCIPAL (MODO CAPA / GALERIA MINIMALISTA)
-             - Título da Sala em tipografia serifada elegante e discreta acima da imagem
-             - Imagem Central perfeitamente centralizada com ~70% de espaço negativo
-             - Micro-legenda no hover: 'Clique para adentrar'
+             - Sem títulos no topo ou acima da imagem
+             - Imagem Central perfeitamente centralizada
+             - Legenda descritiva moderada abaixo da ilustração
              ======================================================== */
           <div className="awwwards-gallery-stage">
-            {/* Título da Sala discreto e elegante acima da imagem */}
-            <h1 className="awwwards-gallery-title">
-              {currentTheme.subtitle}
-            </h1>
-
             {/* Imagem Central Desprendida (Ilustração Flutuante / Recorte Medieval) */}
             <div
               onClick={() => {
@@ -600,12 +596,12 @@ export function App() {
                   room={activeRoom}
                 />
               </div>
-
-              {/* Micro-legenda sutil abaixo da imagem no hover */}
-              <div className="awwwards-gallery-microcaption">
-                Clique para adentrar
-              </div>
             </div>
+
+            {/* Legenda Descritiva Moderada Abaixo da Ilustração Central */}
+            <p className="mt-6 text-base md:text-lg font-serif italic text-[#E6CCB2]/85 max-w-md mx-auto text-center leading-relaxed">
+              {currentTheme.description}
+            </p>
           </div>
         ) : (
           /* ========================================================

@@ -97,8 +97,8 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
     'I': {
       title: 'Mesa dos Apostadores',
       subtitle: 'Salão Principal',
-      bgColor: '#231710', // Marrom Café Torrado
-      cardColor: '#2E1F16', // Bloco Fosco
+      bgColor: '#332014', // Café Escuro
+      cardColor: '#3D2719', // Bloco Fosco
       textColor: '#EAE0D5', // Pergaminho Claro
       subtextColor: '#C9BAA9',
       accentColor: '#D4A359', // Âmbar / Ouro Velho
@@ -107,8 +107,8 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
     'II': {
       title: 'Fichas de Personagem',
       subtitle: 'Galeria dos Aventureiros',
-      bgColor: '#2A1A12', // Mogno Escuro
-      cardColor: '#362218',
+      bgColor: '#291910', // Cacau Torrado
+      cardColor: '#332015',
       textColor: '#EAE0D5',
       subtextColor: '#C9BAA9',
       accentColor: '#D4A359',
@@ -117,8 +117,8 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
     'III': {
       title: 'Grimório & Bestiário',
       subtitle: 'Crônicas & Monstros',
-      bgColor: '#311B11', // Brasa & Madeira Queimada
-      cardColor: '#3E2316',
+      bgColor: '#21140C', // Mogno Profundo
+      cardColor: '#2B1A10',
       textColor: '#EAE0D5',
       subtextColor: '#C9BAA9',
       accentColor: '#D4A359',
@@ -127,8 +127,8 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
     'IV': {
       title: 'Compêndio & Manuais PDF',
       subtitle: 'Biblioteca de Regras',
-      bgColor: '#1F140E', // Nogueira Negra
-      cardColor: '#2B1C14',
+      bgColor: '#180E08', // Nogueira Negra
+      cardColor: '#22140C',
       textColor: '#EAE0D5',
       subtextColor: '#C9BAA9',
       accentColor: '#D4A359',
@@ -137,8 +137,8 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
     'V': {
       title: 'Bandeja de Rolagens & Aventureiros',
       subtitle: 'Oráculo dos Dados & Confraria',
-      bgColor: '#160E0A', // Ébano Profundo
-      cardColor: '#221610',
+      bgColor: '#100905', // Ébano Carbonizado
+      cardColor: '#1A0F09',
       textColor: '#EAE0D5',
       subtextColor: '#C9BAA9',
       accentColor: '#D4A359',

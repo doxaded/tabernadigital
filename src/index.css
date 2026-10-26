@@ -7139,6 +7139,19 @@ h1, h2, h3, h4, .font-cinzel {
   transform: translateY(0);
 }
 
+/* Legenda Descritiva Moderada Abaixo da Imagem Central */
+.awwwards-gallery-description {
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(15px, 1.15vw, 18px);
+  color: rgba(230, 204, 178, 0.85);
+  max-width: 460px;
+  margin: 24px auto 0;
+  text-align: center;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+}
+
 /* 4. Nível 2 — Modo Funcional (Interior da Sala) */
 .awwwards-functional-stage {
   flex: 1;
@@ -7430,21 +7443,21 @@ h1, h2, h3, h4, .font-cinzel {
   box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.2);
 }
 
-/* Variações Ricas de Marrom Escuro para os Blocos Foscos */
+/* Variações Ricas de Marrom Escuro em Degradê Estrito para os Blocos Foscos */
 .room-matte-I {
-  background-color: #2E1F16 !important;
+  background-color: #3D2719 !important;
 }
 .room-matte-II {
-  background-color: #362218 !important;
+  background-color: #332015 !important;
 }
 .room-matte-III {
-  background-color: #3E2316 !important;
+  background-color: #2B1A10 !important;
 }
 .room-matte-IV {
-  background-color: #2B1C14 !important;
+  background-color: #22140C !important;
 }
 .room-matte-V {
-  background-color: #221610 !important;
+  background-color: #1A0F09 !important;
 }
 
 /* Linha de Metadados Técnica */
