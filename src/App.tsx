@@ -446,20 +446,34 @@ export function App() {
       document.body.style.backgroundColor = currentTheme.bgColor;
       document.body.style.color = currentTheme.textColor;
     } else {
-      document.body.style.backgroundColor = '#0e0906';
-      document.body.style.color = '#fef3c7';
+      document.body.style.backgroundColor = '#120B07';
+      document.body.style.color = '#EAE0D5';
     }
   }, [hasEntered, currentTheme.bgColor, currentTheme.textColor]);
 
   // Se o usuário ainda não entrou na taverna, exibe a Tela de Início (Abertura com Título em Tela Cheia)
   if (!hasEntered) {
     return (
-      <LandingPage
-        onEnter={() => {
-          tavernAudio.playBellChime();
-          setHasEntered(true);
-        }}
-      />
+      <>
+        <LandingPage
+          onEnter={() => {
+            tavernAudio.playBellChime();
+            setHasEntered(true);
+          }}
+          onOpenAuth={() => setIsAuthModalOpen(true)}
+        />
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+          currentUser={currentUser}
+          onLogout={handleLogout}
+          onLoginSuccess={(user) => {
+            setCurrentUser(user);
+            setIsAuthModalOpen(false);
+            reloadData();
+          }}
+        />
+      </>
     );
   }
 
