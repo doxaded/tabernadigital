@@ -7169,36 +7169,33 @@ h1, h2, h3, h4, .font-cinzel {
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: clamp(28px, 4.2vw, 72px);
+  gap: clamp(32px, 4.5vw, 64px); /* gap-16 balanceado */
   width: 100%;
-  max-width: 1560px;
+  max-width: 1024px; /* max-w-5xl */
   height: auto;
   margin: 0 auto;
   position: relative;
   z-index: 10;
   box-sizing: border-box;
-  padding: 0 clamp(16px, 2.8vw, 44px);
+  padding: 0 32px; /* px-8 */
 }
 
-/* Colunas Laterais de Texto: Altura Livre, Desvinculada da Imagem Central */
+/* Coluna Única de Legenda à Esquerda (max-w-md a max-w-lg) */
 .medieval-codex-column {
-  flex: 1 1 0px;
-  max-width: clamp(400px, 34vw, 560px);
-  min-width: 320px;
+  flex: 1 1 500px;
+  max-width: 520px; /* max-w-lg */
+  min-width: 300px;
   height: auto;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  align-self: center;
+  justify-content: center;
+  align-items: flex-start;
   position: relative;
 }
 
 .medieval-codex-column.codex-left {
   align-items: flex-start;
-}
-
-.medieval-codex-column.codex-right {
-  align-items: flex-start;
+  text-align: left;
 }
 
 /* Container de Texto com Caligrafia Gótica Medieval */
@@ -7222,15 +7219,15 @@ h1, h2, h3, h4, .font-cinzel {
   user-select: none;
 }
 
-/* Parágrafos de Códice: Caligrafia MedievalSharp Restaurada, Grande (30-34px), Entrelinha 1.9 e Ragged-Right */
+/* Parágrafos de Códice: Caligrafia Medieval, Linhas Densas e Coesas (line-height: 1.38 / leading-normal) */
 .codex-manuscript-paragraph {
   font-family: 'MedievalSharp', 'UnifrakturMaguntia', serif;
-  font-size: clamp(30px, 2.1vw, 34px);
-  line-height: 1.9; /* Entrelinha de 1.9 que faz as letras imponentes respirarem */
+  font-size: clamp(26px, 1.85vw, 30px);
+  line-height: 1.38; /* Entrelinha compacta e densa de pergaminho real */
   color: rgba(235, 218, 196, 0.9); /* Tom de pergaminho antigo */
   letter-spacing: 0.01em;
-  word-spacing: 0.06em;
-  text-align: left; /* Alinhamento natural à esquerda (sem justificar) */
+  word-spacing: 0.05em;
+  text-align: left; /* Alinhamento natural à esquerda */
   hyphens: none; /* Sem hifenização forçada */
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
   margin: 0;
@@ -7239,14 +7236,14 @@ h1, h2, h3, h4, .font-cinzel {
 /* Letra Capitular (Drop Cap) em Iluminura: UnifrakturMaguntia Gótica, Encaixe Natural e Colado sem Vazio */
 .codex-drop-cap {
   font-family: 'UnifrakturMaguntia', 'MedievalSharp', serif;
-  font-size: clamp(76px, 5.2vw, 94px);
-  line-height: 0.72;
+  font-size: clamp(66px, 4.4vw, 78px);
+  line-height: 0.78;
   font-weight: 700;
   color: #D4A359; /* Âmbar / Ouro Velho das Iluminuras */
   float: left;
-  margin-right: 4px; /* Colada à primeira palavra sem hiato */
-  margin-top: 6px;
-  margin-bottom: -4px;
+  margin-right: 5px; /* Colada à primeira palavra sem hiato */
+  margin-top: 4px;
+  margin-bottom: -2px;
   text-shadow: 0 0 18px rgba(212, 163, 89, 0.5), 0 2px 6px rgba(0, 0, 0, 0.9);
   display: inline-block;
   user-select: none;
@@ -7298,11 +7295,11 @@ h1, h2, h3, h4, .font-cinzel {
   .medieval-manuscript-stage {
     flex-direction: column;
     gap: 36px;
-    padding: 0 20px;
+    padding: 0 24px;
   }
 
   .medieval-codex-column {
-    max-width: 620px;
+    max-width: 560px;
     width: 100%;
     align-items: flex-start !important;
   }
@@ -7315,13 +7312,9 @@ h1, h2, h3, h4, .font-cinzel {
     order: 2;
   }
 
-  .medieval-codex-column.codex-right {
-    order: 3;
-  }
-
   .codex-manuscript-paragraph {
-    font-size: clamp(24px, 2.6vw, 28px);
-    line-height: 1.85;
+    font-size: clamp(22px, 2.5vw, 26px);
+    line-height: 1.38;
   }
 }
 
@@ -7616,19 +7609,11 @@ h1, h2, h3, h4, .font-cinzel {
   box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.2);
 }
 
-/* Variações Ricas de Marrom Escuro em Degradê Estrito para os Blocos Foscos */
-.room-matte-I {
-  background-color: #3D2719 !important;
-}
-.room-matte-II {
-  background-color: #332015 !important;
-}
-.room-matte-III {
-  background-color: #2B1A10 !important;
-}
-.room-matte-IV {
-  background-color: #22140C !important;
-}
+/* Blocos Foscos Internos Padronizados (#1A0F09) em Todo o Site */
+.room-matte-I,
+.room-matte-II,
+.room-matte-III,
+.room-matte-IV,
 .room-matte-V {
   background-color: #1A0F09 !important;
 }

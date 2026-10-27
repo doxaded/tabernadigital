@@ -97,8 +97,8 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
     'I': {
       title: 'Mesa dos Apostadores',
       subtitle: 'Salão Principal',
-      bgColor: '#332014', // Café Escuro
-      cardColor: '#3D2719', // Bloco Fosco
+      bgColor: '#100905', // Ébano Profundo da Sala V unificado
+      cardColor: '#1A0F09', // Bloco Fosco Padronizado
       textColor: '#EAE0D5', // Pergaminho Claro
       subtextColor: '#C9BAA9',
       accentColor: '#D4A359', // Âmbar / Ouro Velho
@@ -107,8 +107,8 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
     'II': {
       title: 'Fichas de Personagem',
       subtitle: 'Galeria dos Aventureiros',
-      bgColor: '#291910', // Cacau Torrado
-      cardColor: '#332015',
+      bgColor: '#100905', // Ébano Profundo da Sala V unificado
+      cardColor: '#1A0F09',
       textColor: '#EAE0D5',
       subtextColor: '#C9BAA9',
       accentColor: '#D4A359',
@@ -117,8 +117,8 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
     'III': {
       title: 'Grimório & Bestiário',
       subtitle: 'Crônicas & Monstros',
-      bgColor: '#21140C', // Mogno Profundo
-      cardColor: '#2B1A10',
+      bgColor: '#100905', // Ébano Profundo da Sala V unificado
+      cardColor: '#1A0F09',
       textColor: '#EAE0D5',
       subtextColor: '#C9BAA9',
       accentColor: '#D4A359',
@@ -127,8 +127,8 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
     'IV': {
       title: 'Compêndio & Manuais PDF',
       subtitle: 'Biblioteca de Regras',
-      bgColor: '#180E08', // Nogueira Negra
-      cardColor: '#22140C',
+      bgColor: '#100905', // Ébano Profundo da Sala V unificado
+      cardColor: '#1A0F09',
       textColor: '#EAE0D5',
       subtextColor: '#C9BAA9',
       accentColor: '#D4A359',
