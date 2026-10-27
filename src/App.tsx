@@ -31,6 +31,8 @@ export interface RoomConfig {
   name: string;
   subtitle: string;
   description: string;
+  inscriptionLeft: string;
+  inscriptionRight: string;
   bgColor: string;
   cardColor: string;
   textColor: string;
@@ -45,6 +47,8 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
     name: 'Mesa dos Apostadores',
     subtitle: 'I. Mesa dos Apostadores',
     description: 'Um salão medieval onde você pode se juntar a aventureiros ou mestrar uma campanha ao redor da mesa.',
+    inscriptionLeft: 'Um salão medieval onde aventureiros se reúnem ao redor da mesa',
+    inscriptionRight: 'para forjar alianças, rolar o destino e mestrar grandes campanhas.',
     bgColor: '#332014', // Café Escuro
     cardColor: '#3D2719', // Bloco Fosco Interno
     textColor: '#EAE0D5', // Pergaminho Claro
@@ -57,6 +61,8 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
     name: 'Telas do Alaúde',
     subtitle: 'II. Telas do Alaúde',
     description: 'O ateliê de crônicas e artes visuais, onde memórias, retratos e cenas da aventura ganham forma e estilo.',
+    inscriptionLeft: 'O ateliê silencioso de crônicas, iluminuras e artes visuais,',
+    inscriptionRight: 'onde memórias, retratos e cenas da jornada ganham forma eterna.',
     bgColor: '#291910', // Cacau Torrado
     cardColor: '#332015', // Bloco Fosco Interno
     textColor: '#EAE0D5', // Pergaminho Claro
@@ -69,6 +75,8 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
     name: 'Taberneiro',
     subtitle: 'III. Taberneiro',
     description: 'O balcão do taberneiro, onde você pode pedir informações, tirar dúvidas sobre regras, consultar o bestiário e ouvir boatos.',
+    inscriptionLeft: 'O balcão do velho taberneiro, guardião dos segredos da casa,',
+    inscriptionRight: 'onde se buscam rumores, regras do mundo e relatos do bestiário.',
     bgColor: '#21140C', // Mogno Profundo
     cardColor: '#2B1A10', // Bloco Fosco Interno
     textColor: '#EAE0D5', // Pergaminho Claro
@@ -81,6 +89,8 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
     name: 'Recanto dos Bardos',
     subtitle: 'IV. Recanto dos Bardos',
     description: 'O recanto das canções e histórias, onde bardos controlam a ambiência sonora, trilhas e melodias da taverna.',
+    inscriptionLeft: 'O recanto caloroso das canções, versos e histórias antigas,',
+    inscriptionRight: 'onde os bardos regem os alaúdes e a ambiência sonora da taverna.',
     bgColor: '#180E08', // Nogueira Negra
     cardColor: '#22140C', // Bloco Fosco Interno
     textColor: '#EAE0D5', // Pergaminho Claro
@@ -93,6 +103,8 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
     name: 'Bazar da Taverna',
     subtitle: 'V. Bazar da Taverna',
     description: 'O mercado oculto de relíquias e tesouros, onde moedas de ouro são trocadas por artefatos raros para a sua jornada.',
+    inscriptionLeft: 'O mercado oculto de relíquias místicas, tomos e tesouros raros,',
+    inscriptionRight: 'onde moedas de ouro são trocadas por artefatos para a sua jornada.',
     bgColor: '#100905', // Ébano Carbonizado
     cardColor: '#1A0F09', // Bloco Fosco Interno
     textColor: '#EAE0D5', // Pergaminho Claro
@@ -581,35 +593,56 @@ export function App() {
           })()
         ) : viewMode === 'gallery' ? (
           /* ========================================================
-             NÍVEL 1 — DISPLAY PRINCIPAL (MODO CAPA / GALERIA MINIMALISTA)
-             - Sem títulos no topo ou acima da imagem
-             - Imagem Central perfeitamente centralizada
-             - Legenda descritiva próxima ao rodapé (bottom-6 / pb-6) com maior presença
+             NÍVEL 1 — DISPLAY PRINCIPAL (LAYOUT DE MANUSCRITO MEDIEVAL)
+             - Linha horizontal de 3 colunas centralizadas na tela
+             - Coluna Esquerda: 1ª metade da inscrição com Letra Capitular (Drop Cap)
+             - Coluna Central: Ilustração medieval recortada com animação no hover
+             - Coluna Direita: 2ª metade da inscrição em caligrafia gótica
              ======================================================== */
           <div className="awwwards-gallery-stage">
-            {/* Imagem Central Desprendida (Ilustração Flutuante / Recorte Medieval) */}
-            <div
-              onClick={() => {
-                tavernAudio.playToastSound();
-                setViewMode('functional');
-              }}
-              className={`awwwards-gallery-frame-wrap room-tilt-${activeRoom}`}
-              title={`Clique para adentrar em ${currentTheme.name}`}
-            >
-              <div className="awwwards-gallery-frame">
-                <CleanArtworkImage
-                  src={currentTheme.imageUrl}
-                  alt={currentTheme.name}
-                  room={activeRoom}
-                />
-              </div>
-            </div>
+            <div className="medieval-manuscript-stage">
+              {/* Coluna Esquerda (Lateral Esquerda da Imagem) */}
+              <aside className="medieval-codex-column codex-left" aria-label="Inscrição Medieval - Primeira Metade">
+                <div className="codex-text-wrap codex-text-left">
+                  <span className="codex-drop-cap">
+                    {currentTheme.inscriptionLeft.charAt(0)}
+                  </span>
+                  <span className="codex-body-text">
+                    {currentTheme.inscriptionLeft.slice(1)}
+                  </span>
+                </div>
+                {/* Linha vertical / Ornamento medieval sutil */}
+                <div className="codex-divider codex-divider-left" />
+              </aside>
 
-            {/* Legenda Descritiva Próxima ao Rodapé com Maior Presença Visual */}
-            <div className="awwwards-gallery-bottom-container">
-              <p className="awwwards-gallery-description">
-                {currentTheme.description}
-              </p>
+              {/* Coluna Central: Ilustração Medieval Recortada / Flutuante */}
+              <div
+                onClick={() => {
+                  tavernAudio.playToastSound();
+                  setViewMode('functional');
+                }}
+                className={`awwwards-gallery-frame-wrap room-tilt-${activeRoom}`}
+                title={`Clique para adentrar em ${currentTheme.name}`}
+              >
+                <div className="awwwards-gallery-frame">
+                  <CleanArtworkImage
+                    src={currentTheme.imageUrl}
+                    alt={currentTheme.name}
+                    room={activeRoom}
+                  />
+                </div>
+              </div>
+
+              {/* Coluna Direita (Lateral Direita da Imagem) */}
+              <aside className="medieval-codex-column codex-right" aria-label="Inscrição Medieval - Segunda Metade">
+                {/* Linha vertical / Ornamento medieval sutil */}
+                <div className="codex-divider codex-divider-right" />
+                <div className="codex-text-wrap codex-text-right">
+                  <span className="codex-body-text">
+                    {currentTheme.inscriptionRight}
+                  </span>
+                </div>
+              </aside>
             </div>
           </div>
         ) : (

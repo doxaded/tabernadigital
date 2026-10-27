@@ -7153,31 +7153,143 @@ h1, h2, h3, h4, .font-cinzel {
   transform: translateY(0);
 }
 
-/* Legenda Descritiva Próxima à Borda Inferior (bottom-6 / pb-6) com Grande Presença Visual */
-.awwwards-gallery-bottom-container {
-  position: absolute;
-  bottom: clamp(20px, 3.8vh, 32px);
-  left: 0;
-  right: 0;
-  width: 100%;
-  padding: 0 clamp(20px, 4vw, 40px);
-  box-sizing: border-box;
+/* ========================================================
+   MODO GALERIA: LAYOUT DE MANUSCRITO MEDIEVAL / TRIPTYCH
+   - 3 Colunas: Texto Esquerdo (Capitular) + Imagem Central + Texto Direito
+   - Tipografia em Caligrafia Gótica (MedievalSharp / UnifrakturMaguntia)
+   - Tom de Tinta de Pergaminho Envelhecido (#D8C3A5 a 80%) e Ouro Velho (#D4A359)
+   ======================================================== */
+.medieval-manuscript-stage {
   display: flex;
+  flex-direction: row;
+  align-items: center;
   justify-content: center;
-  pointer-events: none;
+  gap: clamp(16px, 3.2vw, 44px);
+  width: 100%;
+  max-width: 1140px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 10;
+  box-sizing: border-box;
 }
 
-.awwwards-gallery-description {
-  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
-  font-style: italic;
-  font-size: clamp(20px, 1.85vw, 25px);
-  color: rgba(230, 204, 178, 0.90);
-  max-width: 640px;
-  margin: 0 auto;
-  text-align: center;
-  line-height: 1.5;
-  letter-spacing: 0.015em;
-  pointer-events: auto;
+/* Colunas Laterais de Texto */
+.medieval-codex-column {
+  flex: 1;
+  max-width: 250px;
+  min-width: 190px;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.medieval-codex-column.codex-left {
+  justify-content: flex-end;
+  gap: clamp(12px, 1.8vw, 24px);
+}
+
+.medieval-codex-column.codex-right {
+  justify-content: flex-start;
+  gap: clamp(12px, 1.8vw, 24px);
+}
+
+/* Container de Texto com Caligrafia Gótica Medieval */
+.codex-text-wrap {
+  font-family: 'MedievalSharp', 'UnifrakturMaguntia', 'Pirata One', Georgia, serif;
+  font-size: clamp(18px, 1.35vw, 23px);
+  line-height: 1.62;
+  color: rgba(216, 195, 165, 0.82); /* Tinta de pergaminho envelhecido #D8C3A5 a 80% */
+  letter-spacing: 0.025em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+  user-select: none;
+  position: relative;
+}
+
+/* Coluna Esquerda: Primeira metade da inscrição alinhada à direita / justificada */
+.codex-text-left {
+  text-align: right;
+}
+
+/* Coluna Direita: Segunda metade da inscrição alinhada à esquerda */
+.codex-text-right {
+  text-align: left;
+}
+
+/* Letra Capitular (Drop Cap) em Iluminura Medieval */
+.codex-drop-cap {
+  font-family: 'UnifrakturMaguntia', 'MedievalSharp', 'Cinzel', serif;
+  font-size: clamp(38px, 2.7vw, 48px);
+  line-height: 0.85;
+  font-weight: 700;
+  color: #D4A359; /* Âmbar / Ouro Velho das Iluminuras */
+  float: left;
+  margin-right: 8px;
+  margin-top: 1px;
+  margin-bottom: -2px;
+  text-shadow: 0 0 16px rgba(212, 163, 89, 0.45), 0 2px 6px rgba(0, 0, 0, 0.85);
+  display: inline-block;
+}
+
+.codex-body-text {
+  display: inline;
+}
+
+/* Divisores Verticais Sutis de Grimório (Linhas finíssimas com fade) */
+.codex-divider {
+  width: 1px;
+  height: clamp(130px, 20vh, 190px);
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(212, 163, 89, 0.16) 20%,
+    rgba(212, 163, 89, 0.16) 80%,
+    transparent 100%
+  );
+  flex-shrink: 0;
+}
+
+/* Responsividade: Mobile e Telas Menores que 920px */
+@media (max-width: 919px) {
+  .medieval-manuscript-stage {
+    flex-direction: column;
+    gap: 20px;
+    padding: 0 16px;
+  }
+
+  .medieval-codex-column {
+    max-width: 440px;
+    width: 100%;
+    justify-content: center !important;
+  }
+
+  .medieval-codex-column.codex-left {
+    order: 1;
+  }
+
+  .awwwards-gallery-frame-wrap {
+    order: 2;
+  }
+
+  .medieval-codex-column.codex-right {
+    order: 3;
+  }
+
+  .codex-text-left,
+  .codex-text-right {
+    text-align: center;
+  }
+
+  .codex-drop-cap {
+    float: none;
+    display: inline-block;
+    vertical-align: baseline;
+    margin-right: 4px;
+    margin-top: 0;
+  }
+
+  .codex-divider {
+    display: none;
+  }
 }
 
 /* 4. Nível 2 — Modo Funcional (Interior da Sala) */
