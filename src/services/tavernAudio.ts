@@ -279,7 +279,7 @@ class TavernAudioService {
   }
 
   /**
-   * Efeito Sonoro: Rolagem de Dado d20 sobre madeira rústica
+   * Efeito Sonoro: Rolagem de Dado d20 sobre madeira rústica (Toque sutil e discreto)
    */
   public playDiceRoll() {
     const ctx = this.getOrCreateContext();
@@ -291,7 +291,7 @@ class TavernAudioService {
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(340 + Math.random() * 220, now + delay);
       osc.frequency.exponentialRampToValueAtTime(120 + Math.random() * 50, now + delay + 0.05);
-      gain.gain.setValueAtTime(0.22 / (i + 1), now + delay);
+      gain.gain.setValueAtTime(0.05 / (i + 1), now + delay);
       gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.05);
       osc.connect(gain);
       gain.connect(ctx.destination);
@@ -301,7 +301,7 @@ class TavernAudioService {
   }
 
   /**
-   * Efeito Sonoro: Sino de Balcão da Taverna (Chime límpido de latão)
+   * Efeito Sonoro: Sino de Balcão da Taverna (Chime límpido, suave e macio)
    */
   public playBellChime() {
     const ctx = this.getOrCreateContext();
@@ -312,7 +312,7 @@ class TavernAudioService {
       const gain = ctx.createGain();
       osc.type = 'sine';
       osc.frequency.setValueAtTime(freq, now);
-      gain.gain.setValueAtTime(0.2 / (idx + 1), now);
+      gain.gain.setValueAtTime(0.045 / (idx + 1), now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
       osc.connect(gain);
       gain.connect(ctx.destination);
@@ -322,7 +322,7 @@ class TavernAudioService {
   }
 
   /**
-   * Efeito Sonoro: Brinde com Caneca de Carvalho / Taça da Taverna
+   * Efeito Sonoro: Brinde com Caneca de Carvalho / Taça da Taverna (Macio e discreto)
    */
   public playToastSound() {
     const ctx = this.getOrCreateContext();
@@ -333,7 +333,7 @@ class TavernAudioService {
       const gain = ctx.createGain();
       osc.type = 'sine';
       osc.frequency.setValueAtTime(freq, now + idx * 0.04);
-      gain.gain.setValueAtTime(0.22, now + idx * 0.04);
+      gain.gain.setValueAtTime(0.05, now + idx * 0.04);
       gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.04 + 0.6);
       osc.connect(gain);
       gain.connect(ctx.destination);
@@ -343,7 +343,7 @@ class TavernAudioService {
   }
 
   /**
-   * Efeito Sonoro: Labareda da Tocha / Fogo Crepitante
+   * Efeito Sonoro: Labareda da Tocha / Fogo Crepitante (Sutil)
    */
   public playFlameWhoosh() {
     const ctx = this.getOrCreateContext();
@@ -355,7 +355,7 @@ class TavernAudioService {
     osc.frequency.setValueAtTime(160, now);
     osc.frequency.exponentialRampToValueAtTime(380, now + 0.12);
     osc.frequency.exponentialRampToValueAtTime(110, now + 0.35);
-    gain.gain.setValueAtTime(0.18, now);
+    gain.gain.setValueAtTime(0.045, now);
     gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
     osc.connect(gain);
     gain.connect(ctx.destination);

@@ -319,8 +319,9 @@ h1, h2, h3, h4, .font-cinzel {
 .tavern-modal-backdrop {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(4px);
+  background-color: rgba(18, 11, 7, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -334,12 +335,13 @@ h1, h2, h3, h4, .font-cinzel {
   max-width: 600px;
   max-height: 90vh;
   overflow-y: auto;
-  background: #ffffff !important;
-  color: #111111 !important;
-  border: 1px solid #e2e8f0 !important;
-  border-radius: var(--radius-md);
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+  background: #1C110B !important;
+  color: #EAE0D5 !important;
+  border: 1px solid rgba(212, 163, 89, 0.2) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(0, 0, 0, 0.5) !important;
   animation: modalEnter 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
 }
 
 .tavern-modal-content h1,
@@ -350,49 +352,80 @@ h1, h2, h3, h4, .font-cinzel {
 .tavern-modal-content p,
 .tavern-modal-content span,
 .tavern-modal-content label {
-  color: #111111;
+  color: #EAE0D5 !important;
 }
 
 .tavern-modal-content p.text-muted,
 .tavern-modal-content .text-muted,
 .tavern-modal-content span.text-muted {
-  color: #64748b;
+  color: #B89F86 !important;
 }
 
 .tavern-modal-content .tavern-input,
 .tavern-modal-content input,
 .tavern-modal-content textarea,
 .tavern-modal-content select {
-  background-color: #ffffff !important;
-  border: 1px solid #cbd5e1 !important;
-  color: #0f172a !important;
+  background-color: #120A06 !important;
+  border: 1px solid rgba(230, 204, 178, 0.2) !important;
+  color: #F5E6D3 !important;
+  border-radius: 8px !important;
 }
 
 .tavern-modal-content .tavern-input:focus,
 .tavern-modal-content input:focus,
 .tavern-modal-content textarea:focus,
 .tavern-modal-content select:focus {
-  border-color: #111111 !important;
-  background-color: #ffffff !important;
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1) !important;
+  border-color: #D4A359 !important;
+  background-color: #160D08 !important;
+  box-shadow: 0 0 0 2px rgba(212, 163, 89, 0.25) !important;
+  outline: none !important;
 }
 
 .tavern-modal-content .tavern-input::placeholder,
 .tavern-modal-content input::placeholder,
 .tavern-modal-content textarea::placeholder {
-  color: #94a3b8 !important;
+  color: rgba(184, 159, 134, 0.4) !important;
 }
 
 .tavern-modal-content .btn-tavern.btn-primary {
-  background: #111111 !important;
-  color: #ffffff !important;
-  border: 1px solid #111111 !important;
+  background: linear-gradient(135deg, #8B5A2B 0%, #683E1A 100%) !important;
+  color: #FDFBF7 !important;
+  border: 1px solid rgba(212, 163, 89, 0.35) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45) !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.tavern-modal-content .btn-tavern.btn-primary:hover {
+  background: linear-gradient(135deg, #A06832 0%, #7A4920 100%) !important;
+  border-color: #D4A359 !important;
+  transform: translateY(-1px);
 }
 
 .tavern-modal-content .btn-tavern.btn-secondary {
-  background: #ffffff !important;
-  color: #475569 !important;
-  border: 1px solid #e2e8f0 !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #EAE0D5 !important;
+  border: 1px solid rgba(212, 163, 89, 0.2) !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.tavern-modal-content .btn-tavern.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(212, 163, 89, 0.4) !important;
+  color: #FFF !important;
+}
+
+/* Áreas de Upload e Caixas de Aviso nos Modais */
+.tavern-modal-content #sheet-import-dropzone {
+  background-color: rgba(42, 26, 17, 0.85) !important;
+  border-color: rgba(212, 163, 89, 0.3) !important;
+}
+
+.tavern-modal-content #sheet-import-dropzone:hover {
+  background-color: rgba(50, 31, 20, 0.95) !important;
+  border-color: rgba(212, 163, 89, 0.6) !important;
 }
 
 @keyframes modalEnter {
@@ -3539,13 +3572,6 @@ h1, h2, h3, h4, .font-cinzel {
   color: #334155 !important;
 }
 
-/* Modais Padronizados em Fundo Branco */
-.tavern-modal-content {
-  background-color: #ffffff;
-  color: #0f172a;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-}
 
 /* ==========================================================================
    HUB PRINCIPAL: XADREZ DE CORES COM BANNERS 70VH
@@ -6901,14 +6927,15 @@ h1, h2, h3, h4, .font-cinzel {
   box-sizing: border-box;
 }
 
-/* 2. Cabeçalho Superior Minimalista (Top Navigation) */
+/* 2. Cabeçalho Superior Minimalista (Top Navigation) - Colado no Topo e Extremidades */
 .awwwards-top-nav {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 90px;
-  padding: 0 clamp(20px, 4vw, 56px);
+  height: auto;
+  min-height: 44px;
+  padding: 10px clamp(16px, 2.5vw, 24px) 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -6921,18 +6948,29 @@ h1, h2, h3, h4, .font-cinzel {
   user-select: none;
 }
 
+/* Tipografia Esticada Verticalmente (Editorial Condensada) */
+.awwwards-nav-stretched-text {
+  display: inline-block;
+  transform: scaleY(1.18);
+  transform-origin: center center;
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+
 /* Canto Superior Esquerdo: MENU */
 .awwwards-nav-menu-btn {
   font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
-  font-size: clamp(20px, 1.8vw, 24px);
-  font-weight: 600;
-  letter-spacing: 0.24em;
+  font-size: clamp(21px, 1.85vw, 25px);
+  font-weight: 400;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   background: transparent;
   border: none;
   color: inherit;
   cursor: pointer;
-  padding: 8px 0;
+  padding: 4px 0;
   margin: 0;
   line-height: 1;
   transition: opacity 300ms ease;
@@ -6958,64 +6996,40 @@ h1, h2, h3, h4, .font-cinzel {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(20px, 3.5vw, 52px); /* Espaçamento amplo gap-12 */
+  gap: clamp(18px, 3.2vw, 48px);
 }
 
 .awwwards-nav-numeral-btn {
   font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
-  font-size: clamp(22px, 2vw, 26px);
-  letter-spacing: 0.08em;
+  font-size: clamp(22px, 2vw, 27px);
+  font-weight: 400;
+  letter-spacing: 0.06em;
   background: transparent;
   border: none;
   color: inherit;
   cursor: pointer;
-  padding: 4px 6px;
+  padding: 2px 4px;
   line-height: 1;
-  transition: opacity 300ms ease, transform 300ms ease;
   user-select: none;
 }
 
 .awwwards-nav-numeral-btn.is-active {
-  opacity: 1 !important;
-  font-weight: 700;
-  transform: scale(1.15);
-}
-
-.awwwards-nav-numeral-btn.is-inactive {
-  opacity: 0.3;
-}
-
-.awwwards-nav-numeral-btn.is-inactive:hover {
-  opacity: 0.75;
-}
-
-/* Subtítulo Sutil e Elegante da Sala */
-.awwwards-nav-subtitle {
-  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
-  font-style: italic;
-  font-size: 13px;
-  letter-spacing: 0.16em;
-  text-align: center;
-  opacity: 0.75;
-  margin-top: 6px;
-  height: 18px;
-  white-space: nowrap;
-  pointer-events: none;
-  transition: opacity 300ms ease;
+  font-weight: 400;
+  transform: scale(1.05);
 }
 
 /* Canto Superior Direito: JOGADOR */
 .awwwards-nav-player-btn {
   font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
-  font-size: clamp(20px, 1.8vw, 24px);
-  font-weight: 600;
-  letter-spacing: 0.24em;
+  font-size: clamp(21px, 1.85vw, 25px);
+  font-weight: 400;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   background: transparent;
   border: none;
   color: inherit;
   cursor: pointer;
-  padding: 8px 0;
+  padding: 4px 0;
   margin: 0;
   line-height: 1;
   transition: opacity 300ms ease;
@@ -7139,17 +7153,31 @@ h1, h2, h3, h4, .font-cinzel {
   transform: translateY(0);
 }
 
-/* Legenda Descritiva Moderada Abaixo da Imagem Central */
+/* Legenda Descritiva Próxima à Borda Inferior (bottom-6 / pb-6) com Grande Presença Visual */
+.awwwards-gallery-bottom-container {
+  position: absolute;
+  bottom: clamp(20px, 3.8vh, 32px);
+  left: 0;
+  right: 0;
+  width: 100%;
+  padding: 0 clamp(20px, 4vw, 40px);
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
 .awwwards-gallery-description {
   font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
   font-style: italic;
-  font-size: clamp(15px, 1.15vw, 18px);
-  color: rgba(230, 204, 178, 0.85);
-  max-width: 460px;
-  margin: 24px auto 0;
+  font-size: clamp(20px, 1.85vw, 25px);
+  color: rgba(230, 204, 178, 0.90);
+  max-width: 640px;
+  margin: 0 auto;
   text-align: center;
-  line-height: 1.6;
-  letter-spacing: 0.02em;
+  line-height: 1.5;
+  letter-spacing: 0.015em;
+  pointer-events: auto;
 }
 
 /* 4. Nível 2 — Modo Funcional (Interior da Sala) */

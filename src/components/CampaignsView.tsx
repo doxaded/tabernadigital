@@ -301,9 +301,11 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
 
   const splitLines = (text: string) => text.split('\n').map(l => l.trim()).filter(Boolean);
 
+  const [sheetAvatarUrl, setSheetAvatarUrl] = useState<string | undefined>(undefined);
+
   const handleCreateSheet = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!activeCampaign || !sheetName.trim()) return;
+    if (!sheetName.trim()) return;
 
     const statsProblem = validateCustomStats(sheetCustomStats);
     if (statsProblem) {
@@ -315,31 +317,38 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
     const common = {
       name: sheetName.trim(),
       player: sheetPlayer.trim() || currentUser.displayName,
-      class: sheetClass,
-      level: Number(sheetLevel),
-      race: sheetRace,
-      maxHp: Number(sheetHp),
-      maxMp: Number(sheetMp),
-      armorClass: Number(sheetAc),
+      class: sheetClass || 'Guerreiro',
+      level: Number(sheetLevel) || 1,
+      race: sheetRace || 'Humano',
+      maxHp: Number(sheetHp) || 25,
+      maxMp: Number(sheetMp) || 10,
+      armorClass: Number(sheetAc) || 14,
       stats: { ...sheetStats },
       customStats: sheetCustomStats.map(s => ({ code: s.code, value: Number(s.value) })),
       traits: splitLines(sheetTraits),
       equipment: splitLines(sheetEquipment),
       notes: sheetNotes.trim(),
       isNpc: sheetIsNpc,
+      avatarUrl: sheetAvatarUrl,
     };
 
-    if (editingSheetId) {
-      const existing = activeCampaign.sheets.find(s => s.id === editingSheetId);
-      onUpdateSheet(activeCampaign.id, editingSheetId, {
+    const targetCampaignId = activeCampaign ? activeCampaign.id : (campaigns[0]?.id || 'camp-default');
+
+    if (editingSheetId && activeCampaign) {
+      const existing = activeCampaign.sheets?.find(s => s.id === editingSheetId);
+      onUpdateSheet(targetCampaignId, editingSheetId, {
         ...common,
         // Mantém os pontos atuais, limitados ao novo máximo
         hp: Math.min(existing?.hp ?? common.maxHp, common.maxHp),
         mp: Math.min(existing?.mp ?? common.maxMp, common.maxMp),
       });
     } else {
-      onAddSheet(activeCampaign.id, { ...common, hp: common.maxHp, mp: common.maxMp });
+      onAddSheet(targetCampaignId, { ...common, hp: common.maxHp, mp: common.maxMp });
     }
+
+    try {
+      tavernAudio.playDiceRoll();
+    } catch {}
 
     resetSheetForm();
     setEditingSheetId(null);
@@ -351,6 +360,18 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
     if (!file) return;
     setImportStatus('reading');
     setImportMessage(`Lendo "${file.name}"...`);
+
+    // Se for imagem, salva também como avatar do personagem
+    if (file.type.startsWith('image/')) {
+      try {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (e.target?.result) setSheetAvatarUrl(String(e.target.result));
+        };
+        reader.readAsDataURL(file);
+      } catch {}
+    }
+
     try {
       const data = await extractCharacterSheetFromFile(file);
       if (data.name) setSheetName(data.name);
@@ -386,6 +407,7 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
     setSheetMp(10);
     setSheetAc(14);
     setSheetIsNpc(false);
+    setSheetAvatarUrl(undefined);
     setSheetStats(DEFAULT_SHEET_STATS);
     setSheetCustomStats([]);
     setSheetTraits('Treinado em Sobrevivência\nAtaque Poderoso');
@@ -415,6 +437,7 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
     setSheetMp(sheet.maxMp);
     setSheetAc(sheet.armorClass);
     setSheetIsNpc(!!sheet.isNpc);
+    setSheetAvatarUrl(sheet.avatarUrl);
     setSheetStats({ ...DEFAULT_SHEET_STATS, ...sheet.stats });
     setSheetCustomStats((sheet.customStats || []).map(s => ({ ...s })));
     setSheetTraits((sheet.traits || []).join('\n'));
@@ -2209,38 +2232,38 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
       {/* MODAL: VISUALIZADOR DE PDF / DOCUMENTO */}
       {viewingRuleDoc && (
         <div className="tavern-modal-backdrop" onClick={() => setViewingRuleDoc(null)}>
-          <div className="tavern-modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '750px', padding: '0', backgroundColor: '#ffffff', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e2e8f0', color: '#111' }}>
-            <div style={{ padding: '16px 20px', background: '#ffffff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="tavern-modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '750px', padding: '0', backgroundColor: '#1C110B', borderRadius: '14px', overflow: 'hidden', border: '1px solid rgba(212, 163, 89, 0.25)', color: '#EAE0D5', boxShadow: '0 20px 50px rgba(0,0,0,0.7)' }}>
+            <div style={{ padding: '16px 20px', background: '#251710', borderBottom: '1px solid rgba(212, 163, 89, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <FileText size={20} color="#111" />
-                <h4 style={{ margin: 0, color: '#111', fontSize: '16px', fontWeight: 700 }}>{viewingRuleDoc.title}</h4>
+                <FileText size={20} color="#D4A359" />
+                <h4 style={{ margin: 0, color: '#F5E6D3', fontSize: '16px', fontWeight: 700, fontFamily: "'Cormorant Garamond', Georgia, serif", letterSpacing: '0.04em' }}>{viewingRuleDoc.title}</h4>
               </div>
-              <button onClick={() => setViewingRuleDoc(null)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px' }}>
+              <button onClick={() => setViewingRuleDoc(null)} style={{ background: 'none', border: 'none', color: '#B89F86', cursor: 'pointer', padding: '4px' }}>
                 <X size={18} />
               </button>
             </div>
 
-            <div style={{ padding: '20px', backgroundColor: '#ffffff', color: '#111', minHeight: '350px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px', marginBottom: '14px' }}>
-                <span style={{ fontSize: '12px', fontWeight: 700, color: '#111' }}>
+            <div style={{ padding: '20px', backgroundColor: '#1C110B', color: '#EAE0D5', minHeight: '350px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(212, 163, 89, 0.12)', paddingBottom: '8px', marginBottom: '14px' }}>
+                <span style={{ fontSize: '12px', fontWeight: 600, color: '#D4A359' }}>
                   Visualizador de Documento • Página 1 de {viewingRuleDoc.pageCount || 1}
                 </span>
-                <span style={{ fontSize: '11px', color: '#64748b' }}>
+                <span style={{ fontSize: '11px', color: '#A89A85' }}>
                   Tamanho: {viewingRuleDoc.fileSize || '1.2 MB'}
                 </span>
               </div>
 
-              <div className="font-lore" style={{ fontSize: '15px', lineHeight: 1.7, whiteSpace: 'pre-line', color: '#334155' }}>
+              <div className="font-lore" style={{ fontSize: '15px', lineHeight: 1.7, whiteSpace: 'pre-line', color: '#EAE0D5' }}>
                 {viewingRuleDoc.contentSnippet || viewingRuleDoc.description}
               </div>
             </div>
 
-            <div style={{ padding: '14px 20px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-              <button onClick={() => alert('Download do arquivo de regras iniciado!')} style={{ backgroundColor: '#111', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ padding: '14px 20px', background: '#251710', borderTop: '1px solid rgba(212, 163, 89, 0.15)', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              <button onClick={() => alert('Download do arquivo de regras iniciado!')} style={{ backgroundColor: '#D4A359', color: '#160E0A', border: 'none', padding: '8px 18px', borderRadius: '8px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <Download size={14} />
                 Baixar PDF Completo
               </button>
-              <button onClick={() => setViewingRuleDoc(null)} style={{ backgroundColor: '#fff', color: '#475569', border: '1px solid #e2e8f0', padding: '8px 16px', borderRadius: '6px', fontSize: '12px', fontWeight: 500, cursor: 'pointer' }}>
+              <button onClick={() => setViewingRuleDoc(null)} style={{ backgroundColor: 'transparent', color: '#E6CCB2', border: '1px solid rgba(212, 163, 89, 0.25)', padding: '8px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 500, cursor: 'pointer' }}>
                 Fechar
               </button>
             </div>

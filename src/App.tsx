@@ -450,7 +450,7 @@ export function App() {
     >
       {/* ========================================================
           1. CABEÇALHO SUPERIOR MINIMALISTA (TOP NAVIGATION)
-          Totalmente limpo, sem linhas divisórias e com fundo transparente.
+          Totalmente limpo, colado no topo e extremidades laterais.
           ======================================================== */}
       <nav className="awwwards-top-nav">
         {/* Canto Superior Esquerdo: Texto MENU */}
@@ -462,13 +462,16 @@ export function App() {
           className="awwwards-nav-menu-btn"
           title="Abrir Menu Principal"
         >
-          MENU
+          <span className="awwwards-nav-stretched-text">MENU</span>
         </button>
 
         {/* Centro (Navegação das Salas em Algarismos Romanos): I   II   III   IV   V */}
         <div className="awwwards-nav-center">
           <div className="awwwards-nav-numerals">
-            {(['I', 'II', 'III', 'IV', 'V'] as RoomId[]).map((roman) => {
+            {(['I', 'II', 'III', 'IV', 'V'] as RoomId[]).map((roman, idx) => {
+              const activeIndex = (['I', 'II', 'III', 'IV', 'V'] as RoomId[]).indexOf(activeRoom);
+              const distance = Math.abs(activeIndex - idx);
+              const dynamicOpacity = distance === 0 ? 1 : distance === 1 ? 0.55 : distance === 2 ? 0.30 : distance === 3 ? 0.16 : 0.08;
               const isActive = activeRoom === roman;
               return (
                 <button
@@ -477,9 +480,13 @@ export function App() {
                   onMouseEnter={() => setHoveredRoom(roman)}
                   onMouseLeave={() => setHoveredRoom(null)}
                   className={`awwwards-nav-numeral-btn ${isActive ? 'is-active' : 'is-inactive'}`}
+                  style={{
+                    opacity: hoveredRoom === roman ? Math.max(dynamicOpacity, 0.85) : dynamicOpacity,
+                    transition: 'opacity 0.4s ease, transform 0.3s ease',
+                  }}
                   title={ROOMS[roman].name}
                 >
-                  {roman}
+                  <span className="awwwards-nav-stretched-text">{roman}</span>
                 </button>
               );
             })}
@@ -500,7 +507,7 @@ export function App() {
           className="awwwards-nav-player-btn"
           title={currentUser ? `Perfil de ${currentUser.displayName || currentUser.email}` : 'Entrar na Taberna'}
         >
-          JOGADOR
+          <span className="awwwards-nav-stretched-text">JOGADOR</span>
         </button>
       </nav>
 
@@ -577,7 +584,7 @@ export function App() {
              NÍVEL 1 — DISPLAY PRINCIPAL (MODO CAPA / GALERIA MINIMALISTA)
              - Sem títulos no topo ou acima da imagem
              - Imagem Central perfeitamente centralizada
-             - Legenda descritiva moderada abaixo da ilustração
+             - Legenda descritiva próxima ao rodapé (bottom-6 / pb-6) com maior presença
              ======================================================== */
           <div className="awwwards-gallery-stage">
             {/* Imagem Central Desprendida (Ilustração Flutuante / Recorte Medieval) */}
@@ -598,10 +605,12 @@ export function App() {
               </div>
             </div>
 
-            {/* Legenda Descritiva Moderada Abaixo da Ilustração Central */}
-            <p className="mt-6 text-base md:text-lg font-serif italic text-[#E6CCB2]/85 max-w-md mx-auto text-center leading-relaxed">
-              {currentTheme.description}
-            </p>
+            {/* Legenda Descritiva Próxima ao Rodapé com Maior Presença Visual */}
+            <div className="awwwards-gallery-bottom-container">
+              <p className="awwwards-gallery-description">
+                {currentTheme.description}
+              </p>
+            </div>
           </div>
         ) : (
           /* ========================================================
@@ -959,70 +968,7 @@ export function App() {
                 </button>
               )}
 
-              {/* Trocar Senha */}
-              {currentUser ? (
-                <>
-                  <button
-                    onClick={() => {
-                      setIsMenuOpen(false);
-                      setIsChangePasswordOpen(true);
-                    }}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '12px',
-                      width: '100%',
-                      padding: '10px 12px',
-                      borderRadius: '8px',
-                      background: 'transparent',
-                      border: 'none',
-                      color: '#EAE0D5',
-                      cursor: 'pointer',
-                      fontSize: '12px',
-                      letterSpacing: '0.08em',
-                      textTransform: 'uppercase',
-                      transition: 'background 0.2s ease',
-                      textAlign: 'left',
-                      boxSizing: 'border-box',
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)'}
-                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                  >
-                    <KeyRound size={15} style={{ opacity: 0.75, flexShrink: 0 }} />
-                    <span style={{ flex: 1 }}>Trocar Senha</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setIsMenuOpen(false);
-                      handleLogout();
-                    }}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '12px',
-                      width: '100%',
-                      padding: '10px 12px',
-                      borderRadius: '8px',
-                      background: 'transparent',
-                      border: 'none',
-                      color: '#f87171',
-                      cursor: 'pointer',
-                      fontSize: '12px',
-                      letterSpacing: '0.08em',
-                      textTransform: 'uppercase',
-                      transition: 'background 0.2s ease',
-                      textAlign: 'left',
-                      boxSizing: 'border-box',
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.12)'}
-                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                  >
-                    <LogOut size={15} style={{ opacity: 0.85, flexShrink: 0 }} />
-                    <span style={{ flex: 1 }}>Abandonar a Taverna</span>
-                  </button>
-                </>
-              ) : (
+              {!currentUser && (
                 <button
                   onClick={() => {
                     setIsMenuOpen(false);

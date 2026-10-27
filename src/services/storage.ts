@@ -852,37 +852,106 @@ export const storageService = {
   // Fichas
   addSheet(campaignId: string, sheet: Omit<CharacterSheet, 'id' | 'campaignId'>): CharacterSheet {
     const campaigns = this.getCampaigns();
-    const campaign = campaigns.find(c => c.id === campaignId);
+    let campaign = campaigns.find(c => c.id === campaignId);
+
+    // Fallback se a campanha específica não for encontrada
+    if (!campaign && campaigns.length > 0) {
+      campaign = campaigns[0];
+      campaignId = campaign.id;
+    }
+
+    const uniqueId = 'sheet-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
     const newSheet: CharacterSheet = {
       ...sheet,
-      id: 'sheet-' + Date.now(),
-      campaignId,
+      id: uniqueId,
+      campaignId: campaign ? campaign.id : (campaignId || 'camp-default'),
     };
+
     if (campaign) {
+      if (!Array.isArray(campaign.sheets)) {
+        campaign.sheets = [];
+      }
       campaign.sheets.push(newSheet);
       this.saveCampaigns(campaigns);
+    } else {
+      // Se não houver nenhuma campanha cadastrada, cria uma mesa padrão
+      const defaultCamp: Campaign = {
+        id: 'camp-' + Date.now(),
+        name: 'Mesa Principal dos Aventureiros',
+        description: 'Mesa de aventuras da Taberna Digital.',
+        system: 'D&D 5e',
+        coverUrl: '/assets/tavern_bg.jpg',
+        masterId: 'system',
+        masterName: 'Mestre da Taverna',
+        createdAt: new Date().toISOString(),
+        sheets: [newSheet],
+        lore: [],
+        rules: [],
+      };
+      campaigns.push(defaultCamp);
+      newSheet.campaignId = defaultCamp.id;
+      this.saveCampaigns(campaigns);
     }
+
+    // Persistência espelhada no Arquivo Global de Fichas do Jogador
+    try {
+      const ARCHIVE_KEY = 'taberna_player_sheets_archive_v1';
+      const existingRaw = localStorage.getItem(ARCHIVE_KEY);
+      const list: CharacterSheet[] = existingRaw ? JSON.parse(existingRaw) : [];
+      list.push(newSheet);
+      localStorage.setItem(ARCHIVE_KEY, JSON.stringify(list));
+    } catch (err) {
+      console.warn('Aviso: Falha ao gravar no arquivo global de fichas:', err);
+    }
+
     return newSheet;
   },
 
   updateSheet(campaignId: string, sheetId: string, data: Partial<CharacterSheet>) {
     const campaigns = this.getCampaigns();
-    const campaign = campaigns.find(c => c.id === campaignId);
-    if (!campaign) return;
-    const index = campaign.sheets.findIndex(s => s.id === sheetId);
-    if (index !== -1) {
-      campaign.sheets[index] = { ...campaign.sheets[index], ...data };
-      this.saveCampaigns(campaigns);
+    const campaign = campaigns.find(c => c.id === campaignId) || campaigns.find(c => c.sheets?.some(s => s.id === sheetId));
+    if (campaign) {
+      if (!Array.isArray(campaign.sheets)) campaign.sheets = [];
+      const index = campaign.sheets.findIndex(s => s.id === sheetId);
+      if (index !== -1) {
+        campaign.sheets[index] = { ...campaign.sheets[index], ...data };
+        this.saveCampaigns(campaigns);
+      }
     }
+
+    // Atualiza também no Arquivo Global
+    try {
+      const ARCHIVE_KEY = 'taberna_player_sheets_archive_v1';
+      const existingRaw = localStorage.getItem(ARCHIVE_KEY);
+      if (existingRaw) {
+        const list: CharacterSheet[] = JSON.parse(existingRaw);
+        const idx = list.findIndex(s => s.id === sheetId);
+        if (idx !== -1) {
+          list[idx] = { ...list[idx], ...data };
+          localStorage.setItem(ARCHIVE_KEY, JSON.stringify(list));
+        }
+      }
+    } catch {}
   },
 
   deleteSheet(campaignId: string, sheetId: string) {
     const campaigns = this.getCampaigns();
-    const campaign = campaigns.find(c => c.id === campaignId);
-    if (campaign) {
+    const campaign = campaigns.find(c => c.id === campaignId) || campaigns.find(c => c.sheets?.some(s => s.id === sheetId));
+    if (campaign && Array.isArray(campaign.sheets)) {
       campaign.sheets = campaign.sheets.filter(s => s.id !== sheetId);
       this.saveCampaigns(campaigns);
     }
+
+    // Remove também do Arquivo Global
+    try {
+      const ARCHIVE_KEY = 'taberna_player_sheets_archive_v1';
+      const existingRaw = localStorage.getItem(ARCHIVE_KEY);
+      if (existingRaw) {
+        const list: CharacterSheet[] = JSON.parse(existingRaw);
+        const filtered = list.filter(s => s.id !== sheetId);
+        localStorage.setItem(ARCHIVE_KEY, JSON.stringify(filtered));
+      }
+    } catch {}
   },
 
   // Lore

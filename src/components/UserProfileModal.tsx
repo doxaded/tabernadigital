@@ -179,26 +179,27 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
-    padding: '12px 14px',
-    backgroundColor: 'rgba(24, 20, 16, 0.75)',
-    border: '1px solid rgba(245, 236, 220, 0.12)',
-    borderRadius: '10px',
+    padding: '12px 16px',
+    backgroundColor: '#281B12',
+    border: '1px solid rgba(212, 163, 89, 0.15)',
+    borderRadius: '12px',
+    color: '#EAE0D5',
     cursor: 'pointer',
     transition: 'all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1)',
     boxSizing: 'border-box'
   };
 
   const optionHover = (e: React.MouseEvent<HTMLButtonElement>, enter: boolean) => {
-    e.currentTarget.style.backgroundColor = enter ? 'rgba(217, 119, 6, 0.14)' : 'rgba(24, 20, 16, 0.75)';
-    e.currentTarget.style.borderColor = enter ? 'rgba(217, 119, 6, 0.45)' : 'rgba(245, 236, 220, 0.12)';
-    e.currentTarget.style.transform = enter ? 'translateX(-2px)' : 'translateX(0)';
+    e.currentTarget.style.backgroundColor = enter ? '#332318' : '#281B12';
+    e.currentTarget.style.borderColor = enter ? 'rgba(212, 163, 89, 0.35)' : 'rgba(212, 163, 89, 0.15)';
+    e.currentTarget.style.transform = enter ? 'translateY(-1px)' : 'translateY(0)';
   };
 
   const optionIconContainerStyle: React.CSSProperties = {
     width: '34px',
     height: '34px',
     borderRadius: '8px',
-    backgroundColor: 'rgba(217, 119, 6, 0.15)',
+    backgroundColor: 'rgba(212, 163, 89, 0.12)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -259,14 +260,16 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.75)',
-        backdropFilter: 'blur(6px)',
+        backgroundColor: 'rgba(18, 11, 7, 0.95)',
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
         zIndex: 2500,
         display: 'flex',
-        justifyContent: 'flex-end',
-        alignItems: 'stretch',
-        padding: 0,
-        animation: 'fadeIn 0.25s ease-out'
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px',
+        animation: 'fadeIn 0.25s ease-out',
+        boxSizing: 'border-box'
       }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
@@ -281,80 +284,96 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
         onChange={handleFileSelect}
       />
 
-      {/* Aba Lateral Direita: Design Editorial Medieval da Taverna */}
+      {/* Modal Centralizado: Padrão Arquitetural e Visual Idêntico ao MENU */}
       <div
         style={{
+          position: 'relative',
           width: '100%',
-          maxWidth: '460px',
-          height: '100dvh',
-          maxHeight: '100dvh',
-          backgroundColor: '#0B0B0B',
-          color: '#F4EDDD',
-          borderRadius: 0,
-          borderLeft: '1px solid rgba(244, 237, 221, 0.15)',
-          boxShadow: '-15px 0 50px rgba(0, 0, 0, 0.95), 0 0 35px rgba(217, 119, 6, 0.12)',
+          maxWidth: '520px',
+          maxHeight: '88vh',
+          backgroundColor: '#1E130C',
+          border: '1px solid rgba(212, 163, 89, 0.15)',
+          borderRadius: '16px',
+          boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.85)',
+          color: '#EAE0D5',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
-          animation: 'slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+          animation: 'modalEnter 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
           fontFamily: 'var(--font-body)',
           boxSizing: 'border-box'
         }}
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* Cabeçalho da Aba Lateral (Editorial, limpo, alinhado com o design da Taberna) */}
+        {/* Cabeçalho do Modal com Botão [ X ] */}
         <div
           style={{
-            height: '60px',
-            backgroundColor: '#120F0C',
-            borderBottom: '1px solid rgba(244, 237, 221, 0.1)',
-            padding: '0 20px',
+            position: 'relative',
+            padding: '22px 28px 18px',
+            borderBottom: '1px solid rgba(212, 163, 89, 0.12)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            flexShrink: 0
+            flexShrink: 0,
+            backgroundColor: '#180E08'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FCD34D' }}>
-            <Scroll size={17} style={{ color: '#d97706' }} />
-            <span
-              style={{
-                fontFamily: "'Cinzel Hero', 'Cinzel', Georgia, serif",
-                fontSize: '12px',
-                fontWeight: 800,
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-                color: '#F4EDDD'
-              }}
-            >
-              {isEditing ? 'Personalizar Perfil' : 'Registro do Aventureiro'}
-            </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Scroll size={18} style={{ color: '#D4A359' }} />
+            <div>
+              <h2
+                style={{
+                  fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
+                  fontSize: '20px',
+                  fontWeight: 600,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  margin: 0,
+                  color: '#EAE0D5',
+                  lineHeight: 1.2
+                }}
+              >
+                {isEditing ? 'Personalizar Perfil' : 'Registro do Aventureiro'}
+              </h2>
+              <p
+                style={{
+                  fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+                  fontStyle: 'italic',
+                  fontSize: '13px',
+                  letterSpacing: '0.04em',
+                  opacity: 0.65,
+                  margin: '2px 0 0 0',
+                  color: '#EAE0D5'
+                }}
+              >
+                Taberna Digital • JOGADOR
+              </p>
+            </div>
           </div>
 
           <button
             onClick={onClose}
-            aria-label="Fechar"
+            aria-label="Fechar Perfil"
             style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(244, 237, 221, 0.15)',
-              borderRadius: '50%',
-              width: '32px',
-              height: '32px',
-              color: '#F4EDDD',
-              display: 'flex',
+              background: 'transparent',
+              border: 'none',
+              color: '#EAE0D5',
+              opacity: 0.6,
+              cursor: 'pointer',
+              display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
+              padding: '6px',
+              borderRadius: '6px',
+              transition: 'all 0.2s ease'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(217, 119, 6, 0.2)';
-              e.currentTarget.style.borderColor = '#d97706';
-              e.currentTarget.style.color = '#FCD34D';
+              e.currentTarget.style.opacity = '1';
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-              e.currentTarget.style.borderColor = 'rgba(244, 237, 221, 0.15)';
-              e.currentTarget.style.color = '#F4EDDD';
+              e.currentTarget.style.opacity = '0.6';
+              e.currentTarget.style.background = 'transparent';
             }}
           >
             <X size={18} />
@@ -364,10 +383,11 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
         {/* Corpo com Scroll Suave */}
         <div
           style={{
-            padding: '24px 20px 48px',
+            padding: '24px 28px 36px',
             overflowY: 'auto',
             flex: 1,
-            WebkitOverflowScrolling: 'touch'
+            WebkitOverflowScrolling: 'touch',
+            backgroundColor: '#1E130C'
           }}
         >
           {/* Mensagem de Erro de Upload se houver */}
@@ -537,8 +557,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               <div style={{ marginTop: '10px', display: 'inline-flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
                 <div
                   style={{
-                    backgroundColor: '#161412',
-                    border: '1px solid rgba(244, 237, 221, 0.22)',
+                    backgroundColor: '#251810',
+                    border: '1px solid rgba(212, 163, 89, 0.2)',
                     padding: '4px 10px',
                     borderRadius: '6px',
                     fontSize: '12px',
@@ -552,7 +572,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   }}
                   title="Tag de Aventureiro (utilize para adicionar amigos e iniciar conversas)"
                 >
-                  <span style={{ color: '#a89a85', fontWeight: 600 }}>TAG:</span>
+                  <span style={{ color: '#B89F86', fontWeight: 600 }}>TAG:</span>
                   <span>#{targetUser.userTag || targetUser.tag}</span>
                 </div>
 
@@ -566,7 +586,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   }}
                   style={{
                     background: 'rgba(255, 255, 255, 0.06)',
-                    border: '1px solid rgba(244, 237, 221, 0.2)',
+                    border: '1px solid rgba(212, 163, 89, 0.2)',
                     borderRadius: '6px',
                     color: copiedTag ? '#34d399' : '#F4EDDD',
                     cursor: 'pointer',
@@ -590,20 +610,20 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
             <div style={{ marginTop: '10px', display: 'inline-flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
               <div
                 style={{
-                  backgroundColor: 'rgba(217, 119, 6, 0.18)',
-                  border: '1.5px solid #d97706',
+                  backgroundColor: 'rgba(212, 163, 89, 0.12)',
+                  border: '1px solid rgba(212, 163, 89, 0.35)',
                   padding: '5px 14px',
                   borderRadius: '20px',
                   fontSize: '12px',
                   fontWeight: 800,
-                  color: '#fbbf24',
+                  color: '#FCD34D',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px',
-                  boxShadow: '0 0 12px rgba(245, 158, 11, 0.25)'
+                  boxShadow: '0 0 12px rgba(212, 163, 89, 0.15)'
                 }}
               >
-                <Coins size={15} style={{ color: '#fbbf24' }} />
+                <Coins size={15} style={{ color: '#FCD34D' }} />
                 <span>{getEffectiveGold(targetUser).toLocaleString('pt-BR')} Peças de Ouro</span>
               </div>
             </div>
@@ -621,7 +641,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                       fontWeight: 700,
                       textTransform: 'uppercase',
                       letterSpacing: '0.06em',
-                      color: '#A89A85',
+                      color: '#B89F86',
                       fontFamily: "'Inter', sans-serif",
                       display: 'block',
                       marginBottom: '2px'
@@ -640,16 +660,16 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     }}
                     style={{
                       ...optionItemStyle,
-                      border: '1.5px solid rgba(245, 158, 11, 0.45)',
-                      background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.22) 0%, rgba(120, 53, 15, 0.35) 100%)',
-                      boxShadow: '0 0 14px rgba(245, 158, 11, 0.15)'
+                      border: '1px solid rgba(212, 163, 89, 0.35)',
+                      background: 'linear-gradient(135deg, rgba(212, 163, 89, 0.14) 0%, rgba(139, 90, 43, 0.22) 100%)',
+                      boxShadow: '0 0 14px rgba(212, 163, 89, 0.1)'
                     }}
                     onMouseEnter={(e) => optionHover(e, true)}
                     onMouseLeave={(e) => optionHover(e, false)}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div style={{ ...optionIconContainerStyle, backgroundColor: 'rgba(245, 158, 11, 0.25)' }}>
-                        <Coins size={16} style={{ color: '#fbbf24' }} />
+                      <div style={{ ...optionIconContainerStyle, backgroundColor: 'rgba(212, 163, 89, 0.2)' }}>
+                        <Coins size={16} style={{ color: '#FCD34D' }} />
                       </div>
                       <div style={{ textAlign: 'left' }}>
                         <div style={{ fontSize: '13px', fontWeight: 800, color: '#fef3c7', fontFamily: "'Cinzel Hero', Georgia, serif" }}>
@@ -660,7 +680,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                         </div>
                       </div>
                     </div>
-                    <ChevronRight size={16} style={{ color: '#fbbf24' }} />
+                    <ChevronRight size={16} style={{ color: '#FCD34D' }} />
                   </button>
 
                   {/* Personalizar Perfil */}
@@ -727,7 +747,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <div style={optionIconContainerStyle}>
-                          <Crown size={16} style={{ color: '#fbbf24' }} />
+                          <Crown size={16} style={{ color: '#FCD34D' }} />
                         </div>
                         <div style={{ textAlign: 'left' }}>
                           <div style={{ fontSize: '13px', fontWeight: 700, color: '#F4EDDD', fontFamily: "'Cinzel Hero', Georgia, serif" }}>
@@ -750,14 +770,15 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                       onClick={onLogout}
                       style={{
                         ...optionItemStyle,
-                        borderColor: 'rgba(239, 68, 68, 0.25)'
+                        borderColor: 'rgba(239, 68, 68, 0.25)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.06)'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.12)';
-                        e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.6)';
+                        e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.14)';
+                        e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)';
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = '#14110E';
+                        e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.06)';
                         e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.25)';
                       }}
                     >
@@ -839,7 +860,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   {/* Classe */}
                   <div
                     style={{
-                      backgroundColor: '#14110E',
+                      backgroundColor: '#251810',
                       border: '1px solid rgba(244, 237, 221, 0.1)',
                       borderRadius: '10px',
                       padding: '10px 12px',
@@ -876,7 +897,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   {/* Dados */}
                   <div
                     style={{
-                      backgroundColor: '#14110E',
+                      backgroundColor: '#251810',
                       border: '1px solid rgba(244, 237, 221, 0.1)',
                       borderRadius: '10px',
                       padding: '10px 12px',
@@ -913,7 +934,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                   {/* Selo de Cera */}
                   <div
                     style={{
-                      backgroundColor: '#14110E',
+                      backgroundColor: '#251810',
                       border: '1px solid rgba(244, 237, 221, 0.1)',
                       borderRadius: '10px',
                       padding: '10px 12px',
@@ -948,8 +969,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               {/* Pergaminho de Lore / Crônicas Pessoais */}
               <div
                 style={{
-                  backgroundColor: '#14110E',
-                  border: '1px solid rgba(217, 119, 6, 0.25)',
+                  backgroundColor: '#251810',
+                  border: '1px solid rgba(212, 163, 89, 0.25)',
                   borderRadius: '12px',
                   padding: '16px',
                   position: 'relative'
@@ -1054,10 +1075,9 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     width: '100%',
                     padding: '10px 12px',
                     borderRadius: '8px',
-                    border: '1px solid rgba(244, 237, 221, 0.18)',
                     fontSize: '13px',
-                    backgroundColor: '#14110E',
-                    color: '#F4EDDD',
+                    backgroundColor: '#160D08',
+                    border: '1px solid rgba(212, 163, 89, 0.22)',
                     outline: 'none',
                     boxSizing: 'border-box'
                   }}
@@ -1067,8 +1087,8 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
               {/* Seção de Anexo de Retrato (Fotos / Arquivos via Computador ou Celular) */}
               <div
                 style={{
-                  backgroundColor: '#14110E',
-                  border: '1px solid rgba(217, 119, 6, 0.3)',
+                  backgroundColor: '#251810',
+                  border: '1px solid rgba(212, 163, 89, 0.25)',
                   borderRadius: '12px',
                   padding: '14px'
                 }}
@@ -1226,10 +1246,9 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     width: '100%',
                     padding: '10px 12px',
                     borderRadius: '8px',
-                    border: '1px solid rgba(244, 237, 221, 0.18)',
                     fontSize: '13px',
-                    backgroundColor: '#14110E',
-                    color: '#F4EDDD',
+                    backgroundColor: '#160D08',
+                    border: '1px solid rgba(212, 163, 89, 0.22)',
                     boxSizing: 'border-box'
                   }}
                 />
@@ -1256,10 +1275,9 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     width: '100%',
                     padding: '10px 12px',
                     borderRadius: '8px',
-                    border: '1px solid rgba(244, 237, 221, 0.18)',
                     fontSize: '13px',
-                    backgroundColor: '#14110E',
-                    color: '#F4EDDD',
+                    backgroundColor: '#160D08',
+                    border: '1px solid rgba(212, 163, 89, 0.22)',
                     boxSizing: 'border-box'
                   }}
                 >
@@ -1334,10 +1352,9 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     width: '100%',
                     padding: '10px 12px',
                     borderRadius: '8px',
-                    border: '1px solid rgba(244, 237, 221, 0.18)',
                     fontSize: '13px',
-                    backgroundColor: '#14110E',
-                    color: '#F4EDDD',
+                    backgroundColor: '#160D08',
+                    border: '1px solid rgba(212, 163, 89, 0.22)',
                     boxSizing: 'border-box'
                   }}
                 >
@@ -1371,10 +1388,9 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     width: '100%',
                     padding: '10px 12px',
                     borderRadius: '8px',
-                    border: '1px solid rgba(244, 237, 221, 0.18)',
                     fontSize: '13px',
-                    backgroundColor: '#14110E',
-                    color: '#F4EDDD',
+                    backgroundColor: '#160D08',
+                    border: '1px solid rgba(212, 163, 89, 0.22)',
                     resize: 'vertical',
                     fontFamily: "'Alegreya', Georgia, serif",
                     boxSizing: 'border-box'
