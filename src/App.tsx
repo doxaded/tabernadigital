@@ -24,6 +24,7 @@ import { cloudCampaigns } from './services/cloudCampaigns';
 import { tavernAudio } from './services/tavernAudio';
 import { 
   FoliateVineLeft, 
+  FoliateSproutCapitular,
   ArabesqueCornerTopRight, 
   PenFlourishEnd, 
   CalligraphicHeaderHorizontal, 
@@ -620,13 +621,25 @@ export function App() {
                 {activeRoom === 'V' && <TreasuryCrestTopLeft />}
 
                 <div className="codex-text-wrap codex-text-left">
+                  {/* Linhas de Abertura Caligráfica em Tinta Carmim (Incipit Franciscano) */}
+                  {activeRoom === 'I' && (
+                    <div className="codex-incipit-header">~ Incipit: Da Mesa dos Apostadores & dos Juramentos de Sangue ~</div>
+                  )}
+                  {activeRoom === 'II' && (
+                    <div className="codex-incipit-header">~ Incipit: Do Scriptorium Real & das Iluminuras Imortais ~</div>
+                  )}
+                  {activeRoom === 'IV' && (
+                    <div className="codex-incipit-header">~ Incipit: Dos Cantares Heroicos & Acordes da Taverna ~</div>
+                  )}
+
                   {activeRoom === 'I' && (
                     <p className="codex-manuscript-paragraph">
                       <span className="codex-drop-cap">U</span><span className="codex-first-word-rest">m</span> salão ancestral erguido em carvalho negro e pedra bruta, onde a fumaça dos cachimbos dança sob o calor rubro das tochas. Aqui, ao redor da mesa marcada por adagas e moedas antigas, viajantes de terras distantes estendem seus mapas de guerra e selam pactos de sangue sob o olhar silencioso do destino.
                     </p>
                   )}
                   {activeRoom === 'II' && (
-                    <p className="codex-manuscript-paragraph">
+                    <p className="codex-manuscript-paragraph" style={{ position: 'relative' }}>
+                      <FoliateSproutCapitular />
                       <span className="codex-drop-cap codex-drop-cap-halo">O</span> scriptorium silencioso dos monges copistas e mestres gravadores, banhado pela luz trêmula das velas de sebo e pelo aroma de nanquim fresco. Entre rolos de pergaminho virgem e penas de ganso afiadas, as visões fugazes da imaginação são eternizadas em traços profundos de carvão e ouro.
                     </p>
                   )}
@@ -674,6 +687,14 @@ export function App() {
                 {activeRoom === 'V' && <TreasuryGemsBaseRight />}
 
                 <div className="codex-text-wrap codex-text-right">
+                  {/* Linhas de Abertura Caligráfica em Tinta Carmim (Incipit Franciscano no Lado Direito em Salas Alternadas) */}
+                  {activeRoom === 'III' && (
+                    <div className="codex-incipit-header">~ Incipit: Das Crônicas Ocultas & Saberes do Taberneiro ~</div>
+                  )}
+                  {activeRoom === 'V' && (
+                    <div className="codex-incipit-header">~ Incipit: Das Arcas Proibidas & Relíquias Raras ~</div>
+                  )}
+
                   {activeRoom === 'I' && (
                     <p className="codex-manuscript-paragraph">
                       Cada cadeira guarda o peso de heróis caídos e reinos esquecidos. <span className="codex-rubric codex-rubric-carmim">L</span>ance os dados sobre a madeira gasta, reúna sua companhia de aventureiros, assuma o manto de Mestre ou <span className="codex-rubric codex-rubric-ultramarine">e</span>screva seu nome nas crônicas vivas que ecoam por esta taverna desde as eras primordiais.
