@@ -30,11 +30,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter, onOpenAuth })
       }}
       title="Clique para entrar na Taberna"
     >
-      {/* Título Monumental em Tela Cheia — Fonte Gótica MedievalSharp & Cor Única #EAE0D5 */}
+      {/* Título Monumental em Tela Cheia — Fonte Gótica Clássica UnifrakturMaguntia (Fraktur/Blackletter) em Title Case & Cor Única #EAE0D5 */}
       <div
         style={{
           textAlign: 'center',
-          lineHeight: 0.80,
+          lineHeight: 0.84,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -47,36 +47,36 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter, onOpenAuth })
         <h1
           style={{
             fontSize: 'min(21.5vw, 42vh)',
-            fontWeight: 700,
+            fontWeight: 400,
             margin: 0,
             padding: 0,
-            letterSpacing: '-0.025em',
-            textTransform: 'uppercase',
+            letterSpacing: '0.01em',
+            textTransform: 'none',
             color: '#EAE0D5',
             textShadow: '0 10px 40px rgba(0, 0, 0, 0.95)',
-            lineHeight: 0.80,
-            fontFamily: "'MedievalSharp', 'UnifrakturMaguntia', serif",
+            lineHeight: 0.84,
+            fontFamily: "'UnifrakturMaguntia', 'UnifrakturCook', cursive, serif",
             whiteSpace: 'nowrap',
           }}
         >
-          TABERNA
+          Taberna
         </h1>
         <h1
           style={{
             fontSize: 'min(21.5vw, 42vh)',
-            fontWeight: 700,
+            fontWeight: 400,
             margin: 0,
             padding: 0,
-            letterSpacing: '-0.025em',
-            textTransform: 'uppercase',
+            letterSpacing: '0.01em',
+            textTransform: 'none',
             color: '#EAE0D5',
             textShadow: '0 10px 40px rgba(0, 0, 0, 0.95)',
-            lineHeight: 0.80,
-            fontFamily: "'MedievalSharp', 'UnifrakturMaguntia', serif",
+            lineHeight: 0.84,
+            fontFamily: "'UnifrakturMaguntia', 'UnifrakturCook', cursive, serif",
             whiteSpace: 'nowrap',
           }}
         >
-          DIGITAL
+          Digital
         </h1>
       </div>
 
