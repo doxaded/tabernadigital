@@ -7154,112 +7154,138 @@ h1, h2, h3, h4, .font-cinzel {
 }
 
 /* ========================================================
-   MODO GALERIA: LAYOUT DE MANUSCRITO MEDIEVAL / TRIPTYCH
-   - 3 Colunas: Texto Esquerdo (Capitular) + Imagem Central + Texto Direito
-   - Tipografia em Caligrafia Gótica (MedievalSharp / UnifrakturMaguntia)
-   - Tom de Tinta de Pergaminho Envelhecido (#D8C3A5 a 80%) e Ouro Velho (#D4A359)
+   MODO GALERIA: LAYOUT DE MANUSCRITO MEDIEVAL / CÓDICE ILUMINADO
+   - Sem barras divisórias geométricas (arte e texto coexistem na folha)
+   - Colunas laterais largas (max-w-md a max-w-lg) preenchendo a tela
+   - Tipografia Gótica ampliada (text-2xl a text-3xl, leading-relaxed, justificada)
+   - Capitular (Drop Cap) colada ao texto sem espaçamento vazio
+   - Rubricas em carmim (#8B261D) e azul ultramarino (#2B4C65)
+   - Iluminuras e arabescos orgânicos assimétricos por sala
    ======================================================== */
 .medieval-manuscript-stage {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: clamp(16px, 3.2vw, 44px);
+  gap: clamp(24px, 3.8vw, 64px);
   width: 100%;
-  max-width: 1140px;
+  max-width: 1440px;
   margin: 0 auto;
   position: relative;
   z-index: 10;
   box-sizing: border-box;
+  padding: 0 clamp(16px, 3vw, 40px);
 }
 
-/* Colunas Laterais de Texto */
+/* Colunas Laterais de Texto: Largas (max-w-md a max-w-lg) */
 .medieval-codex-column {
-  flex: 1;
-  max-width: 250px;
-  min-width: 190px;
+  flex: 1 1 0px;
+  max-width: clamp(380px, 31vw, 480px);
+  min-width: 300px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
   position: relative;
 }
 
 .medieval-codex-column.codex-left {
-  justify-content: flex-end;
-  gap: clamp(12px, 1.8vw, 24px);
+  align-items: flex-end;
 }
 
 .medieval-codex-column.codex-right {
-  justify-content: flex-start;
-  gap: clamp(12px, 1.8vw, 24px);
+  align-items: flex-start;
 }
 
 /* Container de Texto com Caligrafia Gótica Medieval */
 .codex-text-wrap {
-  font-family: 'MedievalSharp', 'UnifrakturMaguntia', 'Pirata One', Georgia, serif;
-  font-size: clamp(18px, 1.35vw, 23px);
-  line-height: 1.62;
-  color: rgba(216, 195, 165, 0.82); /* Tinta de pergaminho envelhecido #D8C3A5 a 80% */
-  letter-spacing: 0.025em;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
-  user-select: none;
   position: relative;
+  width: 100%;
+  user-select: none;
 }
 
-/* Coluna Esquerda: Primeira metade da inscrição alinhada à direita / justificada */
-.codex-text-left {
-  text-align: right;
+/* Parágrafos de Códice: Texto Gótico Grande, Justificado e com Entrelinha Nobre */
+.codex-manuscript-paragraph {
+  font-family: 'MedievalSharp', 'UnifrakturMaguntia', 'Pirata One', Georgia, serif;
+  font-size: clamp(21px, 1.55vw, 27px);
+  line-height: 1.68;
+  color: rgba(216, 195, 165, 0.85); /* Tom de tinta de pergaminho envelhecido #D8C3A5 a 85% */
+  letter-spacing: 0.022em;
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.85);
+  margin: 0;
 }
 
-/* Coluna Direita: Segunda metade da inscrição alinhada à esquerda */
-.codex-text-right {
-  text-align: left;
-}
-
-/* Letra Capitular (Drop Cap) em Iluminura Medieval */
+/* Letra Capitular (Drop Cap) em Iluminura Medieval: Encaixe Natural e Colado */
 .codex-drop-cap {
   font-family: 'UnifrakturMaguntia', 'MedievalSharp', 'Cinzel', serif;
-  font-size: clamp(38px, 2.7vw, 48px);
-  line-height: 0.85;
+  font-size: clamp(54px, 4.4vw, 76px);
+  line-height: 0.78;
   font-weight: 700;
   color: #D4A359; /* Âmbar / Ouro Velho das Iluminuras */
   float: left;
-  margin-right: 8px;
-  margin-top: 1px;
-  margin-bottom: -2px;
-  text-shadow: 0 0 16px rgba(212, 163, 89, 0.45), 0 2px 6px rgba(0, 0, 0, 0.85);
+  margin-right: 2px; /* Colada ao parágrafo sem hiato */
+  margin-top: 4px;
+  margin-bottom: -4px;
+  text-shadow: 0 0 18px rgba(212, 163, 89, 0.5), 0 2px 6px rgba(0, 0, 0, 0.9);
   display: inline-block;
+  user-select: none;
 }
 
-.codex-body-text {
-  display: inline;
+.codex-drop-cap-halo {
+  filter: drop-shadow(0 0 10px rgba(212, 163, 89, 0.65));
 }
 
-/* Divisores Verticais Sutis de Grimório (Linhas finíssimas com fade) */
-.codex-divider {
-  width: 1px;
-  height: clamp(130px, 20vh, 190px);
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(212, 163, 89, 0.16) 20%,
-    rgba(212, 163, 89, 0.16) 80%,
-    transparent 100%
-  );
-  flex-shrink: 0;
+.codex-first-word-rest {
+  font-size: 1.05em;
+  font-weight: 600;
+  color: #F5E6D3;
+  margin-left: 0;
 }
 
-/* Responsividade: Mobile e Telas Menores que 920px */
-@media (max-width: 919px) {
+/* Rubricas Medievais em Vermelho Carmim e Azul Ultramarino */
+.codex-rubric {
+  font-family: 'UnifrakturMaguntia', 'MedievalSharp', serif;
+  font-size: 1.25em;
+  font-weight: 700;
+  line-height: 1;
+  display: inline-block;
+  vertical-align: baseline;
+  margin-right: 1px;
+}
+
+.codex-rubric-carmim {
+  color: #8B261D; /* Vermelho Carmim das Iluminuras */
+  text-shadow: 0 0 10px rgba(139, 38, 29, 0.5);
+}
+
+.codex-rubric-ultramarine {
+  color: #2B4C65; /* Azul Ultramarino Envelhecido */
+  text-shadow: 0 0 10px rgba(43, 76, 101, 0.5);
+}
+
+.codex-pilcrow-carmim {
+  font-family: 'Cinzel', serif;
+  font-size: 1.15em;
+  color: #8B261D;
+  margin-right: 6px;
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(139, 38, 29, 0.5);
+}
+
+/* Responsividade: Telas Menores e Mobile */
+@media (max-width: 1079px) {
   .medieval-manuscript-stage {
     flex-direction: column;
-    gap: 20px;
-    padding: 0 16px;
+    gap: 32px;
+    padding: 0 20px;
   }
 
   .medieval-codex-column {
-    max-width: 440px;
+    max-width: 580px;
     width: 100%;
-    justify-content: center !important;
+    align-items: center !important;
   }
 
   .medieval-codex-column.codex-left {
@@ -7274,21 +7300,9 @@ h1, h2, h3, h4, .font-cinzel {
     order: 3;
   }
 
-  .codex-text-left,
-  .codex-text-right {
-    text-align: center;
-  }
-
-  .codex-drop-cap {
-    float: none;
-    display: inline-block;
-    vertical-align: baseline;
-    margin-right: 4px;
-    margin-top: 0;
-  }
-
-  .codex-divider {
-    display: none;
+  .codex-manuscript-paragraph {
+    text-align: justify;
+    font-size: clamp(20px, 2.4vw, 24px);
   }
 }
 

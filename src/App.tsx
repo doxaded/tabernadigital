@@ -22,6 +22,16 @@ import { storageService, ADMIN_EMAIL } from './services/storage';
 import { firebaseAuthService, db, auth, isLiveFirebaseConfigured } from './services/firebase';
 import { cloudCampaigns } from './services/cloudCampaigns';
 import { tavernAudio } from './services/tavernAudio';
+import { 
+  FoliateVineLeft, 
+  ArabesqueCornerTopRight, 
+  PenFlourishEnd, 
+  CalligraphicHeaderHorizontal, 
+  IntertwinedLeavesVignette, 
+  IvyBranchBottomLeft, 
+  TreasuryCrestTopLeft, 
+  TreasuryGemsBaseRight 
+} from './components/MedievalIlluminations';
 import { Campaign, CharacterSheet, LoreEntry, RuleDocument, SketchAsset, UserProfile } from './types';
 
 export type RoomId = 'I' | 'II' | 'III' | 'IV' | 'V';
@@ -47,8 +57,8 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
     name: 'Mesa dos Apostadores',
     subtitle: 'I. Mesa dos Apostadores',
     description: 'Um salão medieval onde você pode se juntar a aventureiros ou mestrar uma campanha ao redor da mesa.',
-    inscriptionLeft: 'Um salão medieval onde aventureiros se reúnem ao redor da mesa',
-    inscriptionRight: 'para forjar alianças, rolar o destino e mestrar grandes campanhas.',
+    inscriptionLeft: 'Um salão ancestral erguido em carvalho negro e pedra bruta, onde a fumaça dos cachimbos dança sob o calor rubro das tochas. Aqui, ao redor da mesa marcada por adagas e moedas antigas, viajantes de terras distantes estendem seus mapas de guerra e selam pactos de sangue sob o olhar silencioso do destino.',
+    inscriptionRight: 'Cada cadeira guarda o peso de heróis caídos e reinos esquecidos. Lance os dados sobre a madeira gasta, reúna sua companhia de aventureiros, assuma o manto de Mestre ou escreva seu nome nas crônicas vivas que ecoam por esta taverna desde as eras primordiais.',
     bgColor: '#332014', // Café Escuro
     cardColor: '#3D2719', // Bloco Fosco Interno
     textColor: '#EAE0D5', // Pergaminho Claro
@@ -61,8 +71,8 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
     name: 'Telas do Alaúde',
     subtitle: 'II. Telas do Alaúde',
     description: 'O ateliê de crônicas e artes visuais, onde memórias, retratos e cenas da aventura ganham forma e estilo.',
-    inscriptionLeft: 'O ateliê silencioso de crônicas, iluminuras e artes visuais,',
-    inscriptionRight: 'onde memórias, retratos e cenas da jornada ganham forma eterna.',
+    inscriptionLeft: 'O scriptorium silencioso dos monges copistas e mestres gravadores, banhado pela luz trêmula das velas de sebo e pelo aroma de nanquim fresco. Entre rolos de pergaminho virgem e penas de ganso afiadas, as visões fugazes da imaginação são eternizadas em traços profundos de carvão e ouro.',
+    inscriptionRight: 'Aqui as memórias da campanha ganham rosto, forma e brasão. Retrate os feitos gloriosos do seu grupo, dê vida aos cenários sombrios das masmorras e transforme relatos orais em iluminuras dignas dos grandes arquivos reais.',
     bgColor: '#291910', // Cacau Torrado
     cardColor: '#332015', // Bloco Fosco Interno
     textColor: '#EAE0D5', // Pergaminho Claro
@@ -75,8 +85,8 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
     name: 'Taberneiro',
     subtitle: 'III. Taberneiro',
     description: 'O balcão do taberneiro, onde você pode pedir informações, tirar dúvidas sobre regras, consultar o bestiário e ouvir boatos.',
-    inscriptionLeft: 'O balcão do velho taberneiro, guardião dos segredos da casa,',
-    inscriptionRight: 'onde se buscam rumores, regras do mundo e relatos do bestiário.',
+    inscriptionLeft: 'O balcão maciço de madeira envelhecida, polido por séculos de canecas transbordando hidromel amargo e cerveja espessa. Atrás dele repousa o velho guardião da casa, cujos ouvidos atentos já escutaram todas as confissões, mentiras de mercenários e profecias sussurradas na calada da noite.',
+    inscriptionRight: 'Aproxime-se para saciar sua sede de conhecimento. Consulte os tomos ocultos de regras, desvende as fraquezas das feras registradas no bestiário ancestral e colha rumores valiosos antes de partir rumo às estradas perigosas da fronteira.',
     bgColor: '#21140C', // Mogno Profundo
     cardColor: '#2B1A10', // Bloco Fosco Interno
     textColor: '#EAE0D5', // Pergaminho Claro
@@ -89,8 +99,8 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
     name: 'Recanto dos Bardos',
     subtitle: 'IV. Recanto dos Bardos',
     description: 'O recanto das canções e histórias, onde bardos controlam a ambiência sonora, trilhas e melodias da taverna.',
-    inscriptionLeft: 'O recanto caloroso das canções, versos e histórias antigas,',
-    inscriptionRight: 'onde os bardos regem os alaúdes e a ambiência sonora da taverna.',
+    inscriptionLeft: 'O canto mais acolhedor do salão, onde os barris de vinho especiado repousam ao lado de alaúdes, flautas e tambores de couro. Quando as cordas vibram sob os dedos calejados dos trovadores, até os guerreiros mais endurecidos silenciam para ouvir os ecos de batalhas lendárias.',
+    inscriptionRight: 'Deixe que a melodia conduza o ritmo da sua jornada. Regule os acordes que preenchem o ambiente, desperte o crepitar vivo da lareira ou invoque cânticos solenes para acompanhar cada capítulo da sua narrativa ao redor do fogo.',
     bgColor: '#180E08', // Nogueira Negra
     cardColor: '#22140C', // Bloco Fosco Interno
     textColor: '#EAE0D5', // Pergaminho Claro
@@ -103,8 +113,8 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
     name: 'Bazar da Taverna',
     subtitle: 'V. Bazar da Taverna',
     description: 'O mercado oculto de relíquias e tesouros, onde moedas de ouro são trocadas por artefatos raros para a sua jornada.',
-    inscriptionLeft: 'O mercado oculto de relíquias místicas, tomos e tesouros raros,',
-    inscriptionRight: 'onde moedas de ouro são trocadas por artefatos para a sua jornada.',
+    inscriptionLeft: 'As arcas encouraçadas e baús de ferro forjado que guardam o brilho tentador do ouro acumulado em dezenas de expedições. Entre pérolas, cálices cravejados, selos de cera e relíquias trazidas de ruínas proibidas, todo desejo tem seu preço medido em moedas reluzentes.',
+    inscriptionRight: 'Vasculhe as raridades expostas sobre o veludo escuro. Troque suas peças de ouro por títulos de nobreza, molduras místicas, insígnias de prestígio e artefatos singulares que distinguirão sua lenda perante todos os frequentadores da taverna.',
     bgColor: '#100905', // Ébano Carbonizado
     cardColor: '#1A0F09', // Bloco Fosco Interno
     textColor: '#EAE0D5', // Pergaminho Claro
@@ -602,17 +612,40 @@ export function App() {
           <div className="awwwards-gallery-stage">
             <div className="medieval-manuscript-stage">
               {/* Coluna Esquerda (Lateral Esquerda da Imagem) */}
-              <aside className="medieval-codex-column codex-left" aria-label="Inscrição Medieval - Primeira Metade">
+              <aside className={`medieval-codex-column codex-left codex-room-${activeRoom}`} aria-label="Inscrição Medieval - Primeira Metade">
+                {/* Iluminuras assimétricas exclusivas por sala */}
+                {activeRoom === 'I' && <FoliateVineLeft />}
+                {activeRoom === 'III' && <CalligraphicHeaderHorizontal />}
+                {activeRoom === 'IV' && <IvyBranchBottomLeft />}
+                {activeRoom === 'V' && <TreasuryCrestTopLeft />}
+
                 <div className="codex-text-wrap codex-text-left">
-                  <span className="codex-drop-cap">
-                    {currentTheme.inscriptionLeft.charAt(0)}
-                  </span>
-                  <span className="codex-body-text">
-                    {currentTheme.inscriptionLeft.slice(1)}
-                  </span>
+                  {activeRoom === 'I' && (
+                    <p className="codex-manuscript-paragraph">
+                      <span className="codex-drop-cap">U</span><span className="codex-first-word-rest">m</span> salão ancestral erguido em carvalho negro e pedra bruta, onde a fumaça dos cachimbos dança sob o calor rubro das tochas. Aqui, ao redor da mesa marcada por adagas e moedas antigas, viajantes de terras distantes estendem seus mapas de guerra e selam pactos de sangue sob o olhar silencioso do destino.
+                    </p>
+                  )}
+                  {activeRoom === 'II' && (
+                    <p className="codex-manuscript-paragraph">
+                      <span className="codex-drop-cap codex-drop-cap-halo">O</span> scriptorium silencioso dos monges copistas e mestres gravadores, banhado pela luz trêmula das velas de sebo e pelo aroma de nanquim fresco. Entre rolos de pergaminho virgem e penas de ganso afiadas, as visões fugazes da imaginação são eternizadas em traços profundos de carvão e ouro.
+                    </p>
+                  )}
+                  {activeRoom === 'III' && (
+                    <p className="codex-manuscript-paragraph">
+                      <span className="codex-drop-cap">O</span> balcão maciço de madeira envelhecida, polido por séculos de canecas transbordando hidromel amargo e cerveja espessa. Atrás dele repousa o velho guardião da casa, cujos ouvidos atentos já escutaram todas as confissões, mentiras de mercenários e profecias sussurradas na calada da noite.
+                    </p>
+                  )}
+                  {activeRoom === 'IV' && (
+                    <p className="codex-manuscript-paragraph">
+                      <span className="codex-drop-cap">O</span> canto mais acolhedor do salão, onde os barris de vinho especiado repousam ao lado de alaúdes, flautas e tambores de couro. Quando as cordas vibram sob os dedos calejados dos trovadores, até os guerreiros mais endurecidos silenciam para ouvir os ecos de batalhas lendárias.
+                    </p>
+                  )}
+                  {activeRoom === 'V' && (
+                    <p className="codex-manuscript-paragraph">
+                      <span className="codex-drop-cap">A</span><span className="codex-first-word-rest">s</span> arcas encouraçadas e baús de ferro forjado que guardam o brilho tentador do ouro acumulado em dezenas de expedições. Entre pérolas, cálices cravejados, selos de cera e relíquias trazidas de ruínas proibidas, todo desejo tem seu preço medido em moedas reluzentes.
+                    </p>
+                  )}
                 </div>
-                {/* Linha vertical / Ornamento medieval sutil */}
-                <div className="codex-divider codex-divider-left" />
               </aside>
 
               {/* Coluna Central: Ilustração Medieval Recortada / Flutuante */}
@@ -634,13 +667,38 @@ export function App() {
               </div>
 
               {/* Coluna Direita (Lateral Direita da Imagem) */}
-              <aside className="medieval-codex-column codex-right" aria-label="Inscrição Medieval - Segunda Metade">
-                {/* Linha vertical / Ornamento medieval sutil */}
-                <div className="codex-divider codex-divider-right" />
+              <aside className={`medieval-codex-column codex-right codex-room-${activeRoom}`} aria-label="Inscrição Medieval - Segunda Metade">
+                {/* Iluminuras assimétricas exclusivas da coluna direita */}
+                {activeRoom === 'II' && <ArabesqueCornerTopRight />}
+                {activeRoom === 'III' && <IntertwinedLeavesVignette />}
+                {activeRoom === 'V' && <TreasuryGemsBaseRight />}
+
                 <div className="codex-text-wrap codex-text-right">
-                  <span className="codex-body-text">
-                    {currentTheme.inscriptionRight}
-                  </span>
+                  {activeRoom === 'I' && (
+                    <p className="codex-manuscript-paragraph">
+                      Cada cadeira guarda o peso de heróis caídos e reinos esquecidos. <span className="codex-rubric codex-rubric-carmim">L</span>ance os dados sobre a madeira gasta, reúna sua companhia de aventureiros, assuma o manto de Mestre ou <span className="codex-rubric codex-rubric-ultramarine">e</span>screva seu nome nas crônicas vivas que ecoam por esta taverna desde as eras primordiais.
+                    </p>
+                  )}
+                  {activeRoom === 'II' && (
+                    <p className="codex-manuscript-paragraph">
+                      Aqui as memórias da campanha ganham rosto, forma e brasão. Retrate os feitos gloriosos do seu grupo, dê vida aos cenários sombrios das masmorras e transforme relatos orais em iluminuras dignas dos grandes arquivos reais.<PenFlourishEnd />
+                    </p>
+                  )}
+                  {activeRoom === 'III' && (
+                    <p className="codex-manuscript-paragraph">
+                      Aproxime-se para saciar sua sede de conhecimento. Consulte os tomos ocultos de regras, desvende as fraquezas das feras registradas no bestiário ancestral e colha rumores valiosos antes de partir rumo às estradas perigosas da fronteira.
+                    </p>
+                  )}
+                  {activeRoom === 'IV' && (
+                    <p className="codex-manuscript-paragraph">
+                      <span className="codex-pilcrow-carmim">¶</span> Deixe que a melodia conduza o ritmo da sua jornada. Regule os acordes que preenchem o ambiente, desperte o crepitar vivo da lareira ou invoque cânticos solenes para acompanhar cada capítulo da sua narrativa ao redor do fogo.
+                    </p>
+                  )}
+                  {activeRoom === 'V' && (
+                    <p className="codex-manuscript-paragraph">
+                      Vasculhe as raridades expostas sobre o veludo escuro. Troque suas peças de ouro por títulos de nobreza, molduras místicas, insígnias de prestígio e artefatos singulares que distinguirão sua lenda perante todos os frequentadores da taverna.
+                    </p>
+                  )}
                 </div>
               </aside>
             </div>
