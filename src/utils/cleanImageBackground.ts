@@ -209,8 +209,14 @@ export function cleanImageBackground(src: string): Promise<string> {
               }
             }
 
-            // Se tocar a borda OU se a ilha escura for maior que 15 pixels (vãos de cadeiras, braços)
-            if (touchesBorder || componentPixels.length > 15) {
+            // Se tocar a borda OU se a ilha escura for maior que 10 pixels (vãos de cadeiras, braços, ramos florais)
+            // OU se contiver preto puro #000000 com mais de 3 pixels
+            const hasPureBlackPixel = componentPixels.some((pixel) => {
+              const pIdx = pixel * 4;
+              return data[pIdx] === 0 && data[pIdx + 1] === 0 && data[pIdx + 2] === 0;
+            });
+
+            if (touchesBorder || componentPixels.length > 10 || (hasPureBlackPixel && componentPixels.length > 3)) {
               for (const pixel of componentPixels) {
                 data[pixel * 4 + 3] = 0;
               }

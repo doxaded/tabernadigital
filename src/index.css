@@ -7183,8 +7183,8 @@ h1, h2, h3, h4, .font-cinzel {
 /* Colunas Laterais de Texto: Altura Livre, Desvinculada da Imagem Central */
 .medieval-codex-column {
   flex: 1 1 0px;
-  max-width: clamp(380px, 32vw, 540px);
-  min-width: 310px;
+  max-width: clamp(400px, 34vw, 560px);
+  min-width: 320px;
   height: auto;
   display: flex;
   flex-direction: column;
@@ -7222,31 +7222,31 @@ h1, h2, h3, h4, .font-cinzel {
   user-select: none;
 }
 
-/* Parágrafos de Códice: Caligrafia Gótica Rotunda, Grande (28-34px), Entrelinha 1.95 e Ragged-Right */
+/* Parágrafos de Códice: Caligrafia MedievalSharp Restaurada, Grande (30-34px), Entrelinha 1.9 e Ragged-Right */
 .codex-manuscript-paragraph {
-  font-family: 'Pirata One', 'UnifrakturMaguntia', 'MedievalSharp', serif;
-  font-size: clamp(28px, 1.85vw, 34px);
-  line-height: 1.95; /* Entrelinha espaçosa que faz a escrita respirar */
-  color: rgba(235, 218, 196, 0.88); /* Tom de tinta de pergaminho antigo */
-  letter-spacing: -0.01em; /* Letras densas e unidas como na referência */
-  word-spacing: 0.07em;
-  text-align: left; /* Alinhamento natural à esquerda (ragged-right de escriba) */
-  hyphens: none; /* Fim dos buracos artificiais de hifenização */
+  font-family: 'MedievalSharp', 'UnifrakturMaguntia', serif;
+  font-size: clamp(30px, 2.1vw, 34px);
+  line-height: 1.9; /* Entrelinha de 1.9 que faz as letras imponentes respirarem */
+  color: rgba(235, 218, 196, 0.9); /* Tom de pergaminho antigo */
+  letter-spacing: 0.01em;
+  word-spacing: 0.06em;
+  text-align: left; /* Alinhamento natural à esquerda (sem justificar) */
+  hyphens: none; /* Sem hifenização forçada */
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
   margin: 0;
 }
 
-/* Letra Capitular (Drop Cap) em Iluminura: Encaixe Natural e Colado sem Vazio */
+/* Letra Capitular (Drop Cap) em Iluminura: UnifrakturMaguntia Gótica, Encaixe Natural e Colado sem Vazio */
 .codex-drop-cap {
-  font-family: 'Pirata One', 'UnifrakturMaguntia', 'Cinzel', serif;
-  font-size: clamp(68px, 4.6vw, 88px);
-  line-height: 0.74;
+  font-family: 'UnifrakturMaguntia', 'MedievalSharp', serif;
+  font-size: clamp(76px, 5.2vw, 94px);
+  line-height: 0.72;
   font-weight: 700;
   color: #D4A359; /* Âmbar / Ouro Velho das Iluminuras */
   float: left;
-  margin-right: 3px; /* Colada à primeira palavra sem hiato */
-  margin-top: 5px;
-  margin-bottom: -5px;
+  margin-right: 4px; /* Colada à primeira palavra sem hiato */
+  margin-top: 6px;
+  margin-bottom: -4px;
   text-shadow: 0 0 18px rgba(212, 163, 89, 0.5), 0 2px 6px rgba(0, 0, 0, 0.9);
   display: inline-block;
   user-select: none;
