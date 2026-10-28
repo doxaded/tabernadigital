@@ -7751,6 +7751,10 @@ h1, h2, h3, h4, .font-cinzel {
   color: #D4A359;
   font-weight: 600;
   white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
 }
 
 

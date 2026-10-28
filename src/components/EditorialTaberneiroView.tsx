@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Beer, Sparkles, BookOpen, Trash2 } from 'lucide-react';
+import { Send, Beer } from 'lucide-react';
 import { UrdMessage } from '../types';
 import { aiService } from '../services/aiService';
 import { tavernAudio } from '../services/tavernAudio';
@@ -14,17 +14,9 @@ interface EditorialTaberneiroViewProps {
   onClearChat?: () => void;
 }
 
-const QUICK_PROMPTS = [
-  { label: 'Rumores da Noite', text: 'Urd, que fofoca sinistra você ouviu dos viajantes na estalagem hoje?' },
-  { label: 'Gancho de Missão', text: 'Preciso de um gancho empolgante para um grupo de aventureiros na mata.' },
-  { label: 'Enigma de Cripta', text: 'Me dê um enigma inteligente para destrancar uma porta de pedra ancestral.' },
-  { label: 'Lenda da Taberna', text: 'Conte uma lenda antiga sobre o fogo perpétuo desta lareira.' },
-];
-
 export const EditorialTaberneiroView: React.FC<EditorialTaberneiroViewProps> = ({
   onBack,
   messages,
-  campaigns,
   activeCampaignId,
   onSendMessage,
   onAddToLore,
@@ -33,8 +25,6 @@ export const EditorialTaberneiroView: React.FC<EditorialTaberneiroViewProps> = (
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const activeCampaignName = campaigns?.find(c => c.id === activeCampaignId)?.name || 'Salão Geral';
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -72,7 +62,7 @@ export const EditorialTaberneiroView: React.FC<EditorialTaberneiroViewProps> = (
   return (
     <main className="editorial-room-container">
       {/* 2. Cabeçalho Interno da Sala em Linha Única */}
-      <div className="editorial-header-bar">
+      <div className="editorial-header-bar" style={{ maxWidth: '896px', margin: '0 auto 24px auto', width: '100%' }}>
         <button
           onClick={() => {
             if (onBack) onBack();
@@ -119,9 +109,8 @@ export const EditorialTaberneiroView: React.FC<EditorialTaberneiroViewProps> = (
         </div>
       </div>
 
-      {/* 3. Layout Assimétrico Estilo Kerbache HR / Claude (8 colunas / 4 colunas) */}
-      <div className="editorial-grid-12">
-        {/* Coluna Principal (Esquerda - 8 colunas) envolta em Bloco Fosco */}
+      {/* 3. Layout de Coluna Única Centralizada (max-w-4xl w-full mx-auto) */}
+      <div className="max-w-4xl w-full mx-auto">
         <div className="editorial-frosted-card room-matte-III" style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ letterSpacing: '0.25em', fontSize: '11px', textTransform: 'uppercase', opacity: 0.6, marginBottom: '12px' }}>
             SALA III • O ORÁCULO DA TAVERNA
@@ -134,26 +123,12 @@ export const EditorialTaberneiroView: React.FC<EditorialTaberneiroViewProps> = (
               fontWeight: 400,
               letterSpacing: '-0.02em',
               lineHeight: 1.15,
-              margin: '0 0 16px 0',
+              margin: '0 0 20px 0',
               color: 'inherit',
             }}
           >
             O Taberneiro
           </h1>
-
-          <p
-            style={{
-              fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
-              fontStyle: 'italic',
-              fontSize: '17px',
-              lineHeight: '1.7',
-              maxWidth: '580px',
-              margin: '0 0 24px 0',
-              opacity: 0.85,
-            }}
-          >
-            Urd, o anão de barbas grisalhas, guarda os segredos, lendas e caminhos esquecidos deste reino. Puxe uma cadeira e peça seu conselho.
-          </p>
 
           {/* Diálogo em Cards Editoriais Claude Suaves */}
           <div
@@ -272,46 +247,6 @@ export const EditorialTaberneiroView: React.FC<EditorialTaberneiroViewProps> = (
             </button>
           </form>
         </div>
-
-        {/* Coluna Lateral (Direita - 4 colunas): Card Editorial Claude Fosco */}
-        <aside className="editorial-frosted-card room-matte-III">
-          <div style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.6, marginBottom: '14px', fontWeight: 600 }}>
-            Suspiros da Taverna
-          </div>
-
-          <div className="editorial-meta-row">
-            <span className="editorial-meta-label">Oráculo</span>
-            <span className="editorial-meta-value">Urd (Anão Guardião)</span>
-          </div>
-
-          <div className="editorial-meta-row">
-            <span className="editorial-meta-label">Mesa Atual</span>
-            <span className="editorial-meta-value">{activeCampaignName}</span>
-          </div>
-
-          <div style={{ marginTop: '20px', marginBottom: '12px', fontSize: '11px', letterSpacing: '0.15em', textTransform: 'uppercase', opacity: 0.6 }}>
-            Perguntas Frequentes
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {QUICK_PROMPTS.map((qp) => (
-              <button
-                key={qp.label}
-                onClick={() => handleSend(qp.text)}
-                disabled={isLoading}
-                className="editorial-btn-secondary"
-                style={{ justifyContent: 'flex-start', padding: '8px 12px', fontSize: '12px' }}
-              >
-                <Sparkles size={12} />
-                {qp.label}
-              </button>
-            ))}
-          </div>
-
-          <p style={{ fontSize: '13px', fontStyle: 'italic', opacity: 0.7, lineHeight: '1.6', marginTop: '20px', marginBottom: 0 }}>
-            As respostas de Urd contêm sabedoria de mestres anciãos e podem ser salvas diretamente no grimório da sua mesa.
-          </p>
-        </aside>
       </div>
     </main>
   );
