@@ -17,19 +17,10 @@ import { EditorialBazarView } from './components/EditorialBazarView';
 import { UserProfileModal } from './components/UserProfileModal';
 import { TavernShopModal } from './components/TavernShopModal';
 import { MasterScreenView } from './components/MasterScreenView';
-import { CleanArtworkImage } from './components/CleanArtworkImage';
 import { storageService, ADMIN_EMAIL } from './services/storage';
 import { firebaseAuthService, db, auth, isLiveFirebaseConfigured } from './services/firebase';
 import { cloudCampaigns } from './services/cloudCampaigns';
 import { tavernAudio } from './services/tavernAudio';
-import { 
-  FoliateVineLeft, 
-  FoliateSproutCapitular,
-  PenFlourishEnd, 
-  CalligraphicHeaderHorizontal, 
-  IvyBranchBottomLeft, 
-  TreasuryCrestTopLeft 
-} from './components/MedievalIlluminations';
 import { Campaign, CharacterSheet, LoreEntry, RuleDocument, SketchAsset, UserProfile } from './types';
 
 export type RoomId = 'I' | 'II' | 'III' | 'IV' | 'V';
@@ -128,6 +119,21 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
   },
 };
 
+// Imagens do díptico da Sala I (esquerda: Mestrar · direita: Ingressar)
+const ROOM_I_FRAMES = {
+  left: '/assets/banner_mesa_apostadores_v2.jpg',
+  right: '/assets/banner_mesa_alchemist.png',
+};
+
+// Geometria do quadro central por sala (ritmo visual entre as abas)
+const GALLERY_FRAME_CLASS: Record<RoomId, string> = {
+  I: 'gallery-frame--diptych',
+  II: 'gallery-frame--landscape',
+  III: 'gallery-frame--square',
+  IV: 'gallery-frame--portrait',
+  V: 'gallery-frame--square-lg',
+};
+
 export function App() {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => {
     const existing = storageService.getCurrentUser();
@@ -148,6 +154,8 @@ export function App() {
   const [hasEntered, setHasEntered] = useState(false);
   const [viewMode, setViewMode] = useState<'gallery' | 'functional'>('gallery');
   const [activeRoom, setActiveRoom] = useState<RoomId>('I');
+  // Ação inicial ao entrar na Sala I pelo díptico da galeria
+  const [roomIAction, setRoomIAction] = useState<'create' | 'join' | null>(null);
   const [hoveredRoom, setHoveredRoom] = useState<RoomId | null>(null);
 
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(() => campaigns[0]?.id || null);
@@ -449,8 +457,8 @@ export function App() {
       document.body.style.backgroundColor = currentTheme.bgColor;
       document.body.style.color = currentTheme.textColor;
     } else {
-      document.body.style.backgroundColor = '#120B07';
-      document.body.style.color = '#EAE0D5';
+      document.body.style.backgroundColor = '#E6D5B8';
+      document.body.style.color = '#2A1B12';
     }
   }, [hasEntered, currentTheme.bgColor, currentTheme.textColor]);
 
@@ -621,69 +629,55 @@ export function App() {
           })()
         ) : viewMode === 'gallery' ? (
           /* ========================================================
-             NÍVEL 1 — DISPLAY PRINCIPAL (LAYOUT MEDIEVAL CENTRALIZADO)
-             - Container centralizado max-w-5xl com Texto à Esquerda e Imagem à Direita
-             - Lado Esquerdo: Bloco único com legenda completa, Capitular dourada e ornamentos
-             - Lado Direito: Ilustração medieval recortada com fundo transparente e tilt no hover
+             NÍVEL 1 — DISPLAY PRINCIPAL (GALERIA MINIMALISTA)
+             - Apenas o(s) quadro(s) central(is), cantos retos, object-cover
+             - Sala I: díptico (Mestrar | Ingressar) · II: paisagem · III: quadrado
+               · IV: retrato · V: quadrado amplo
              ======================================================== */
           <div className="awwwards-gallery-stage">
-            <div className="medieval-manuscript-stage">
-              {/* Lado Esquerdo: Um único bloco de texto contendo toda a legenda da sala */}
-              <aside className={`medieval-codex-column codex-left codex-room-${activeRoom}`} aria-label={`Inscrição Medieval — ${currentTheme.name}`}>
-                {/* Ornamentos florais assimétricos por sala */}
-                {activeRoom === 'I' && <FoliateVineLeft />}
-                {activeRoom === 'III' && <CalligraphicHeaderHorizontal />}
-                {activeRoom === 'IV' && <IvyBranchBottomLeft />}
-                {activeRoom === 'V' && <TreasuryCrestTopLeft />}
-
-                <div className="codex-text-wrap codex-text-left">
-                  {activeRoom === 'I' && (
-                    <p className="codex-manuscript-paragraph">
-                      <span className="codex-drop-cap">S</span><span className="codex-first-word-rest">ob</span> o teto enfumaçado desta taverna, elfos, anões, magos e ladinos dividem o mesmo salão entre canecas e olhares desconfiados. Ao redor desta mesa marcada por adagas e moedas, nascem rivalidades mortais e selam-se pactos de sangue. Reúna sua companhia, assuma o manto de Mestre ou lance os dados para decidir quem sobreviverá à próxima missão.
-                    </p>
-                  )}
-                  {activeRoom === 'II' && (
-                    <p className="codex-manuscript-paragraph" style={{ position: 'relative' }}>
-                      <FoliateSproutCapitular />
-                      <span className="codex-drop-cap codex-drop-cap-halo">E</span><span className="codex-first-word-rest">m</span> um canto iluminado por velas de sebo, cronistas da taverna registram os rostos daqueles que partem rumo ao desconhecido. De bárbaros cobertos de cicatrizes a clérigos e bruxos misteriosos, eternize a aparência da sua companhia, retrate as feras abatidas e dê forma aos mapas e brasões do seu grupo em traços de carvão, nanquim e ouro.<PenFlourishEnd />
-                    </p>
-                  )}
-                  {activeRoom === 'III' && (
-                    <p className="codex-manuscript-paragraph">
-                      <span className="codex-drop-cap">E</span><span className="codex-first-word-rest">ncostados</span> no balcão de carvalho maciço, paladinos, mercenários e feiticeiros trocam moedas por hidromel e ouvidos atentos. O velho taberneiro conhece cada rixa entre clãs e cada recompensa por cabeças de monstros. Consulte os tomos de regras da casa, estude as fraquezas das criaturas no bestiário e colha rumores antes de pegar a estrada.
-                    </p>
-                  )}
-                  {activeRoom === 'IV' && (
-                    <p className="codex-manuscript-paragraph">
-                      <span className="codex-drop-cap">O</span><span className="codex-first-word-rest">nde</span> os barris de vinho e cerveja nunca secam, bardos e trovadores errantes dedilham seus alaúdes para acalmar os ânimos ou incendiar disputas no salão. Deixe que a música dite o clima do encontro, controlando as melodias da taverna, o crepitar da lareira e os cânticos que embalam os juramentos da sua companhia.
-                    </p>
-                  )}
-                  {activeRoom === 'V' && (
-                    <p className="codex-manuscript-paragraph">
-                      <span className="codex-drop-cap">N</span><span className="codex-first-word-rest">os</span> fundos vigiados da taverna, mercadores de terras exóticas abrem suas arcas para aventureiros recém-chegados de missões sangrentas. Não importa sua raça ou classe, aqui a única língua respeitada é o brilho do ouro. Troque suas moedas por relíquias místicas, títulos de renome e artefatos que elevarão seu nome acima dos rivais.
-                    </p>
-                  )}
-                </div>
-              </aside>
-
-              {/* Lado Direito: Ilustração Medieval com fundo transparente e reposicionada mais para a direita */}
-              <div
+            {activeRoom === 'I' ? (
+              <div className="gallery-diptych">
+                <button
+                  type="button"
+                  className="gallery-frame gallery-frame--diptych"
+                  onClick={() => {
+                    tavernAudio.playToastSound();
+                    setRoomIAction('create');
+                    setViewMode('functional');
+                  }}
+                  aria-label="Fundar Mesa e Mestrar"
+                >
+                  <img src={ROOM_I_FRAMES.left} alt="Fundar Mesa • Mestrar" draggable={false} />
+                  <span className="gallery-microcaption">Fundar Mesa • Mestrar</span>
+                </button>
+                <button
+                  type="button"
+                  className="gallery-frame gallery-frame--diptych"
+                  onClick={() => {
+                    tavernAudio.playToastSound();
+                    setRoomIAction('join');
+                    setViewMode('functional');
+                  }}
+                  aria-label="Ingressar em Sala com Código"
+                >
+                  <img src={ROOM_I_FRAMES.right} alt="Ingressar em Sala • Código" draggable={false} />
+                  <span className="gallery-microcaption">Ingressar em Sala • Código</span>
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className={`gallery-frame ${GALLERY_FRAME_CLASS[activeRoom]}`}
                 onClick={() => {
                   tavernAudio.playToastSound();
                   setViewMode('functional');
                 }}
-                className={`awwwards-gallery-frame-wrap room-tilt-${activeRoom}`}
-                title={`Clique para adentrar em ${currentTheme.name}`}
+                aria-label={`Adentrar em ${currentTheme.name}`}
               >
-                <div className="awwwards-gallery-frame">
-                  <CleanArtworkImage
-                    src={currentTheme.imageUrl}
-                    alt={currentTheme.name}
-                    room={activeRoom}
-                  />
-                </div>
-              </div>
-            </div>
+                <img src={currentTheme.imageUrl} alt={currentTheme.name} draggable={false} />
+                <span className="gallery-microcaption">{currentTheme.name}</span>
+              </button>
+            )}
           </div>
         ) : (
           /* ========================================================
@@ -698,6 +692,8 @@ export function App() {
             {activeRoom === 'I' && (
               <CampaignsView
                 hideHeader={true}
+                initialAction={roomIAction}
+                onInitialActionConsumed={() => setRoomIAction(null)}
                 onBack={() => {
                   tavernAudio.playBellChime();
                   setViewMode('gallery');

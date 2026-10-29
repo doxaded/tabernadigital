@@ -5,18 +5,35 @@ interface LandingPageProps {
   onOpenAuth?: () => void;
 }
 
+const CREAM = '#E6D5B8'; // Creme / pergaminho quente claro
+const INK = '#2A1B12'; // Marrom café escuro profundo
+const TITLE_INK = '#23150D';
+
+const titleStyle: React.CSSProperties = {
+  fontSize: 'min(17vw, 34vh)',
+  fontWeight: 500,
+  margin: 0,
+  padding: 0,
+  letterSpacing: '0.04em',
+  textTransform: 'uppercase',
+  color: TITLE_INK,
+  lineHeight: 0.92,
+  fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
+  whiteSpace: 'nowrap',
+};
+
 export const LandingPage: React.FC<LandingPageProps> = ({ onEnter, onOpenAuth }) => {
   return (
     <div
       onClick={onEnter}
       style={{
-        backgroundColor: '#120B07', // Marrom escuro 100% sólido, profundo e limpo
-        color: '#EAE0D5', // Bege claro de pergaminho
+        backgroundColor: CREAM,
+        color: INK,
         height: '100dvh',
         minHeight: '100vh',
         maxHeight: '100vh',
         width: '100vw',
-        fontFamily: "'MedievalSharp', 'UnifrakturMaguntia', serif",
+        fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
         position: 'relative',
         overflow: 'hidden',
         display: 'flex',
@@ -30,11 +47,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter, onOpenAuth })
       }}
       title="Clique para entrar na Taberna"
     >
-      {/* Título Monumental em Tela Cheia — Fonte Gótica Clássica UnifrakturMaguntia (Fraktur/Blackletter) em Title Case & Cor Única #EAE0D5 */}
+      {/* Título editorial clássico em caixa alta, marrom café escuro */}
       <div
         style={{
           textAlign: 'center',
-          lineHeight: 0.84,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -44,43 +60,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter, onOpenAuth })
           zIndex: 10,
         }}
       >
-        <h1
-          style={{
-            fontSize: 'min(21.5vw, 42vh)',
-            fontWeight: 400,
-            margin: 0,
-            padding: 0,
-            letterSpacing: '0.01em',
-            textTransform: 'none',
-            color: '#EAE0D5',
-            textShadow: '0 10px 40px rgba(0, 0, 0, 0.95)',
-            lineHeight: 0.84,
-            fontFamily: "'UnifrakturMaguntia', 'UnifrakturCook', cursive, serif",
-            whiteSpace: 'nowrap',
-          }}
-        >
-          Taberna
-        </h1>
-        <h1
-          style={{
-            fontSize: 'min(21.5vw, 42vh)',
-            fontWeight: 400,
-            margin: 0,
-            padding: 0,
-            letterSpacing: '0.01em',
-            textTransform: 'none',
-            color: '#EAE0D5',
-            textShadow: '0 10px 40px rgba(0, 0, 0, 0.95)',
-            lineHeight: 0.84,
-            fontFamily: "'UnifrakturMaguntia', 'UnifrakturCook', cursive, serif",
-            whiteSpace: 'nowrap',
-          }}
-        >
-          Digital
-        </h1>
+        <h1 style={titleStyle}>Taberna</h1>
+        <h1 style={titleStyle}>Digital</h1>
       </div>
 
-      {/* Ações sutis no rodapé */}
       {onOpenAuth && (
         <div
           style={{
@@ -97,26 +80,25 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter, onOpenAuth })
             onClick={onOpenAuth}
             style={{
               background: 'transparent',
-              color: 'rgba(234, 224, 213, 0.7)',
-              border: '1px solid rgba(234, 224, 213, 0.2)',
-              borderRadius: '6px',
-              padding: '8px 20px',
-              fontSize: '12px',
-              letterSpacing: '0.14em',
+              color: INK,
+              border: `1px solid ${INK}`,
+              borderRadius: '2px',
+              padding: '9px 24px',
+              fontSize: '13px',
+              fontWeight: 600,
+              letterSpacing: '0.16em',
               textTransform: 'uppercase',
               cursor: 'pointer',
-              fontFamily: "'MedievalSharp', serif",
+              fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
               transition: 'all 0.2s ease',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.color = '#EAE0D5';
-              e.currentTarget.style.borderColor = 'rgba(234, 224, 213, 0.5)';
-              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.04)';
+              e.currentTarget.style.backgroundColor = INK;
+              e.currentTarget.style.color = CREAM;
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.color = 'rgba(234, 224, 213, 0.7)';
-              e.currentTarget.style.borderColor = 'rgba(234, 224, 213, 0.2)';
               e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = INK;
             }}
           >
             Acessar com Login
@@ -126,4 +108,3 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter, onOpenAuth })
     </div>
   );
 };
-

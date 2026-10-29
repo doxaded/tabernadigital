@@ -7067,255 +7067,73 @@ h1, h2, h3, h4, .font-cinzel {
   opacity: 0.88;
 }
 
-/* Imagem Central (Quadro / Pintura com 70% de espaço negativo ao redor) */
-.awwwards-gallery-frame-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
+/* Quadros da galeria minimalista (Modo Capa) */
+.gallery-frame {
   position: relative;
-}
-
-.awwwards-gallery-frame {
-  width: auto;
-  height: auto;
-  max-width: 420px;
-  max-height: 380px;
-  position: relative;
-  overflow: visible;
+  display: block;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
   box-shadow: none;
-  border: none;
   background: transparent;
+  overflow: hidden;
+  cursor: pointer;
+  max-width: 90vw;
+  font: inherit;
+  color: inherit;
+}
+.gallery-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 700ms ease, opacity 400ms ease;
+}
+.gallery-frame:hover img { transform: scale(1.04); }
+.gallery-frame:focus-visible { outline: 1px solid currentColor; outline-offset: 4px; }
+.gallery-frame--landscape { width: 380px; height: 260px; }
+.gallery-frame--square { width: 300px; height: 300px; }
+.gallery-frame--portrait { width: 270px; height: 350px; }
+.gallery-frame--square-lg { width: 320px; height: 320px; }
+.gallery-frame--diptych { width: 280px; height: 360px; }
+.gallery-diptych {
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
+  gap: 20px;
 }
-
-.awwwards-gallery-img {
-  width: auto;
-  height: auto;
-  max-width: 420px;
-  max-height: 380px;
-  object-fit: contain;
-  display: block;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  /* Animação brusca / rápida de xilogravura: duration-75 ease-linear (stop-motion rústico) */
-  transition: transform 75ms ease-linear;
-  transform-origin: center center;
-}
-
-/* Inclinação seca alternada no hover conforme a sala (Recorte de Jornal / Xilogravura) */
-.awwwards-gallery-frame-wrap.room-tilt-I:hover .awwwards-gallery-img,
-.awwwards-gallery-frame-wrap:hover .awwwards-gallery-img.awwwards-room-I {
-  transform: rotate(5deg);
-}
-
-.awwwards-gallery-frame-wrap.room-tilt-II:hover .awwwards-gallery-img,
-.awwwards-gallery-frame-wrap:hover .awwwards-gallery-img.awwwards-room-II {
-  transform: rotate(-5deg);
-}
-
-.awwwards-gallery-frame-wrap.room-tilt-III:hover .awwwards-gallery-img,
-.awwwards-gallery-frame-wrap:hover .awwwards-gallery-img.awwwards-room-III {
-  transform: rotate(5deg);
-}
-
-.awwwards-gallery-frame-wrap.room-tilt-IV:hover .awwwards-gallery-img,
-.awwwards-gallery-frame-wrap:hover .awwwards-gallery-img.awwwards-room-IV {
-  transform: rotate(-5deg);
-}
-
-.awwwards-gallery-frame-wrap.room-tilt-V:hover .awwwards-gallery-img,
-.awwwards-gallery-frame-wrap:hover .awwwards-gallery-img.awwwards-room-V {
-  transform: rotate(5deg);
-}
-
-/* Micro-legenda sutil abaixo da imagem no hover */
-.awwwards-gallery-microcaption {
+.gallery-microcaption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 28px 12px 14px;
   font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-weight: 300;
   font-style: italic;
-  font-size: clamp(12px, 1.1vw, 15px);
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: 0.14em;
   text-align: center;
-  margin-top: 20px;
-  height: 22px;
+  color: #f1e6d2;
+  background: linear-gradient(to top, rgba(16, 9, 5, 0.65), transparent);
   opacity: 0;
   transform: translateY(4px);
   transition: opacity 350ms ease, transform 350ms ease;
   pointer-events: none;
 }
-
-.awwwards-gallery-frame-wrap:hover .awwwards-gallery-microcaption {
-  opacity: 0.75;
+.gallery-frame:hover .gallery-microcaption,
+.gallery-frame:focus-visible .gallery-microcaption {
+  opacity: 0.95;
   transform: translateY(0);
 }
-
-/* ========================================================
-   MODO GALERIA: LAYOUT DE MANUSCRITO MEDIEVAL / CÓDICE ILUMINADO
-   - Altura do texto desvinculada da imagem (expande livremente na vertical)
-   - Colunas laterais amplas (max-w-md a max-w-lg / 380px a 540px)
-   - Caligrafia Gótica Rotunda/Blackletter (Pirata One / UnifrakturMaguntia)
-   - Fonte expressiva ampliada (28px a 34px) com entrelinha 1.95
-   - Alinhamento natural à esquerda (text-left / ragged-right de copista)
-   - Capitular colada ao texto sem espaçamento artificial
-   - Linha de abertura em rubrica carmim (#B8332A - Incipit Franciscano)
-   - Ramos florais e botões de ouro (Golden Bezants com traços de pena)
-   ======================================================== */
-.medieval-manuscript-stage {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(32px, 4.5vw, 64px); /* gap-16 balanceado */
-  width: 100%;
-  max-width: 1024px; /* max-w-5xl */
-  height: auto;
-  margin: 0 auto;
-  position: relative;
-  z-index: 10;
-  box-sizing: border-box;
-  padding: 0 32px; /* px-8 */
-}
-
-/* Coluna Única de Legenda à Esquerda (max-w-md a max-w-lg) */
-.medieval-codex-column {
-  flex: 1 1 500px;
-  max-width: 520px; /* max-w-lg */
-  min-width: 300px;
-  height: auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  position: relative;
-}
-
-.medieval-codex-column.codex-left {
-  align-items: flex-start;
-  text-align: left;
-}
-
-/* Container de Texto com Caligrafia Gótica Medieval */
-.codex-text-wrap {
-  position: relative;
-  width: 100%;
-  user-select: none;
-}
-
-/* Título de Abertura Caligráfica em Tinta Carmim (Incipit Franciscano) */
-.codex-incipit-header {
-  font-family: 'Pirata One', 'UnifrakturMaguntia', 'MedievalSharp', serif;
-  font-size: clamp(21px, 1.4vw, 26px);
-  color: #B8332A; /* Vermelho Carmim Nobre de Manuscrito */
-  letter-spacing: 0.035em;
-  margin-bottom: 14px;
-  line-height: 1.35;
-  display: block;
-  opacity: 0.96;
-  text-shadow: 0 0 12px rgba(184, 51, 42, 0.4), 0 1px 3px rgba(0, 0, 0, 0.9);
-  user-select: none;
-}
-
-/* Parágrafos de Códice: Caligrafia Medieval, Linhas Densas e Coesas (line-height: 1.38 / leading-normal) */
-.codex-manuscript-paragraph {
-  font-family: 'MedievalSharp', 'UnifrakturMaguntia', serif;
-  font-size: clamp(26px, 1.85vw, 30px);
-  line-height: 1.38; /* Entrelinha compacta e densa de pergaminho real */
-  color: rgba(235, 218, 196, 0.9); /* Tom de pergaminho antigo */
-  letter-spacing: 0.01em;
-  word-spacing: 0.05em;
-  text-align: left; /* Alinhamento natural à esquerda */
-  hyphens: none; /* Sem hifenização forçada */
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
-  margin: 0;
-}
-
-/* Letra Capitular (Drop Cap) em Iluminura: UnifrakturMaguntia Gótica, Encaixe Natural e Colado sem Vazio */
-.codex-drop-cap {
-  font-family: 'UnifrakturMaguntia', 'MedievalSharp', serif;
-  font-size: clamp(66px, 4.4vw, 78px);
-  line-height: 0.78;
-  font-weight: 700;
-  color: #D4A359; /* Âmbar / Ouro Velho das Iluminuras */
-  float: left;
-  margin-right: 5px; /* Colada à primeira palavra sem hiato */
-  margin-top: 4px;
-  margin-bottom: -2px;
-  text-shadow: 0 0 18px rgba(212, 163, 89, 0.5), 0 2px 6px rgba(0, 0, 0, 0.9);
-  display: inline-block;
-  user-select: none;
-}
-
-.codex-drop-cap-halo {
-  filter: drop-shadow(0 0 10px rgba(212, 163, 89, 0.65));
-}
-
-.codex-first-word-rest {
-  font-size: 1.02em;
-  font-weight: 600;
-  color: #F5E6D3;
-  margin-left: 0;
-}
-
-/* Rubricas Medievais em Vermelho Carmim e Azul Ultramarino */
-.codex-rubric {
-  font-family: 'Pirata One', 'UnifrakturMaguntia', serif;
-  font-size: 1.22em;
-  font-weight: 700;
-  line-height: 1;
-  display: inline-block;
-  vertical-align: baseline;
-  margin-right: 1px;
-}
-
-.codex-rubric-carmim {
-  color: #B8332A; /* Vermelho Carmim das Iluminuras */
-  text-shadow: 0 0 10px rgba(184, 51, 42, 0.5);
-}
-
-.codex-rubric-ultramarine {
-  color: #2B4C65; /* Azul Ultramarino Envelhecido */
-  text-shadow: 0 0 10px rgba(43, 76, 101, 0.5);
-}
-
-.codex-pilcrow-carmim {
-  font-family: 'Cinzel', serif;
-  font-size: 1.15em;
-  color: #B8332A;
-  margin-right: 6px;
-  font-weight: 700;
-  text-shadow: 0 0 8px rgba(184, 51, 42, 0.5);
-}
-
-/* Responsividade: Telas Menores e Mobile */
-@media (max-width: 1079px) {
-  .medieval-manuscript-stage {
-    flex-direction: column;
-    gap: 36px;
-    padding: 0 24px;
-  }
-
-  .medieval-codex-column {
-    max-width: 560px;
-    width: 100%;
-    align-items: flex-start !important;
-  }
-
-  .medieval-codex-column.codex-left {
-    order: 1;
-  }
-
-  .awwwards-gallery-frame-wrap {
-    order: 2;
-  }
-
-  .codex-manuscript-paragraph {
-    font-size: clamp(22px, 2.5vw, 26px);
-    line-height: 1.38;
-  }
+@media (max-width: 640px) {
+  .gallery-diptych { gap: 16px; }
+  .gallery-frame--diptych { width: 42vw; height: 56vw; }
+  .gallery-frame--landscape { width: 86vw; height: 59vw; }
+  .gallery-frame--square, .gallery-frame--square-lg { width: 80vw; height: 80vw; }
+  .gallery-frame--portrait { width: 70vw; height: 91vw; }
 }
 
 /* 4. Nível 2 — Modo Funcional (Interior da Sala) */

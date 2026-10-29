@@ -42,6 +42,9 @@ interface CampaignsViewProps {
   onOpenAdmin?: () => void;
   onOpenAuth?: () => void;
   hideHeader?: boolean;
+  /** Ação disparada ao entrar pela galeria: abre o modal de criação ou de ingresso por chave */
+  initialAction?: 'create' | 'join' | null;
+  onInitialActionConsumed?: () => void;
 }
 
 export const CampaignsView: React.FC<CampaignsViewProps> = ({
@@ -71,6 +74,8 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
   onOpenAdmin,
   onOpenAuth,
   hideHeader = false,
+  initialAction = null,
+  onInitialActionConsumed,
 }) => {
 
   // ==========================================
@@ -193,6 +198,15 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
   const [tableFilter, setTableFilter] = useState<'all' | 'joined' | 'master'>('all');
   const [roomSearch, setRoomSearch] = useState('');
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
+
+  // Redirecionamento vindo do díptico da galeria (Sala I)
+  useEffect(() => {
+    if (!initialAction) return;
+    if (initialAction === 'create') setIsNewRoomModalOpen(true);
+    if (initialAction === 'join') setIsJoinModalOpen(true);
+    onInitialActionConsumed?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialAction]);
   const [quickDiceHistory, setQuickDiceHistory] = useState<Array<{ die: string; result: number; time: string }>>([]);
   const [isRollingQuick, setIsRollingQuick] = useState<string | null>(null);
 

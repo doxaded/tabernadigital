@@ -92,10 +92,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const inputStyle = {
     width: '100%',
     border: 'none',
-    borderBottom: '1px solid rgba(212, 163, 89, 0.35)',
+    borderBottom: '1px solid rgba(42, 27, 18, 0.5)',
     padding: '12px 0',
     fontSize: '15px',
-    color: '#EAE0D5',
+    color: '#2A1B12',
     backgroundColor: 'transparent',
     outline: 'none',
     marginBottom: '24px',
@@ -106,7 +106,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     display: 'block',
     fontSize: '11px',
     fontWeight: 600,
-    color: '#D4A359',
+    color: '#2A1B12',
     textTransform: 'uppercase' as const,
     letterSpacing: '0.08em',
     marginBottom: '6px',
@@ -121,7 +121,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: 'rgba(0, 0, 0, 0.75)',
+      backgroundColor: 'rgba(35, 21, 13, 0.55)',
       backdropFilter: 'blur(6px)',
       padding: '20px'
     }} onClick={onClose}>
@@ -133,38 +133,37 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         height: 'auto',
         minHeight: '560px',
         maxHeight: '90vh',
-        backgroundColor: '#160E09',
-        border: '1px solid rgba(212, 163, 89, 0.25)',
-        borderRadius: '16px',
+        backgroundColor: '#E6D5B8',
+        border: '1px solid rgba(42, 27, 18, 0.45)',
+        borderRadius: '4px',
         overflow: 'hidden',
-        boxShadow: '0 25px 60px rgba(0, 0, 0, 0.9), 0 0 35px rgba(0, 0, 0, 0.6)',
-        color: '#EAE0D5',
+        boxShadow: '0 25px 60px rgba(35, 21, 13, 0.45)',
+        color: '#2A1B12',
         fontFamily: '"Inter", sans-serif'
       }} onClick={e => e.stopPropagation()}>
         {/* LEFT SIDE: Identidade Visual Medieval da Taberna */}
         <div style={{
           flex: 1,
-          backgroundColor: '#120B07',
+          backgroundColor: '#DEC29B',
           padding: '44px 36px',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           position: 'relative',
-          borderRight: window.innerWidth < 768 ? 'none' : '1px solid rgba(212, 163, 89, 0.16)',
-          borderBottom: window.innerWidth < 768 ? '1px solid rgba(212, 163, 89, 0.16)' : 'none',
+          borderRight: window.innerWidth < 768 ? 'none' : '1px solid rgba(42, 27, 18, 0.35)',
+          borderBottom: window.innerWidth < 768 ? '1px solid rgba(42, 27, 18, 0.35)' : 'none',
           textAlign: 'center',
           boxSizing: 'border-box'
         }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{
               fontSize: 'clamp(28px, 3.2vw, 40px)',
-              fontWeight: 700,
-              fontFamily: "'MedievalSharp', 'UnifrakturMaguntia', serif",
+              fontWeight: 600,
+              fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
               letterSpacing: '0.08em',
-              color: '#EAE0D5',
-              lineHeight: 1.1,
-              textShadow: '0 4px 18px rgba(0, 0, 0, 0.9)'
+              color: '#23150D',
+              lineHeight: 1.1
             }}>
               TABERNA DIGITAL
             </div>
@@ -173,7 +172,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               fontStyle: 'italic',
               fontSize: '15px',
               letterSpacing: '0.18em',
-              color: '#D4A359',
+              color: '#4A3626',
               marginTop: '10px',
               textTransform: 'uppercase'
             }}>
@@ -182,16 +181,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <div style={{
               width: '60px',
               height: '1px',
-              backgroundColor: 'rgba(212, 163, 89, 0.35)',
+              backgroundColor: 'rgba(42, 27, 18, 0.45)',
               margin: '22px 0 16px'
             }} />
             <p style={{
-              fontSize: '13px',
-              lineHeight: 1.8,
-              color: 'rgba(234, 224, 213, 0.75)',
+              fontSize: '15px',
+              lineHeight: 1.7,
+              color: 'rgba(42, 27, 18, 0.8)',
               maxWidth: '300px',
               margin: 0,
-              fontFamily: "'MedievalSharp', serif"
+              fontFamily: "'Cormorant Garamond', 'Playfair Display', serif"
             }}>
               Adentre o santuário dos aventureiros. Gerencie campanhas épicas, retratos e crônicas ao redor da lareira.
             </p>
@@ -201,7 +200,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         {/* RIGHT SIDE: Formulário de Acesso Harmonizado */}
         <div style={{
           flex: window.innerWidth < 768 ? 'auto' : 1.2,
-          backgroundColor: '#160E09',
+          backgroundColor: '#E6D5B8',
           padding: '40px 50px',
           display: 'flex',
           flexDirection: 'column',
@@ -219,11 +218,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              color: 'rgba(234, 224, 213, 0.7)',
+              color: 'rgba(42, 27, 18, 0.65)',
               transition: 'color 0.2s'
             }}
-            onMouseEnter={e => e.currentTarget.style.color = '#EAE0D5'}
-            onMouseLeave={e => e.currentTarget.style.color = 'rgba(234, 224, 213, 0.7)'}
+            onMouseEnter={e => e.currentTarget.style.color = '#23150D'}
+            onMouseLeave={e => e.currentTarget.style.color = 'rgba(42, 27, 18, 0.65)'}
           >
             <X size={22} />
           </button>
@@ -232,9 +231,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <h2 style={{
               fontSize: '22px',
               fontWeight: 700,
-              color: '#EAE0D5',
+              color: '#23150D',
               marginBottom: '28px',
-              fontFamily: "'MedievalSharp', 'Cinzel', serif",
+              fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
               letterSpacing: '0.04em'
             }}>
               {isResetMode ? 'Recuperar Senha' : isRegister ? 'Registrar na Taverna' : 'Entrar na Taverna'}
@@ -243,8 +242,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             {/* Active Session Notice & Disconnect Button */}
             {currentUser && (
               <div style={{
-                backgroundColor: 'rgba(212, 163, 89, 0.08)',
-                border: '1px solid rgba(212, 163, 89, 0.25)',
+                backgroundColor: 'rgba(42, 27, 18, 0.06)',
+                border: '1px solid rgba(42, 27, 18, 0.3)',
                 borderRadius: '8px',
                 padding: '14px 16px',
                 marginBottom: '24px',
@@ -254,9 +253,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 gap: '12px'
               }}>
                 <div>
-                  <div style={{ fontSize: '11px', color: '#D4A359', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Sessão ativa como:</div>
-                  <div style={{ fontWeight: 600, color: '#EAE0D5', fontSize: '13px' }}>
-                    {currentUser.displayName} <span style={{ fontWeight: 400, color: 'rgba(234, 224, 213, 0.65)' }}>({currentUser.email})</span>
+                  <div style={{ fontSize: '11px', color: '#4A3626', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Sessão ativa como:</div>
+                  <div style={{ fontWeight: 600, color: '#23150D', fontSize: '13px' }}>
+                    {currentUser.displayName} <span style={{ fontWeight: 400, color: 'rgba(42, 27, 18, 0.65)' }}>({currentUser.email})</span>
                   </div>
                 </div>
                 {onLogout && (
@@ -265,8 +264,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     onClick={onLogout}
                     style={{
                       background: 'transparent',
-                      border: '1px solid rgba(239, 68, 68, 0.4)',
-                      color: '#f87171',
+                      border: '1px solid rgba(139, 38, 29, 0.55)',
+                      color: '#8B261D',
                       padding: '5px 12px',
                       borderRadius: '4px',
                       fontSize: '11px',
@@ -283,13 +282,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
             {/* Feedback Messages */}
             {errorMsg && (
-              <div style={{ color: '#f87171', fontSize: '13px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ color: '#8B261D', fontSize: '13px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <AlertTriangle size={16} /> {errorMsg}
               </div>
             )}
 
             {successMsg && (
-              <div style={{ color: '#34d399', fontSize: '13px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ color: '#3F5A2E', fontSize: '13px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Check size={16} /> {successMsg}
               </div>
             )}
@@ -337,55 +336,52 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               )}
 
               {isRegister && (
-                <div style={{ fontSize: '12px', color: 'rgba(234, 224, 213, 0.7)', marginBottom: '28px', lineHeight: 1.6 }}>
+                <div style={{ fontSize: '12px', color: 'rgba(42, 27, 18, 0.75)', marginBottom: '28px', lineHeight: 1.6 }}>
                   A Taberna Digital mantém seus registros em pergaminhos seguros.<br/><br/>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <input type="checkbox" required style={{ accentColor: '#D4A359' }} />
+                    <input type="checkbox" required style={{ accentColor: '#2A1B12' }} />
                     Li e aceito as Regras da Casa e Termos da Taverna
                   </label>
                 </div>
               )}
 
               {!isRegister && !isResetMode && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '28px', fontSize: '13px', color: 'rgba(234, 224, 213, 0.75)' }}>
-                  <input type="checkbox" style={{ accentColor: '#D4A359' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '28px', fontSize: '13px', color: 'rgba(42, 27, 18, 0.8)' }}>
+                  <input type="checkbox" style={{ accentColor: '#2A1B12' }} />
                   Manter conectado nesta taverna
                 </div>
               )}
 
-              {/* Botão de Envio Harmonizado: Marrom Escuro & Bege Claro, Sem Laranja */}
+              {/* Botão de Envio: contorno fino marrom escuro sobre creme */}
               <button
                 type="submit"
                 disabled={isLoading}
                 style={{
-                  backgroundColor: '#26160D',
-                  color: '#EAE0D5',
-                  border: '1px solid rgba(212, 163, 89, 0.45)',
-                  borderRadius: '6px',
+                  backgroundColor: 'transparent',
+                  color: '#2A1B12',
+                  border: '1px solid #2A1B12',
+                  borderRadius: '2px',
                   padding: '14px 20px',
                   fontSize: '14px',
                   fontWeight: 600,
                   letterSpacing: '0.14em',
                   textTransform: 'uppercase',
-                  fontFamily: "'MedievalSharp', 'Cinzel', serif",
+                  fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '8px',
                   width: '100%',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 4px 14px rgba(0, 0, 0, 0.4)'
+                  transition: 'all 0.2s ease'
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.backgroundColor = '#382014';
-                  e.currentTarget.style.borderColor = '#D4A359';
-                  e.currentTarget.style.color = '#FFFFFF';
+                  e.currentTarget.style.backgroundColor = '#2A1B12';
+                  e.currentTarget.style.color = '#E6D5B8';
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.backgroundColor = '#26160D';
-                  e.currentTarget.style.borderColor = 'rgba(212, 163, 89, 0.45)';
-                  e.currentTarget.style.color = '#EAE0D5';
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = '#2A1B12';
                 }}
               >
                 {isLoading ? (
@@ -407,17 +403,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     style={{
                       background: 'none',
                       border: 'none',
-                      color: '#D4A359',
+                      color: '#4A3626',
                       fontSize: '11px',
                       fontWeight: 600,
                       letterSpacing: '0.06em',
                       cursor: 'pointer',
                       textDecoration: 'underline',
                       textTransform: 'uppercase',
-                      fontFamily: "'MedievalSharp', sans-serif"
+                      fontFamily: "'Cormorant Garamond', serif"
                     }}
-                    onMouseEnter={e => e.currentTarget.style.color = '#EAE0D5'}
-                    onMouseLeave={e => e.currentTarget.style.color = '#D4A359'}
+                    onMouseEnter={e => e.currentTarget.style.color = '#23150D'}
+                    onMouseLeave={e => e.currentTarget.style.color = '#4A3626'}
                   >
                     Esqueceu sua senha?
                   </button>
@@ -432,15 +428,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     style={{
                       background: 'none',
                       border: 'none',
-                      color: '#D4A359',
+                      color: '#4A3626',
                       fontSize: '12px',
                       fontWeight: 600,
                       cursor: 'pointer',
                       textDecoration: 'underline',
-                      fontFamily: "'MedievalSharp', sans-serif"
+                      fontFamily: "'Cormorant Garamond', serif"
                     }}
-                    onMouseEnter={e => e.currentTarget.style.color = '#EAE0D5'}
-                    onMouseLeave={e => e.currentTarget.style.color = '#D4A359'}
+                    onMouseEnter={e => e.currentTarget.style.color = '#23150D'}
+                    onMouseLeave={e => e.currentTarget.style.color = '#4A3626'}
                   >
                     ← Voltar ao login
                   </button>
@@ -448,7 +444,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               )}
 
               {!isResetMode && (
-                <div style={{ textAlign: 'center', marginTop: '28px', fontSize: '13px', color: 'rgba(234, 224, 213, 0.7)' }}>
+                <div style={{ textAlign: 'center', marginTop: '28px', fontSize: '13px', color: 'rgba(42, 27, 18, 0.75)' }}>
                   {isRegister ? "Já possui uma conta? " : "Ainda não faz parte? "}
                   <button 
                     type="button"
@@ -457,14 +453,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       background: 'none',
                       border: 'none',
                       fontWeight: 700,
-                      color: '#D4A359',
+                      color: '#2A1B12',
                       cursor: 'pointer',
                       textDecoration: 'underline',
                       padding: 0,
-                      fontFamily: "'MedievalSharp', sans-serif"
+                      fontFamily: "'Cormorant Garamond', serif"
                     }}
-                    onMouseEnter={e => e.currentTarget.style.color = '#EAE0D5'}
-                    onMouseLeave={e => e.currentTarget.style.color = '#D4A359'}
+                    onMouseEnter={e => e.currentTarget.style.color = '#000000'}
+                    onMouseLeave={e => e.currentTarget.style.color = '#2A1B12'}
                   >
                     {isRegister ? "Entrar na Taverna" : "Registrar-se"}
                   </button>
