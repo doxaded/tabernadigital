@@ -159,9 +159,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{
               fontSize: 'clamp(28px, 3.2vw, 40px)',
-              fontWeight: 600,
-              fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
-              letterSpacing: '0.08em',
+              fontWeight: 700,
+              fontFamily: "'Cinzel', 'Playfair Display', Georgia, serif",
+              letterSpacing: '0.12em',
               color: '#23150D',
               lineHeight: 1.1
             }}>

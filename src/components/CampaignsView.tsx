@@ -199,9 +199,13 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
   const [roomSearch, setRoomSearch] = useState('');
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
 
+  // Caminho escolhido no díptico da galeria (Sala I): persiste após consumir a ação inicial
+  const [roomPath, setRoomPath] = useState<'create' | 'join' | null>(initialAction);
+
   // Redirecionamento vindo do díptico da galeria (Sala I)
   useEffect(() => {
     if (!initialAction) return;
+    setRoomPath(initialAction);
     if (initialAction === 'create') setIsNewRoomModalOpen(true);
     if (initialAction === 'join') setIsJoinModalOpen(true);
     onInitialActionConsumed?.();
@@ -271,6 +275,11 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
 
   // Campanha selecionada
   const activeCampaign = campaigns.find(c => c.id === selectedCampaignId) || campaigns[0];
+
+  // Sem sala ativa a barra de sub-guias fica oculta: garante que o conteúdo volte ao Capítulo I
+  useEffect(() => {
+    if (!activeCampaign) setActiveChapter('I');
+  }, [activeCampaign]);
   const isMasterOfActive = activeCampaign && (activeCampaign.masterId === currentUser.uid || currentUser.role === 'admin');
 
   const handleOpenEditRoom = (camp: Campaign) => {
@@ -1030,7 +1039,8 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
             ← Voltar à Galeria
           </button>
 
-          {/* Sub-abas no estilo Segmented Control */}
+          {/* Sub-abas no estilo Segmented Control — só dentro de uma sala criada/selecionada */}
+          {activeCampaign && (
           <div className="editorial-segmented-control dark-theme">
             {([
               { id: 'I', label: 'Mesa Ativa' },
@@ -1054,6 +1064,7 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
               );
             })}
           </div>
+          )}
         </div>
 
         {/* ========================================================
@@ -1365,17 +1376,25 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                   Nenhuma Mesa Ativa
                 </h1>
                 <p style={{ fontStyle: 'italic', fontSize: '17px', opacity: 0.85, maxWidth: '560px', margin: '0 0 32px 0', color: '#EAE0D5' }}>
-                  Funde uma nova saga como Mestre ou ingresse em uma mesa com a chave de convite fornecida pelo seu cronista.
+                  {roomPath === 'join'
+                    ? 'Ingresse em uma mesa já existente usando a chave de convite fornecida pelo seu cronista.'
+                    : roomPath === 'create'
+                    ? 'Funde uma nova saga como Mestre e convoque aventureiros para a sua mesa.'
+                    : 'Funde uma nova saga como Mestre ou ingresse em uma mesa com a chave de convite fornecida pelo seu cronista.'}
                 </p>
                 <div style={{ display: 'flex', gap: '16px', marginBottom: '32px' }}>
-                  <button onClick={() => setIsNewRoomModalOpen(true)} className="editorial-btn-primary">
-                    <Plus size={15} />
-                    Fundar Nova Mesa
-                  </button>
-                  <button onClick={() => setIsJoinModalOpen(true)} className="editorial-btn-secondary">
-                    <KeyRound size={15} />
-                    Ingressar por Chave
-                  </button>
+                  {roomPath !== 'join' && (
+                    <button onClick={() => setIsNewRoomModalOpen(true)} className="editorial-btn-primary">
+                      <Plus size={15} />
+                      Fundar Nova Mesa
+                    </button>
+                  )}
+                  {roomPath !== 'create' && (
+                    <button onClick={() => setIsJoinModalOpen(true)} className={roomPath === 'join' ? 'editorial-btn-primary' : 'editorial-btn-secondary'}>
+                      <KeyRound size={15} />
+                      Ingressar por Chave
+                    </button>
+                  )}
                 </div>
                 {campaigns.length > 0 && (
                   <div style={{ borderTop: '1px solid rgba(212, 163, 89, 0.15)', paddingTop: '24px' }}>

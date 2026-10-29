@@ -59,6 +59,7 @@ export interface UserContact {
   userTag: string;
   addedAt: string;
   isFavorite?: boolean;
+  nickname?: string;
 }
 
 export interface CustomChatRoom {

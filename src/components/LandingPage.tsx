@@ -5,20 +5,20 @@ interface LandingPageProps {
   onOpenAuth?: () => void;
 }
 
-const CREAM = '#E6D5B8'; // Creme / pergaminho quente claro
-const INK = '#2A1B12'; // Marrom café escuro profundo
+const CREAM = '#F2E6D0'; // Marfim / pergaminho claro
+const INK = '#23150D'; // Marrom café profundo
 const TITLE_INK = '#23150D';
 
 const titleStyle: React.CSSProperties = {
-  fontSize: 'min(17vw, 34vh)',
-  fontWeight: 500,
+  fontSize: 'min(16vw, 34vh)',
+  fontWeight: 700,
   margin: 0,
   padding: 0,
-  letterSpacing: '0.04em',
+  letterSpacing: '-0.05em',
   textTransform: 'uppercase',
   color: TITLE_INK,
-  lineHeight: 0.92,
-  fontFamily: "'Cormorant Garamond', 'Playfair Display', Georgia, serif",
+  lineHeight: 0.88,
+  fontFamily: "'Cinzel', 'Playfair Display', Georgia, serif",
   whiteSpace: 'nowrap',
 };
 
@@ -101,7 +101,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnter, onOpenAuth })
               e.currentTarget.style.color = INK;
             }}
           >
-            Acessar com Login
+            Adentrar Taberna
           </button>
         </div>
       )}

@@ -7092,10 +7092,11 @@ h1, h2, h3, h4, .font-cinzel {
 }
 .gallery-frame:hover img { transform: scale(1.04); }
 .gallery-frame:focus-visible { outline: 1px solid currentColor; outline-offset: 4px; }
-.gallery-frame--landscape { width: 380px; height: 260px; }
-.gallery-frame--square { width: 300px; height: 300px; }
-.gallery-frame--portrait { width: 270px; height: 350px; }
-.gallery-frame--square-lg { width: 320px; height: 320px; }
+/* Quadros únicos (Salas II–V): mesma área total do díptico da Sala I (2×280 + 20 gap = 580 × 360) */
+.gallery-frame--landscape,
+.gallery-frame--square,
+.gallery-frame--portrait,
+.gallery-frame--square-lg { width: 580px; height: 360px; max-width: 90vw; }
 .gallery-frame--diptych { width: 280px; height: 360px; }
 .gallery-diptych {
   display: flex;
@@ -7131,9 +7132,10 @@ h1, h2, h3, h4, .font-cinzel {
 @media (max-width: 640px) {
   .gallery-diptych { gap: 16px; }
   .gallery-frame--diptych { width: 42vw; height: 56vw; }
-  .gallery-frame--landscape { width: 86vw; height: 59vw; }
-  .gallery-frame--square, .gallery-frame--square-lg { width: 80vw; height: 80vw; }
-  .gallery-frame--portrait { width: 70vw; height: 91vw; }
+  .gallery-frame--landscape,
+  .gallery-frame--square,
+  .gallery-frame--square-lg,
+  .gallery-frame--portrait { width: calc(84vw + 16px); height: 56vw; max-width: none; }
 }
 
 /* 4. Nível 2 — Modo Funcional (Interior da Sala) */
@@ -7580,3 +7582,165 @@ h1, h2, h3, h4, .font-cinzel {
 
 
 
+
+/* ==========================================================
+   SALA IV — RECANTO DOS BARDOS (Mensageiro + Grimório de Alianças)
+   ========================================================== */
+.bardos-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(212, 163, 89, 0.2);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-family: 'Cormorant Garamond', 'Playfair Display', serif;
+  font-size: 16px;
+  color: #EAE0D5;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+.bardos-input:focus { border-color: rgba(212, 163, 89, 0.55); }
+.bardos-input::placeholder { color: rgba(234, 224, 213, 0.45); }
+
+.bardos-avatar {
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  border: 1px solid rgba(212, 163, 89, 0.35);
+  color: #EAE0D5;
+  font-family: 'Cormorant Garamond', 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 18px;
+  background-color: #3a2415;
+  padding: 0;
+  cursor: default;
+}
+button.bardos-avatar { cursor: pointer; }
+
+.bardos-icon-btn {
+  background: transparent;
+  border: none;
+  color: #EAE0D5;
+  opacity: 0.7;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+.bardos-icon-btn:hover { opacity: 1; background: rgba(255, 255, 255, 0.08); }
+.bardos-icon-btn--danger:hover { color: #E58C7B; background: rgba(239, 68, 68, 0.15); }
+
+.bardos-contact-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(212, 163, 89, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+  color: #EAE0D5;
+  min-width: 0;
+}
+
+/* Split-pane messenger */
+.bardos-messenger {
+  display: grid;
+  grid-template-columns: 4fr 8fr;
+  width: 100%;
+  max-width: 72rem;
+  height: 75vh;
+  min-height: 460px;
+  margin: 0 auto;
+  background: #160E0A;
+  border: 1px solid rgba(212, 163, 89, 0.15);
+  border-radius: 16px;
+  overflow: hidden;
+  color: #EAE0D5;
+  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.35);
+}
+.bardos-sidebar {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: #100905;
+  border-right: 1px solid rgba(212, 163, 89, 0.15);
+}
+.bardos-sidebar__top { padding: 16px; display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid rgba(212, 163, 89, 0.1); }
+.bardos-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.bardos-pill {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid transparent;
+  color: inherit;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-family: 'Cormorant Garamond', 'Playfair Display', serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  opacity: 0.75;
+  transition: all 0.2s ease;
+}
+.bardos-pill:hover { opacity: 1; }
+.bardos-pill.is-active { background: rgba(212, 163, 89, 0.18); border-color: rgba(212, 163, 89, 0.45); color: #D4A359; opacity: 1; }
+.bardos-sidebar__list { flex: 1; overflow-y: auto; min-height: 0; }
+.bardos-chat-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  font: inherit;
+}
+.bardos-chat-item:hover { background: rgba(255, 255, 255, 0.04); }
+.bardos-chat-item.is-active { background: rgba(212, 163, 89, 0.1); }
+.bardos-chat-item__name { font-family: 'Cormorant Garamond', 'Cinzel', serif; font-size: 17px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bardos-chat-item__preview { font-size: 13px; opacity: 0.6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bardos-badge { background: #D4A359; color: #1a0f0a; font-size: 11px; font-weight: 700; border-radius: 999px; min-width: 20px; height: 20px; padding: 0 6px; display: inline-flex; align-items: center; justify-content: center; }
+
+.bardos-main { display: flex; flex-direction: column; min-width: 0; min-height: 0; background: #160E0A; }
+.bardos-main__header { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: #1A0F09; border-bottom: 1px solid rgba(212, 163, 89, 0.15); }
+.bardos-main__messages {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 20px clamp(14px, 4vw, 40px);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  scroll-behavior: smooth;
+  background: radial-gradient(ellipse at top, rgba(212, 163, 89, 0.04), transparent 60%), #160E0A;
+}
+.bardos-day-sep { display: flex; justify-content: center; margin: 12px 0 6px; }
+.bardos-day-sep span { background: rgba(255, 255, 255, 0.07); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; padding: 4px 12px; border-radius: 999px; opacity: 0.8; }
+.bardos-bubble { max-width: min(560px, 78%); padding: 8px 12px 6px; border-radius: 12px; font-family: 'Cormorant Garamond', 'Playfair Display', serif; font-size: 16px; position: relative; word-break: break-word; }
+.bardos-bubble.is-me { align-self: flex-end; background: #2B1A10; border: 1px solid rgba(212, 163, 89, 0.2); border-top-right-radius: 3px; }
+.bardos-bubble.is-them { align-self: flex-start; background: #1C120C; border: 1px solid rgba(255, 255, 255, 0.06); border-top-left-radius: 3px; }
+.bardos-bubble__meta { display: flex; justify-content: flex-end; align-items: center; gap: 4px; font-size: 11px; opacity: 0.55; margin-top: 2px; }
+.bardos-composer { display: flex; align-items: center; gap: 8px; padding: 12px 16px; background: #1A0F09; border-top: 1px solid rgba(212, 163, 89, 0.15); }
+.bardos-send { width: 42px; height: 42px; border-radius: 50%; border: none; background: #D4A359; color: #1a0f0a; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s ease; flex-shrink: 0; }
+.bardos-send:not(:disabled):hover { transform: scale(1.06); }
+.bardos-menu { position: absolute; right: 0; top: 100%; z-index: 20; min-width: 220px; background: #1A0F09; border: 1px solid rgba(212, 163, 89, 0.25); border-radius: 10px; padding: 6px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; }
+.bardos-menu button { background: none; border: none; color: #EAE0D5; text-align: left; padding: 9px 12px; border-radius: 6px; cursor: pointer; font-family: 'Cormorant Garamond', serif; font-size: 15px; }
+.bardos-menu button:hover { background: rgba(212, 163, 89, 0.12); }
+.bardos-mobile-back { display: none; }
+
+@media (max-width: 760px) {
+  .bardos-messenger { grid-template-columns: 1fr; height: 78vh; }
+  .bardos-messenger .bardos-main { display: none; }
+  .bardos-messenger.is-chat-open .bardos-sidebar { display: none; }
+  .bardos-messenger.is-chat-open .bardos-main { display: flex; }
+  .bardos-mobile-back { display: inline-flex; }
+}

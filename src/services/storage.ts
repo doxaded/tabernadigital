@@ -1237,6 +1237,17 @@ export const storageService = {
     return true;
   },
 
+  setContactNickname(currentUserUid: string, targetUid: string, nickname: string): boolean {
+    const currentContacts = this.getUserContacts(currentUserUid);
+    const contact = currentContacts.find(c => c.uid === targetUid);
+    if (!contact) return false;
+    const clean = nickname.trim();
+    if (clean) contact.nickname = clean;
+    else delete contact.nickname;
+    this.saveUserContacts(currentUserUid, currentContacts);
+    return true;
+  },
+
   // ==========================================
   // SALAS E CHATS EM GRUPO CUSTOMIZADOS
   // ==========================================

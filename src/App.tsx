@@ -125,6 +125,12 @@ const ROOM_I_FRAMES = {
   right: '/assets/banner_mesa_alchemist.png',
 };
 
+// Imagens do díptico da Sala IV (esquerda: Mensagens · direita: Jogadores)
+const ROOM_IV_FRAMES = {
+  left: '/assets/banner_recanto_barris_v2.jpg',
+  right: '/assets/banner_recanto_bardos.jpg',
+};
+
 // Geometria do quadro central por sala (ritmo visual entre as abas)
 const GALLERY_FRAME_CLASS: Record<RoomId, string> = {
   I: 'gallery-frame--diptych',
@@ -156,6 +162,8 @@ export function App() {
   const [activeRoom, setActiveRoom] = useState<RoomId>('I');
   // Ação inicial ao entrar na Sala I pelo díptico da galeria
   const [roomIAction, setRoomIAction] = useState<'create' | 'join' | null>(null);
+  // Partição escolhida no díptico da Sala IV
+  const [roomIVPartition, setRoomIVPartition] = useState<'chat' | 'contacts'>('chat');
   const [hoveredRoom, setHoveredRoom] = useState<RoomId | null>(null);
 
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(() => campaigns[0]?.id || null);
@@ -457,8 +465,8 @@ export function App() {
       document.body.style.backgroundColor = currentTheme.bgColor;
       document.body.style.color = currentTheme.textColor;
     } else {
-      document.body.style.backgroundColor = '#E6D5B8';
-      document.body.style.color = '#2A1B12';
+      document.body.style.backgroundColor = '#F2E6D0';
+      document.body.style.color = '#23150D';
     }
   }, [hasEntered, currentTheme.bgColor, currentTheme.textColor]);
 
@@ -664,6 +672,35 @@ export function App() {
                   <span className="gallery-microcaption">Ingressar em Sala • Código</span>
                 </button>
               </div>
+            ) : activeRoom === 'IV' ? (
+              <div className="gallery-diptych">
+                <button
+                  type="button"
+                  className="gallery-frame gallery-frame--diptych"
+                  onClick={() => {
+                    tavernAudio.playToastSound();
+                    setRoomIVPartition('chat');
+                    setViewMode('functional');
+                  }}
+                  aria-label="Mensagens e Confraria"
+                >
+                  <img src={ROOM_IV_FRAMES.left} alt="Mensagens e Confraria" draggable={false} />
+                  <span className="gallery-microcaption">Mensagens • Confraria</span>
+                </button>
+                <button
+                  type="button"
+                  className="gallery-frame gallery-frame--diptych"
+                  onClick={() => {
+                    tavernAudio.playToastSound();
+                    setRoomIVPartition('contacts');
+                    setViewMode('functional');
+                  }}
+                  aria-label="Jogadores e Contatos"
+                >
+                  <img src={ROOM_IV_FRAMES.right} alt="Jogadores e Contatos" draggable={false} />
+                  <span className="gallery-microcaption">Jogadores • Contatos</span>
+                </button>
+              </div>
             ) : (
               <button
                 type="button"
@@ -777,6 +814,8 @@ export function App() {
             {/* SALA IV — RECANTO DOS BARDOS */}
             {activeRoom === 'IV' && (
               <EditorialBardosView
+                key={roomIVPartition}
+                initialPartition={roomIVPartition}
                 onBack={() => {
                   tavernAudio.playBellChime();
                   setViewMode('gallery');

@@ -127,7 +127,7 @@ export const chatService = {
       const ch: ChatChannel = {
         id: channelId,
         type: 'direct',
-        title: other.displayName,
+        title: contact.nickname || other.displayName,
         subtitle: `${other.title ? other.title + ' • ' : ''}${other.favoriteClass || 'Aventureiro'} #${other.userTag || contact.userTag}`,
         participants: [currentUser.uid, other.uid],
         lastMessage: last ? (last.diceResult ? `🎲 ${last.senderName} rolou ${last.diceResult.expression}` : `${last.senderName}: ${last.text}`) : 'Iniciar conversa particular.',
