@@ -7092,11 +7092,17 @@ h1, h2, h3, h4, .font-cinzel {
 }
 .gallery-frame:hover img { transform: scale(1.04); }
 .gallery-frame:focus-visible { outline: 1px solid currentColor; outline-offset: 4px; }
-/* Quadros únicos (Salas II–V): mesma área total do díptico da Sala I (2×280 + 20 gap = 580 × 360) */
+/* Quadros únicos (Salas II, III e V): formato quadrado 1:1 (imagens nativas 1024×1024), centralizado */
 .gallery-frame--landscape,
 .gallery-frame--square,
 .gallery-frame--portrait,
-.gallery-frame--square-lg { width: 580px; height: 360px; max-width: 90vw; }
+.gallery-frame--square-lg {
+  width: 400px;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  max-width: 90vw;
+  margin-inline: auto;
+}
 .gallery-frame--diptych { width: 280px; height: 360px; }
 .gallery-diptych {
   display: flex;
@@ -7135,7 +7141,7 @@ h1, h2, h3, h4, .font-cinzel {
   .gallery-frame--landscape,
   .gallery-frame--square,
   .gallery-frame--square-lg,
-  .gallery-frame--portrait { width: calc(84vw + 16px); height: 56vw; max-width: none; }
+  .gallery-frame--portrait { width: min(84vw, 400px); height: auto; aspect-ratio: 1 / 1; max-width: none; }
 }
 
 /* 4. Nível 2 — Modo Funcional (Interior da Sala) */
