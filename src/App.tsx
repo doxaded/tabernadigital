@@ -7,7 +7,7 @@ import {
 import { AuthModal } from './components/AuthModal';
 import { LandingPage } from './components/LandingPage';
 import { PendingApprovalScreen } from './components/PendingApprovalScreen';
-import { MobileGalleryFeed, MobileHudBar } from './components/MobileGalleryFeed';
+import { MobileRoomBanners, MobileHudBar, type MobileRoomBanner } from './components/MobileGalleryFeed';
 import { AdminPanelModal } from './components/AdminPanelModal';
 import { ChangePasswordModal } from './components/ChangePasswordModal';
 import { CampaignsView } from './components/CampaignsView';
@@ -466,6 +466,76 @@ export function App() {
     !masterScreenCampaignId &&
     !(currentUser && currentUser.status === 'PENDING');
 
+  // Banners do modo galeria mobile (< 768px) da aba ativa: imagem + explicação
+  const openRoomFunctional = (after?: () => void) => () => {
+    tavernAudio.playToastSound();
+    after?.();
+    setViewMode('functional');
+  };
+  const mobileBanners: MobileRoomBanner[] =
+    activeRoom === 'I'
+      ? [
+          {
+            key: 'I-create',
+            imageUrl: ROOM_I_FRAMES.left,
+            title: 'Fundar Nova Mesa',
+            description:
+              'Assuma o posto de Mestre, crie uma nova sala de campanha, configure o sistema de regras e convide aventureiros para a sua jornada.',
+            onClick: openRoomFunctional(() => setRoomIAction('create')),
+          },
+          {
+            key: 'I-join',
+            imageUrl: ROOM_I_FRAMES.right,
+            title: 'Ingressar com Chave',
+            description:
+              'Entre em uma campanha já existente utilizando o código de convite fornecido pelo Mestre da mesa.',
+            onClick: openRoomFunctional(() => setRoomIAction('join')),
+          },
+        ]
+      : activeRoom === 'IV'
+      ? [
+          {
+            key: 'IV-chat',
+            imageUrl: ROOM_IV_FRAMES.left,
+            title: 'Salão de Mensagens',
+            description:
+              'Converse em tempo real com outros aventureiros, troque rumores com seus aliados e acompanhe os chats recentes da taverna.',
+            onClick: openRoomFunctional(() => setRoomIVPartition('chat')),
+          },
+          {
+            key: 'IV-contacts',
+            imageUrl: ROOM_IV_FRAMES.right,
+            title: 'Grimório de Alianças',
+            description:
+              'Adicione novos jogadores pela tag, organize sua lista de contatos, defina apelidos e marque seus companheiros favoritos.',
+            onClick: openRoomFunctional(() => setRoomIVPartition('contacts')),
+          },
+        ]
+      : [
+          {
+            key: `${activeRoom}-single`,
+            imageUrl: currentTheme.imageUrl,
+            ...(activeRoom === 'II'
+              ? {
+                  title: 'Ateliê de Gravuras',
+                  description:
+                    'Gere ilustrações medievais, retratos de personagens, armas lendárias e cenários de campanha para fixar no mural da estalagem.',
+                }
+              : activeRoom === 'III'
+              ? {
+                  title: 'O Oráculo da Taverna',
+                  description:
+                    'Consulte o velho taberneiro Urd para tirar dúvidas sobre regras de sistemas, buscar ganchos de missão, enigmas e lendas do mundo.',
+                }
+              : {
+                  title: 'Mercado de Relíquias',
+                  description:
+                    'Utilize suas peças de ouro conquistadas para adquirir títulos nobres, molduras místicas e insígnias exclusivas para o seu perfil de aventureiro.',
+                }),
+            onClick: openRoomFunctional(),
+          },
+        ];
+
   // Sincroniza fundo e texto do body para cobertura total sem cortes pretos
   useEffect(() => {
     if (hasEntered) {
@@ -724,20 +794,9 @@ export function App() {
               </button>
             )}
           </div>
-          <MobileGalleryFeed
-            rooms={(['I', 'II', 'III', 'IV', 'V'] as RoomId[]).map((rid) => ({
-              id: rid,
-              name: ROOMS[rid].name,
-              subtitle: ROOMS[rid].subtitle,
-              imageUrl: rid === 'I' ? ROOM_I_FRAMES.left : rid === 'IV' ? ROOM_IV_FRAMES.left : ROOMS[rid].imageUrl,
-            }))}
-            onOpenRoom={(rid) => {
-              tavernAudio.playToastSound();
-              setActiveRoom(rid as RoomId);
-              if (rid === 'I') setRoomIAction(null);
-              if (rid === 'IV') setRoomIVPartition('chat');
-              setViewMode('functional');
-            }}
+          <MobileRoomBanners
+            roomName={ROOMS[activeRoom].name}
+            banners={mobileBanners}
           />
           </>
         ) : (
@@ -881,9 +940,7 @@ export function App() {
           onSelectRoom={(rid) => {
             tavernAudio.playBellChime();
             setActiveRoom(rid as RoomId);
-            document
-              .getElementById(`mobile-feed-room-${rid}`)
-              ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
         />
       )}
