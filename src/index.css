@@ -7743,7 +7743,7 @@ button.bardos-avatar { cursor: pointer; }
 .bardos-menu button:hover { background: rgba(212, 163, 89, 0.12); }
 .bardos-mobile-back { display: none; }
 
-@media (max-width: 760px) {
+@media (max-width: 767px) {
   .bardos-messenger { grid-template-columns: 1fr; height: 78vh; }
   .bardos-messenger .bardos-main { display: none; }
   .bardos-messenger.is-chat-open .bardos-sidebar { display: none; }
@@ -7924,4 +7924,76 @@ button.bardos-avatar { cursor: pointer; }
     transition: opacity 0.4s ease, transform 0.3s ease;
   }
   .mobile-hud__num.is-active { background: none; box-shadow: none; color: #EAE0D5; transform: scale(1.05); }
+}
+
+/* ==========================================================================
+   MOBILE NATIVO (< 768px) — sem cabeçalho superior, banners full-width,
+   Bazar em 2 colunas, mensageiro estilo WhatsApp, mesa/fichas compactas.
+   Desktop/notebook (>= 768px) permanece inalterado.
+   ========================================================================== */
+@media (max-width: 767px) {
+  /* 1. Cabeçalho superior nunca aparece no mobile (navegação só na barra inferior) */
+  .awwwards-top-nav { display: none !important; }
+  .editorial-room-container { padding-top: 20px; padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px)); }
+  .editorial-header-bar { margin-bottom: 20px; }
+
+  /* 2. Banners full-width, sem blocos, texto direto sobre o fundo */
+  .mobile-feed { padding: 0 0 calc(96px + env(safe-area-inset-bottom, 0px)); gap: 0; align-items: stretch; }
+  .mobile-feed__card {
+    max-width: none;
+    padding: 0;
+    gap: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .mobile-feed__card:active { transform: none; opacity: 0.9; }
+  .mobile-feed__media {
+    width: 100vw;
+    aspect-ratio: auto;
+    height: 256px;
+    border-radius: 0;
+    border: 0;
+  }
+  .mobile-feed__text { padding: 16px 20px 32px; gap: 6px; }
+
+  /* 3. Bazar: grade de 2 colunas compacta (também usada por fichas) */
+  .editorial-cards-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 12px; margin-top: 12px; }
+  .editorial-cards-grid-2 > .editorial-claude-card { padding: 12px !important; gap: 8px !important; border-radius: 12px; }
+  .editorial-cards-grid-2 > .editorial-claude-card p { font-size: 11px !important; line-height: 1.4 !important; }
+  .editorial-cards-grid-2 > .editorial-claude-card button { padding: 5px 8px !important; font-size: 10px !important; width: 100%; justify-content: center; }
+  .editorial-cards-grid-2 > .editorial-claude-card .editorial-pill-tag { font-size: 9px !important; padding: 1px 6px !important; }
+  .editorial-cards-grid-2 > .editorial-claude-card div[style*="Cormorant"] { font-size: 15px !important; }
+
+  /* 4. Mensageiro estilo WhatsApp: telas cheias alternadas */
+  .bardos-messenger { height: calc(100dvh - 150px); min-height: 0; border-radius: 12px; }
+
+  /* 5. Mesa ativa compacta: pílulas no topo + ações 2x2 */
+  .room-active-grid { display: flex !important; flex-direction: column; gap: 14px !important; }
+  .room-active-grid > .room-meta-aside { order: -1; height: auto !important; padding: 12px !important; }
+  .room-meta-aside > div:first-child { display: flex; flex-wrap: wrap; gap: 6px; }
+  .room-meta-aside > div:first-child > div:first-child { display: none; }
+  .room-meta-aside .editorial-meta-row {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 6px;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 4px 10px !important;
+    border: 1px solid rgba(212, 163, 89, 0.25) !important;
+    border-radius: 999px;
+    background: rgba(212, 163, 89, 0.08);
+    font-size: 11px;
+  }
+  .room-meta-aside .editorial-meta-label { font-size: 10px !important; opacity: 0.65; }
+  .room-meta-aside .editorial-meta-value { font-size: 11px !important; }
+  .room-meta-note { display: none; }
+  .room-actions { display: grid !important; grid-template-columns: 1fr 1fr; gap: 8px !important; }
+  .room-actions > button { width: 100%; justify-content: center; padding: 9px 8px !important; font-size: 11px !important; letter-spacing: 0.04em !important; }
+
+  /* Fichas, atributos e mural de gravuras */
+  .sheet-stats-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .telas-mural-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 14px !important; padding: 8px 0 !important; }
 }

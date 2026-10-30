@@ -503,6 +503,7 @@ export const EditorialTelasView: React.FC<EditorialTelasViewProps> = ({
 
         {sketches.length > 0 ? (
           <div
+            className="telas-mural-grid"
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',

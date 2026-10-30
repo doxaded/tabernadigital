@@ -1075,7 +1075,7 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
             {activeCampaign ? (
               <>
                 {/* 3. Layout Assimétrico Estilo Kerbache HR / Claude (Grid 8 colunas / 4 colunas) com Alturas Alinhadas */}
-                <div className="editorial-grid-12" style={{ alignItems: 'stretch' }}>
+                <div className="editorial-grid-12 room-active-grid" style={{ alignItems: 'stretch' }}>
                   {/* Coluna Principal (Esquerda - 8 colunas) Envolvida em Bloco Fosco Padronizado */}
                   <div 
                     className="editorial-frosted-card room-matte-I" 
@@ -1123,7 +1123,7 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                     </div>
 
                     {/* Barra de Ações Limpa com Botão Excluir Mesa Restaurado */}
-                    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px', marginTop: '16px' }}>
+                    <div className="room-actions" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px', marginTop: '16px' }}>
                       {isMasterOfActive && onOpenMasterScreen && (
                         <button
                           onClick={() => onOpenMasterScreen(activeCampaign.id)}
@@ -1202,7 +1202,7 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
 
                   {/* Coluna Lateral de Metadados (Direita - 4 colunas): Card Editorial Claude Alinhado */}
                   <aside 
-                    className="editorial-claude-card room-matte-I"
+                    className="editorial-claude-card room-matte-I room-meta-aside"
                     style={{ 
                       height: '100%', 
                       display: 'flex', 
@@ -1258,7 +1258,7 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                       </div>
                     </div>
 
-                    <div style={{ fontSize: '12px', fontStyle: 'italic', opacity: 0.65, marginTop: '20px', lineHeight: '1.6' }}>
+                    <div className="room-meta-note" style={{ fontSize: '12px', fontStyle: 'italic', opacity: 0.65, marginTop: '20px', lineHeight: '1.6' }}>
                       Compartilhe a chave acima para que aventureiros entrem nesta saga.
                     </div>
                   </aside>

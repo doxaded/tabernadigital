@@ -44,7 +44,7 @@ export const SheetStatsEditor: React.FC<SheetStatsEditorProps> = ({
       <label style={{ fontSize: '11px', fontWeight: 600 }}>Atributos:</label>
 
       {/* Atributos padrão — sempre primeiro */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '6px' }}>
+      <div className="sheet-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '6px' }}>
         {DEFAULT_STATS.map(({ key, code }) => (
           <div key={key} style={{ textAlign: 'center' }}>
             <span style={cellLabel}>{code}</span>
