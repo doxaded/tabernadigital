@@ -55,7 +55,7 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
     textColor: '#EAE0D5', // Pergaminho Claro
     borderColor: 'rgba(212, 163, 89, 0.15)',
     accentColor: '#D4A359', // Âmbar / Ouro Velho
-    imageUrl: '/assets/banner_mesa_apostadores_v2.jpg',
+    imageUrl: '/assets/room_I_mestrar_v2.jpg',
   },
   II: {
     id: 'II',
@@ -121,8 +121,8 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
 
 // Imagens do díptico da Sala I (esquerda: Mestrar · direita: Ingressar)
 const ROOM_I_FRAMES = {
-  left: '/assets/banner_mesa_apostadores_v2.jpg',
-  right: '/assets/banner_mesa_alchemist.png',
+  left: '/assets/room_I_mestrar_v2.jpg',
+  right: '/assets/room_I_ingressar_v2.jpg',
 };
 
 // Imagens do díptico da Sala IV (esquerda: Mensagens · direita: Jogadores)
