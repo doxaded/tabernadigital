@@ -70,7 +70,7 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
     textColor: '#EAE0D5', // Pergaminho Claro
     borderColor: 'rgba(212, 163, 89, 0.15)',
     accentColor: '#D4A359',
-    imageUrl: '/assets/room_II_escriba_v2.jpg',
+    imageUrl: '/assets/room_II_escriba_v3.jpg',
   },
   III: {
     id: 'III',
@@ -85,7 +85,7 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
     textColor: '#EAE0D5', // Pergaminho Claro
     borderColor: 'rgba(212, 163, 89, 0.18)',
     accentColor: '#D4A359',
-    imageUrl: '/assets/room_III_taberneiro_v2.jpg',
+    imageUrl: '/assets/room_III_taberneiro_v3.jpg',
   },
   IV: {
     id: 'IV',
@@ -115,7 +115,7 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
     textColor: '#EAE0D5', // Pergaminho Claro
     borderColor: 'rgba(212, 163, 89, 0.18)',
     accentColor: '#D4A359',
-    imageUrl: '/assets/room_V_bazar_v2.jpg',
+    imageUrl: '/assets/room_V_bazar_v3.jpg',
   },
 };
 
