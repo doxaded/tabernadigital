@@ -42,7 +42,7 @@ const HUB_MODULES: HubModuleConfig[] = [
     badge: 'ATELIÊ DO BARDO & PINTURA',
     description: 'Ilustre itens lendários, mapas arcanos, criaturas e heróis com o traço aveludado e a imaginação do bardo Orlan Pena-Fina.',
     actionText: 'Abrir Telas do Alaúde',
-    bgImage: '/assets/banner_telas_alaude.jpg',
+    bgImage: '/assets/room_II_escriba.jpg',
     bgPosition: 'center 20%',
   },
   {
@@ -53,7 +53,7 @@ const HUB_MODULES: HubModuleConfig[] = [
     badge: 'LAREIRA DE PEDRA & ORÁCULO',
     description: 'Consulte a sabedoria ancestral de Urd, desvende profecias, ouça os boatos sussurrados na lareira e crie crônicas vivas.',
     actionText: 'Consultar o Taberneiro',
-    bgImage: '/assets/banner_urd_taberneiro.jpg', // Ilustração 3: Urd taberneiro com caneca de cerveja
+    bgImage: '/assets/room_III_taberneiro.jpg', // Ilustração 3: Urd taberneiro com caneca de cerveja
     bgPosition: 'center 25%',
   },
   {
