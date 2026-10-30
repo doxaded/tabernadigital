@@ -7750,3 +7750,117 @@ button.bardos-avatar { cursor: pointer; }
   .bardos-messenger.is-chat-open .bardos-main { display: flex; }
   .bardos-mobile-back { display: inline-flex; }
 }
+
+/* ==========================================================================
+   FEED MOBILE (< 768px) — cards das salas + HUD inferior
+   Desktop/notebook (>= 768px) permanece inalterado.
+   ========================================================================== */
+.mobile-feed,
+.mobile-hud { display: none; }
+
+@media (max-width: 767px) {
+  .awwwards-app-root { background-color: #100905 !important; }
+  .gallery-desktop-only,
+  .awwwards-top-nav.is-mobile-feed-hidden { display: none !important; }
+
+  .mobile-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 20px 16px calc(96px + env(safe-area-inset-bottom, 0px));
+  }
+  .mobile-feed__card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    padding: 14px;
+    margin: 0;
+    text-align: left;
+    font: inherit;
+    color: #EAE0D5;
+    background: #1C120C;
+    border: 1px solid rgba(212, 163, 89, 0.15);
+    border-radius: 24px;
+    cursor: pointer;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 200ms ease, border-color 200ms ease;
+  }
+  .mobile-feed__card:active { transform: scale(0.985); border-color: rgba(212, 163, 89, 0.4); }
+  .mobile-feed__title {
+    font-family: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+    font-size: 17px;
+    letter-spacing: 0.08em;
+    color: #D4A359;
+    padding: 2px 4px 0;
+  }
+  .mobile-feed__media {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #100905;
+  }
+  .mobile-feed__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .mobile-hud {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 50;
+    box-sizing: border-box;
+    padding: 8px 8px calc(8px + env(safe-area-inset-bottom, 0px));
+    background: rgba(20, 12, 8, 0.95);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(212, 163, 89, 0.2);
+  }
+  .mobile-hud__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 44px;
+    padding: 0;
+    background: none;
+    border: 0;
+    color: #D8C9B4;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mobile-hud__btn:active { color: #D4A359; }
+  .mobile-hud__btn--primary {
+    width: 52px;
+    height: 40px;
+    border-radius: 14px;
+    color: #F5E6D0;
+    background: linear-gradient(135deg, #8E2A17, #B4421F);
+    box-shadow: 0 2px 10px rgba(142, 42, 23, 0.45);
+  }
+  .mobile-hud__avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 1.5px solid #D4A359;
+    background: #1C120C;
+    color: #D4A359;
+  }
+  .mobile-hud__avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+}

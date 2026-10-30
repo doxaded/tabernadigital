@@ -7,6 +7,7 @@ import {
 import { AuthModal } from './components/AuthModal';
 import { LandingPage } from './components/LandingPage';
 import { PendingApprovalScreen } from './components/PendingApprovalScreen';
+import { MobileGalleryFeed, MobileHudBar } from './components/MobileGalleryFeed';
 import { AdminPanelModal } from './components/AdminPanelModal';
 import { ChangePasswordModal } from './components/ChangePasswordModal';
 import { CampaignsView } from './components/CampaignsView';
@@ -459,6 +460,12 @@ export function App() {
 
   const currentTheme = ROOMS[activeRoom];
 
+  // Feed mobile (< 768px) ativo apenas no modo galeria, sem telas especiais
+  const isMobileFeed =
+    viewMode === 'gallery' &&
+    !masterScreenCampaignId &&
+    !(currentUser && currentUser.status === 'PENDING');
+
   // Sincroniza fundo e texto do body para cobertura total sem cortes pretos
   useEffect(() => {
     if (hasEntered) {
@@ -508,7 +515,7 @@ export function App() {
           1. CABEÇALHO SUPERIOR MINIMALISTA (TOP NAVIGATION)
           Totalmente limpo, colado no topo e extremidades laterais.
           ======================================================== */}
-      <nav className="awwwards-top-nav">
+      <nav className={`awwwards-top-nav${isMobileFeed ? ' is-mobile-feed-hidden' : ''}`}>
         {/* Canto Superior Esquerdo: Texto MENU */}
         <button
           onClick={() => {
@@ -642,7 +649,8 @@ export function App() {
              - Sala I: díptico (Mestrar | Ingressar) · II: paisagem · III: quadrado
                · IV: retrato · V: quadrado amplo
              ======================================================== */
-          <div className="awwwards-gallery-stage">
+          <>
+          <div className="awwwards-gallery-stage gallery-desktop-only">
             {activeRoom === 'I' ? (
               <div className="gallery-diptych">
                 <button
@@ -716,6 +724,22 @@ export function App() {
               </button>
             )}
           </div>
+          <MobileGalleryFeed
+            rooms={(['I', 'II', 'III', 'IV', 'V'] as RoomId[]).map((rid) => ({
+              id: rid,
+              name: ROOMS[rid].name,
+              subtitle: ROOMS[rid].subtitle,
+              imageUrl: rid === 'I' ? ROOM_I_FRAMES.left : rid === 'IV' ? ROOM_IV_FRAMES.left : ROOMS[rid].imageUrl,
+            }))}
+            onOpenRoom={(rid) => {
+              tavernAudio.playToastSound();
+              setActiveRoom(rid as RoomId);
+              if (rid === 'I') setRoomIAction(null);
+              if (rid === 'IV') setRoomIVPartition('chat');
+              setViewMode('functional');
+            }}
+          />
+          </>
         ) : (
           /* ========================================================
              NÍVEL 2 — MODO FUNCIONAL (INTERIOR DA SALA)
@@ -845,6 +869,44 @@ export function App() {
           </div>
         )}
       </main>
+
+      {/* Barra inferior (HUD) — exclusiva do feed mobile (< 768px) */}
+      {isMobileFeed && (
+        <MobileHudBar
+          avatarUrl={currentUser?.photoURL}
+          onMenu={() => {
+            tavernAudio.playBellChime();
+            setIsMenuOpen(true);
+          }}
+          onExplore={() => {
+            tavernAudio.playToastSound();
+            setActiveRoom('I');
+            setRoomIAction('join');
+            setViewMode('functional');
+          }}
+          onCreate={() => {
+            tavernAudio.playToastSound();
+            setActiveRoom('I');
+            setRoomIAction('create');
+            setViewMode('functional');
+          }}
+          onChat={() => {
+            tavernAudio.playToastSound();
+            setActiveRoom('IV');
+            setRoomIVPartition('chat');
+            setViewMode('functional');
+          }}
+          onProfile={() => {
+            tavernAudio.playBellChime();
+            if (currentUser) {
+              setProfileModalUser(currentUser);
+              setIsProfileModalOpen(true);
+            } else {
+              setIsAuthModalOpen(true);
+            }
+          }}
+        />
+      )}
 
       {/* ========================================================
           3. REFORMA COMPLETA DO MODAL 'MENU' (ELIMINAR POLUIÇÃO E SOBREPOSIÇÃO)
