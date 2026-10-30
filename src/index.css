@@ -7864,3 +7864,34 @@ button.bardos-avatar { cursor: pointer; }
   }
   .mobile-hud__avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
 }
+
+/* HUD mobile: Menu + números 1–5 */
+@media (max-width: 767px) {
+  .mobile-hud { justify-content: flex-start; gap: 4px; }
+  .mobile-hud__numbers {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+  }
+  .mobile-hud__num {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: rgba(216, 201, 180, 0.55);
+    font-family: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+    font-size: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 200ms ease, background-color 200ms ease;
+  }
+  .mobile-hud__num.is-active {
+    color: #D4A359;
+    background: rgba(212, 163, 89, 0.14);
+    box-shadow: inset 0 0 0 1px rgba(212, 163, 89, 0.4);
+  }
+}

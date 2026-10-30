@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, Compass, Plus, MessageCircle, User } from 'lucide-react';
+import { Menu } from 'lucide-react';
 
 export interface MobileFeedRoom {
   id: string;
@@ -22,6 +22,7 @@ export const MobileGalleryFeed: React.FC<MobileGalleryFeedProps> = ({ rooms, onO
     {rooms.map((room) => (
       <button
         key={room.id}
+        id={`mobile-feed-room-${room.id}`}
         type="button"
         className="mobile-feed__card"
         onClick={() => onOpenRoom(room.id)}
@@ -37,49 +38,38 @@ export const MobileGalleryFeed: React.FC<MobileGalleryFeedProps> = ({ rooms, onO
 );
 
 interface MobileHudBarProps {
-  avatarUrl?: string;
+  activeRoom: string;
   onMenu: () => void;
-  onExplore: () => void;
-  onCreate: () => void;
-  onChat: () => void;
-  onProfile: () => void;
+  onSelectRoom: (roomId: string) => void;
 }
 
-/** Barra inferior fixa (HUD) do feed mobile: Menu · Explorar · Criar · Chat · Perfil. */
-export const MobileHudBar: React.FC<MobileHudBarProps> = ({
-  avatarUrl,
-  onMenu,
-  onExplore,
-  onCreate,
-  onChat,
-  onProfile,
-}) => (
+const HUD_ROOMS: { id: string; label: string }[] = [
+  { id: 'I', label: '1' },
+  { id: 'II', label: '2' },
+  { id: 'III', label: '3' },
+  { id: 'IV', label: '4' },
+  { id: 'V', label: '5' },
+];
+
+/** Barra inferior fixa (HUD) do feed mobile: Menu (esquerda) + salas 1 a 5. */
+export const MobileHudBar: React.FC<MobileHudBarProps> = ({ activeRoom, onMenu, onSelectRoom }) => (
   <nav className="mobile-hud" aria-label="Navegação inferior">
     <button type="button" className="mobile-hud__btn" onClick={onMenu} aria-label="Menu">
       <Menu size={24} strokeWidth={1.6} />
     </button>
-    <button type="button" className="mobile-hud__btn" onClick={onExplore} aria-label="Explorar mesas">
-      <Compass size={24} strokeWidth={1.6} />
-    </button>
-    <button
-      type="button"
-      className="mobile-hud__btn mobile-hud__btn--primary"
-      onClick={onCreate}
-      aria-label="Criar mesa"
-    >
-      <Plus size={26} strokeWidth={2.2} />
-    </button>
-    <button type="button" className="mobile-hud__btn" onClick={onChat} aria-label="Mensagens">
-      <MessageCircle size={24} strokeWidth={1.6} />
-    </button>
-    <button type="button" className="mobile-hud__btn" onClick={onProfile} aria-label="Perfil do jogador">
-      <span className="mobile-hud__avatar">
-        {avatarUrl ? (
-          <img src={avatarUrl} alt="" draggable={false} />
-        ) : (
-          <User size={18} strokeWidth={1.8} />
-        )}
-      </span>
-    </button>
+    <div className="mobile-hud__numbers">
+      {HUD_ROOMS.map((r) => (
+        <button
+          key={r.id}
+          type="button"
+          className={`mobile-hud__num${activeRoom === r.id ? ' is-active' : ''}`}
+          onClick={() => onSelectRoom(r.id)}
+          aria-label={`Sala ${r.label}`}
+          aria-current={activeRoom === r.id ? 'true' : undefined}
+        >
+          {r.label}
+        </button>
+      ))}
+    </div>
   </nav>
 );

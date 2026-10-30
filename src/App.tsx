@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { doc, updateDoc } from 'firebase/firestore';
 import { updateProfile } from 'firebase/auth';
 import { 
-  X, Music, Shield, KeyRound, Home, LogOut, LogIn, Trash2, Crown, ChevronRight 
+  X, Music, Shield, KeyRound, Home, LogOut, LogIn, Trash2, Crown, ChevronRight, User as UserIcon
 } from 'lucide-react';
 import { AuthModal } from './components/AuthModal';
 import { LandingPage } from './components/LandingPage';
@@ -873,37 +873,17 @@ export function App() {
       {/* Barra inferior (HUD) — exclusiva do feed mobile (< 768px) */}
       {isMobileFeed && (
         <MobileHudBar
-          avatarUrl={currentUser?.photoURL}
+          activeRoom={activeRoom}
           onMenu={() => {
             tavernAudio.playBellChime();
             setIsMenuOpen(true);
           }}
-          onExplore={() => {
-            tavernAudio.playToastSound();
-            setActiveRoom('I');
-            setRoomIAction('join');
-            setViewMode('functional');
-          }}
-          onCreate={() => {
-            tavernAudio.playToastSound();
-            setActiveRoom('I');
-            setRoomIAction('create');
-            setViewMode('functional');
-          }}
-          onChat={() => {
-            tavernAudio.playToastSound();
-            setActiveRoom('IV');
-            setRoomIVPartition('chat');
-            setViewMode('functional');
-          }}
-          onProfile={() => {
+          onSelectRoom={(rid) => {
             tavernAudio.playBellChime();
-            if (currentUser) {
-              setProfileModalUser(currentUser);
-              setIsProfileModalOpen(true);
-            } else {
-              setIsAuthModalOpen(true);
-            }
+            setActiveRoom(rid as RoomId);
+            document
+              .getElementById(`mobile-feed-room-${rid}`)
+              ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }}
         />
       )}
@@ -1206,6 +1186,49 @@ export function App() {
               >
                 <Home size={15} style={{ opacity: 0.7, flexShrink: 0 }} />
                 <span style={{ flex: 1 }}>Tela de Início (Abertura)</span>
+              </button>
+
+              {/* Perfil (abaixo de Tela de Início) */}
+              <button
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  if (currentUser) {
+                    setProfileModalUser(currentUser);
+                    setIsProfileModalOpen(true);
+                  } else {
+                    setIsAuthModalOpen(true);
+                  }
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  width: '100%',
+                  padding: '10px 12px',
+                  borderRadius: '8px',
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#EAE0D5',
+                  opacity: 0.65,
+                  cursor: 'pointer',
+                  fontSize: '12px',
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  transition: 'all 0.2s ease',
+                  textAlign: 'left',
+                  boxSizing: 'border-box',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.opacity = '1';
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.opacity = '0.65';
+                  e.currentTarget.style.background = 'transparent';
+                }}
+              >
+                <UserIcon size={15} style={{ opacity: 0.7, flexShrink: 0 }} />
+                <span style={{ flex: 1 }}>Perfil</span>
               </button>
             </div>
           </div>
