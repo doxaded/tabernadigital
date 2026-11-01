@@ -121,7 +121,7 @@ async function flush() {
           await setDoc(doc(db, 'campaigns', c.id), cloud);
           if (!prev || prev.joinKey !== c.joinKey) await ensureRoomKey(c);
         } else {
-          await updateDoc(doc(db, 'campaigns', c.id), { sheets: cloud.sheets ?? [] });
+          await updateDoc(doc(db, 'campaigns', c.id), { sheets: cloud.sheets ?? [], progress: cloud.progress ?? null });
         }
         rememberSynced(c, managed);
       } catch (err) {
@@ -318,6 +318,41 @@ async function regenerateKey(campaign: Campaign, user: UserProfile): Promise<{ s
   }
 }
 
+// Passa o manto de Mestre para outro jogador da mesa
+async function transferMaster(campaign: Campaign, newMasterUid: string, user: UserProfile): Promise<{ success: boolean; error?: string }> {
+  if (!(await cloudReady(user)) || !campaign.joinKey) {
+    return storageService.transferMaster(campaign.id, newMasterUid, user);
+  }
+  const next = (campaign.players || []).find(p => p.uid === newMasterUid);
+  if (!next) return { success: false, error: 'Aventureiro não encontrado nesta mesa.' };
+  const oldMaster: RoomPlayer = { uid: campaign.masterId, name: campaign.masterName, joinedAt: new Date().toISOString() };
+  const players = [...(campaign.players || []).filter(p => p.uid !== newMasterUid), oldMaster];
+  try {
+    // 1º a chave de sala (ainda somos o mestre), 2º a campanha
+    await updateDoc(doc(db, 'roomKeys', campaign.joinKey), {
+      masterId: next.uid,
+      masterName: next.name,
+      playerIds: players.map(p => p.uid),
+      players,
+    });
+    await updateDoc(doc(db, 'campaigns', campaign.id), { masterId: next.uid, masterName: next.name });
+
+    const list = storageService.getCampaigns();
+    const target = list.find(c => c.id === campaign.id);
+    if (target) {
+      target.masterId = next.uid;
+      target.masterName = next.name;
+      target.players = players;
+      storageService.saveCampaigns(list, true);
+      rememberSynced(target, isManager(target, user));
+    }
+    return { success: true };
+  } catch (err) {
+    console.warn('Erro ao passar o manto de Mestre:', err);
+    return { success: false, error: 'Não foi possível passar o manto agora. Tente novamente.' };
+  }
+}
+
 // ---------- Ciclo de vida ----------
 
 storageService.campaignsListener = () => {
@@ -333,4 +368,4 @@ function setUser(user: UserProfile | null) {
   activeUser = user;
 }
 
-export const cloudCampaigns = { setUser, pull, joinByKey, removePlayer, regenerateKey };
+export const cloudCampaigns = { setUser, pull, joinByKey, removePlayer, regenerateKey, transferMaster };

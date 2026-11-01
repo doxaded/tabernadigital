@@ -11,96 +11,35 @@ interface EditorialTelasViewProps {
   activeCampaignId?: string | null;
   onSaveSketch: (asset: Omit<SketchAsset, 'id' | 'createdAt'>) => void;
   onDeleteSketch: (id: string) => void;
+  /** Se o usuário pode gerar imagens (liberado pelo Administrador) */
+  canGenerate?: boolean;
+  permissionRequested?: boolean;
+  onRequestPermission?: () => void;
 }
 
-type Technique = 'nanquim' | 'xilogravura' | 'carvao' | 'iluminura';
+/** Estilo fixo aplicado a toda gravura (a seleção de técnicas foi removida) */
+const IMAGE_STYLE_SUFFIX = ', traço de bico de pena e nanquim sobre pergaminho com hachuras medievais';
 
-const TECHNIQUES: { value: Technique; label: string; suffix: string }[] = [
-  { value: 'nanquim', label: 'Pena & Nanquim', suffix: ', traço de bico de pena e nanquim sobre pergaminho com hachuras medievais' },
-  { value: 'xilogravura', label: 'Xilogravura', suffix: ', gravura em madeira rústica estilo xilogravura medieval de alto contraste' },
-  { value: 'carvao', label: 'Estudo a Carvão', suffix: ', estudo sombreado a carvão vegetal com esfuminho e textura rica' },
-  { value: 'iluminura', label: 'Iluminura Real', suffix: ', estilo iluminura medieval com detalhes ornamentais nobres e folha de prata' },
-];
-
-/** Prego de ferro forjado / tacha medieval oxidada que prende o pergaminho à parede */
+/** Prego minimalista: círculo plano na cor do fundo do site, sem brilho, degradê ou sombra */
 const ForgedNail: React.FC = () => (
   <div
     style={{
       position: 'absolute',
-      top: '7px',
+      top: '-5px',
       left: '50%',
       transform: 'translateX(-50%)',
       zIndex: 10,
       pointerEvents: 'none',
-      width: '18px',
-      height: '18px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+      width: '12px',
+      height: '12px',
+      borderRadius: '50%',
+      backgroundColor: '#100905',
     }}
     aria-hidden="true"
-  >
-    {/* Sombra projetada do prego para baixo sobre o pergaminho */}
-    <div
-      style={{
-        position: 'absolute',
-        top: '9px',
-        left: '2px',
-        width: '16px',
-        height: '9px',
-        borderRadius: '50%',
-        backgroundColor: 'rgba(0, 0, 0, 0.6)',
-        filter: 'blur(1.5px)',
-      }}
-    />
-    {/* Cabeça do prego forjado em ferro escuro oxidado */}
-    <div
-      style={{
-        width: '16px',
-        height: '16px',
-        borderRadius: '50%',
-        background: 'radial-gradient(circle at 35% 30%, #544A44 0%, #2A2421 60%, #15110F 100%)',
-        boxShadow: 'inset 0 1px 1.5px rgba(255, 255, 255, 0.4), inset 0 -1.5px 2px rgba(0, 0, 0, 0.9), 0 2px 5px rgba(0, 0, 0, 0.75)',
-        border: '1px solid #1C1714',
-        position: 'relative',
-      }}
-    >
-      {/* Brilho especular metálico no ápice */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '3px',
-          left: '3.5px',
-          width: '3.5px',
-          height: '3.5px',
-          borderRadius: '50%',
-          backgroundColor: 'rgba(255, 255, 255, 0.65)',
-        }}
-      />
-      {/* Ranhura rústica forjada do martelo */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          width: '8px',
-          height: '1.5px',
-          backgroundColor: 'rgba(10, 8, 7, 0.75)',
-          transform: 'translate(-50%, -50%) rotate(28deg)',
-        }}
-      />
-    </div>
-  </div>
+  />
 );
 
-/** Normaliza o nome da técnica para nunca vazar das bordas */
-const getShortTechnique = (desc?: string) => {
-  if (!desc) return 'Pena & Nanquim';
-  const clean = desc.split(',')[0].split(' - ')[0].trim();
-  return clean.length > 22 ? clean.slice(0, 22) + '…' : clean;
-};
-
-/** Folha de pergaminho individual pregada à parede de madeira da taverna */
+/** Gravura solta sobre o fundo escuro, levemente torta, presa por um prego plano */
 const PinnedParchmentEngraving: React.FC<{
   sketch: SketchAsset;
   index: number;
@@ -109,7 +48,6 @@ const PinnedParchmentEngraving: React.FC<{
 }> = ({ sketch, index, onSelect, onDelete }) => {
   const [isHovered, setIsHovered] = useState(false);
   const baseRotation = index % 2 === 0 ? -1.5 : 1.5;
-  const shortStyle = getShortTechnique(sketch.description);
 
   return (
     <div
@@ -118,147 +56,55 @@ const PinnedParchmentEngraving: React.FC<{
       onMouseLeave={() => setIsHovered(false)}
       style={{
         position: 'relative',
-        backgroundColor: '#E6D2B5',
-        backgroundImage: 'radial-gradient(circle at 50% 30%, #F4E8D7 0%, #E6D2B5 65%, #D6BF9E 100%)',
-        borderRadius: '2px',
-        padding: '24px 14px 14px 14px',
-        boxShadow: isHovered
-          ? '0 24px 44px -6px rgba(0, 0, 0, 0.85), 0 8px 18px rgba(0, 0, 0, 0.6)'
-          : '0 16px 32px -4px rgba(0, 0, 0, 0.65), 0 4px 12px rgba(0, 0, 0, 0.45)',
-        border: '1px solid rgba(115, 85, 55, 0.35)',
-        transformOrigin: '50% 10px',
+        transformOrigin: '50% 0',
         transform: isHovered ? 'rotate(0deg) scale(1.02)' : `rotate(${baseRotation}deg)`,
-        transition: 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease',
+        transition: 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)',
         cursor: 'pointer',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '10px',
         boxSizing: 'border-box',
         width: '100%',
+        aspectRatio: '1 / 1',
         zIndex: isHovered ? 5 : 1,
       }}
     >
-      {/* Prego de Ferro Forjado Cravado no Topo Central */}
+      <img
+        src={sketch.imageUrl}
+        alt={sketch.prompt}
+        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+      />
       <ForgedNail />
-
-      {/* Moldura da Imagem sobre a Folha de Pergaminho */}
       <div
         style={{
-          width: '100%',
-          aspectRatio: '1 / 1',
-          overflow: 'hidden',
-          backgroundColor: '#1C130B',
-          borderRadius: '1px',
-          boxShadow: 'inset 0 0 10px rgba(0, 0, 0, 0.45)',
-          border: '1px solid rgba(90, 65, 42, 0.4)',
+          position: 'absolute',
+          top: '8px',
+          right: '8px',
+          display: 'flex',
+          gap: '6px',
+          opacity: isHovered ? 1 : 0,
+          transition: 'opacity 0.2s ease',
+          zIndex: 11,
         }}
       >
-        <img
-          src={sketch.imageUrl}
-          alt={sketch.prompt}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            filter: 'sepia(18%) contrast(104%)',
-            display: 'block',
-          }}
-        />
-      </div>
-
-      {/* Margem Inferior: Inscrição Manuscrita Limpa sem Vazamento */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', minWidth: 0, width: '100%', overflow: 'hidden' }}>
-        <div
-          style={{
-            fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
-            fontSize: '15px',
-            fontWeight: 700,
-            lineHeight: 1.3,
-            color: '#281B12',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            maxWidth: '100%',
-            textAlign: 'center',
-            letterSpacing: '0.01em',
-            padding: '0 2px',
-          }}
-          title={sketch.prompt}
+        <a
+          href={sketch.imageUrl}
+          download={`gravura-${sketch.id}.png`}
+          target="_blank"
+          rel="noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          style={{ color: '#F4E8D7', background: 'rgba(16,9,5,0.6)', borderRadius: '50%', padding: '5px', display: 'inline-flex' }}
+          title="Baixar Gravura"
         >
-          {sketch.prompt}
-        </div>
-
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            paddingTop: '4px',
-            borderTop: '1px solid rgba(139, 107, 73, 0.25)',
-            minWidth: 0,
-            gap: '8px',
+          <Download size={13} />
+        </a>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(sketch.id);
           }}
+          style={{ color: '#F4E8D7', background: 'rgba(16,9,5,0.6)', border: 'none', borderRadius: '50%', padding: '5px', cursor: 'pointer', display: 'inline-flex' }}
+          title="Remover Gravura da Parede"
         >
-          <span
-            style={{
-              fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
-              fontSize: '12px',
-              fontStyle: 'italic',
-              fontWeight: 500,
-              color: '#5E4838',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              maxWidth: '150px',
-              minWidth: 0,
-              flex: 1,
-            }}
-            title={shortStyle}
-          >
-            {shortStyle}
-          </span>
-
-          <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-            <a
-              href={sketch.imageUrl}
-              download={`gravura-${sketch.id}.png`}
-              target="_blank"
-              rel="noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              style={{
-                color: '#423024',
-                opacity: 0.75,
-                display: 'inline-flex',
-                padding: '2px',
-                transition: 'opacity 0.2s, color 0.2s',
-              }}
-              className="hover:opacity-100"
-              title="Baixar Gravura"
-            >
-              <Download size={14} />
-            </a>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(sketch.id);
-              }}
-              style={{
-                background: 'none',
-                border: 'none',
-                padding: '2px',
-                color: '#5C2820',
-                opacity: 0.65,
-                cursor: 'pointer',
-                display: 'inline-flex',
-                transition: 'opacity 0.2s, color 0.2s',
-              }}
-              className="hover:opacity-100"
-              title="Remover Gravura da Parede"
-            >
-              <Trash2 size={14} />
-            </button>
-          </div>
-        </div>
+          <Trash2 size={13} />
+        </button>
       </div>
     </div>
   );
@@ -271,9 +117,11 @@ export const EditorialTelasView: React.FC<EditorialTelasViewProps> = ({
   activeCampaignId,
   onSaveSketch,
   onDeleteSketch,
+  canGenerate = false,
+  permissionRequested = false,
+  onRequestPermission,
 }) => {
   const [promptText, setPromptText] = useState('');
-  const [selectedTechnique, setSelectedTechnique] = useState<Technique>('nanquim');
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedSketch, setSelectedSketch] = useState<SketchAsset | null>(null);
 
@@ -290,14 +138,14 @@ export const EditorialTelasView: React.FC<EditorialTelasViewProps> = ({
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!canGenerate) return;
     if (!promptText.trim() || isGenerating) return;
 
     setIsGenerating(true);
     tavernAudio.playBellChime();
 
     try {
-      const tech = TECHNIQUES.find(t => t.value === selectedTechnique) || TECHNIQUES[0];
-      const fullPrompt = `${promptText.trim()}${tech.suffix}`;
+      const fullPrompt = `${promptText.trim()}${IMAGE_STYLE_SUFFIX}`;
       const result = await aiService.generateSketch(fullPrompt, 'cena', {
         aspectRatio: '1:1',
         imageSize: '1K',
@@ -307,7 +155,7 @@ export const EditorialTelasView: React.FC<EditorialTelasViewProps> = ({
         onSaveSketch({
           imageUrl: result.imageUrl,
           prompt: promptText.trim(),
-          description: tech.label,
+          description: 'Gravura',
           category: 'cena',
           campaignId: activeCampaignId || undefined,
           modelUsed: result.modelUsed,
@@ -326,7 +174,7 @@ export const EditorialTelasView: React.FC<EditorialTelasViewProps> = ({
     }
   };
 
-  const currentTechObj = TECHNIQUES.find(t => t.value === selectedTechnique) || TECHNIQUES[0];
+
 
   return (
     <main className="editorial-room-container">
@@ -358,20 +206,6 @@ export const EditorialTelasView: React.FC<EditorialTelasViewProps> = ({
           ← Voltar à Galeria
         </button>
 
-        <div className="editorial-segmented-control">
-          {TECHNIQUES.map((tech) => {
-            const isActive = selectedTechnique === tech.value;
-            return (
-              <button
-                key={tech.value}
-                onClick={() => setSelectedTechnique(tech.value)}
-                className={`editorial-segmented-item ${isActive ? 'is-active' : ''}`}
-              >
-                {tech.label}
-              </button>
-            );
-          })}
-        </div>
       </div>
 
       {/* 3. Layout Assimétrico Estilo Kerbache HR / Claude (8 colunas / 4 colunas) */}
@@ -415,6 +249,20 @@ export const EditorialTelasView: React.FC<EditorialTelasViewProps> = ({
               Gravuras e estudos visuais das sagas narradas ao redor do fogo, traçados à pena pelo bardo da estalagem com inteligência oracular.
             </p>
 
+            {!canGenerate && (
+              <div style={{ maxWidth: '620px', marginBottom: '18px', padding: '14px 18px', border: '1px solid rgba(212,163,89,0.35)', borderRadius: '10px', background: 'rgba(212,163,89,0.08)', fontFamily: "'Cormorant Garamond', serif", fontSize: '16px', color: '#EAE0D5', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '14px', flexWrap: 'wrap' }}>
+                <span style={{ fontStyle: 'italic' }}>Geração restrita — solicite autorização ao Mestre Supremo / Administrador da Taverna.</span>
+                <button
+                  type="button"
+                  onClick={onRequestPermission}
+                  disabled={permissionRequested}
+                  className="editorial-btn-primary"
+                  style={{ opacity: permissionRequested ? 0.6 : 1 }}
+                >
+                  {permissionRequested ? 'Pedido Enviado' : 'Solicitar Permissão'}
+                </button>
+              </div>
+            )}
             {/* Formulário de Criação Alinhado à Esquerda */}
             <form onSubmit={handleGenerate} style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '620px' }}>
               <div style={{ position: 'relative' }}>
@@ -423,7 +271,7 @@ export const EditorialTelasView: React.FC<EditorialTelasViewProps> = ({
                   value={promptText}
                   onChange={(e) => setPromptText(e.target.value)}
                   placeholder="Instrua o bardo: um dragão de rubi sobre montanhas nevadas..."
-                  disabled={isGenerating}
+                  disabled={isGenerating || !canGenerate}
                   style={{
                     width: '100%',
                     background: 'rgba(255, 255, 255, 0.05)',
@@ -442,17 +290,15 @@ export const EditorialTelasView: React.FC<EditorialTelasViewProps> = ({
               <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
                 <button
                   type="submit"
-                  disabled={isGenerating || !promptText.trim()}
+                  disabled={!canGenerate || isGenerating || !promptText.trim()}
                   className="editorial-btn-primary"
-                  style={{ opacity: isGenerating || !promptText.trim() ? 0.5 : 1 }}
+                  style={{ opacity: !canGenerate || isGenerating || !promptText.trim() ? 0.5 : 1 }}
                 >
                   {isGenerating ? <Loader2 size={15} className="animate-spin" /> : <Sparkles size={15} />}
                   {isGenerating ? 'Iluminando Pergaminho...' : 'Traçar Gravura'}
                 </button>
 
-                <span style={{ fontSize: '13px', fontStyle: 'italic', opacity: 0.75, color: '#D4A359' }}>
-                  Técnica ativa: <strong>{currentTechObj.label}</strong>
-                </span>
+
               </div>
             </form>
           </div>
@@ -466,11 +312,6 @@ export const EditorialTelasView: React.FC<EditorialTelasViewProps> = ({
           <div>
             <div style={{ fontSize: '11px', letterSpacing: '0.2em', textTransform: 'uppercase', opacity: 0.65, marginBottom: '14px', fontWeight: 600, color: '#D4A359' }}>
               Guia do Ateliê
-            </div>
-
-            <div className="editorial-meta-row">
-              <span className="editorial-meta-label">Técnica</span>
-              <span className="editorial-meta-value">{currentTechObj.label}</span>
             </div>
 
             <div className="editorial-meta-row">
@@ -631,17 +472,7 @@ export const EditorialTelasView: React.FC<EditorialTelasViewProps> = ({
                 >
                   {selectedSketch.prompt}
                 </div>
-                <div
-                  style={{
-                    fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
-                    fontSize: '13px',
-                    fontStyle: 'italic',
-                    color: '#654F3E',
-                    marginTop: '2px',
-                  }}
-                >
-                  {getShortTechnique(selectedSketch.description)}
-                </div>
+
               </div>
 
               <a

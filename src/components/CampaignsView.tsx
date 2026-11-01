@@ -5,7 +5,9 @@ import {
   ExternalLink, Download, Layers, Upload, Loader2, Copy, RefreshCw, LogOut,
   Dices, Clipboard, Search, KeyRound, PanelLeftClose, PanelLeftOpen, MoreVertical
 } from 'lucide-react';
-import { Campaign, CharacterSheet, CustomStat, LoreEntry, RuleDocument, UserProfile } from '../types';
+import { Campaign, CampaignProgress, CharacterSheet, CustomStat, LoreEntry, RuleDocument, UserProfile } from '../types';
+import { DiceTray3D } from './DiceTray3D';
+import { TransferMasterModal, CampaignProgressModal } from './RoomManagementModals';
 import { SHEET_IMPORT_ACCEPT, extractCharacterSheetFromFile } from '../services/sheetImportService';
 import { MAX_PLAYERS } from '../services/storage';
 import { DefaultStats, getOrderedStats, validateCustomStats } from '../services/sheetStats';
@@ -24,6 +26,8 @@ interface CampaignsViewProps {
   onJoinByKey: (key: string) => Promise<{ success: boolean; error?: string; campaignId?: string }>;
   onRegenerateKey: (campaignId: string) => Promise<{ success: boolean; error?: string }>;
   onRemovePlayer: (campaignId: string, playerUid: string) => Promise<{ success: boolean; error?: string }>;
+  onTransferMaster?: (campaignId: string, newMasterUid: string) => Promise<{ success: boolean; error?: string }>;
+  onSaveProgress?: (campaignId: string, data: Omit<CampaignProgress, 'updatedAt' | 'updatedBy'>) => { success: boolean; error?: string };
   onCreateCampaign: (name: string, description: string, system: string, coverUrl?: string) => { success: boolean; error?: string; campaign?: Campaign };
   onUpdateCampaign: (id: string, data: { name?: string; coverUrl?: string; description?: string; system?: string }) => void;
   onDeleteCampaign: (id: string) => void;
@@ -56,6 +60,8 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
   onJoinByKey,
   onRegenerateKey,
   onRemovePlayer,
+  onTransferMaster,
+  onSaveProgress,
   onCreateCampaign,
   onUpdateCampaign,
   onDeleteCampaign,
@@ -211,6 +217,8 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
     onInitialActionConsumed?.();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialAction]);
+  const [isTransferOpen, setIsTransferOpen] = useState(false);
+  const [isProgressOpen, setIsProgressOpen] = useState(false);
   const [quickDiceHistory, setQuickDiceHistory] = useState<Array<{ die: string; result: number; time: string }>>([]);
   const [isRollingQuick, setIsRollingQuick] = useState<string | null>(null);
 
@@ -1155,6 +1163,28 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                         </button>
                       )}
 
+                      {isMasterOfActive && onTransferMaster && (
+                        <button
+                          onClick={() => setIsTransferOpen(true)}
+                          className="editorial-btn-secondary"
+                          title="Transferir o cargo de Mestre para outro aventureiro"
+                        >
+                          <Crown size={14} />
+                          Passar Manto de Mestre
+                        </button>
+                      )}
+
+                      {onSaveProgress && (
+                        <button
+                          onClick={() => setIsProgressOpen(true)}
+                          className="editorial-btn-secondary"
+                          title="Salvar o progresso e o contexto da campanha"
+                        >
+                          <BookOpen size={14} />
+                          Crônicas e Progresso
+                        </button>
+                      )}
+
                       {/* Botão de Excluir Mesa Ativa (Restaurado) */}
                       {isMasterOfActive && (
                         <button
@@ -1703,35 +1733,13 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
                   Toque nos dados para que a sorte decida o destino da sua aventura.
                 </p>
 
-                {/* Linha Minimalista de Dados estilo botões secundários */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '32px' }}>
-                  {[
-                    { name: 'd4', sides: 4 },
-                    { name: 'd6', sides: 6 },
-                    { name: 'd8', sides: 8 },
-                    { name: 'd10', sides: 10 },
-                    { name: 'd12', sides: 12 },
-                    { name: 'd20', sides: 20 },
-                    { name: 'd100', sides: 100 },
-                  ].map(({ name, sides }) => (
-                    <button
-                      key={name}
-                      onClick={() => handleRollQuickDie(name, sides)}
-                      disabled={isRollingQuick !== null}
-                      className="editorial-btn-secondary"
-                      style={{
-                        padding: '10px 18px',
-                        fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
-                        fontSize: '18px',
-                        fontWeight: 600,
-                        opacity: isRollingQuick === name ? 0.4 : 1,
-                      }}
-                    >
-                      <Dices size={16} />
-                      {name}
-                    </button>
-                  ))}
-                </div>
+                {/* Tabuleiro 3D: dados rolam fisicamente sobre a mesa */}
+                <DiceTray3D
+                  onResult={(die, val) => {
+                    const time = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                    setQuickDiceHistory(prev => [{ die, result: val, time }, ...prev.slice(0, 6)]);
+                  }}
+                />
 
                 {/* Resultado em Destaque Alinhado à Esquerda */}
                 <div className="editorial-claude-card room-matte-V" style={{ minHeight: '140px', display: 'flex', flexDirection: 'column', justifyContent: 'center', marginBottom: '24px' }}>
@@ -1788,6 +1796,21 @@ export const CampaignsView: React.FC<CampaignsViewProps> = ({
           </section>
         )}
       </main>
+
+      {isTransferOpen && activeCampaign && onTransferMaster && (
+        <TransferMasterModal
+          campaign={activeCampaign}
+          onClose={() => setIsTransferOpen(false)}
+          onTransfer={(uid) => onTransferMaster(activeCampaign.id, uid)}
+        />
+      )}
+      {isProgressOpen && activeCampaign && onSaveProgress && (
+        <CampaignProgressModal
+          campaign={activeCampaign}
+          onClose={() => setIsProgressOpen(false)}
+          onSave={(data) => onSaveProgress(activeCampaign.id, data)}
+        />
+      )}
 
       {/* MODAL: ENTRAR COM CHAVE DE MESA */}
       {isJoinModalOpen && (

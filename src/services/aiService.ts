@@ -187,7 +187,7 @@ export const compressBase64Image = (dataUrl: string, maxDim = 1024, quality = 0.
 
 export const aiService = {
   // Chat com Urd: Gemini direto com a mesma chave usada nas imagens (getEffectiveGeminiKey)
-  async chatWithUrd(prompt: string, history: Array<{ sender: 'user' | 'urd'; text: string }>, customApiKey?: string): Promise<string> {
+  async chatWithUrd(prompt: string, history: Array<{ sender: 'user' | 'urd'; text: string }>, customApiKey?: string, campaignContext?: string): Promise<string> {
     const apiKey = getEffectiveGeminiKey(customApiKey);
 
     // Histórico recente; o Gemini espera que a conversa comece com uma fala do usuário
@@ -205,7 +205,11 @@ export const aiService = {
         const response = await client.models.generateContent({
           model: GEMINI_TEXT_MODEL,
           contents: [...turns, { role: 'user', parts: [{ text: prompt }] }],
-          config: { systemInstruction: URD_SYSTEM_PROMPT }
+          config: {
+            systemInstruction: campaignContext
+              ? `${URD_SYSTEM_PROMPT}\n\n=== CONTEXTO DA MESA ATIVA (use como memória da campanha quando fizer sentido) ===\n${campaignContext}`
+              : URD_SYSTEM_PROMPT
+          }
         });
 
         if (response.text && response.text.trim()) {

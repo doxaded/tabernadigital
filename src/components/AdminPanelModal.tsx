@@ -11,6 +11,7 @@ interface AdminPanelModalProps {
   campaigns: Campaign[];
   onApproveUser: (uid: string) => void;
   onRejectUser: (uid: string) => void;
+  onSetImageGeneration?: (uid: string, allowed: boolean) => void;
   onOpenChangePassword?: () => void;
 }
 
@@ -22,6 +23,7 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
   campaigns,
   onApproveUser,
   onRejectUser,
+  onSetImageGeneration,
   onOpenChangePassword,
 }) => {
   const [activeTab, setActiveTab] = useState<'pending' | 'approved' | 'stats'>('pending');
@@ -319,6 +321,27 @@ export const AdminPanelModal: React.FC<AdminPanelModalProps> = ({
                       </div>
                       <div style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>{u.email}</div>
                     </div>
+                    {!isCurrentAdmin && onSetImageGeneration && (
+                      <button
+                        type="button"
+                        onClick={() => onSetImageGeneration(u.uid, !u.canGenerateImages)}
+                        title="Liberar / Bloquear Telas do Alaúde"
+                        style={{
+                          marginLeft: 'auto',
+                          padding: '6px 12px',
+                          borderRadius: '999px',
+                          border: '1px solid ' + (u.canGenerateImages ? '#16a34a' : (u.imageRequestPending ? '#d97706' : '#cbd5e1')),
+                          backgroundColor: u.canGenerateImages ? '#dcfce7' : (u.imageRequestPending ? '#fef3c7' : '#fff'),
+                          color: u.canGenerateImages ? '#166534' : '#475569',
+                          fontSize: '12px',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        Telas do Alaúde: {u.canGenerateImages ? 'Liberado' : (u.imageRequestPending ? 'Pedido ⏳ · Liberar' : 'Bloqueado')}
+                      </button>
+                    )}
                     {!isCurrentAdmin && (
                       <button
                         onClick={() => onRejectUser(u.uid)}

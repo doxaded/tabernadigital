@@ -32,7 +32,7 @@ service cloud.firestore {
       // Apenas henrique.v.berbert@gmail.com pode alterar o campo status (aprovar/rejeitar/revogar) ou role
       allow update: if request.auth != null && (
         isSuperAdmin() ||
-        (request.auth.uid == userId && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'role']))
+        (request.auth.uid == userId && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'role', 'canGenerateImages']))
       );
       
       allow delete: if isSuperAdmin();
@@ -62,7 +62,7 @@ service cloud.firestore {
         (
           resource.data.joinKey is string &&
           isRoomMember(resource.data.joinKey) &&
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sheets'])
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sheets', 'progress'])
         )
       );
 

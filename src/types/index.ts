@@ -1,6 +1,18 @@
 export type UserStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 export type UserRole = 'admin' | 'user';
 
+/** Crônicas e Progresso da Mesa: estado salvo da campanha (alimenta o Oráculo e o Taberneiro) */
+export interface CampaignProgress {
+  chapterSummary: string;
+  storyContext: string;
+  location: string;
+  npcs: string;
+  quests: string;
+  sessionNotes: string;
+  updatedAt: string;
+  updatedBy: string;
+}
+
 export interface UserProfile {
   uid: string;
   email: string;
@@ -27,6 +39,9 @@ export interface UserProfile {
   unlockedTitles?: string[]; // IDs ou nomes de títulos desbloqueados
   unlockedFrames?: string[]; // IDs de molduras desbloqueadas
   lastDailyRewardDate?: string; // Data ISO da última recompensa diária coletada
+  // Telas do Alaúde: permissão para gerar imagens (liberada pelo Administrador; admin sempre liberado)
+  canGenerateImages?: boolean;
+  imageRequestPending?: boolean; // Jogador pediu permissão ao Administrador
 }
 
 export type ShopItemRarity = 'comum' | 'raro' | 'epico' | 'lendario';
@@ -160,6 +175,7 @@ export interface Campaign {
   joinKey?: string;
   // Jogadores que já entraram na sala (máximo de MAX_PLAYERS)
   players?: RoomPlayer[];
+  progress?: CampaignProgress;
 }
 
 export interface SketchCostEstimate {

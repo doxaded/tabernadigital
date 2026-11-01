@@ -1,13 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Beer } from 'lucide-react';
-import { UrdMessage } from '../types';
+import { Campaign, UrdMessage } from '../types';
+import { formatCampaignProgress } from '../services/campaignContext';
 import { aiService } from '../services/aiService';
 import { tavernAudio } from '../services/tavernAudio';
 
 interface EditorialTaberneiroViewProps {
   onBack?: () => void;
   messages: UrdMessage[];
-  campaigns?: { id: string; name: string }[];
+  campaigns?: Pick<Campaign, 'id' | 'name' | 'progress'>[];
   activeCampaignId?: string | null;
   onSendMessage: (sender: 'user' | 'urd', text: string) => void;
   onAddToLore?: (campaignId: string, title: string, content: string) => void;
@@ -17,6 +18,7 @@ interface EditorialTaberneiroViewProps {
 export const EditorialTaberneiroView: React.FC<EditorialTaberneiroViewProps> = ({
   onBack,
   messages,
+  campaigns,
   activeCampaignId,
   onSendMessage,
   onAddToLore,
@@ -40,7 +42,12 @@ export const EditorialTaberneiroView: React.FC<EditorialTaberneiroViewProps> = (
     tavernAudio.playBellChime();
 
     try {
-      const reply = await aiService.chatWithUrd(text, messages);
+      const reply = await aiService.chatWithUrd(
+        text,
+        messages,
+        undefined,
+        formatCampaignProgress(campaigns?.find(c => c.id === activeCampaignId))
+      );
       if (reply) {
         onSendMessage('urd', reply);
         tavernAudio.playToastSound();

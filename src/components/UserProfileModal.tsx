@@ -148,6 +148,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
   const [photoURL, setPhotoURL] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [copiedTag, setCopiedTag] = useState(false);
+  const [selectedRow, setSelectedRow] = useState('classe');
 
   // Upload direto de fotos e arquivos (computador ou celular)
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -253,6 +254,102 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
     ? (displayName || 'Aventureiro')
     : (targetUser.displayName || targetUser.email.split('@')[0] || 'Aventureiro');
 
+  const tagValue = targetUser.userTag || targetUser.tag || '';
+  const roleLabel = isSuperAdmin ? 'Mestre Supremo' : 'Aventureiro';
+  const goldValue = getEffectiveGold(targetUser).toLocaleString('pt-BR');
+  const headerTitle = isEditing
+    ? 'PERSONALIZAR PERFIL'
+    : (isSelf ? 'REGISTRO DO AVENTUREIRO' : displayNameToShow.toUpperCase());
+  const headerSubtitle = [roleLabel, tagValue ? `TAG #${tagValue}` : '', `${goldValue} Peças de Ouro`]
+    .filter(Boolean)
+    .join(' • ');
+
+  /* Linhas no mesmo padrão da navegação I–V do MENU */
+  const navRow = (selected: boolean): React.CSSProperties => ({
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: '16px',
+    width: '100%',
+    padding: '12px 16px',
+    borderRadius: '8px',
+    background: selected ? 'rgba(212, 163, 89, 0.12)' : 'transparent',
+    border: selected ? '1px solid rgba(212, 163, 89, 0.4)' : '1px solid transparent',
+    color: selected ? '#D4A359' : '#EAE0D5',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    textAlign: 'left',
+    fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
+    boxSizing: 'border-box'
+  });
+  const rowHoverIn = (e: React.MouseEvent<HTMLButtonElement>, selected: boolean) => {
+    if (!selected) e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
+  };
+  const rowHoverOut = (e: React.MouseEvent<HTMLButtonElement>, selected: boolean) => {
+    if (!selected) e.currentTarget.style.background = 'transparent';
+  };
+  const rowLabel: React.CSSProperties = { fontSize: '18px', fontWeight: 700, letterSpacing: '0.1em', whiteSpace: 'nowrap' };
+  const rowValue: React.CSSProperties = {
+    fontSize: '14px',
+    letterSpacing: '0.12em',
+    textTransform: 'uppercase',
+    textAlign: 'right',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '8px',
+    minWidth: 0
+  };
+  const footerBtn = (color = '#EAE0D5', opacity = 1): React.CSSProperties => ({
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    width: '100%',
+    padding: '10px 12px',
+    borderRadius: '8px',
+    background: 'transparent',
+    border: 'none',
+    color,
+    opacity,
+    cursor: 'pointer',
+    fontSize: '12px',
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase',
+    transition: 'background 0.2s ease',
+    textAlign: 'left',
+    boxSizing: 'border-box'
+  });
+  const footHoverIn = (e: React.MouseEvent<HTMLButtonElement>) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)'; };
+  const footHoverOut = (e: React.MouseEvent<HTMLButtonElement>) => { e.currentTarget.style.background = 'transparent'; };
+
+  const infoRows: { id: string; label: string; value: React.ReactNode; onClick?: () => void }[] = [
+    { id: 'classe', label: 'Classe', value: targetUser.favoriteClass || 'Aventureiro' },
+    { id: 'dados', label: 'Dados da Sorte', value: targetUser.diceTheme || 'Dourado Nobre' },
+    {
+      id: 'selo',
+      label: 'Selo de Cera',
+      value: (
+        <>
+          <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: activeColor, border: '1px solid rgba(244, 237, 221, 0.4)', flexShrink: 0 }} />
+          {activeBadgeObj?.name || 'Insígnia'}
+        </>
+      )
+    }
+  ];
+  if (isSelf) {
+    infoRows.push({
+      id: 'bazar',
+      label: 'Bazar da Taverna',
+      value: (<>{goldValue} PO <ChevronRight size={14} /></>),
+      onClick: () => { onClose(); onOpenShop?.(); }
+    });
+    infoRows.push({
+      id: 'perfil',
+      label: 'Personalizar Perfil',
+      value: (<ChevronRight size={14} />),
+      onClick: () => setIsEditing(true)
+    });
+  }
+
   return (
     <div
       role="dialog"
@@ -260,7 +357,7 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: 'rgba(18, 11, 7, 0.95)',
+        backgroundColor: 'rgba(20, 12, 8, 0.96)',
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
         zIndex: 2500,
@@ -284,14 +381,14 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
         onChange={handleFileSelect}
       />
 
-      {/* Modal Centralizado: Padrão Arquitetural e Visual Idêntico ao MENU */}
+      {/* Card: mesma arquitetura, proporção e acabamento do modal MENU */}
       <div
         style={{
           position: 'relative',
           width: '100%',
-          maxWidth: '520px',
-          maxHeight: '88vh',
-          backgroundColor: '#1E130C',
+          maxWidth: '440px',
+          maxHeight: '90vh',
+          backgroundColor: 'rgba(255, 255, 255, 0.03)',
           border: '1px solid rgba(212, 163, 89, 0.15)',
           borderRadius: '16px',
           boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.85)',
@@ -300,61 +397,42 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
           display: 'flex',
           flexDirection: 'column',
           animation: 'modalEnter 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-          fontFamily: 'var(--font-body)',
           boxSizing: 'border-box'
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Cabeçalho do Modal com Botão [ X ] */}
+        {/* Gravura medieval escurecida em marca d'água */}
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: "linear-gradient(rgba(20, 12, 8, 0.82), rgba(20, 12, 8, 0.9)), url('/assets/room_IV_mensagens_v2.jpg')",
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            pointerEvents: 'none'
+          }}
+        />
+
         <div
           style={{
             position: 'relative',
-            padding: '22px 28px 18px',
-            borderBottom: '1px solid rgba(212, 163, 89, 0.12)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexShrink: 0,
-            backgroundColor: '#180E08'
+            padding: '32px',
+            overflowY: 'auto',
+            flex: 1,
+            WebkitOverflowScrolling: 'touch',
+            boxSizing: 'border-box'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Scroll size={18} style={{ color: '#D4A359' }} />
-            <div>
-              <h2
-                style={{
-                  fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
-                  fontSize: '20px',
-                  fontWeight: 600,
-                  letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  margin: 0,
-                  color: '#EAE0D5',
-                  lineHeight: 1.2
-                }}
-              >
-                {isEditing ? 'Personalizar Perfil' : 'Registro do Aventureiro'}
-              </h2>
-              <p
-                style={{
-                  fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
-                  fontStyle: 'italic',
-                  fontSize: '13px',
-                  letterSpacing: '0.04em',
-                  opacity: 0.65,
-                  margin: '2px 0 0 0',
-                  color: '#EAE0D5'
-                }}
-              >
-                Taberna Digital • JOGADOR
-              </p>
-            </div>
-          </div>
-
+          {/* Botão [ X ] discreto no canto superior direito */}
           <button
             onClick={onClose}
             aria-label="Fechar Perfil"
+            title="Fechar"
             style={{
+              position: 'absolute',
+              top: '20px',
+              right: '20px',
               background: 'transparent',
               border: 'none',
               color: '#EAE0D5',
@@ -378,18 +456,56 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
           >
             <X size={18} />
           </button>
-        </div>
 
-        {/* Corpo com Scroll Suave */}
-        <div
-          style={{
-            padding: '24px 28px 36px',
-            overflowY: 'auto',
-            flex: 1,
-            WebkitOverflowScrolling: 'touch',
-            backgroundColor: '#1E130C'
-          }}
-        >
+          {/* Cabeçalho idêntico ao MENU */}
+          <div style={{ marginBottom: '24px', textAlign: 'left', paddingRight: '32px' }}>
+            <h2
+              style={{
+                fontFamily: "'Cormorant Garamond', 'Cinzel', serif",
+                fontSize: '22px',
+                fontWeight: 600,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                margin: '0 0 4px 0',
+                color: '#EAE0D5',
+                overflowWrap: 'anywhere'
+              }}
+            >
+              {headerTitle}
+            </h2>
+            <p
+              style={{
+                fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+                fontStyle: 'italic',
+                fontSize: '14px',
+                letterSpacing: '0.06em',
+                opacity: 0.65,
+                margin: 0,
+                color: '#EAE0D5',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                flexWrap: 'wrap'
+              }}
+            >
+              <span>{headerSubtitle}</span>
+              {tagValue && !isEditing && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(tagValue);
+                    setCopiedTag(true);
+                    setTimeout(() => setCopiedTag(false), 2000);
+                  }}
+                  title="Copiar Tag de 7 Caracteres"
+                  style={{ background: 'none', border: 'none', color: copiedTag ? '#34d399' : '#EAE0D5', cursor: 'pointer', padding: 0, display: 'inline-flex', opacity: copiedTag ? 1 : 0.7 }}
+                >
+                  {copiedTag ? <Check size={13} /> : <Copy size={13} />}
+                </button>
+              )}
+            </p>
+          </div>
+
           {/* Mensagem de Erro de Upload se houver */}
           {uploadError && (
             <div
@@ -407,401 +523,51 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
             </div>
           )}
 
-          {/* Cartão de Identidade do Usuário: Avatar & Nome & Título (100% VISÍVEL, NUNCA CORTADO) */}
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              textAlign: 'center',
-              marginBottom: '22px'
-            }}
-          >
-            {/* Moldura do Avatar / Retrato com AvatarFrame */}
-            <div style={{ position: 'relative', marginBottom: '14px' }}>
-              <AvatarFrame
-                user={isEditing ? { ...targetUser, photoURL: photoURL || targetUser.photoURL, displayName: displayName || targetUser.displayName } : targetUser}
-                size="xl"
-              />
-
-              {/* Botão de Câmera sobre o Avatar (permite anexar fotos ou arquivos direto) */}
-              {isSelf && (
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  title="Anexar foto ou arquivo do computador/celular"
-                  style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    right: 0,
-                    width: '30px',
-                    height: '30px',
-                    borderRadius: '50%',
-                    backgroundColor: '#d97706',
-                    color: '#000000',
-                    border: '2.5px solid #0B0B0B',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 10px rgba(0,0,0,0.7)',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.1)';
-                    e.currentTarget.style.backgroundColor = '#f59e0b';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.backgroundColor = '#d97706';
-                  }}
-                >
-                  <Camera size={14} />
-                </button>
-              )}
-            </div>
-
-            {/* Nome Escolhido pelo Usuário & Pequeno Lápis Clássico */}
-            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <h2
-                style={{
-                  fontSize: '20px',
-                  fontWeight: 800,
-                  color: '#F4EDDD',
-                  fontFamily: "'Cinzel Hero', Georgia, serif",
-                  letterSpacing: '0.02em',
-                  margin: 0
-                }}
-              >
-                {displayNameToShow}
-              </h2>
-
-              {isSelf && !isEditing && (
-                <button
-                  type="button"
-                  id="profile-classic-pencil-btn"
-                  onClick={() => setIsEditing(true)}
-                  title="Personalizar Perfil"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '26px',
-                    height: '26px',
-                    borderRadius: '50%',
-                    backgroundColor: 'rgba(217, 119, 6, 0.16)',
-                    border: '1px solid rgba(217, 119, 6, 0.45)',
-                    color: '#F59E0B',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.3)'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.1)';
-                    e.currentTarget.style.backgroundColor = '#d97706';
-                    e.currentTarget.style.color = '#000000';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.backgroundColor = 'rgba(217, 119, 6, 0.16)';
-                    e.currentTarget.style.color = '#F59E0B';
-                  }}
-                >
-                  <Edit3 size={13} />
-                </button>
-              )}
-            </div>
-
-            {/* Título Honorífico */}
-            {targetUser.title && (
-              <p
-                style={{
-                  fontSize: '13px',
-                  color: activeColor,
-                  fontFamily: "'Alegreya', Georgia, serif",
-                  fontStyle: 'italic',
-                  fontWeight: 600,
-                  margin: '4px 0 0 0'
-                }}
-              >
-                "{targetUser.title}"
-              </p>
-            )}
-
-            {/* Selo Mestre Supremo / Aventureiro */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
-              {isSuperAdmin && (
-                <span
-                  style={{
-                    backgroundColor: 'rgba(245, 158, 11, 0.18)',
-                    color: '#FCD34D',
-                    border: '1px solid rgba(245, 158, 11, 0.45)',
-                    borderRadius: '9999px',
-                    padding: '3px 10px',
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    fontFamily: "'Cinzel Hero', Georgia, serif",
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '5px'
-                  }}
-                >
-                  <Crown size={12} />
-                  Mestre Supremo
-                </span>
-              )}
-            </div>
-
-            {/* Tag Única de 7 Caracteres */}
-            {(targetUser.userTag || targetUser.tag) && (
-              <div style={{ marginTop: '10px', display: 'inline-flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
-                <div
-                  style={{
-                    backgroundColor: '#251810',
-                    border: '1px solid rgba(212, 163, 89, 0.2)',
-                    padding: '4px 10px',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    fontFamily: 'monospace',
-                    fontWeight: 800,
-                    letterSpacing: '0.1em',
-                    color: '#FCD34D',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '5px'
-                  }}
-                  title="Tag de Aventureiro (utilize para adicionar amigos e iniciar conversas)"
-                >
-                  <span style={{ color: '#B89F86', fontWeight: 600 }}>TAG:</span>
-                  <span>#{targetUser.userTag || targetUser.tag}</span>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    const tagText = targetUser.userTag || targetUser.tag || '';
-                    navigator.clipboard.writeText(tagText);
-                    setCopiedTag(true);
-                    setTimeout(() => setCopiedTag(false), 2000);
-                  }}
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.06)',
-                    border: '1px solid rgba(212, 163, 89, 0.2)',
-                    borderRadius: '6px',
-                    color: copiedTag ? '#34d399' : '#F4EDDD',
-                    cursor: 'pointer',
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    padding: '4px 8px',
-                    transition: 'all 0.15s ease'
-                  }}
-                  title="Copiar Tag de 7 Caracteres"
-                >
-                  {copiedTag ? <Check size={12} /> : <Copy size={12} />}
-                  <span>{copiedTag ? 'Copiado!' : 'Copiar Tag'}</span>
-                </button>
-              </div>
-            )}
-
-            {/* Pílula de Peças de Ouro (PO) */}
-            <div style={{ marginTop: '10px', display: 'inline-flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
-              <div
-                style={{
-                  backgroundColor: 'rgba(212, 163, 89, 0.12)',
-                  border: '1px solid rgba(212, 163, 89, 0.35)',
-                  padding: '5px 14px',
-                  borderRadius: '20px',
-                  fontSize: '12px',
-                  fontWeight: 800,
-                  color: '#FCD34D',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  boxShadow: '0 0 12px rgba(212, 163, 89, 0.15)'
-                }}
-              >
-                <Coins size={15} style={{ color: '#FCD34D' }} />
-                <span>{getEffectiveGold(targetUser).toLocaleString('pt-BR')} Peças de Ouro</span>
-              </div>
-            </div>
-          </div>
-
           {!isEditing ? (
-            /* Modo de Visualização do Perfil Medieval */
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-              {/* Opções da Conta (Quando for o próprio usuário) */}
-              {isSelf && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <span
-                    style={{
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.06em',
-                      color: '#B89F86',
-                      fontFamily: "'Inter', sans-serif",
-                      display: 'block',
-                      marginBottom: '2px'
-                    }}
-                  >
-                    Opções da Conta
-                  </span>
-
-                  {/* Bazar da Taverna (Loja Virtual de Títulos & Molduras) */}
-                  <button
-                    type="button"
-                    id="option-tavern-shop"
-                    onClick={() => {
-                      onClose();
-                      onOpenShop?.();
-                    }}
-                    style={{
-                      ...optionItemStyle,
-                      border: '1px solid rgba(212, 163, 89, 0.35)',
-                      background: 'linear-gradient(135deg, rgba(212, 163, 89, 0.14) 0%, rgba(139, 90, 43, 0.22) 100%)',
-                      boxShadow: '0 0 14px rgba(212, 163, 89, 0.1)'
-                    }}
-                    onMouseEnter={(e) => optionHover(e, true)}
-                    onMouseLeave={(e) => optionHover(e, false)}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div style={{ ...optionIconContainerStyle, backgroundColor: 'rgba(212, 163, 89, 0.2)' }}>
-                        <Coins size={16} style={{ color: '#FCD34D' }} />
-                      </div>
-                      <div style={{ textAlign: 'left' }}>
-                        <div style={{ fontSize: '13px', fontWeight: 800, color: '#fef3c7', fontFamily: "'Cinzel Hero', Georgia, serif" }}>
-                          Bazar da Taverna
-                        </div>
-                        <div style={{ fontSize: '11px', color: '#d4b896' }}>
-                          Comprar e equipar Títulos e Molduras Místicas
-                        </div>
-                      </div>
-                    </div>
-                    <ChevronRight size={16} style={{ color: '#FCD34D' }} />
-                  </button>
-
-                  {/* Personalizar Perfil */}
-                  <button
-                    type="button"
-                    id="option-customize-profile"
-                    onClick={() => setIsEditing(true)}
-                    style={optionItemStyle}
-                    onMouseEnter={(e) => optionHover(e, true)}
-                    onMouseLeave={(e) => optionHover(e, false)}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div style={optionIconContainerStyle}>
-                        <Edit3 size={16} style={{ color: '#FCD34D' }} />
-                      </div>
-                      <div style={{ textAlign: 'left' }}>
-                        <div style={{ fontSize: '13px', fontWeight: 700, color: '#F4EDDD', fontFamily: "'Cinzel Hero', Georgia, serif" }}>
-                          Personalizar Perfil
-                        </div>
-                        <div style={{ fontSize: '11px', color: '#A89A85' }}>
-                          Nome, foto/retrato, classe, dados e crônicas
-                        </div>
-                      </div>
-                    </div>
-                    <ChevronRight size={16} style={{ color: '#A89A85' }} />
-                  </button>
-
-                  {/* Trocar Senha */}
-                  {onOpenChangePassword && (
+            <>
+              {/* Lista principal em linhas limpas (rótulo à esquerda, valor/ação à direita) */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '16px' }}>
+                {infoRows.map((row) => {
+                  const selected = selectedRow === row.id;
+                  return (
                     <button
+                      key={row.id}
                       type="button"
-                      id="option-change-password"
-                      onClick={onOpenChangePassword}
-                      style={optionItemStyle}
-                      onMouseEnter={(e) => optionHover(e, true)}
-                      onMouseLeave={(e) => optionHover(e, false)}
+                      id={`profile-row-${row.id}`}
+                      onClick={() => {
+                        setSelectedRow(row.id);
+                        row.onClick?.();
+                      }}
+                      style={navRow(selected)}
+                      onMouseEnter={(e) => rowHoverIn(e, selected)}
+                      onMouseLeave={(e) => rowHoverOut(e, selected)}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={optionIconContainerStyle}>
-                          <KeyRound size={16} style={{ color: '#FCD34D' }} />
-                        </div>
-                        <div style={{ textAlign: 'left' }}>
-                          <div style={{ fontSize: '13px', fontWeight: 700, color: '#F4EDDD', fontFamily: "'Cinzel Hero', Georgia, serif" }}>
-                            Trocar Senha
-                          </div>
-                          <div style={{ fontSize: '11px', color: '#A89A85' }}>
-                            Atualizar senha de acesso à taverna
-                          </div>
-                        </div>
-                      </div>
-                      <ChevronRight size={16} style={{ color: '#A89A85' }} />
+                      <span style={rowLabel}>{row.label}</span>
+                      <span style={rowValue}>{row.value}</span>
                     </button>
-                  )}
+                  );
+                })}
+              </div>
 
-                  {/* Área Administrativa (Super Admin) */}
-                  {isSuperAdmin && onOpenAdmin && (
-                    <button
-                      type="button"
-                      id="option-admin-panel"
-                      onClick={onOpenAdmin}
-                      style={optionItemStyle}
-                      onMouseEnter={(e) => optionHover(e, true)}
-                      onMouseLeave={(e) => optionHover(e, false)}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={optionIconContainerStyle}>
-                          <Crown size={16} style={{ color: '#FCD34D' }} />
-                        </div>
-                        <div style={{ textAlign: 'left' }}>
-                          <div style={{ fontSize: '13px', fontWeight: 700, color: '#F4EDDD', fontFamily: "'Cinzel Hero', Georgia, serif" }}>
-                            Área Administrativa
-                          </div>
-                          <div style={{ fontSize: '11px', color: '#A89A85' }}>
-                            Gerenciar membros e aprovações
-                          </div>
-                        </div>
-                      </div>
-                      <ChevronRight size={16} style={{ color: '#A89A85' }} />
-                    </button>
-                  )}
-
-                  {/* Sair da Conta */}
-                  {onLogout && (
-                    <button
-                      type="button"
-                      id="option-logout"
-                      onClick={onLogout}
-                      style={{
-                        ...optionItemStyle,
-                        borderColor: 'rgba(239, 68, 68, 0.25)',
-                        backgroundColor: 'rgba(239, 68, 68, 0.06)'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.14)';
-                        e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.5)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.06)';
-                        e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.25)';
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={{ ...optionIconContainerStyle, backgroundColor: 'rgba(239, 68, 68, 0.15)' }}>
-                          <LogOut size={16} style={{ color: '#ef4444' }} />
-                        </div>
-                        <div style={{ textAlign: 'left' }}>
-                          <div style={{ fontSize: '13px', fontWeight: 700, color: '#fca5a5', fontFamily: "'Cinzel Hero', Georgia, serif" }}>
-                            Sair da Conta
-                          </div>
-                          <div style={{ fontSize: '11px', color: '#A89A85' }}>
-                            Encerrar sua sessão nesta mesa
-                          </div>
-                        </div>
-                      </div>
-                      <ChevronRight size={16} style={{ color: '#ef4444' }} />
-                    </button>
-                  )}
-                </div>
+              {/* Crônicas pessoais */}
+              {targetUser.bio && (
+                <p
+                  style={{
+                    fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+                    fontStyle: 'italic',
+                    fontSize: '15px',
+                    lineHeight: 1.6,
+                    opacity: 0.8,
+                    margin: '0 0 16px 0',
+                    padding: '0 16px',
+                    whiteSpace: 'pre-wrap'
+                  }}
+                >
+                  {targetUser.bio}
+                </p>
               )}
 
-              {/* Botão de Enviar Sussurro (quando inspecionando outro aventureiro) */}
+              {/* Enviar Sussurro (ao inspecionar outro aventureiro) */}
               {!isSelf && onStartDirectChat && (
                 <button
                   type="button"
@@ -809,220 +575,58 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
                     onStartDirectChat(targetUser);
                     onClose();
                   }}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    width: '100%',
-                    backgroundColor: targetUser.customBadgeColor || '#d97706',
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: '10px',
-                    padding: '12px 18px',
-                    fontSize: '13px',
-                    fontWeight: 700,
-                    fontFamily: "'Cinzel Hero', Georgia, serif",
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
-                    transition: 'all 0.2s'
-                  }}
+                  style={{ ...navRow(true), marginBottom: '16px' }}
                 >
-                  <MessageSquare size={16} />
-                  <span>Enviar Sussurro</span>
+                  <span style={rowLabel}>Enviar Sussurro</span>
+                  <span style={rowValue}><MessageSquare size={16} /></span>
                 </button>
               )}
 
-              {/* Ficha & Atributos */}
-              <div>
-                <span
-                  style={{
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.06em',
-                    color: '#A89A85',
-                    fontFamily: "'Inter', sans-serif",
-                    display: 'block',
-                    marginBottom: '8px'
-                  }}
-                >
-                  Ficha do Personagem
-                </span>
+              {/* Linha divisória sutil */}
+              <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', margin: '16px 0' }} />
 
+              {/* Bloco inferior agrupado (ações da conta) */}
+              {isSelf ? (
                 <div
                   style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
-                    gap: '10px'
-                  }}
-                >
-                  {/* Classe */}
-                  <div
-                    style={{
-                      backgroundColor: '#251810',
-                      border: '1px solid rgba(244, 237, 221, 0.1)',
-                      borderRadius: '10px',
-                      padding: '10px 12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px'
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '8px',
-                        backgroundColor: 'rgba(217, 119, 6, 0.15)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: activeColor,
-                        flexShrink: 0
-                      }}
-                    >
-                      <Shield size={16} />
-                    </div>
-                    <div>
-                      <span style={{ display: 'block', fontSize: '10px', color: '#A89A85', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                        Classe
-                      </span>
-                      <strong style={{ fontSize: '12px', color: '#F4EDDD' }}>
-                        {targetUser.favoriteClass || 'Aventureiro'}
-                      </strong>
-                    </div>
-                  </div>
-
-                  {/* Dados */}
-                  <div
-                    style={{
-                      backgroundColor: '#251810',
-                      border: '1px solid rgba(244, 237, 221, 0.1)',
-                      borderRadius: '10px',
-                      padding: '10px 12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px'
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '8px',
-                        backgroundColor: 'rgba(217, 119, 6, 0.15)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#FCD34D',
-                        flexShrink: 0
-                      }}
-                    >
-                      <Dices size={16} />
-                    </div>
-                    <div>
-                      <span style={{ display: 'block', fontSize: '10px', color: '#A89A85', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                        Dados da Sorte
-                      </span>
-                      <strong style={{ fontSize: '12px', color: '#F4EDDD' }}>
-                        {targetUser.diceTheme || 'Dourado Nobre'}
-                      </strong>
-                    </div>
-                  </div>
-
-                  {/* Selo de Cera */}
-                  <div
-                    style={{
-                      backgroundColor: '#251810',
-                      border: '1px solid rgba(244, 237, 221, 0.1)',
-                      borderRadius: '10px',
-                      padding: '10px 12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px'
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: '28px',
-                        height: '28px',
-                        borderRadius: '50%',
-                        backgroundColor: activeColor,
-                        border: '2px solid rgba(244, 237, 221, 0.3)',
-                        boxShadow: 'inset 0 1px 3px rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.5)',
-                        flexShrink: 0
-                      }}
-                    />
-                    <div>
-                      <span style={{ display: 'block', fontSize: '10px', color: '#A89A85', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                        Selo de Cera
-                      </span>
-                      <strong style={{ fontSize: '12px', color: '#F4EDDD' }}>
-                        {activeBadgeObj?.name || 'Insígnia'}
-                      </strong>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Pergaminho de Lore / Crônicas Pessoais */}
-              <div
-                style={{
-                  backgroundColor: '#251810',
-                  border: '1px solid rgba(212, 163, 89, 0.25)',
-                  borderRadius: '12px',
-                  padding: '16px',
-                  position: 'relative'
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.06em',
-                    color: '#FCD34D',
-                    fontFamily: "'Cinzel Hero', Georgia, serif",
-                    marginBottom: '8px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.02)',
+                    border: '1px solid rgba(255, 255, 255, 0.06)',
+                    borderRadius: '12px',
+                    padding: '6px',
                     display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
+                    flexDirection: 'column',
+                    gap: '2px'
                   }}
                 >
-                  <Sparkles size={13} style={{ color: '#d97706' }} />
-                  Crônicas & Lore do Personagem
+                  <button type="button" id="option-customize-profile" onClick={() => setIsEditing(true)} style={footerBtn()} onMouseEnter={footHoverIn} onMouseLeave={footHoverOut}>
+                    <Edit3 size={15} style={{ opacity: 0.75, color: '#D4A359', flexShrink: 0 }} />
+                    <span style={{ flex: 1 }}>Personalizar Perfil</span>
+                  </button>
+                  {onOpenChangePassword && (
+                    <button type="button" id="option-change-password" onClick={onOpenChangePassword} style={footerBtn()} onMouseEnter={footHoverIn} onMouseLeave={footHoverOut}>
+                      <KeyRound size={15} style={{ opacity: 0.75, color: '#D4A359', flexShrink: 0 }} />
+                      <span style={{ flex: 1 }}>Trocar Senha</span>
+                    </button>
+                  )}
+                  {isSuperAdmin && onOpenAdmin && (
+                    <button type="button" id="option-admin-panel" onClick={onOpenAdmin} style={footerBtn('#D4A359')} onMouseEnter={footHoverIn} onMouseLeave={footHoverOut}>
+                      <Shield size={15} style={{ opacity: 0.9, flexShrink: 0 }} />
+                      <span style={{ flex: 1 }}>Área Administrativa</span>
+                    </button>
+                  )}
+                  {onLogout && (
+                    <button type="button" id="option-logout" onClick={onLogout} style={footerBtn('#EAE0D5', 0.65)} onMouseEnter={footHoverIn} onMouseLeave={footHoverOut}>
+                      <LogOut size={15} style={{ opacity: 0.7, flexShrink: 0 }} />
+                      <span style={{ flex: 1 }}>Sair da Conta</span>
+                    </button>
+                  )}
                 </div>
-                <p
-                  style={{
-                    fontSize: '14px',
-                    lineHeight: 1.6,
-                    color: '#E0D7C6',
-                    margin: 0,
-                    fontFamily: "'Alegreya', Georgia, serif",
-                    whiteSpace: 'pre-wrap'
-                  }}
-                >
-                  {targetUser.bio || 'Este aventureiro ainda não escreveu suas crônicas. O mistério envolve seu passado nas mesas da taverna...'}
-                </p>
-              </div>
-
-              {/* Rodapé de Registro na Taverna */}
-              <div
-                style={{
-                  borderTop: '1px solid rgba(244, 237, 221, 0.1)',
-                  paddingTop: '12px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  fontSize: '11px',
-                  color: '#A89A85'
-                }}
-              >
-                <span>Acolhido na Taberna Digital em {new Date(targetUser.createdAt).toLocaleDateString('pt-BR')}</span>
-                <span style={{ fontStyle: 'italic' }}>Taberna Digital</span>
-              </div>
-            </div>
+              ) : (
+                <div style={{ fontSize: '12px', letterSpacing: '0.08em', opacity: 0.55, textAlign: 'center', fontStyle: 'italic' }}>
+                  Acolhido na Taberna Digital em {new Date(targetUser.createdAt).toLocaleDateString('pt-BR')}
+                </div>
+              )}
+            </>
           ) : (
             /* Modo de Edição / Personalização do Perfil na Aba Lateral */
             <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>

@@ -22,7 +22,7 @@ import { storageService, ADMIN_EMAIL } from './services/storage';
 import { firebaseAuthService, db, auth, isLiveFirebaseConfigured } from './services/firebase';
 import { cloudCampaigns } from './services/cloudCampaigns';
 import { tavernAudio } from './services/tavernAudio';
-import { Campaign, CharacterSheet, LoreEntry, RuleDocument, SketchAsset, UserProfile } from './types';
+import { Campaign, CampaignProgress, CharacterSheet, LoreEntry, RuleDocument, SketchAsset, UserProfile } from './types';
 
 export type RoomId = 'I' | 'II' | 'III' | 'IV' | 'V';
 
@@ -272,6 +272,25 @@ export function App() {
     if (ok) reloadData();
   };
 
+  const canGenerateImages =
+    !!currentUser &&
+    (currentUser.role === 'admin' ||
+      currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase() ||
+      currentUser.canGenerateImages === true);
+
+  const handleSetImageGeneration = async (uid: string, allowed: boolean) => {
+    if (!currentUser) return;
+    const ok = await firebaseAuthService.setImageGeneration(uid, allowed, currentUser.email);
+    if (ok) reloadData();
+  };
+
+  const handleRequestImageGeneration = async () => {
+    if (!currentUser) return;
+    await firebaseAuthService.requestImageGeneration(currentUser.uid);
+    setCurrentUser({ ...currentUser, imageRequestPending: true });
+    reloadData();
+  };
+
   const handleRejectUser = async (uid: string) => {
     if (!currentUser) return;
     const ok = await firebaseAuthService.rejectUser(uid, currentUser.email);
@@ -342,6 +361,22 @@ export function App() {
       );
       setSelectedCampaignId(remaining[0]?.id || null);
     }
+    return res;
+  };
+
+  const handleTransferMaster = async (campaignId: string, newMasterUid: string) => {
+    if (!currentUser) return { success: false, error: 'Usuário não autenticado.' };
+    const campaign = storageService.getCampaigns().find(c => c.id === campaignId);
+    if (!campaign) return { success: false, error: 'Campanha não encontrada.' };
+    const res = await cloudCampaigns.transferMaster(campaign, newMasterUid, currentUser);
+    setCampaigns(storageService.getCampaigns());
+    return res;
+  };
+
+  const handleSaveProgress = (campaignId: string, data: Omit<CampaignProgress, 'updatedAt' | 'updatedBy'>) => {
+    if (!currentUser) return { success: false, error: 'Usuário não autenticado.' };
+    const res = storageService.saveCampaignProgress(campaignId, currentUser, data);
+    reloadData();
     return res;
   };
 
@@ -723,6 +758,7 @@ export function App() {
           <div className="awwwards-gallery-stage gallery-desktop-only">
             {activeRoom === 'I' ? (
               <div className="gallery-diptych">
+                <span className="gallery-side-title gallery-side-title--left" aria-hidden="true">Mesa dos Apostadores</span>
                 <button
                   type="button"
                   className="gallery-frame gallery-frame--diptych"
@@ -734,7 +770,6 @@ export function App() {
                   aria-label="Fundar Mesa e Mestrar"
                 >
                   <img src={ROOM_I_FRAMES.left} alt="Fundar Mesa • Mestrar" draggable={false} />
-                  <span className="gallery-microcaption">Fundar Mesa • Mestrar</span>
                 </button>
                 <button
                   type="button"
@@ -747,11 +782,12 @@ export function App() {
                   aria-label="Ingressar em Sala com Código"
                 >
                   <img src={ROOM_I_FRAMES.right} alt="Ingressar em Sala • Código" draggable={false} />
-                  <span className="gallery-microcaption">Ingressar em Sala • Código</span>
                 </button>
+                <span className="gallery-side-title gallery-side-title--right" aria-hidden="true">Mesa dos Apostadores</span>
               </div>
             ) : activeRoom === 'IV' ? (
               <div className="gallery-diptych">
+                <span className="gallery-side-title gallery-side-title--left" aria-hidden="true">Recanto dos Bardos</span>
                 <button
                   type="button"
                   className="gallery-frame gallery-frame--diptych"
@@ -763,7 +799,6 @@ export function App() {
                   aria-label="Mensagens e Confraria"
                 >
                   <img src={ROOM_IV_FRAMES.left} alt="Mensagens e Confraria" draggable={false} />
-                  <span className="gallery-microcaption">Mensagens • Confraria</span>
                 </button>
                 <button
                   type="button"
@@ -776,10 +811,12 @@ export function App() {
                   aria-label="Jogadores e Contatos"
                 >
                   <img src={ROOM_IV_FRAMES.right} alt="Jogadores e Contatos" draggable={false} />
-                  <span className="gallery-microcaption">Jogadores • Contatos</span>
                 </button>
+                <span className="gallery-side-title gallery-side-title--right" aria-hidden="true">Recanto dos Bardos</span>
               </div>
             ) : (
+              <div className="gallery-single">
+              <h2 className="gallery-top-title">{ROOMS[activeRoom].name}</h2>
               <button
                 type="button"
                 className={`gallery-frame ${GALLERY_FRAME_CLASS[activeRoom]}`}
@@ -790,8 +827,8 @@ export function App() {
                 aria-label={`Adentrar em ${currentTheme.name}`}
               >
                 <img src={currentTheme.imageUrl} alt={currentTheme.name} draggable={false} />
-                <span className="gallery-microcaption">{currentTheme.name}</span>
               </button>
+              </div>
             )}
           </div>
           <MobileRoomBanners
@@ -825,6 +862,8 @@ export function App() {
                 onJoinByKey={handleJoinByKey}
                 onRegenerateKey={handleRegenerateKey}
                 onRemovePlayer={handleRemovePlayer}
+                onTransferMaster={handleTransferMaster}
+                onSaveProgress={handleSaveProgress}
                 onCreateCampaign={handleCreateCampaign}
                 onUpdateCampaign={handleUpdateCampaign}
                 onDeleteCampaign={handleDeleteCampaign}
@@ -867,6 +906,9 @@ export function App() {
                 activeCampaignId={selectedCampaignId}
                 onSaveSketch={handleSaveSketch}
                 onDeleteSketch={handleDeleteSketch}
+                canGenerate={canGenerateImages}
+                permissionRequested={!!currentUser?.imageRequestPending}
+                onRequestPermission={handleRequestImageGeneration}
               />
             )}
 
@@ -1315,6 +1357,7 @@ export function App() {
         campaigns={campaigns}
         onApproveUser={handleApproveUser}
         onRejectUser={handleRejectUser}
+        onSetImageGeneration={handleSetImageGeneration}
       />
 
       <ChangePasswordModal

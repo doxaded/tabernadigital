@@ -299,6 +299,30 @@ export const firebaseAuthService = {
     return storageService.approveUser(uid, adminEmail);
   },
 
+  /** Libera/bloqueia a geração de imagens (Telas do Alaúde) para um usuário — somente Administrador */
+  async setImageGeneration(uid: string, allowed: boolean, adminEmail: string): Promise<boolean> {
+    if (isLiveFirebaseConfigured) {
+      try {
+        await updateDoc(doc(db, 'users', uid), { canGenerateImages: allowed, imageRequestPending: false });
+      } catch (err) {
+        console.warn('Falha ao atualizar permissão no Firestore:', err);
+      }
+    }
+    return storageService.setImageGeneration(uid, allowed, adminEmail);
+  },
+
+  /** Jogador solicita permissão de geração de imagens ao Administrador */
+  async requestImageGeneration(uid: string): Promise<boolean> {
+    if (isLiveFirebaseConfigured) {
+      try {
+        await updateDoc(doc(db, 'users', uid), { imageRequestPending: true });
+      } catch (err) {
+        console.warn('Falha ao solicitar permissão no Firestore:', err);
+      }
+    }
+    return storageService.requestImageGeneration(uid);
+  },
+
   async rejectUser(uid: string, adminEmail: string): Promise<boolean> {
     if (isLiveFirebaseConfigured) {
       try {

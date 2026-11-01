@@ -1,5 +1,6 @@
 import {
   Campaign,
+  CampaignProgress,
   CharacterSheet,
   ChatMessage,
   CustomChatRoom,
@@ -668,6 +669,30 @@ export const storageService = {
     return true;
   },
 
+  setImageGeneration(targetUid: string, allowed: boolean, adminEmail: string): boolean {
+    if (adminEmail.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) return false;
+    const users = this.getUsers();
+    const target = users.find(u => u.uid === targetUid);
+    if (!target) return false;
+    target.canGenerateImages = allowed;
+    target.imageRequestPending = false;
+    this.saveUsers(users);
+    const current = this.getCurrentUser();
+    if (current && current.uid === targetUid) this.setCurrentUser(target);
+    return true;
+  },
+
+  requestImageGeneration(targetUid: string): boolean {
+    const users = this.getUsers();
+    const target = users.find(u => u.uid === targetUid);
+    if (!target) return false;
+    target.imageRequestPending = true;
+    this.saveUsers(users);
+    const current = this.getCurrentUser();
+    if (current && current.uid === targetUid) this.setCurrentUser(target);
+    return true;
+  },
+
   rejectUser(targetUid: string, adminEmail: string): boolean {
     if (adminEmail.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
       return false;
@@ -845,6 +870,41 @@ export const storageService = {
       return { success: false, error: 'Apenas o Mestre pode remover outros jogadores.' };
     }
     campaign.players = (campaign.players || []).filter(p => p.uid !== playerUid);
+    this.saveCampaigns(campaigns);
+    return { success: true };
+  },
+
+  // Passa o manto de Mestre: o novo mestre recebe todas as permissões e o antigo vira jogador
+  transferMaster(campaignId: string, newMasterUid: string, user: UserProfile): { success: boolean; error?: string } {
+    const campaigns = this.getCampaigns();
+    const campaign = campaigns.find(c => c.id === campaignId);
+    if (!campaign) return { success: false, error: 'Campanha não encontrada.' };
+    if (campaign.masterId !== user.uid && user.role !== 'admin') {
+      return { success: false, error: 'Apenas o Mestre atual pode passar o manto.' };
+    }
+    const players = campaign.players || [];
+    const next = players.find(p => p.uid === newMasterUid);
+    if (!next) return { success: false, error: 'Aventureiro não encontrado nesta mesa.' };
+    const oldPlayer: RoomPlayer = {
+      uid: campaign.masterId,
+      name: campaign.masterName,
+      joinedAt: new Date().toISOString(),
+    };
+    campaign.players = [...players.filter(p => p.uid !== newMasterUid), oldPlayer];
+    campaign.masterId = next.uid;
+    campaign.masterName = next.name;
+    this.saveCampaigns(campaigns);
+    return { success: true };
+  },
+
+  // Crônicas e Progresso da Mesa (mestre, admin ou jogadores da sala)
+  saveCampaignProgress(campaignId: string, user: UserProfile, data: Omit<CampaignProgress, 'updatedAt' | 'updatedBy'>): { success: boolean; error?: string } {
+    const campaigns = this.getCampaigns();
+    const campaign = campaigns.find(c => c.id === campaignId);
+    if (!campaign) return { success: false, error: 'Campanha não encontrada.' };
+    const allowed = campaign.masterId === user.uid || user.role === 'admin' || !!campaign.players?.some(p => p.uid === user.uid);
+    if (!allowed) return { success: false, error: 'Sem permissão para salvar o progresso desta mesa.' };
+    campaign.progress = { ...data, updatedAt: new Date().toISOString(), updatedBy: user.displayName };
     this.saveCampaigns(campaigns);
     return { success: true };
   },

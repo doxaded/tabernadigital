@@ -7111,29 +7111,31 @@ h1, h2, h3, h4, .font-cinzel {
   justify-content: center;
   gap: 20px;
 }
-.gallery-microcaption {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 28px 12px 14px;
+.gallery-single { display: flex; flex-direction: column; align-items: center; }
+.gallery-top-title {
+  margin: 0 0 clamp(18px, 3vh, 30px);
   font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
-  font-weight: 300;
-  font-style: italic;
-  font-size: 14px;
-  letter-spacing: 0.14em;
+  font-weight: 400;
+  font-size: clamp(18px, 1.7vw, 26px);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
   text-align: center;
-  color: #f1e6d2;
-  background: linear-gradient(to top, rgba(16, 9, 5, 0.65), transparent);
-  opacity: 0;
-  transform: translateY(4px);
-  transition: opacity 350ms ease, transform 350ms ease;
-  pointer-events: none;
+  color: #EAE0D5;
 }
-.gallery-frame:hover .gallery-microcaption,
-.gallery-frame:focus-visible .gallery-microcaption {
-  opacity: 0.95;
-  transform: translateY(0);
+.gallery-side-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-size: 15px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #EAE0D5;
+  opacity: 0.9;
+  white-space: nowrap;
+  user-select: none;
 }
 @media (max-width: 640px) {
   .gallery-diptych { gap: 16px; }

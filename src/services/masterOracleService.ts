@@ -1,6 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 import { Campaign, CharacterSheet, CompendiumDoc, LoreEntry } from '../types';
 import { getEffectiveGeminiKey } from './aiService';
+import { formatCampaignProgress } from './campaignContext';
 
 export interface CompendiumData {
   version: string;
@@ -206,6 +207,8 @@ export const masterOracleService = {
       ? activeCampaign.lore.slice(0, 5).map(l => `- [${l.category.toUpperCase()}] "${l.title}": ${l.content.slice(0, 180)}...`).join('\n')
       : 'Nenhuma crônica registrada ainda na sala.';
 
+    const progressSummary = formatCampaignProgress(activeCampaign);
+
     let ragContextText = '';
     if (retrievedDocs.length > 0) {
       ragContextText = '=== REGRAS OFICIAIS DO D&D 2024 (RAG) ===\n' +
@@ -224,7 +227,7 @@ Você é um árbitro supremo das regras oficiais de D&D 5ª Edição (2024 Free 
 ${sheetsSummary}
 - Crônicas & Rumores Ativos:
 ${loreSummary}
-
+${progressSummary ? '\n=== CRÔNICAS E PROGRESSO DA MESA (salvo pelo grupo) ===\n' + progressSummary + '\n' : ''}
 === DIRETRIZES FUNDAMENTAIS (REGRAS MANDATÓRIAS DO PROJETO) ===
 1. Idioma & Tom: Responda SEMPRE em Português do Brasil com tom erudito, medieval, direto e prático para o Mestre durante a sessão.
 2. Fidelidade às Regras Oficiais: Baseie-se estritamente nas regras oficiais do D&D 2024 fornecidas no contexto. Use nomenclatura bilíngue para mecânicas (ex: Pontos de Vida (PV / Hit Points), Classe de Armadura (CA / Armor Class), Nível de Desafio (ND / CR), Teste de Resistência (Saving Throw)).
