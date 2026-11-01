@@ -101,7 +101,7 @@ export const ROOMS: Record<RoomId, RoomConfig> = {
     textColor: '#EAE0D5', // Pergaminho Claro
     borderColor: 'rgba(212, 163, 89, 0.18)',
     accentColor: '#D4A359',
-    imageUrl: '/assets/banner_recanto_barris_v2.jpg',
+    imageUrl: '/assets/room_IV_mensagens_v2.jpg',
   },
   V: {
     id: 'V',
@@ -128,8 +128,8 @@ const ROOM_I_FRAMES = {
 
 // Imagens do díptico da Sala IV (esquerda: Mensagens · direita: Jogadores)
 const ROOM_IV_FRAMES = {
-  left: '/assets/banner_recanto_barris_v2.jpg',
-  right: '/assets/banner_recanto_bardos.jpg',
+  left: '/assets/room_IV_mensagens_v2.jpg',
+  right: '/assets/room_IV_aliancas_v2.jpg',
 };
 
 // Geometria do quadro central por sala (ritmo visual entre as abas)
